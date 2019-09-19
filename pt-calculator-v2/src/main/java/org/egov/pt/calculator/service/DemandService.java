@@ -84,9 +84,8 @@ public class DemandService {
 	 */
 	public Map<String, Calculation> generateDemands(CalculationReq request) {
 		//Skipping migrated criterias
-		//TODO : Check MUNICIPAL_RECORDS is used for migrated or not.
 		List<CalculationCriteria> criterias = request.getCalculationCriteria().stream().filter(criteria -> !criteria
-				.getProperty().getPropertyDetails().get(0).getSource().equals(SourceEnum.MUNICIPAL_RECORDS))
+				.getProperty().getPropertyDetails().get(0).getSource().equals(SourceEnum.LEGACY_RECORD))
 				.collect(Collectors.toList());
 		List<Demand> demands = new ArrayList<>();
 		List<String> lesserAssessments = new ArrayList<>();
