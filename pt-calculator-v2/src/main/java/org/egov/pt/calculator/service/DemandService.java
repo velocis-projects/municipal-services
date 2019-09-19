@@ -19,6 +19,7 @@ import org.egov.pt.calculator.web.models.property.OwnerInfo;
 import org.egov.pt.calculator.web.models.property.Property;
 import org.egov.pt.calculator.web.models.property.PropertyDetail;
 import org.egov.pt.calculator.web.models.property.RequestInfoWrapper;
+import org.egov.pt.calculator.web.models.property.PropertyDetail.SourceEnum;
 import org.egov.tracer.model.CustomException;
 import org.egov.tracer.model.ServiceCallException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,8 +83,11 @@ public class DemandService {
 	 * @return
 	 */
 	public Map<String, Calculation> generateDemands(CalculationReq request) {
-
-		List<CalculationCriteria> criterias = request.getCalculationCriteria();
+		//Skipping migrated criterias
+		//TODO : Check MUNICIPAL_RECORDS is used for migrated or not.
+		List<CalculationCriteria> criterias = request.getCalculationCriteria().stream().filter(criteria -> !criteria
+				.getProperty().getPropertyDetails().get(0).getSource().equals(SourceEnum.MUNICIPAL_RECORDS))
+				.collect(Collectors.toList());
 		List<Demand> demands = new ArrayList<>();
 		List<String> lesserAssessments = new ArrayList<>();
 		Map<String, String> consumerCodeFinYearMap = new HashMap<>();
@@ -133,6 +137,7 @@ public class DemandService {
 		DemandResponse res = new DemandResponse();
 
 		try {
+			if(!CollectionUtils.isEmpty(demands))
 			res = restTemplate.postForObject(url, dmReq, DemandResponse.class);
 
 		} catch (HttpClientErrorException e) {
