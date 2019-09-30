@@ -49,10 +49,12 @@ const createDemand = async (requestInfo, calculations, mdms) => {
     let fireNoc = calculation.fireNoc;
     let fnYear = get(fireNoc, "fireNOCDetails.financialYear");
     let FYData = FinancialYearsData.find(i => i.code == fnYear);
+    let payer = get(fireNoc, "fireNOCDetails.applicantDetails.owners[0]");
     let demand = {
       tenantId,
       consumerCode,
       consumerType: "FIRENOC",
+      payer,
       businessService: envVariables.BUSINESSSERVICE,
       taxPeriodFrom: FYData.startingDate,
       taxPeriodTo: FYData.endingDate,
