@@ -11,12 +11,12 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.validation.annotation.Validated;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.validation.annotation.Validated;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -95,7 +95,7 @@ public class PropertyDetail   {
         private Long noOfFloors;
 
         @JsonProperty("landArea")
-        private Double landArea;
+        private BigDecimal landArea;
 
         @JsonProperty("buildUpArea")
         private Double buildUpArea;

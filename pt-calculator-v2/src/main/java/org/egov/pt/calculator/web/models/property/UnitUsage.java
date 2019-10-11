@@ -1,10 +1,10 @@
 package org.egov.pt.calculator.web.models.property;
 
-import org.springframework.validation.annotation.Validated;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+
+import org.springframework.validation.annotation.Validated;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,22 +23,22 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UnitUsage   {
-        @JsonProperty("usage")
-        private String usage;
+public class UnitUsage {
+  @JsonProperty("usage")
+  private String usage;
 
-        @JsonProperty("fromDate")
-        private Long fromDate;
+  @JsonProperty("fromDate")
+  private Long fromDate;
 
-        @JsonProperty("toDate")
-        private Long toDate;
+  @JsonProperty("toDate")
+  private Long toDate;
 
-              /**
+  /**
    * end date for the unit usage.
    */
   public enum OccupancyTypeEnum {
     OWNER("Owner"),
-    
+
     TENANT("Tenant");
 
     private String value;
@@ -64,9 +64,7 @@ public class UnitUsage   {
     }
   }
 
-        @JsonProperty("occupancyType")
-        private OccupancyTypeEnum occupancyType;
-
+  @JsonProperty("occupancyType")
+  private OccupancyTypeEnum occupancyType;
 
 }
-

@@ -27,29 +27,21 @@ public class CalculatorConstants {
 
 	public static final String PT_TAX = "PT_TAX";
 
-	public static final String PT_UNIT_USAGE_EXEMPTION = "PT_UNIT_USAGE_EXEMPTION";
+	public static final String PT_ADVANCE_CARRYFORWARD ="PT_ADVANCE_CARRYFORWARD";
 
-	public static final String PT_OWNER_EXEMPTION = "PT_OWNER_EXEMPTION";
+	public static final String  PT_TIME_INTEREST = "PT_TIME_INTEREST";
+
+	public static final String PT_USAGE_EXEMPTION = "PT_UNIT_USAGE_EXEMPTION";
+
+	public static final String PT_ADHOC_REBATE = "PT_ADHOC_REBATE";	
 
 	public static final String PT_TIME_REBATE = "PT_TIME_REBATE";
 
-	public static final String PT_TIME_PENALTY = "PT_TIME_PENALTY";
-
-	public static final String PT_TIME_INTEREST = "PT_TIME_INTEREST";
-
-	public static final String PT_ADVANCE_CARRYFORWARD = "PT_ADVANCE_CARRYFORWARD";
-
-	public static final String PT_FIRE_CESS = "PT_FIRE_CESS";
-
-	public static final String PT_CANCER_CESS = "PT_CANCER_CESS";
-
 	public static final String PT_ADHOC_PENALTY = "PT_ADHOC_PENALTY";
 
-	public static final String PT_ADHOC_REBATE = "PT_ADHOC_REBATE";
+	public static final String PT_TIME_PENALTY = "PT_TIME_PENALTY";
 
-//	public static final String PT_DECIMAL_CEILING_CREDIT = "PT_DECIMAL_CEILING_CREDIT";
-	
-//	public static final String PT_DECIMAL_CEILING_DEBIT = "PT_DECIMAL_CEILING_DEBIT";
+	public static final String PT_LATE_ASSESSMENT_PENALTY = "PT_LATE_ASSESSMENT_PENALTY";
 
 	public static final String PT_ROUNDOFF = "PT_ROUNDOFF";
 	
@@ -59,18 +51,18 @@ public class CalculatorConstants {
 			.asList(PT_TAX));
 	
 	public static final List<String> TAXES_TO_BE_SUBTRACTED_WHEN_CALCULATING_REBATE_AND_PENALTY = Collections.unmodifiableList(Arrays
-			.asList(PT_OWNER_EXEMPTION, PT_UNIT_USAGE_EXEMPTION ));
+			.asList(PT_USAGE_EXEMPTION ));
 
 	public static final List<String> TAXES_TO_BE_CONSIDERD = Collections.unmodifiableList(Arrays
-			.asList(PT_TAX,PT_OWNER_EXEMPTION, PT_UNIT_USAGE_EXEMPTION ));
+			.asList(PT_TAX, PT_USAGE_EXEMPTION ));
 	/*
 	 * these lists has to be updated with every new additional taxes which will be applied on the principle tax(PT_TAX)  
 	 */
 	public static final List<String> ADDITIONAL_TAXES = Collections.unmodifiableList(Arrays
-			.asList(PT_FIRE_CESS, PT_ADHOC_PENALTY, PT_CANCER_CESS));
+			.asList(PT_ADHOC_PENALTY, PT_TIME_PENALTY, PT_LATE_ASSESSMENT_PENALTY));
 					
 	public static final List<String> ADDITIONAL_DEBITS = Collections.unmodifiableList(Arrays
-							.asList( PT_ADHOC_REBATE));					
+							.asList( PT_ADHOC_REBATE, PT_TIME_REBATE ));					
 
 	/*
 	 * Mdms constants
@@ -85,6 +77,12 @@ public class CalculatorConstants {
 	public static final String USAGE_MINOR_MASTER = "UsageCategoryMinor";
 
 	public static final String USAGE_SUB_MINOR_MASTER = "UsageCategorySubMinor";
+
+	public static final String PENALTY_INTREST_RATE = "Interest";
+
+	public static final String LATE_ASSESSMENT_PENALTY = "Penalty";
+
+	public static final String TAX_RATE = "TaxRate";
 
 	public static final String USAGE_DETAIL_MASTER = "UsageCategoryDetail";
 
@@ -103,7 +101,7 @@ public class CalculatorConstants {
 	public static final String INTEREST_MASTER = "Interest";
 
 	public static final List<String> PROPERTY_BASED_EXEMPTION_MASTERS = Collections.unmodifiableList(Arrays.asList(
-			USAGE_MAJOR_MASTER, USAGE_MINOR_MASTER, USAGE_SUB_MINOR_MASTER, USAGE_DETAIL_MASTER, OWNER_TYPE_MASTER));
+			USAGE_MAJOR_MASTER, USAGE_MINOR_MASTER, USAGE_SUB_MINOR_MASTER, LATE_ASSESSMENT_PENALTY, PENALTY_INTREST_RATE, TAX_RATE));
 	
 	public static final List<Category> DEBIT_CATEGORIES = Collections.unmodifiableList(Arrays.asList(Category.REBATE, Category.EXEMPTION));
 
@@ -150,6 +148,12 @@ public class CalculatorConstants {
 	 */
 
 	public static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
+	public static final BigDecimal ROOMS_AREA_MULTIPLIER = BigDecimal.ONE;
+	public static final BigDecimal COMMON_AREA_MULTIPLIER = BigDecimal.valueOf(0.5) ;
+	public static final BigDecimal GARAGE_AREA_MULTIPLIER = BigDecimal.valueOf(0.25);
+	public static final BigDecimal BATHROOM_AREA_MULTIPLIER = BigDecimal.ZERO;
+	public static final BigDecimal COVERED_AREA_MULTIPLIER = BigDecimal.valueOf(0.80);
+
 
 	/*
 	 * Field Name constants
@@ -189,6 +193,18 @@ public class CalculatorConstants {
 	public static final String TAXPERIOD_MASTER_KEY = "TAXPERIOD";
 
 	public static final String TAXHEADMASTER_MASTER_KEY = "TAXHEADMASTER";
+	
+	public static final String ROAD_TYPE = "RoadType";
+
+	public static final String ROAD_TYPE_JSON_STRING = "roadType";
+
+	public static final String ONE_TIME_PENALTY_JSON_STRING = "oneTimePenalty";
+
+	public static final String ONE_TIME_REBATE_JSON_STRING = "oneTimeRebate";
+
+	public static final String AD_HOC_REBATE_JSON_STRING = "adHocRebate";
+	
+	public static final String DEPRECIATION_APPRECIATION = "DepreciationAppreciation";
 
 	/*
 	 * billing service field names
@@ -274,6 +290,16 @@ public class CalculatorConstants {
 	
 	public static final String EG_PT_INVALID_DEMAND_ERROR = "EG_PT_INVALID_DEMAND_ERROR";
 	public static final String EG_PT_INVALID_DEMAND_ERROR_MSG = " Bill cannot be generated for previous assessments in a year, please use the latest assesmment to pay";
+
+	public static final String RESIDENTIAL = "RESIDENTIAL";
+
+	public static final String NONRESIDENTIAL = "NONRESIDENTIAL";
+	
+	public static final String BUILTUP = "BUILTUP";
+
+	public static final String RENTED = "RENTED";
+
+
 
     public static final Long TIMEZONE_OFFSET = 19800000l;
 

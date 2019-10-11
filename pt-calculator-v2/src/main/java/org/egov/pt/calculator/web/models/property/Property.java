@@ -4,16 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.validation.annotation.Validated;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import org.springframework.validation.annotation.Validated;
+
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -74,6 +73,9 @@ public class Property extends PropertyInfo{
 	@JsonProperty("propertyDetails")
 	private List<PropertyDetail> propertyDetails;
 
+	@JsonProperty("additionalDetails")
+	private Object additionalDetails;
+
 
 	public Property addpropertyDetailsItem(PropertyDetail propertyDetailsItem) {
 		if (this.propertyDetails == null) {
@@ -83,7 +85,26 @@ public class Property extends PropertyInfo{
 		return this;
 	}
 
+	@Builder
+	public Property(String propertyId, String tenantId, String acknowldgementNumber, String oldPropertyId, StatusEnum status, Address address, AuditDetails auditDetails, CreationReasonEnum creationReason, Long occupancyDate, List<PropertyDetail> propertyDetails,Object additionalDetails) {
+		super(propertyId, tenantId, acknowldgementNumber, oldPropertyId, status, address);
+		this.auditDetails = auditDetails;
+		this.creationReason = creationReason;
+		this.occupancyDate = occupancyDate;
+		this.propertyDetails = propertyDetails;
+		this.additionalDetails = additionalDetails;
+	}
 
+}
+
+
+
+
+
+
+
+
+/*
 	public static PropertyBuilder builder(){
 		return new PropertyBuilder();
 	}
@@ -92,22 +113,15 @@ public class Property extends PropertyInfo{
 
 		private CreationReasonEnum creationReason;
 		private Long occupancyDate;
-		
-		@NotNull
-		@Valid
 		private List<PropertyDetail>  propertyDetails;
 		private AuditDetails auditDetails;
+		private String accountId;
 
 		private String propertyId;
-		
-		@NotEmpty
 		private String tenantId;
 		private String acknowldgementNumber;
 		private String oldPropertyId;
 		private StatusEnum status;
-		
-		@NotNull
-		@Valid
 		private Address address;
 
 
@@ -134,6 +148,11 @@ public class Property extends PropertyInfo{
 
 		public PropertyBuilder propertyId(String propertyId){
 			this.propertyId =propertyId ;
+			return this;
+		}
+
+		public PropertyBuilder accountId(String accountId){
+			this.accountId =accountId ;
 			return this;
 		}
 
@@ -176,6 +195,16 @@ public class Property extends PropertyInfo{
 		this.creationReason = builder.creationReason;
 		this.occupancyDate = builder.occupancyDate;
 		this.propertyDetails = builder.propertyDetails;
+		this.accountId=builder.accountId;
+	}*/
 
-	}
-}
+
+
+	/*public Property(AuditDetails auditDetails, String accountId, CreationReasonEnum creationReason, Long occupancyDate, List<PropertyDetail> propertyDetails) {
+		this.auditDetails = auditDetails;
+		this.accountId = accountId;
+		this.creationReason = creationReason;
+		this.occupancyDate = occupancyDate;
+		this.propertyDetails = propertyDetails;
+	}*/
+

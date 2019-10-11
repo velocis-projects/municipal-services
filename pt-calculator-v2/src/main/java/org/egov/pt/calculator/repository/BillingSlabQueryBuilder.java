@@ -41,23 +41,25 @@ public class BillingSlabQueryBuilder {
 			preparedStmtList.add(billingSlabSearcCriteria.getPropertyType());
 		}
 
-		if (!StringUtils.isEmpty(billingSlabSearcCriteria.getPropertySubType())) {
 
-			queryBuilder.append(" AND propertySubType = ?");
-			preparedStmtList.add(billingSlabSearcCriteria.getPropertySubType());
+		if (!StringUtils.isEmpty(billingSlabSearcCriteria.getMohalla())) {
+
+			queryBuilder.append(" AND mohalla = ?");
+			preparedStmtList.add(billingSlabSearcCriteria.getMohalla());
 		}
 
-		if (!StringUtils.isEmpty(billingSlabSearcCriteria.getUsageCategoryMajor())) {
+		if (!StringUtils.isEmpty(billingSlabSearcCriteria.getRoadType())) {
 
-			queryBuilder.append(" AND usageCategoryMajor = ?");
-			preparedStmtList.add(billingSlabSearcCriteria.getUsageCategoryMajor());
+			queryBuilder.append(" AND roadtype = ?");
+			preparedStmtList.add(billingSlabSearcCriteria.getRoadType());
 		}
 
-		if (!StringUtils.isEmpty(billingSlabSearcCriteria.getPropertyType())) {
+		if (!StringUtils.isEmpty(billingSlabSearcCriteria.getWard())) {
 
-			queryBuilder.append(" AND usageCategoryMinor = ?");
-			preparedStmtList.add(billingSlabSearcCriteria.getUsageCategoryMinor());
+			queryBuilder.append(" AND ward = ?");
+			preparedStmtList.add(billingSlabSearcCriteria.getWard());
 		}
+
 	}
 
 	/**

@@ -1,9 +1,22 @@
 package org.egov.pt.calculator.service;
 
+import static org.egov.pt.calculator.util.CalculatorConstants.PT_TIME_INTEREST;
+import static org.egov.pt.calculator.util.CalculatorConstants.PT_TIME_PENALTY;
+import static org.egov.pt.calculator.util.CalculatorConstants.PT_TIME_REBATE;
+
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
@@ -12,14 +25,27 @@ import org.egov.pt.calculator.util.CalculatorConstants;
 import org.egov.pt.calculator.util.CalculatorUtils;
 import org.egov.pt.calculator.util.Configurations;
 import org.egov.pt.calculator.validator.CalculationValidator;
-import org.egov.pt.calculator.web.models.*;
+import org.egov.pt.calculator.web.models.Assessment;
+import org.egov.pt.calculator.web.models.Calculation;
+import org.egov.pt.calculator.web.models.CalculationCriteria;
+import org.egov.pt.calculator.web.models.CalculationReq;
+import org.egov.pt.calculator.web.models.DemandDetailAndCollection;
+import org.egov.pt.calculator.web.models.GetBillCriteria;
+import org.egov.pt.calculator.web.models.TaxHeadEstimate;
 import org.egov.pt.calculator.web.models.collections.Receipt;
-import org.egov.pt.calculator.web.models.demand.*;
+import org.egov.pt.calculator.web.models.demand.Bill;
+import org.egov.pt.calculator.web.models.demand.BillResponse;
+import org.egov.pt.calculator.web.models.demand.Demand;
+import org.egov.pt.calculator.web.models.demand.DemandDetail;
+import org.egov.pt.calculator.web.models.demand.DemandRequest;
+import org.egov.pt.calculator.web.models.demand.DemandResponse;
+import org.egov.pt.calculator.web.models.demand.TaxHeadMaster;
+import org.egov.pt.calculator.web.models.demand.TaxPeriod;
 import org.egov.pt.calculator.web.models.property.OwnerInfo;
 import org.egov.pt.calculator.web.models.property.Property;
 import org.egov.pt.calculator.web.models.property.PropertyDetail;
-import org.egov.pt.calculator.web.models.property.RequestInfoWrapper;
 import org.egov.pt.calculator.web.models.property.PropertyDetail.SourceEnum;
+import org.egov.pt.calculator.web.models.property.RequestInfoWrapper;
 import org.egov.tracer.model.CustomException;
 import org.egov.tracer.model.ServiceCallException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +54,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
-
-import static org.egov.pt.calculator.util.CalculatorConstants.*;
 
 @Service
 @Slf4j
@@ -72,65 +94,53 @@ public class DemandService {
 	@Autowired
 	private CalculationValidator validator;
 
+
+
 	/**
-	 * Generates and persists the demand to billing service for the given property
-	 * 
-	 * if the property has been assessed already for the given financial year then
-	 * 
-	 * it carry forwards the old collection amount to the new demand as advance
-	 * 
+	 * Filter request based on source
+	 * Estimates map with tax heads
+	 * Save temporary values
+	 * Generate Demand
+	 * Save assessments 
+	 * TODO handle validation
 	 * @param request
 	 * @return
 	 */
-	public Map<String, Calculation> generateDemands(CalculationReq request) {
-		//Skipping migrated criterias
+	public Map<String, Calculation> calculate(CalculationReq request) {
+		List<CalculationCriteria> requestCriterias = request.getCalculationCriteria();
 		List<CalculationCriteria> criterias = request.getCalculationCriteria().stream().filter(criteria -> !criteria
 				.getProperty().getPropertyDetails().get(0).getSource().equals(SourceEnum.LEGACY_RECORD))
 				.collect(Collectors.toList());
 		request.setCalculationCriteria(criterias);
-		List<Demand> demands = new ArrayList<>();
-		List<String> lesserAssessments = new ArrayList<>();
 		Map<String, String> consumerCodeFinYearMap = new HashMap<>();
-		
-		Map<String, Calculation> propertyCalculationMap = estimationService.getEstimationPropertyMap(request);
-		for (CalculationCriteria criteria : criterias) {
+		//validate
+		if (!CollectionUtils.isEmpty(request.getCalculationCriteria())) {
+			Map<String, Calculation> estimateMap = estimationService.getEstimationPropertyMap(request);
+			//saveIntermediateValues(estimateMap);
+			List<Demand> demands = generateDemands(request, estimateMap, consumerCodeFinYearMap);
+			assessmentService.saveAssessments(demands, consumerCodeFinYearMap, request.getRequestInfo());
+			return estimateMap;
+		} else {
+			Map<String, Calculation> estimateMap = new HashMap<String, Calculation>();
+			requestCriterias.stream().forEach(criteria -> estimateMap.put(criteria.getProperty().getPropertyDetails().get(0).getAssessmentNumber(), Calculation.builder().build()));
+			return estimateMap;
+		}
+	}
 
+
+	private List<Demand> generateDemands(CalculationReq request, Map<String, Calculation> estimateMap, Map<String, String>  consumerCodeFinYearMap) {
+
+		String tenantId = request.getCalculationCriteria().get(0).getTenantId();
+		List<Demand> demands = new ArrayList<>();
+
+		for(CalculationCriteria criteria:  request.getCalculationCriteria()){
 			PropertyDetail detail = criteria.getProperty().getPropertyDetails().get(0);
-			
-			String assessmentNumber = detail.getAssessmentNumber();
-
-			// pt_tax for the new assessment
-			BigDecimal newTax =  BigDecimal.ZERO;
-			Optional<TaxHeadEstimate> advanceCarryforwardEstimate = propertyCalculationMap.get(assessmentNumber).getTaxHeadEstimates()
-			.stream().filter(estimate -> estimate.getTaxHeadCode().equalsIgnoreCase(CalculatorConstants.PT_TAX))
-				.findAny();
-			if(advanceCarryforwardEstimate.isPresent())
-				newTax = advanceCarryforwardEstimate.get().getEstimateAmount();
-
-			// true represents that the demand should be updated from this call
-			BigDecimal carryForwardCollectedAmount = getCarryForwardAndCancelOldDemand(newTax, criteria,
-					request.getRequestInfo(), true);
-
-			if (carryForwardCollectedAmount.doubleValue() >= 0.0) {
-				Property property = criteria.getProperty();
-
-				Demand demand = prepareDemand(property,
-						propertyCalculationMap.get(property.getPropertyDetails().get(0).getAssessmentNumber()),
-						request.getRequestInfo());
-
-				demands.add(demand);
-				consumerCodeFinYearMap.put(demand.getConsumerCode(), detail.getFinancialYear());
-
-			}else {
-				lesserAssessments.add(assessmentNumber);
-			}
+			Demand demand = prepareDemand(criteria.getProperty(), estimateMap.get(detail.getAssessmentNumber()),
+			request.getRequestInfo());
+			demands.add(demand);
+			consumerCodeFinYearMap.put(demand.getConsumerCode(), detail.getFinancialYear());
 		}
-		
-		if (!CollectionUtils.isEmpty(lesserAssessments)) {
-			throw new CustomException(CalculatorConstants.EG_PT_DEPRECIATING_ASSESSMENT_ERROR,
-					CalculatorConstants.EG_PT_DEPRECIATING_ASSESSMENT_ERROR_MSG + lesserAssessments);
-		}
-		
+
 		DemandRequest dmReq = DemandRequest.builder().demands(demands).requestInfo(request.getRequestInfo()).build();
 		String url = new StringBuilder().append(configs.getBillingServiceHost())
 				.append(configs.getDemandCreateEndPoint()).toString();
@@ -144,9 +154,13 @@ public class DemandService {
 			throw new ServiceCallException(e.getResponseBodyAsString());
 		}
 		log.info(" The demand Response is : " + res);
-		assessmentService.saveAssessments(res.getDemands(), consumerCodeFinYearMap, request.getRequestInfo());
-		return propertyCalculationMap;
+
+		return res.getDemands();
 	}
+
+
+	// private void saveIntermediateValues(Map<String, Calculation> estimateMap) {
+	// }
 
 	/**
 	 * Generates and returns bill from billing service
@@ -193,10 +207,9 @@ public class DemandService {
 		if(getBillCriteria.getAmountExpected() == null) getBillCriteria.setAmountExpected(BigDecimal.ZERO);
 		validator.validateGetBillCriteria(getBillCriteria);
 		RequestInfo requestInfo = requestInfoWrapper.getRequestInfo();
-		Map<String, Map<String, List<Object>>> propertyBasedExemptionMasterMap = new HashMap<>();
-		Map<String, JSONArray> timeBasedExmeptionMasterMap = new HashMap<>();
+		Map<String, List<Object>> masterMap = new HashMap<>();
 		mstrDataService.setPropertyMasterValues(requestInfo, getBillCriteria.getTenantId(),
-				propertyBasedExemptionMasterMap, timeBasedExmeptionMasterMap);
+		masterMap);
 
 		if(CollectionUtils.isEmpty(getBillCriteria.getConsumerCodes()))
 			getBillCriteria.setConsumerCodes(Collections.singletonList(getBillCriteria.getPropertyId()+ CalculatorConstants.PT_CONSUMER_CODE_SEPARATOR +getBillCriteria.getAssessmentNumber()));
@@ -235,7 +248,7 @@ public class DemandService {
 				throw new CustomException(CalculatorConstants.EG_PT_INVALID_DEMAND_ERROR,
 						CalculatorConstants.EG_PT_INVALID_DEMAND_ERROR_MSG);
 
-			applytimeBasedApplicables(demand, requestInfoWrapper, timeBasedExmeptionMasterMap,taxPeriods);
+			//applytimeBasedApplicables(demand, requestInfoWrapper,taxPeriods);
 
 			roundOffDecimalForDemand(demand, requestInfoWrapper);
 
@@ -335,7 +348,6 @@ public class DemandService {
 				.getDemandDetails().stream()
 				.map(d -> d.getCollectionAmount())
 				.reduce(BigDecimal.ZERO, BigDecimal::add);
-
 		if (totalCollectedAmount.remainder(BigDecimal.ONE ).compareTo(BigDecimal.ZERO) != 0 ){
 			// The total collected amount is fractional most probably because of previous
 			// round off dropping prior to BS/CS 1.1 release

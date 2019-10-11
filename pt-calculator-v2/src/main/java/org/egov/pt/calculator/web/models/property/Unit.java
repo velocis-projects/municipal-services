@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.validator.constraints.NotEmpty;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import org.hibernate.validator.constraints.NotEmpty;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,7 +43,7 @@ public class Unit   {
 
         @NotNull
         @JsonProperty("unitArea")
-        private Float unitArea;
+        private BigDecimal unitArea;
 
         @JsonProperty("usageCategoryMajor")
         private String usageCategoryMajor;
@@ -67,10 +67,17 @@ public class Unit   {
         @JsonProperty("constructionType")
         private String constructionType;
 
+        @JsonProperty("constructionYear")
+        private String constructionYear ;
+
         @JsonProperty("constructionSubType")
         private String constructionSubType;
 
         @JsonProperty("arv")
         private BigDecimal arv;
+
+        @JsonProperty("additionalDetails")
+        private UnitAdditionalDetails additionalDetails;
+
 }
 

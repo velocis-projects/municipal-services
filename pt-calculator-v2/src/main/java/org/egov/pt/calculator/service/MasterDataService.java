@@ -1,13 +1,24 @@
 package org.egov.pt.calculator.service;
 
+import static org.egov.pt.calculator.util.CalculatorConstants.FINANCIALYEAR_MASTER_KEY;
+import static org.egov.pt.calculator.util.CalculatorConstants.MDMS_FINACIALYEAR_PATH;
+import static org.egov.pt.calculator.util.CalculatorConstants.TAXHEADMASTER_MASTER_KEY;
+import static org.egov.pt.calculator.util.CalculatorConstants.TAXPERIOD_MASTER_KEY;
+
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.mdms.model.MdmsCriteriaReq;
 import org.egov.mdms.model.MdmsResponse;
@@ -15,38 +26,37 @@ import org.egov.pt.calculator.repository.Repository;
 import org.egov.pt.calculator.util.CalculatorConstants;
 import org.egov.pt.calculator.util.CalculatorUtils;
 import org.egov.pt.calculator.util.Configurations;
-import org.egov.pt.calculator.web.models.CalculationCriteria;
 import org.egov.pt.calculator.web.models.CalculationReq;
 import org.egov.pt.calculator.web.models.demand.TaxHeadMaster;
 import org.egov.pt.calculator.web.models.demand.TaxHeadMasterResponse;
 import org.egov.pt.calculator.web.models.demand.TaxPeriod;
 import org.egov.pt.calculator.web.models.demand.TaxPeriodResponse;
+import org.egov.pt.calculator.web.models.property.DepreciationAppreciation;
+import org.egov.pt.calculator.web.models.property.Rate;
 import org.egov.pt.calculator.web.models.property.RequestInfoWrapper;
+import org.egov.pt.calculator.web.models.property.Type;
+import org.egov.pt.calculator.web.models.property.UsageCategorySubMinor;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import net.minidev.json.JSONArray;
-
-import static org.egov.pt.calculator.util.CalculatorConstants.*;
 
 @Service
 public class MasterDataService {
 
 	@Autowired
 	private Repository repository;
-	
+
 	@Autowired
 	private ObjectMapper mapper;
-	
+
 	@Autowired
 	private CalculatorUtils calculatorUtils;
 
 	@Autowired
 	private Configurations config;
-	
+
 	/**
 	 * Fetches Financial Year from Mdms Api
 	 * 
@@ -55,17 +65,19 @@ public class MasterDataService {
 	 * @param tenantId
 	 * @return
 	 */
-	@SuppressWarnings("unchecked") 
+	@SuppressWarnings("unchecked")
 	public Map<String, Object> getFinancialYear(RequestInfo requestInfo, String assessmentYear, String tenantId) {
 
-		MdmsCriteriaReq mdmsCriteriaReq = calculatorUtils.getFinancialYearRequest(requestInfo, assessmentYear, tenantId);
+		MdmsCriteriaReq mdmsCriteriaReq = calculatorUtils.getFinancialYearRequest(requestInfo, assessmentYear,
+				tenantId);
 		StringBuilder url = calculatorUtils.getMdmsSearchUrl();
 		MdmsResponse res = mapper.convertValue(repository.fetchResult(url, mdmsCriteriaReq), MdmsResponse.class);
 		try {
 			return (Map<String, Object>) res.getMdmsRes().get(CalculatorConstants.FINANCIAL_MODULE)
 					.get(CalculatorConstants.FINANCIAL_YEAR_MASTER).get(0);
-		}catch (IndexOutOfBoundsException e){
-			throw new CustomException(CalculatorConstants.EG_PT_FINANCIAL_MASTER_NOT_FOUND, CalculatorConstants.EG_PT_FINANCIAL_MASTER_NOT_FOUND_MSG + assessmentYear);
+		} catch (IndexOutOfBoundsException e) {
+			throw new CustomException(CalculatorConstants.EG_PT_FINANCIAL_MASTER_NOT_FOUND,
+					CalculatorConstants.EG_PT_FINANCIAL_MASTER_NOT_FOUND_MSG + assessmentYear);
 		}
 	}
 
@@ -76,31 +88,34 @@ public class MasterDataService {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public Map<String,Map<String, Object>> getFinancialYear(CalculationReq req) {
+	public Map<String, Map<String, Object>> getFinancialYear(CalculationReq req) {
 		String tenantId = req.getCalculationCriteria().get(0).getTenantId();
 		RequestInfo requestInfo = req.getRequestInfo();
-		Set<String> assessmentYears = req.getCalculationCriteria().stream().map(cal -> cal.getProperty().getPropertyDetails().get(0).getFinancialYear())
+		Set<String> assessmentYears = req.getCalculationCriteria().stream()
+				.map(cal -> cal.getProperty().getPropertyDetails().get(0).getFinancialYear())
 				.collect(Collectors.toSet());
-		MdmsCriteriaReq mdmsCriteriaReq = calculatorUtils.getFinancialYearRequest(requestInfo, assessmentYears, tenantId);
+		MdmsCriteriaReq mdmsCriteriaReq = calculatorUtils.getFinancialYearRequest(requestInfo, assessmentYears,
+				tenantId);
 		StringBuilder url = calculatorUtils.getMdmsSearchUrl();
 		Object res = repository.fetchResult(url, mdmsCriteriaReq);
-		Map<String,Map<String, Object>> financialYearMap = new HashMap<>();
-		for(String assessmentYear : assessmentYears){
-			String jsonPath = MDMS_FINACIALYEAR_PATH.replace("{}",assessmentYear);
+		Map<String, Map<String, Object>> financialYearMap = new HashMap<>();
+		for (String assessmentYear : assessmentYears) {
+			String jsonPath = MDMS_FINACIALYEAR_PATH.replace("{}", assessmentYear);
 			try {
-				List<Map<String,Object>> jsonOutput =  JsonPath.read(res, jsonPath);
-				Map<String,Object> financialYearProperties = jsonOutput.get(0);
-				financialYearMap.put(assessmentYear,financialYearProperties);
-			}
-			catch (IndexOutOfBoundsException e){
-				throw new CustomException(CalculatorConstants.EG_PT_FINANCIAL_MASTER_NOT_FOUND, CalculatorConstants.EG_PT_FINANCIAL_MASTER_NOT_FOUND_MSG + assessmentYear);
+				List<Map<String, Object>> jsonOutput = JsonPath.read(res, jsonPath);
+				Map<String, Object> financialYearProperties = jsonOutput.get(0);
+				financialYearMap.put(assessmentYear, financialYearProperties);
+			} catch (IndexOutOfBoundsException e) {
+				throw new CustomException(CalculatorConstants.EG_PT_FINANCIAL_MASTER_NOT_FOUND,
+						CalculatorConstants.EG_PT_FINANCIAL_MASTER_NOT_FOUND_MSG + assessmentYear);
 			}
 		}
 		return financialYearMap;
 	}
-	
+
 	/**
 	 * Fetch Tax Head Masters From billing service
+	 * 
 	 * @param requestInfo
 	 * @param tenantId
 	 * @return
@@ -116,6 +131,7 @@ public class MasterDataService {
 
 	/**
 	 * Fetch Tax Head Masters From billing service
+	 * 
 	 * @param requestInfo
 	 * @param tenantId
 	 * @return
@@ -128,56 +144,56 @@ public class MasterDataService {
 				TaxPeriodResponse.class);
 		return res.getTaxPeriods();
 	}
-	
+
 	/**
 	 * Method to enrich the property Master data Map
 	 * 
 	 * @param requestInfo
 	 * @param tenantId
 	 */
-	public void setPropertyMasterValues(RequestInfo requestInfo, String tenantId,
-			Map<String, Map<String, List<Object>>> propertyBasedExemptionMasterMap, Map<String, JSONArray> timeBasedExemptionMasterMap) {
+	@SuppressWarnings({ "typeSafety", "unchecked" })
+	public void setPropertyMasterValues(RequestInfo requestInfo, String tenantId, Map<String, List<Object>> masterMap) {
 
 		MdmsResponse response = mapper.convertValue(repository.fetchResult(calculatorUtils.getMdmsSearchUrl(),
 				calculatorUtils.getPropertyModuleRequest(requestInfo, tenantId)), MdmsResponse.class);
 		Map<String, JSONArray> res = response.getMdmsRes().get(CalculatorConstants.PROPERTY_TAX_MODULE);
-		for (Entry<String, JSONArray> entry : res.entrySet()) {
 
-			String masterName = entry.getKey();
+		for (Entry<String, JSONArray> mapEntry : res.entrySet()) {
+
+
 			
-			/* Masters which need to be parsed will be contained in the list */
-			if (CalculatorConstants.PROPERTY_BASED_EXEMPTION_MASTERS.contains(entry.getKey()))
-				propertyBasedExemptionMasterMap.put(masterName, getParsedMaster(entry));
-			
-			/* Master not contained in list will be stored as it is  */
-			timeBasedExemptionMasterMap.put(entry.getKey(), entry.getValue());
-		}
-	}
-	
-	/**
-	 * Parses the master which has an exemption in them
-	 * @param entry
-	 * @return
-	 */
-	private Map<String, List<Object>> getParsedMaster(Entry<String, JSONArray> entry) {
-		
-		JSONArray values = entry.getValue();
-		Map<String, List<Object>> codeValueListMap = new HashMap<>();
-		for (Object object : values) {
+			switch ((String)mapEntry.getKey()){
+				case  CalculatorConstants.TAX_RATE :
+					masterMap.put(mapEntry.getKey(), (List) mapEntry.getValue().stream().map( rate ->  mapper.convertValue(rate, Rate.class)).collect(Collectors.toList()));
+					break;
 
-			@SuppressWarnings("unchecked")
-			Map<String, Object> objectMap = (Map<String, Object>) object;
-			String code = (String) objectMap.get(CalculatorConstants.CODE_FIELD_NAME);
-			if (null == codeValueListMap.get(code)) {
+				case  CalculatorConstants.ROAD_TYPE :
+					masterMap.put(mapEntry.getKey(), (List) mapEntry.getValue().stream().map( rate ->  mapper.convertValue(rate, Type.class)).collect(Collectors.toList()));
+					break;
 
-				List<Object> valuesList = new ArrayList<>();
-				valuesList.add(objectMap);
-				codeValueListMap.put(code, valuesList);
-			} else {
-				codeValueListMap.get(code).add(objectMap);
+				case  CalculatorConstants.DEPRECIATION_APPRECIATION:
+					masterMap.put(mapEntry.getKey(), (List) mapEntry.getValue().stream().map( rate ->  mapper.convertValue(rate, DepreciationAppreciation.class)).collect(Collectors.toList()));
+					break;
+
+				case  CalculatorConstants.PENALTY_INTREST_RATE :
+					masterMap.put(mapEntry.getKey(), (List) mapEntry.getValue().stream().map( rate ->  mapper.convertValue(rate, Rate.class)).collect(Collectors.toList()));
+					break;
+				
+				case  CalculatorConstants.LATE_ASSESSMENT_PENALTY :
+					masterMap.put(mapEntry.getKey(), (List) mapEntry.getValue().stream().map( rate ->  mapper.convertValue(rate, Rate.class)).collect(Collectors.toList()));
+					break;
+
+				case  CalculatorConstants.USAGE_SUB_MINOR_MASTER :
+					masterMap.put(mapEntry.getKey(), (List) mapEntry.getValue().stream().map( rate ->  mapper.convertValue(rate, UsageCategorySubMinor.class)).collect(Collectors.toList()));
+					break;
+
+				default:
+					masterMap.put(mapEntry.getKey(), mapEntry.getValue());
+					break;
 			}
-		}
-		return codeValueListMap;
+		
+	}
+		
 	}
 
 	/**
@@ -327,6 +343,8 @@ public class MasterDataService {
 		List<TaxPeriod> taxPeriods = getTaxPeriodList(requestInfo,tenantId);
 		List<TaxHeadMaster> taxHeadMasters = getTaxHeadMasterMap(requestInfo,tenantId);
 		Map<String,Map<String, Object>> financialYearMaster = getFinancialYear(request);
+
+
 
 		masterMap.put(TAXPERIOD_MASTER_KEY,taxPeriods);
 		masterMap.put(TAXHEADMASTER_MASTER_KEY,taxHeadMasters);

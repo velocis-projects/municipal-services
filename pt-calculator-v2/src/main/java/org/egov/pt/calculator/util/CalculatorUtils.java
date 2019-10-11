@@ -1,8 +1,22 @@
 package org.egov.pt.calculator.util;
 
+import static org.egov.pt.calculator.util.CalculatorConstants.ALLOWED_RECEIPT_STATUS;
+import static org.egov.pt.calculator.util.CalculatorConstants.SERVICE_FIELD_VALUE_PT;
+import static org.egov.pt.calculator.util.CalculatorConstants.STATUS_FIELD_FOR_SEARCH_URL;
+
 import java.math.BigDecimal;
-import java.time.*;
-import java.util.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -24,13 +38,9 @@ import org.egov.pt.calculator.web.models.property.RequestInfoWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import lombok.Getter;
 import org.springframework.util.CollectionUtils;
 
-import static org.egov.pt.calculator.util.CalculatorConstants.ALLOWED_RECEIPT_STATUS;
-import static org.egov.pt.calculator.util.CalculatorConstants.SERVICE_FIELD_VALUE_PT;
-import static org.egov.pt.calculator.util.CalculatorConstants.STATUS_FIELD_FOR_SEARCH_URL;
+import lombok.Getter;
 
 @Component
 @Getter
@@ -54,7 +64,6 @@ public class CalculatorUtils {
 			Map<String, Integer> map = new HashMap<>();
 			map.put(CalculatorConstants.PT_TAX, 3);
 			map.put(CalculatorConstants.PT_TIME_PENALTY, 1);
-			map.put(CalculatorConstants.PT_FIRE_CESS, 2);
 			map.put(CalculatorConstants.PT_TIME_INTEREST, 0);
 			map.put(CalculatorConstants.MAX_PRIORITY_VALUE, 100);
 		}
@@ -111,12 +120,11 @@ public class CalculatorUtils {
 		details.add(MasterDetail.builder().name(CalculatorConstants.USAGE_MAJOR_MASTER).build());
 		details.add(MasterDetail.builder().name(CalculatorConstants.USAGE_MINOR_MASTER).build());
 		details.add(MasterDetail.builder().name(CalculatorConstants.USAGE_SUB_MINOR_MASTER).build());
-		details.add(MasterDetail.builder().name(CalculatorConstants.USAGE_DETAIL_MASTER).build());
-		details.add(MasterDetail.builder().name(CalculatorConstants.OWNER_TYPE_MASTER).build());
+		details.add(MasterDetail.builder().name(CalculatorConstants.ROAD_TYPE).build());
+		details.add(MasterDetail.builder().name(CalculatorConstants.TAX_RATE).build());
 		details.add(MasterDetail.builder().name(CalculatorConstants.REBATE_MASTER).build());
 		details.add(MasterDetail.builder().name(CalculatorConstants.PENANLTY_MASTER).build());
-		details.add(MasterDetail.builder().name(CalculatorConstants.FIRE_CESS_MASTER).build());
-		details.add(MasterDetail.builder().name(CalculatorConstants.CANCER_CESS_MASTER).build());
+		details.add(MasterDetail.builder().name(CalculatorConstants.DEPRECIATION_APPRECIATION).build());
 		details.add(MasterDetail.builder().name(CalculatorConstants.INTEREST_MASTER).build());
 		ModuleDetail mdDtl = ModuleDetail.builder().masterDetails(details)
 				.moduleName(CalculatorConstants.PROPERTY_TAX_MODULE).build();

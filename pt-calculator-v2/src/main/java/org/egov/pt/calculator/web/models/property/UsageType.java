@@ -1,8 +1,8 @@
 package org.egov.pt.calculator.web.models.property;
 
-import org.springframework.validation.annotation.Validated;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import org.springframework.validation.annotation.Validated;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,6 +34,8 @@ public class UsageType   {
         @JsonProperty("active")
         private Boolean active;
 
+        @JsonProperty("multipleFactor")
+        private double multipleFactor;
 
 }
 
