@@ -87,6 +87,7 @@ public class DemandService {
 		List<CalculationCriteria> criterias = request.getCalculationCriteria().stream().filter(criteria -> !criteria
 				.getProperty().getPropertyDetails().get(0).getSource().equals(SourceEnum.LEGACY_RECORD))
 				.collect(Collectors.toList());
+		request.setCalculationCriteria(criterias);
 		List<Demand> demands = new ArrayList<>();
 		List<String> lesserAssessments = new ArrayList<>();
 		Map<String, String> consumerCodeFinYearMap = new HashMap<>();
