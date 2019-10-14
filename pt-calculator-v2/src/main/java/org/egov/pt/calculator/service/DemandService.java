@@ -1,15 +1,9 @@
 package org.egov.pt.calculator.service;
 
-import static org.egov.pt.calculator.util.CalculatorConstants.PT_TIME_INTEREST;
-import static org.egov.pt.calculator.util.CalculatorConstants.PT_TIME_PENALTY;
-import static org.egov.pt.calculator.util.CalculatorConstants.PT_TIME_REBATE;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -25,14 +19,11 @@ import org.egov.pt.calculator.util.CalculatorConstants;
 import org.egov.pt.calculator.util.CalculatorUtils;
 import org.egov.pt.calculator.util.Configurations;
 import org.egov.pt.calculator.validator.CalculationValidator;
-import org.egov.pt.calculator.web.models.Assessment;
 import org.egov.pt.calculator.web.models.Calculation;
 import org.egov.pt.calculator.web.models.CalculationCriteria;
 import org.egov.pt.calculator.web.models.CalculationReq;
-import org.egov.pt.calculator.web.models.DemandDetailAndCollection;
 import org.egov.pt.calculator.web.models.GetBillCriteria;
 import org.egov.pt.calculator.web.models.TaxHeadEstimate;
-import org.egov.pt.calculator.web.models.collections.Receipt;
 import org.egov.pt.calculator.web.models.demand.Bill;
 import org.egov.pt.calculator.web.models.demand.BillResponse;
 import org.egov.pt.calculator.web.models.demand.Demand;
@@ -55,7 +46,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONArray;
 
 @Service
 @Slf4j
@@ -87,9 +77,6 @@ public class DemandService {
 
 	@Autowired
 	private MasterDataService mstrDataService;
-	
-	@Autowired
-	private ReceiptService rcptService;
 
 	@Autowired
 	private CalculationValidator validator;
@@ -130,7 +117,7 @@ public class DemandService {
 
 	private List<Demand> generateDemands(CalculationReq request, Map<String, Calculation> estimateMap, Map<String, String>  consumerCodeFinYearMap) {
 
-		String tenantId = request.getCalculationCriteria().get(0).getTenantId();
+		//String tenantId = request.getCalculationCriteria().get(0).getTenantId();
 		List<Demand> demands = new ArrayList<>();
 
 		for(CalculationCriteria criteria:  request.getCalculationCriteria()){
@@ -157,10 +144,6 @@ public class DemandService {
 
 		return res.getDemands();
 	}
-
-
-	// private void saveIntermediateValues(Map<String, Calculation> estimateMap) {
-	// }
 
 	/**
 	 * Generates and returns bill from billing service
@@ -267,97 +250,6 @@ public class DemandService {
 	}
 
 	/**
-	 * if any previous assessments and demands associated with it exists for the
-	 * same financial year
-	 * 
-	 * Then Returns the collected amount of previous demand if the current
-	 * assessment is for the current year
-	 * 
-	 * and cancels the previous demand by updating it's status to inactive
-	 * 
-	 * @param criteria
-	 * @return
-	 */
-	protected BigDecimal getCarryForwardAndCancelOldDemand(BigDecimal newTax, CalculationCriteria criteria, RequestInfo requestInfo
-			, boolean cancelDemand) {
-
-		Property property = criteria.getProperty();
-
-		BigDecimal carryForward = BigDecimal.ZERO;
-		BigDecimal oldTaxAmt = BigDecimal.ZERO;
-
-		if(null == property.getPropertyId()) return carryForward;
-
-		Demand demand = getLatestDemandForCurrentFinancialYear(requestInfo, property);
-		
-		if(null == demand) return carryForward;
-
-		carryForward = utils.getTotalCollectedAmountAndPreviousCarryForward(demand);
-		
-		for (DemandDetail detail : demand.getDemandDetails()) {
-			if (detail.getTaxHeadMasterCode().equalsIgnoreCase(CalculatorConstants.PT_TAX))
-				oldTaxAmt = oldTaxAmt.add(detail.getTaxAmount());
-		}			
-
-		log.debug("The old tax amount in string : " + oldTaxAmt.toPlainString());
-		log.debug("The new tax amount in string : " + newTax.toPlainString());
-		
-		if (oldTaxAmt.compareTo(newTax) > 0) {
-			boolean isDepreciationAllowed = utils.isAssessmentDepreciationAllowed(
-					criteria.getAssessmentYear(),
-					property.getTenantId(),
-					property.getPropertyId(),
-					new RequestInfoWrapper(requestInfo));
-			if (!isDepreciationAllowed)
-				carryForward = BigDecimal.valueOf(-1);
-		}
-
-		if (BigDecimal.ZERO.compareTo(carryForward) >= 0 || !cancelDemand) return carryForward;
-		
-		demand.setStatus(Demand.StatusEnum.CANCELLED);
-		DemandRequest request = DemandRequest.builder().demands(Arrays.asList(demand)).requestInfo(requestInfo).build();
-		StringBuilder updateDemandUrl = utils.getUpdateDemandUrl();
-		repository.fetchResult(updateDemandUrl, request);
-
-		return carryForward;
-	}
-
-	/**
-	 * @param requestInfo
-	 * @param property
-	 * @return
-	 */
-	public Demand getLatestDemandForCurrentFinancialYear(RequestInfo requestInfo, Property property) {
-		
-		Assessment assessment = Assessment.builder().propertyId(property.getPropertyId())
-				.tenantId(property.getTenantId())
-				.assessmentYear(property.getPropertyDetails().get(0).getFinancialYear()).build();
-
-		List<Assessment> assessments = assessmentService.getMaxAssessment(assessment);
-
-		if (CollectionUtils.isEmpty(assessments))
-			return null;
-
-		Assessment latestAssessment = assessments.get(0);
-		log.debug(" the latest assessment : " + latestAssessment);
-
-		DemandResponse res = mapper.convertValue(
-				repository.fetchResult(utils.getDemandSearchUrl(latestAssessment), new RequestInfoWrapper(requestInfo)),
-				DemandResponse.class);
-		BigDecimal totalCollectedAmount = res.getDemands().get(0)
-				.getDemandDetails().stream()
-				.map(d -> d.getCollectionAmount())
-				.reduce(BigDecimal.ZERO, BigDecimal::add);
-		if (totalCollectedAmount.remainder(BigDecimal.ONE ).compareTo(BigDecimal.ZERO) != 0 ){
-			// The total collected amount is fractional most probably because of previous
-			// round off dropping prior to BS/CS 1.1 release
-			throw new CustomException("INVALID_COLLECT_AMOUNT", "The collected amount is fractional, please contact support for data correction");
-		}
-
-		return res.getDemands().get(0);
-	}
-
-	/**
 	 * Prepares Demand object based on the incoming calculation object and property
 	 * 
 	 * @param property
@@ -375,116 +267,21 @@ public class DemandService {
 			owner = detail.getCitizenInfo();
 		else
 			owner = detail.getOwners().iterator().next();
-		
-		Demand demand = getLatestDemandForCurrentFinancialYear(requestInfo, property);
 
 		List<DemandDetail> details = new ArrayList<>();
 
-		details = getAdjustedDemandDetails(tenantId,calculation,demand);
+		for (TaxHeadEstimate estimate : calculation.getTaxHeadEstimates()) {
+			details.add(DemandDetail.builder().taxHeadMasterCode(estimate.getTaxHeadCode())
+			.taxAmount(estimate.getEstimateAmount())
+			.collectionAmount(BigDecimal.ZERO)
+			.tenantId(tenantId).build());
+		}
 
 		return Demand.builder().tenantId(tenantId).businessService(configs.getPtModuleCode()).consumerType(propertyType)
 				.consumerCode(consumerCode).payer(owner.toCommonUser()).taxPeriodFrom(calculation.getFromDate())
 				.taxPeriodTo(calculation.getToDate()).status(Demand.StatusEnum.ACTIVE)
 				.minimumAmountPayable(BigDecimal.valueOf(configs.getPtMinAmountPayable())).demandDetails(details)
 				.build();
-	}
-
-	/**
-	 * Applies Penalty/Rebate/Interest to the incoming demands
-	 * 
-	 * If applied already then the demand details will be updated
-	 * 
-	 * @param demand
-	 * @return
-	 */
-	private boolean applytimeBasedApplicables(Demand demand,RequestInfoWrapper requestInfoWrapper,
-			Map<String, JSONArray> timeBasedExmeptionMasterMap,List<TaxPeriod> taxPeriods) {
-
-		boolean isCurrentDemand = false;
-		String tenantId = demand.getTenantId();
-		String demandId = demand.getId();
-		
-		TaxPeriod taxPeriod = taxPeriods.stream()
-				.filter(t -> demand.getTaxPeriodFrom().compareTo(t.getFromDate()) >= 0
-				&& demand.getTaxPeriodTo().compareTo(t.getToDate()) <= 0)
-		.findAny().orElse(null);
-		
-		if(!(taxPeriod.getFromDate()<= System.currentTimeMillis() && taxPeriod.getToDate() >= System.currentTimeMillis()))
-			isCurrentDemand = true;
-		/*
-		 * method to get the latest collected time from the receipt service
-		 */
-		List<Receipt> receipts = rcptService.getReceiptsFromConsumerCode(taxPeriod.getFinancialYear(), demand,
-				requestInfoWrapper);
-
-		BigDecimal taxAmtForApplicableGeneration = utils.getTaxAmtFromDemandForApplicablesGeneration(demand);
-		BigDecimal collectedApplicableAmount = BigDecimal.ZERO;
-		BigDecimal totalCollectedAmount = BigDecimal.ZERO;
-		BigDecimal oldInterest = BigDecimal.ZERO;
-
-		for (DemandDetail detail : demand.getDemandDetails()) {
-			
-			totalCollectedAmount = totalCollectedAmount.add(detail.getCollectionAmount());
-			if (CalculatorConstants.TAXES_TO_BE_CONSIDERD.contains(detail.getTaxHeadMasterCode()))
-				collectedApplicableAmount = collectedApplicableAmount.add(detail.getCollectionAmount());
-			if (detail.getTaxHeadMasterCode().equalsIgnoreCase(CalculatorConstants.PT_TIME_INTEREST))
-				oldInterest = oldInterest.add(detail.getTaxAmount());
-		}
-		
-		boolean isRebateUpdated = false;
-		boolean isPenaltyUpdated = false;
-		boolean isInterestUpdated = false;
-		
-		List<DemandDetail> details = demand.getDemandDetails();
-		
-		Map<String, BigDecimal> rebatePenaltyEstimates = payService.applyPenaltyRebateAndInterest(taxAmtForApplicableGeneration,
-				collectedApplicableAmount, taxPeriod.getFinancialYear(), timeBasedExmeptionMasterMap,receipts);
-		
-		if(null == rebatePenaltyEstimates) return isCurrentDemand;
-		
-		BigDecimal rebate = rebatePenaltyEstimates.get(PT_TIME_REBATE);
-		BigDecimal penalty = rebatePenaltyEstimates.get(CalculatorConstants.PT_TIME_PENALTY);
-		BigDecimal interest = rebatePenaltyEstimates.get(CalculatorConstants.PT_TIME_INTEREST);
-
-		DemandDetailAndCollection latestRebateDetail,latestPenaltyDemandDetail,latestInterestDemandDetail;
-		if(rebate.compareTo(BigDecimal.ZERO)!=0){
-			latestRebateDetail = utils.getLatestDemandDetailByTaxHead(PT_TIME_REBATE,details);
-			if(latestRebateDetail!=null){
-				updateTaxAmount(rebate,latestRebateDetail);
-				isRebateUpdated = true;
-			}
-		}
-
-		if(interest.compareTo(BigDecimal.ZERO)!=0){
-			latestInterestDemandDetail = utils.getLatestDemandDetailByTaxHead(PT_TIME_INTEREST,details);
-			if(latestInterestDemandDetail!=null){
-				updateTaxAmount(interest,latestInterestDemandDetail);
-				isInterestUpdated = true;
-			}
-		}
-
-		if(penalty.compareTo(BigDecimal.ZERO)!=0){
-			latestPenaltyDemandDetail = utils.getLatestDemandDetailByTaxHead(PT_TIME_PENALTY,details);
-			if(latestPenaltyDemandDetail!=null){
-				updateTaxAmount(penalty,latestPenaltyDemandDetail);
-				isPenaltyUpdated = true;
-			}
-		}
-
-		
-		if (!isPenaltyUpdated && penalty.compareTo(BigDecimal.ZERO) > 0)
-			details.add(DemandDetail.builder().taxAmount(penalty).taxHeadMasterCode(CalculatorConstants.PT_TIME_PENALTY)
-					.demandId(demandId).tenantId(tenantId).build());
-		if (!isRebateUpdated && rebate.compareTo(BigDecimal.ZERO) > 0)
-			details.add(DemandDetail.builder().taxAmount(rebate)
-					.taxHeadMasterCode(PT_TIME_REBATE).demandId(demandId).tenantId(tenantId)
-					.build());
-		if (!isInterestUpdated && interest.compareTo(BigDecimal.ZERO) > 0)
-			details.add(
-					DemandDetail.builder().taxAmount(interest).taxHeadMasterCode(CalculatorConstants.PT_TIME_INTEREST)
-							.demandId(demandId).tenantId(tenantId).build());
-		
-		return isCurrentDemand;
 	}
 
 	/**
@@ -520,8 +317,6 @@ public class DemandService {
 		 */
 		TaxHeadEstimate roundOffEstimate = payService.roundOfDecimals(taxAmount);
 
-
-
 		BigDecimal decimalRoundOff = null != roundOffEstimate
 				? roundOffEstimate.getEstimateAmount() : BigDecimal.ZERO;
 
@@ -531,90 +326,6 @@ public class DemandService {
 		}
 
 
-	}
-
-
-	/**
-	 * Creates demandDetails for the new demand by adding all old demandDetails and then adding demandDetails
-	 * using the difference between the new and old tax amounts for each taxHead
-	 * @param tenantId The tenantId of the property
-	 * @param calculation The calculation object for the property
-	 * @param oldDemand The oldDemand against the property
-	 * @return List of DemanDetails for the new demand
-	 */
-	private List<DemandDetail> getAdjustedDemandDetails(String tenantId,Calculation calculation,Demand oldDemand){
-
-		List<DemandDetail> details = new ArrayList<>();
-
-		/*Create map of taxHead to list of DemandDetail*/
-
-		Map<String, List<DemandDetail>> taxHeadCodeDetailMap = new LinkedHashMap<>();
-		if(oldDemand!=null){
-			for(DemandDetail detail : oldDemand.getDemandDetails()){
-				if(taxHeadCodeDetailMap.containsKey(detail.getTaxHeadMasterCode()))
-					taxHeadCodeDetailMap.get(detail.getTaxHeadMasterCode()).add(detail);
-				else {
-					List<DemandDetail> detailList  = new LinkedList<>();
-					detailList.add(detail);
-					taxHeadCodeDetailMap.put(detail.getTaxHeadMasterCode(),detailList);
-				}
-			}
-		}
-
-		for (TaxHeadEstimate estimate : calculation.getTaxHeadEstimates()) {
-
-			List<DemandDetail> detailList = taxHeadCodeDetailMap.get(estimate.getTaxHeadCode());
-			taxHeadCodeDetailMap.remove(estimate.getTaxHeadCode());
-
-			if (estimate.getTaxHeadCode().equalsIgnoreCase(CalculatorConstants.PT_ADVANCE_CARRYFORWARD))
-				continue;
-
-			if(!CollectionUtils.isEmpty(detailList)){
-				details.addAll(detailList);
-				BigDecimal amount= detailList.stream().map(DemandDetail::getTaxAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-
-				details.add(DemandDetail.builder().taxHeadMasterCode(estimate.getTaxHeadCode())
-						.taxAmount(estimate.getEstimateAmount().subtract(amount))
-						.collectionAmount(BigDecimal.ZERO)
-						.tenantId(tenantId).build());
-			}
-			else{
-				details.add(DemandDetail.builder().taxHeadMasterCode(estimate.getTaxHeadCode())
-						.taxAmount(estimate.getEstimateAmount())
-						.collectionAmount(BigDecimal.ZERO)
-						.tenantId(tenantId).build());
-			}
-		}
-
-		/*
-		* If some taxHeads are in old demand but not in new one a new demandetail
-		*  is added for each taxhead to balance it out during apportioning
-		* */
-
-		for(Map.Entry<String, List<DemandDetail>> entry : taxHeadCodeDetailMap.entrySet()){
-			List<DemandDetail> demandDetails = entry.getValue();
-			BigDecimal taxAmount= demandDetails.stream().map(DemandDetail::getTaxAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-			BigDecimal collectionAmount= demandDetails.stream().map(DemandDetail::getCollectionAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-			BigDecimal netAmount = collectionAmount.subtract(taxAmount);
-			details.add(DemandDetail.builder().taxHeadMasterCode(entry.getKey())
-					.taxAmount(netAmount)
-					.collectionAmount(BigDecimal.ZERO)
-					.tenantId(tenantId).build());
-		}
-
-		return details;
-	}
-
-	/**
-	 * Updates the amount in the latest demandDetail by adding the diff between
-	 * new and old amounts to it
-	 * @param newAmount The new tax amount for the taxHead
-	 * @param latestDetailInfo The latest demandDetail for the particular taxHead
-	 */
-	private void updateTaxAmount(BigDecimal newAmount,DemandDetailAndCollection latestDetailInfo){
-		BigDecimal diff = newAmount.subtract(latestDetailInfo.getTaxAmountForTaxHead());
-		BigDecimal newTaxAmountForLatestDemandDetail = latestDetailInfo.getLatestDemandDetail().getTaxAmount().add(diff);
-		latestDetailInfo.getLatestDemandDetail().setTaxAmount(newTaxAmountForLatestDemandDetail);
 	}
 
 }

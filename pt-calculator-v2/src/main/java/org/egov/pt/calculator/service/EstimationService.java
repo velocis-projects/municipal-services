@@ -167,7 +167,7 @@ public class EstimationService {
 	private TaxHeadEstimate getAdHocRebateTaxhead(Property property) {
 		Map details = (Map) property.getPropertyDetails().get(0).getAdditionalDetails();
 		BigDecimal amount = BigDecimal.valueOf((Integer) details.get(AD_HOC_REBATE_JSON_STRING));
-		return TaxHeadEstimate.builder().taxHeadCode(AD_HOC_REBATE_JSON_STRING).estimateAmount(amount).build();
+		return TaxHeadEstimate.builder().taxHeadCode(PT_ADHOC_REBATE).estimateAmount(amount).build();
 
 	}
 
@@ -518,10 +518,8 @@ public class EstimationService {
 		BigDecimal totalAmount = taxAmt.add(penalty).add(rebate).add(exemption);
 		// false in the argument represents that the demand shouldn't be updated from
 		// this call
-		BigDecimal collectedAmtForOldDemand = demandService.getCarryForwardAndCancelOldDemand(ptTax, criteria,
-				requestInfo, false);
 
-		return Calculation.builder().totalAmount(totalAmount.subtract(collectedAmtForOldDemand)).taxAmount(taxAmt)
+		return Calculation.builder().totalAmount(totalAmount).taxAmount(taxAmt)
 				.penalty(penalty).exemption(exemption).rebate(rebate).fromDate(fromDate).toDate(toDate)
 				.tenantId(tenantId).serviceNumber(assessmentNumber).taxHeadEstimates(estimates)
 				.billingSlabIds(billingSlabIds).build();
