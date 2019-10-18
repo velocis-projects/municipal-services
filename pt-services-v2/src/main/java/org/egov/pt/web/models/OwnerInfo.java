@@ -7,6 +7,7 @@ import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.*;
 import org.springframework.validation.annotation.Validated;
 
@@ -42,6 +43,9 @@ public class OwnerInfo extends User  {
         @JsonProperty("documents")
         @Valid
         private Set<Document> documents;
+
+        @JsonProperty("isOwnerInfoActive")
+        private Boolean isOwnerInfoActive;
 
         public enum RelationshipEnum {
                 FATHER("FATHER"),

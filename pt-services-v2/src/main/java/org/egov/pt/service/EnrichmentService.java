@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,6 +47,12 @@ public class EnrichmentService {
             if(!onlyPropertyDetail)
             {  property.getAddress().setId(UUID.randomUUID().toString());
             }
+
+            if(property.getWorkflow()!=null && !property.getWorkflow().isNull()){
+                property.setStatus(PropertyInfo.StatusEnum.INWORKFLOW);
+                enrichWorkflow(property,assessmentAuditDetails);
+            }
+
             setAssessmentNo(property.getTenantId(),property.getPropertyDetails(),requestInfo);
             property.getAddress().setTenantId(property.getTenantId());
             property.setAuditDetails(propertyAuditDetails);
@@ -58,29 +65,30 @@ public class EnrichmentService {
                     propertyDetail.setAssessmentDate(System.currentTimeMillis());
                     if(!CollectionUtils.isEmpty(propertyDetail.getUnits()))
                         propertyDetail.getUnits().forEach(unit -> {
+                            unit.setActive(true);
                             unit.setId(UUID.randomUUID().toString());
                             unit.setTenantId(property.getTenantId());});
                     if( propertyDetail.getDocuments()!=null)
                         propertyDetail.getDocuments().forEach(document -> document.setId(UUID.randomUUID().toString()));
                     if(propertyDetail.getOwnershipCategory().contains("INSTITUTIONAL"))
-                    { propertyDetail.getInstitution().setId(UUID.randomUUID().toString());
+                    {   propertyDetail.getInstitution().setId(UUID.randomUUID().toString());
+                        propertyDetail.getInstitution().setActive(true);
                         propertyDetail.getInstitution().setTenantId(property.getTenantId());
                         propertyDetail.getOwners().forEach(owner -> {
                             owner.setInstitutionId(propertyDetail.getInstitution().getId());
                         });
 
                         propertyDetail.getOwners().forEach(owner -> {
+                            owner.setIsOwnerInfoActive(true);
                             if(owner.getMobileNumber()==null && owner.getAltContactNumber()!=null)
                                  owner.setMobileNumber(owner.getAltContactNumber());
+                            if(!CollectionUtils.isEmpty(owner.getDocuments())) {
+                                owner.getDocuments().forEach(document -> {
+                                    document.setId(UUID.randomUUID().toString());
+                                });
+                            }
                         });
-
                     }
-                    propertyDetail.getOwners().forEach(owner -> {
-                        if(!CollectionUtils.isEmpty(owner.getDocuments()))
-                            owner.getDocuments().forEach(document -> {
-                                document.setId(UUID.randomUUID().toString());
-                            });
-                    });
                 }
             });
         }
@@ -96,7 +104,8 @@ public class EnrichmentService {
      */
     public void enrichUpdateRequest(PropertyRequest request,List<Property> propertiesFromResponse) {
         RequestInfo requestInfo = request.getRequestInfo();
-        AuditDetails auditDetails = propertyutil.getAuditDetails(requestInfo.getUserInfo().getId().toString(), false);
+        AuditDetails updateAuditDetails = propertyutil.getAuditDetails(requestInfo.getUserInfo().getId().toString(), false);
+        AuditDetails createAuditDetails = propertyutil.getAuditDetails(requestInfo.getUserInfo().getId().toString(), true);
 
         /*Map of propertyId to property is created from the responseproperty list
          * Not required if address id is sent in request was used before when one to one mapping was
@@ -111,7 +120,11 @@ public class EnrichmentService {
          *
          * */
         for (Property property : request.getProperties()){
-            property.setAuditDetails(auditDetails);
+            property.setAuditDetails(updateAuditDetails);
+            if(property.getWorkflow()!=null && !property.getWorkflow().isNull()){
+                property.setStatus(PropertyInfo.StatusEnum.INWORKFLOW);
+                enrichWorkflow(property,createAuditDetails);
+            }
 
             //Not Required **
             String id = property.getPropertyId();
@@ -132,7 +145,10 @@ public class EnrichmentService {
                 }
                 if(units!=null && !units.isEmpty()){
                     units.forEach(unit ->{
-                        if(unit.getId()==null) unit.setId(UUID.randomUUID().toString());
+                        if(unit.getId()==null){
+                            unit.setActive(true);
+                            unit.setId(UUID.randomUUID().toString());
+                        }
                     });
                 }
             });
@@ -337,6 +353,46 @@ public class EnrichmentService {
         request.getProperties().forEach(property -> {
             setAssessmentNo(property.getTenantId(),property.getPropertyDetails(),requestInfo);
         });
+    }
+
+
+    private void enrichWorkflow(Property property, AuditDetails auditDetails){
+        Workflow workflow = property.getWorkflow();
+        workflow.setId(UUID.randomUUID().toString());
+        workflow.setActive(true);
+        workflow.setAuditDetails(auditDetails);
+        workflow.setApplicationNumber(property.getPropertyDetails().get(0).getAssessmentNumber());
+    }
+
+
+    /**
+     * Enriches owners from db as its update is not allowed
+     * @param properties List of properties to be updated in assessment flow
+     * @param searchFromProperties The properties to be updated from DB
+     */
+    private void enrichOwnerInfoAndInstitutionFromDB(List<Property> properties,List<Property> searchFromProperties){
+        Map<String,Property> idToPropertyFromDB = searchFromProperties.stream().collect(Collectors.toMap(Property::getPropertyId,Function.identity()));
+
+        properties.forEach(property -> {
+            property.getPropertyDetails().get(0).setOwners(idToPropertyFromDB.get(property.getPropertyId()).getPropertyDetails().get(0).getOwners());
+            property.getPropertyDetails().get(0).setInstitution(idToPropertyFromDB.get(property.getPropertyId()).getPropertyDetails().get(0).getInstitution());
+        });
+
+    }
+
+    /**
+     *
+     * @param properties
+     * @param propertiesFromSearch
+     */
+    private List<Property> enrichPropertyDetailFromDB(List<Property> properties,List<Property> propertiesFromSearch){
+        Map<String,Property> idToProperty = properties.stream().collect(Collectors.toMap(Property::getPropertyId,Function.identity()));
+
+        propertiesFromSearch.forEach(propertyFromDB -> {
+            Property property = idToProperty.get(propertyFromDB.getPropertyId());
+            propertyFromDB.getPropertyDetails().get(0).setOwners(property.getPropertyDetails().get(0).getOwners());
+        });
+        return propertiesFromSearch;
     }
 
 

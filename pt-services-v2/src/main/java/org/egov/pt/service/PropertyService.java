@@ -4,6 +4,7 @@ import org.egov.common.contract.request.RequestInfo;
 import org.egov.pt.config.PropertyConfiguration;
 import org.egov.pt.producer.Producer;
 import org.egov.pt.repository.PropertyRepository;
+import org.egov.pt.util.PropertyUtil;
 import org.egov.pt.validator.PropertyValidator;
 import org.egov.pt.web.models.*;
 import org.egov.tracer.model.CustomException;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+
+import static org.egov.pt.util.PTConstants.PT_SELF_ASSESSMENT;
 
 @Service
 public class PropertyService {
@@ -36,6 +39,9 @@ public class PropertyService {
 
     @Autowired
     private CalculationService calculationService;
+
+    @Autowired
+    private PropertyUtil util;
 
 
     /**
@@ -127,7 +133,42 @@ public class PropertyService {
      */
     public List<Property> updateProperty(PropertyRequest request) {
         userService.createCitizen(request);
-        propertyValidator.validateUpdateRequest(request);
+        PropertyCriteria criteria = util.getPropertyCriteriaForSearch(request);
+        List<Property> propertiesFromSearchResponse = repository.getProperties(criteria);
+        propertyValidator.validateUpdateRequest(request,propertiesFromSearchResponse);
+        enrichmentService.enrichCreateRequest(request, true);
+        userService.createUser(request);
+        calculationService.calculateTax(request);
+        producer.push(config.getUpdatePropertyTopic(), request);
+        return request.getProperties();
+    }
+
+
+    /**
+     * Updates the property
+     *
+     * @param request PropertyRequest containing list of properties to be update
+     * @return List of updated properties
+     */
+    public List<Property> update(PropertyRequest request) {
+
+        List<Property> properties = request.getProperties();
+
+        Map<String,List<Property>> workflowToPropertiesMap = new HashMap<>();
+
+        properties.forEach(property -> {
+            if(property.getWorkflow()==null || property.getWorkflow().isNull()){
+                util.addItemToMap(workflowToPropertiesMap,PT_SELF_ASSESSMENT,property);
+            }
+            else {
+                util.addItemToMap(workflowToPropertiesMap,property.getWorkflow().getWorkflowName(),property);
+            }
+        });
+
+        PropertyCriteria criteria = util.getPropertyCriteriaForSearch(request);
+        List<Property> propertiesFromSearchResponse = repository.getProperties(criteria);
+        userService.createCitizen(request);
+        propertyValidator.validateUpdateRequest(request,propertiesFromSearchResponse);
         enrichmentService.enrichCreateRequest(request, true);
         userService.createUser(request);
         calculationService.calculateTax(request);

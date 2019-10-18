@@ -74,11 +74,9 @@ public class PropertyValidator {
      * Validates the masterData,CitizenInfo and the authorization of the assessee for update
      * @param request PropertyRequest for update
      */
-    public void validateUpdateRequest(PropertyRequest request){
+    public void validateUpdateRequest(PropertyRequest request,List<Property> propertiesFromSearchResponse){
         validateIds(request);
         validateMobileNumber(request);
-        PropertyCriteria criteria = getPropertyCriteriaForSearch(request);
-        List<Property> propertiesFromSearchResponse = propertyRepository.getProperties(criteria);
         boolean ifPropertyExists=PropertyExists(request,propertiesFromSearchResponse);
         if(!ifPropertyExists)
         {throw new CustomException("PROPERTY NOT FOUND","The property to be updated does not exist");}
@@ -278,103 +276,6 @@ public class PropertyValidator {
             throw new CustomException(errorMap);
     }
 
-    /**
-     * Returns PropertyCriteria to search for properties in database with ids set from properties in request
-     *
-     * @param request PropertyRequest received for update
-     * @return PropertyCriteria containg ids of all properties and all its childrens
-     */
-    public PropertyCriteria getPropertyCriteriaForSearch(PropertyRequest request) {
-
-        RequestInfo requestInfo = request.getRequestInfo();
-        List<Property> properties=request.getProperties();
-        Set<String> ids = new HashSet<>();
-        Set<String> propertyDetailids = new HashSet<>();
-        Set<String> unitids = new HashSet<>();
-        Set<String> documentids = new HashSet<>();
-        Set<String> ownerids = new HashSet<>();
-        Set<String> addressids = new HashSet<>();
-
-        PropertyCriteria propertyCriteria = new PropertyCriteria();
-        /*
-         * Is search on ids other than propertyIds required?
-         * */
-        properties.forEach(property -> {
-            ids.add(property.getPropertyId());
-            if(!CollectionUtils.isEmpty(ids)) {
-                if (property.getAddress().getId() != null)
-                    addressids.add(property.getAddress().getId());
-                property.getPropertyDetails().forEach(propertyDetail -> {
-                    if (propertyDetail.getAssessmentNumber() != null)
-                        propertyDetailids.add(propertyDetail.getAssessmentNumber());
-                    if (!CollectionUtils.isEmpty(propertyDetail.getOwners()))
-                        ownerids.addAll(getOwnerids(propertyDetail));
-                    if (!CollectionUtils.isEmpty(propertyDetail.getDocuments()))
-                        documentids.addAll(getDocumentids(propertyDetail));
-                    if (!CollectionUtils.isEmpty(propertyDetail.getUnits())) {
-                        unitids.addAll(getUnitids(propertyDetail));
-                    }
-                });
-            }
-        });
-
-        propertyCriteria.setTenantId(properties.get(0).getTenantId());
-        propertyCriteria.setIds(ids);
-        propertyCriteria.setPropertyDetailids(propertyDetailids);
-        propertyCriteria.setAddressids(addressids);
-        propertyCriteria.setOwnerids(ownerids);
-        propertyCriteria.setUnitids(unitids);
-        propertyCriteria.setDocumentids(documentids);
-
-        return propertyCriteria;
-    }
-
-    /**
-     * Extract all ownerids from given propertyDetail
-     * @param propertyDetail PropertyDetail whose owner ids are to be returned
-     * @return Set of ids of all owners of the given propertyDetail
-     */
-    private Set<String> getOwnerids(PropertyDetail propertyDetail){
-        Set<OwnerInfo> owners= propertyDetail.getOwners();
-        Set<String> ownerIds = new HashSet<>();
-        owners.forEach(owner -> {
-            if(owner.getUuid()!=null)
-                ownerIds.add(owner.getUuid());
-        });
-        return ownerIds;
-    }
-
-
-    /**
-     * Adds ids of all Units of property to a list
-     * @param propertyDetail PropertyDetail whose unit ids are to be returned
-     * @return Set of all unitids of a propertyDetail
-     */
-    private List<String> getUnitids(PropertyDetail propertyDetail){
-        List<Unit> units= propertyDetail.getUnits();
-        List<String> unitIds = new ArrayList<>();
-        units.forEach(unit -> {
-            if(unit.getId()!=null)
-                unitIds.add(unit.getId());
-        });
-        return unitIds;
-    }
-
-
-    /**
-     * Adds ids of all Documents of property to a list
-     * @param propertyDetail PropertyDetail whose document ids are to be returned
-     * @return Set of all documentids of properyDetail
-     */
-    private Set<String> getDocumentids(PropertyDetail propertyDetail){
-        Set<Document> documents= propertyDetail.getDocuments();
-        Set<String> documentIds = new HashSet<>();
-        documents.forEach(document -> {
-            if(document.getId()!=null)
-                documentIds.add(document.getId());
-        });
-        return documentIds;
-    }
 
     /**
      * Checks if the property ids in search response are same as in request
@@ -625,6 +526,7 @@ public class PropertyValidator {
             return false;
         return true;
     }
+
 
 
 

@@ -89,5 +89,8 @@ public class Unit   {
         @JsonProperty("arv")
         private BigDecimal arv;
 
+        @JsonProperty("active")
+        private Boolean active;
+
 }
 

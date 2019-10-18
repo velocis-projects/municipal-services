@@ -152,4 +152,23 @@ public class PropertyConfiguration {
 	private Boolean isUserEventsNotificationEnabled;
 
 
+	// Workflow host
+    @Value("${egov.workflow.host}")
+    private String workflowHost;
+
+    @Value("${egov.workflow.search.endpoint}")
+    private String workflowSearchEndpoint;
+
+    @Value("${egov.workflow.transition.endpoint}")
+    private String workflowUpdateEndpoint;
+
+    @Value("${egov.workflow.businessservice.search.endpoint}")
+    private String businessServiceSearchEndpoint;
+
+
+
+
+
+
+
 }

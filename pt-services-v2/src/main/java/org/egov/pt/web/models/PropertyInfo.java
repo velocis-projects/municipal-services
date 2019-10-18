@@ -57,7 +57,9 @@ import io.swagger.annotations.ApiModel;
     public enum StatusEnum {
     ACTIVE("ACTIVE"),
 
-    INACTIVE("INACTIVE");
+    INACTIVE("INACTIVE"),
+
+    INWORKFLOW("INWORKFLOW");
 
     private String value;
 

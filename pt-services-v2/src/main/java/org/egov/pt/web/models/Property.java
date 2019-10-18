@@ -81,6 +81,10 @@ public class Property extends PropertyInfo{
 	@JsonProperty("additionalDetails")
 	private Object additionalDetails;
 
+	@Valid
+	@JsonProperty("workflow")
+	private Workflow workflow;
+
 
 	public Property addpropertyDetailsItem(PropertyDetail propertyDetailsItem) {
 		if (this.propertyDetails == null) {
@@ -91,13 +95,16 @@ public class Property extends PropertyInfo{
 	}
 
 	@Builder
-	public Property(String propertyId, String tenantId, String acknowldgementNumber, String oldPropertyId, StatusEnum status, Address address, AuditDetails auditDetails, CreationReasonEnum creationReason, Long occupancyDate, List<PropertyDetail> propertyDetails,Object additionalDetails) {
+	public Property(String propertyId, String tenantId, String acknowldgementNumber, String oldPropertyId, StatusEnum status, Address address,
+					AuditDetails auditDetails, CreationReasonEnum creationReason, Long occupancyDate,
+					List<PropertyDetail> propertyDetails,Object additionalDetails,Workflow workflow) {
 		super(propertyId, tenantId, acknowldgementNumber, oldPropertyId, status, address);
 		this.auditDetails = auditDetails;
 		this.creationReason = creationReason;
 		this.occupancyDate = occupancyDate;
 		this.propertyDetails = propertyDetails;
 		this.additionalDetails = additionalDetails;
+		this.workflow = workflow;
 	}
 
 }
