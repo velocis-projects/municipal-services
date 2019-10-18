@@ -187,6 +187,10 @@ public class MasterDataService {
 					masterMap.put(mapEntry.getKey(), (List) mapEntry.getValue().stream().map( rate ->  mapper.convertValue(rate, UsageCategorySubMinor.class)).collect(Collectors.toList()));
 					break;
 
+				case  CalculatorConstants.REBATE_MASTER :
+					masterMap.put(mapEntry.getKey(), (List) mapEntry.getValue().stream().map( rate ->  mapper.convertValue(rate, Rate.class)).collect(Collectors.toList()));
+					break;
+
 				default:
 					masterMap.put(mapEntry.getKey(), mapEntry.getValue());
 					break;

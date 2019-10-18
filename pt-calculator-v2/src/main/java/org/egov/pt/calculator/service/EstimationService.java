@@ -1,8 +1,43 @@
 package org.egov.pt.calculator.service;
 
-import static org.egov.pt.calculator.util.CalculatorConstants.*;
+import static org.egov.pt.calculator.util.CalculatorConstants.AD_HOC_REBATE_JSON_STRING;
+import static org.egov.pt.calculator.util.CalculatorConstants.BATHROOM_AREA_MULTIPLIER;
+import static org.egov.pt.calculator.util.CalculatorConstants.BILLING_SLAB_MATCH_ERROR_CODE;
+import static org.egov.pt.calculator.util.CalculatorConstants.BILLING_SLAB_MATCH_ERROR_MESSAGE;
+import static org.egov.pt.calculator.util.CalculatorConstants.BILLING_SLAB_MATCH_ERROR_PROPERTY_MESSAGE;
+import static org.egov.pt.calculator.util.CalculatorConstants.BUILTUP;
+import static org.egov.pt.calculator.util.CalculatorConstants.COMMON_AREA_MULTIPLIER;
+import static org.egov.pt.calculator.util.CalculatorConstants.COVERED_AREA_MULTIPLIER;
+import static org.egov.pt.calculator.util.CalculatorConstants.DEPRECIATION_APPRECIATION;
+import static org.egov.pt.calculator.util.CalculatorConstants.FINANCIALYEAR_MASTER_KEY;
+import static org.egov.pt.calculator.util.CalculatorConstants.FINANCIAL_YEAR_ENDING_DATE;
+import static org.egov.pt.calculator.util.CalculatorConstants.FINANCIAL_YEAR_STARTING_DATE;
+import static org.egov.pt.calculator.util.CalculatorConstants.GARAGE_AREA_MULTIPLIER;
+import static org.egov.pt.calculator.util.CalculatorConstants.HUNDRED;
+import static org.egov.pt.calculator.util.CalculatorConstants.NONRESIDENTIAL;
+import static org.egov.pt.calculator.util.CalculatorConstants.ONE_TIME_PENALTY_JSON_STRING;
+import static org.egov.pt.calculator.util.CalculatorConstants.PENALTY_INTREST_RATE;
+import static org.egov.pt.calculator.util.CalculatorConstants.PT_ADHOC_PENALTY;
+import static org.egov.pt.calculator.util.CalculatorConstants.PT_ADHOC_REBATE;
+import static org.egov.pt.calculator.util.CalculatorConstants.PT_ESTIMATE_BILLINGSLABS_UNMATCH_VACANCT;
+import static org.egov.pt.calculator.util.CalculatorConstants.PT_ESTIMATE_BILLINGSLABS_UNMATCH_VACANT_MSG;
+import static org.egov.pt.calculator.util.CalculatorConstants.PT_LATE_ASSESSMENT_PENALTY;
+import static org.egov.pt.calculator.util.CalculatorConstants.PT_TAX;
+import static org.egov.pt.calculator.util.CalculatorConstants.PT_TIME_PENALTY;
+import static org.egov.pt.calculator.util.CalculatorConstants.PT_TIME_REBATE;
+import static org.egov.pt.calculator.util.CalculatorConstants.PT_TYPE_VACANT_LAND;
+import static org.egov.pt.calculator.util.CalculatorConstants.PT_USAGE_EXEMPTION;
+import static org.egov.pt.calculator.util.CalculatorConstants.REBATE_MASTER;
+import static org.egov.pt.calculator.util.CalculatorConstants.RENTED;
+import static org.egov.pt.calculator.util.CalculatorConstants.RESIDENTIAL;
+import static org.egov.pt.calculator.util.CalculatorConstants.ROAD_TYPE_JSON_STRING;
+import static org.egov.pt.calculator.util.CalculatorConstants.ROOMS_AREA_MULTIPLIER;
+import static org.egov.pt.calculator.util.CalculatorConstants.TAXHEADMASTER_MASTER_KEY;
+import static org.egov.pt.calculator.util.CalculatorConstants.TAX_RATE;
+import static org.egov.pt.calculator.util.CalculatorConstants.USAGE_SUB_MINOR_MASTER;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
@@ -34,6 +69,7 @@ import org.egov.pt.calculator.web.models.property.Rate;
 import org.egov.pt.calculator.web.models.property.Unit;
 import org.egov.pt.calculator.web.models.property.UnitAdditionalDetails;
 import org.egov.pt.calculator.web.models.property.UsageCategorySubMinor;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -52,9 +88,6 @@ public class EstimationService {
 
 	@Autowired
 	private MasterDataService mDataService;
-
-	@Autowired
-	private DemandService demandService;
 
 	@Autowired
 	CalculationValidator calcValidator;
@@ -126,7 +159,7 @@ public class EstimationService {
 		Property property = criteria.getProperty();
 		List<BillingSlab> filteredBillingSlabs = getSlabsFiltered(property, requestInfo);
 		if (CollectionUtils.isEmpty(filteredBillingSlabs)) {
-			// throw error No matching billing slabs
+			throw new CustomException(BILLING_SLAB_MATCH_ERROR_CODE, BILLING_SLAB_MATCH_ERROR_PROPERTY_MESSAGE);
 		}
 
 		TaxHeadEstimate ptTaxHead = getPropertyTaxhead(property, filteredBillingSlabs, masterMap,
@@ -137,7 +170,8 @@ public class EstimationService {
 		estimates.add(getLatePenaltyTaxhead(ptTaxHead.getEstimateAmount(), masterMap, criteria.getAssessmentYear()));
 		estimates.add(getLateAssessmentPenaltyTaxhead(property));
 		estimates.add(getAdHocPenaltyTaxhead(property));
-		estimates.add(getRebateTaxhead());
+		//TODO decide on how to get check user is paying in full
+		estimates.add(getRebateTaxhead(ptTaxHead.getEstimateAmount(), masterMap, true));
 		estimates.add(getAdHocRebateTaxhead(property));
 		estimates.add(getUsageExemptionTaxhead(exemption));
 
@@ -151,12 +185,23 @@ public class EstimationService {
 	}
 
 	/**
-	 * 
+	 * @param string
+	 * @param masterMap
+	 * @param bigDecimal
 	 * @return
 	 */
-	private TaxHeadEstimate getRebateTaxhead() {
-		
-		return TaxHeadEstimate.builder().taxHeadCode(PT_TIME_REBATE).estimateAmount(BigDecimal.ZERO).build();
+	private TaxHeadEstimate getRebateTaxhead(BigDecimal propertyTax, Map<String, List<Object>> masterMap,
+			boolean payingFull) {
+
+		BigDecimal rebate = BigDecimal.ZERO;
+		BigDecimal rebateRate = getRebateRate(masterMap);
+
+		if (payingFull) {
+			rebate = propertyTax.multiply(rebateRate).divide(HUNDRED);
+		}
+
+		return TaxHeadEstimate.builder().taxHeadCode(PT_TIME_REBATE).estimateAmount(rebate).build();
+
 	}
 
 	private TaxHeadEstimate getUsageExemptionTaxhead(BigDecimal exemption) {
@@ -166,13 +211,13 @@ public class EstimationService {
 
 	private TaxHeadEstimate getAdHocRebateTaxhead(Property property) {
 		Map details = (Map) property.getPropertyDetails().get(0).getAdditionalDetails();
-		BigDecimal amount = BigDecimal.valueOf((Integer) details.get(AD_HOC_REBATE_JSON_STRING));
+		BigDecimal amount = BigDecimal.valueOf((double) details.get(AD_HOC_REBATE_JSON_STRING));
 		return TaxHeadEstimate.builder().taxHeadCode(PT_ADHOC_REBATE).estimateAmount(amount).build();
 
 	}
 
 	/**
-	 * current date, assessment year, penalty rates
+	 *  calclate penalty based on current date, assessment year, penalty rates
 	 * 
 	 * @param bigDecimal
 	 * @param masterMap
@@ -186,7 +231,7 @@ public class EstimationService {
 
 		int fromYear = Integer.parseInt(assessmentYear.split("-")[0]) + 1;
 		int toYear = Year.now().getValue();
-		int years = toYear - fromYear;
+		int years = fromYear - toYear;
 
 		penalty = propertyTax.multiply(penaltyRate).divide(HUNDRED).multiply(BigDecimal.valueOf(years));
 
@@ -203,25 +248,12 @@ public class EstimationService {
 				.estimateAmount(property.getPropertyDetails().get(0).getAdhocPenalty()).build();
 	}
 
-	/**
-	 * 
-	 * @param property
-	 * @return
-	 */
 	private TaxHeadEstimate getLateAssessmentPenaltyTaxhead(Property property) {
 		Map details = (Map) property.getPropertyDetails().get(0).getAdditionalDetails();
-		BigDecimal amount = BigDecimal.valueOf((Integer)details.get(ONE_TIME_PENALTY_JSON_STRING));
+		BigDecimal amount = BigDecimal.valueOf((double) details.get(ONE_TIME_PENALTY_JSON_STRING));
 		return TaxHeadEstimate.builder().taxHeadCode(PT_LATE_ASSESSMENT_PENALTY).estimateAmount(amount).build();
 	}
 
-	/**
-	 * Calculates property taxes
-	 * 
-	 * @param property
-	 * @param filteredBillingSlabs
-	 * @param masterMap
-	 * @return
-	 */
 	private TaxHeadEstimate getPropertyTaxhead(Property property, List<BillingSlab> filteredBillingSlabs,
 			Map<String, List<Object>> masterMap, String assessmentYear, BigDecimal exemption) {
 
@@ -233,7 +265,8 @@ public class EstimationService {
 		// vacant Land AV = Carpet Area * residential unit rate * multiplier factor *12
 		if (propertyDetail.getPropertyType().equalsIgnoreCase(PT_TYPE_VACANT_LAND)) {
 			if (filteredBillingSlabs.size() != 1) {
-				// throw error
+				throw new CustomException(PT_ESTIMATE_BILLINGSLABS_UNMATCH_VACANCT,
+						MessageFormat.format(PT_ESTIMATE_BILLINGSLABS_UNMATCH_VACANT_MSG, filteredBillingSlabs.size()));
 			}
 
 			BigDecimal carpetArea = propertyDetail.getLandArea();
@@ -242,7 +275,7 @@ public class EstimationService {
 			BigDecimal taxRate = getTaxRate(masterMap, unit);
 			BigDecimal multipleFactor = getMultipleFactor(masterMap, unit);
 			BigDecimal landAV = carpetArea.multiply(unitRate).multiply(multipleFactor).multiply(monthMultiplier);
-			BigDecimal taxAmount = landAV.multiply(taxRate);
+			BigDecimal taxAmount = landAV.multiply(taxRate).divide(HUNDRED);
 
 			return TaxHeadEstimate.builder().taxHeadCode(PT_TAX).estimateAmount(taxAmount).build();
 
@@ -313,7 +346,8 @@ public class EstimationService {
 					}
 
 				} else {
-					// Throw error
+					throw new CustomException(BILLING_SLAB_MATCH_ERROR_CODE,
+							MessageFormat.format(BILLING_SLAB_MATCH_ERROR_MESSAGE, unit.getConstructionType()));
 				}
 
 				taxAmount = taxAmount.add(unitTaxAmount).add(unoccupiedLandTaxAmount);
@@ -388,7 +422,7 @@ public class EstimationService {
 
 		for (Object val : masterMap.get(PENALTY_INTREST_RATE)) {
 			Rate castedVal = (Rate) val;
-
+			// TODO : todate not metioned discuss and update it.
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 			LocalDate startDate = LocalDate.parse(castedVal.getStartingDay(), formatter);
 			LocalDate currentDate = LocalDate.now();
@@ -429,6 +463,22 @@ public class EstimationService {
 				return filtered.get(0).getRate();
 			}
 		}
+		return null;
+	}
+
+	private BigDecimal getRebateRate(Map<String, List<Object>> masterMap) {
+
+		for (Object val : masterMap.get(REBATE_MASTER)) {
+			Rate castedVal = (Rate) val;
+			// TODO : todate not metioned discuss and update it.
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+			LocalDate startDate = LocalDate.parse(castedVal.getStartingDay(), formatter);
+			LocalDate currentDate = LocalDate.now();
+			if (startDate.isBefore(currentDate)) {
+				return castedVal.getRate();
+			}
+		}
+
 		return null;
 	}
 
@@ -477,33 +527,31 @@ public class EstimationService {
 
 			Category category = taxHeadCategoryMap.get(estimate.getTaxHeadCode());
 			estimate.setCategory(category);
-			// TODO detele below after updating tax heads in mdms
-			if (category != null) {
-				switch (category) {
+			switch (category) {
 
-				case TAX:
-					taxAmt = taxAmt.add(estimate.getEstimateAmount());
-					if (estimate.getTaxHeadCode().equalsIgnoreCase(PT_TAX))
-						ptTax = ptTax.add(estimate.getEstimateAmount());
-					break;
+			case TAX:
+				taxAmt = taxAmt.add(estimate.getEstimateAmount());
+				if (estimate.getTaxHeadCode().equalsIgnoreCase(PT_TAX))
+					ptTax = ptTax.add(estimate.getEstimateAmount());
+				break;
 
-				case PENALTY:
-					penalty = penalty.add(estimate.getEstimateAmount());
-					break;
+			case PENALTY:
+				penalty = penalty.add(estimate.getEstimateAmount());
+				break;
 
-				case REBATE:
-					rebate = rebate.add(estimate.getEstimateAmount());
-					break;
+			case REBATE:
+				rebate = rebate.add(estimate.getEstimateAmount());
+				break;
 
-				case EXEMPTION:
-					exemption = exemption.add(estimate.getEstimateAmount());
-					break;
+			case EXEMPTION:
+				exemption = exemption.add(estimate.getEstimateAmount());
+				break;
 
-				default:
-					taxAmt = taxAmt.add(estimate.getEstimateAmount());
-					break;
-				}
+			default:
+				taxAmt = taxAmt.add(estimate.getEstimateAmount());
+				break;
 			}
+
 		}
 		TaxHeadEstimate decimalEstimate = payService.roundOfDecimals(taxAmt.add(penalty), rebate.add(exemption));
 		if (null != decimalEstimate) {
@@ -515,14 +563,13 @@ public class EstimationService {
 				rebate = rebate.add(decimalEstimate.getEstimateAmount());
 		}
 
-		BigDecimal totalAmount = taxAmt.add(penalty).add(rebate).add(exemption);
+		BigDecimal totalAmount = taxAmt.add(penalty).subtract(rebate).subtract(exemption);
 		// false in the argument represents that the demand shouldn't be updated from
 		// this call
 
-		return Calculation.builder().totalAmount(totalAmount).taxAmount(taxAmt)
-				.penalty(penalty).exemption(exemption).rebate(rebate).fromDate(fromDate).toDate(toDate)
-				.tenantId(tenantId).serviceNumber(assessmentNumber).taxHeadEstimates(estimates)
-				.billingSlabIds(billingSlabIds).build();
+		return Calculation.builder().totalAmount(totalAmount).taxAmount(taxAmt).penalty(penalty).exemption(exemption)
+				.rebate(rebate).fromDate(fromDate).toDate(toDate).tenantId(tenantId).serviceNumber(assessmentNumber)
+				.taxHeadEstimates(estimates).billingSlabIds(billingSlabIds).build();
 	}
 
 	/**

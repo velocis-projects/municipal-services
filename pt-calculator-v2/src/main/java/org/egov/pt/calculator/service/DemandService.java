@@ -138,6 +138,7 @@ public class DemandService {
 			res = restTemplate.postForObject(url, dmReq, DemandResponse.class);
 
 		} catch (HttpClientErrorException e) {
+			log.error(e.getMessage(), e);
 			throw new ServiceCallException(e.getResponseBodyAsString());
 		}
 		log.info(" The demand Response is : " + res);

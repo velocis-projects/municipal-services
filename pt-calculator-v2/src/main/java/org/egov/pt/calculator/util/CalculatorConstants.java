@@ -241,7 +241,8 @@ public class CalculatorConstants {
 	public static final String EMPTY_DEMAND_ERROR_MESSAGE = "No demands found for the given bill generate criteria";
 	
 	public static final String BILLING_SLAB_MATCH_ERROR_CODE = "NO_BILLING_SLAB_FOUND";
-	public static final String BILLING_SLAB_MATCH_ERROR_MESSAGE = "No matching slabs has been found for unit on FloorNo : {floor} of Area : {area} with usageCategoryDetail : {usageDetail}";
+	public static final String BILLING_SLAB_MATCH_ERROR_MESSAGE = "No matching slabs has been found for construction type {1}";
+	public static final String BILLING_SLAB_MATCH_ERROR_PROPERTY_MESSAGE = "No matching slabs has been found for given financial year, ward, mohalla, roadType, propertyType";
 
 	
 	public static final String BILLING_SLAB_MATCH_FLOOR = "{floor}";
@@ -270,7 +271,7 @@ public class CalculatorConstants {
 
 	
 	public static final String PT_ESTIMATE_BILLINGSLABS_UNMATCH_VACANCT = "PT_ESTIMATE_BILLINGSLABS_UNMATCH";
-	public static final String PT_ESTIMATE_BILLINGSLABS_UNMATCH_VACANT_MSG = "Incorrect count of {count} billing slabs has been found for the given VACANT LAND property detail";
+	public static final String PT_ESTIMATE_BILLINGSLABS_UNMATCH_VACANT_MSG = "Incorrect count, {0} billing slabs has been found for the given VACANT LAND property detail";
 
 	public static final String PT_ESTIMATE_BILLINGSLABS_UNMATCH = "PT_ESTIMATE_BILLINGSLABS_UNMATCH";
 	public static final String PT_ESTIMATE_BILLINGSLABS_UNMATCH_MSG = "more than one billing slab with ids : {ids} has been found for the given unit : ";

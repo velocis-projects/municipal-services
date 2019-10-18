@@ -26,4 +26,6 @@ public class Rate {
     private String fromFY;
     @JsonProperty("startingDay")
     private String startingDay;
+    @JsonProperty("endingDay")
+    private String endingDay;
 }
