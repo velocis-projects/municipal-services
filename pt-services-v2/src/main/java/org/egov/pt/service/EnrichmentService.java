@@ -123,7 +123,6 @@ public class EnrichmentService {
             property.setAuditDetails(updateAuditDetails);
             if(property.getWorkflow()!=null && !property.getWorkflow().isNull()){
                 property.setStatus(PropertyInfo.StatusEnum.INWORKFLOW);
-                enrichWorkflow(property,createAuditDetails);
             }
 
             //Not Required **
@@ -359,10 +358,12 @@ public class EnrichmentService {
     private void enrichWorkflow(Property property, AuditDetails auditDetails){
         Workflow workflow = property.getWorkflow();
         workflow.setId(UUID.randomUUID().toString());
+        workflow.setTenantId(property.getTenantId());
         workflow.setActive(true);
         workflow.setAuditDetails(auditDetails);
         workflow.setApplicationNumber(property.getPropertyDetails().get(0).getAssessmentNumber());
     }
+
 
 
     /**
@@ -370,7 +371,7 @@ public class EnrichmentService {
      * @param properties List of properties to be updated in assessment flow
      * @param searchFromProperties The properties to be updated from DB
      */
-    private void enrichOwnerInfoAndInstitutionFromDB(List<Property> properties,List<Property> searchFromProperties){
+    public void enrichOwnerInfoAndInstitutionFromDB(List<Property> properties,List<Property> searchFromProperties){
         Map<String,Property> idToPropertyFromDB = searchFromProperties.stream().collect(Collectors.toMap(Property::getPropertyId,Function.identity()));
 
         properties.forEach(property -> {
@@ -385,7 +386,7 @@ public class EnrichmentService {
      * @param properties
      * @param propertiesFromSearch
      */
-    private List<Property> enrichPropertyDetailFromDB(List<Property> properties,List<Property> propertiesFromSearch){
+    public List<Property> enrichPropertyDetailFromDB(List<Property> properties,List<Property> propertiesFromSearch){
         Map<String,Property> idToProperty = properties.stream().collect(Collectors.toMap(Property::getPropertyId,Function.identity()));
 
         propertiesFromSearch.forEach(propertyFromDB -> {
@@ -394,6 +395,8 @@ public class EnrichmentService {
         });
         return propertiesFromSearch;
     }
+
+
 
 
 }

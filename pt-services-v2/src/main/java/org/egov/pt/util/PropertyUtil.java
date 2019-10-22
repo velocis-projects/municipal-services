@@ -106,9 +106,15 @@ public class PropertyUtil {
      * Creates and returns the businessService search url
      * @return businessService search url
      */
-    public StringBuilder getBusinessServiceSearchUrl(){
+    public StringBuilder getBusinessServiceSearchUrl(String tenantId,String workflowName){
         StringBuilder builder = new StringBuilder(config.getWorkflowHost());
         builder.append(config.getBusinessServiceSearchEndpoint());
+        builder.append("?");
+        builder.append("tenantId=");
+        builder.append(tenantId);
+        builder.append("&");
+        builder.append("businessServices=?");
+        builder.append(workflowName);
         return builder;
     }
 

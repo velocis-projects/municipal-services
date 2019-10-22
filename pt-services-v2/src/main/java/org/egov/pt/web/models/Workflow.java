@@ -27,6 +27,10 @@ public class Workflow {
     @JsonProperty("id")
     private String id;
 
+    @Size(max=256)
+    @JsonProperty("tenantId")
+    private String tenantId;
+
     @Size(max=64)
     @JsonProperty("action")
     private String action;

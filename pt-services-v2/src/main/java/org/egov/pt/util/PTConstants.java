@@ -67,5 +67,9 @@ public class PTConstants {
 
 	public static final String PT_SELF_ASSESSMENT = "SELFASSESSMENT";
 
+    public static final String PT_ASSESSMENT_EDIT = "ASSESSMENTEDIT";
+
+    public static final String PT_MUTATION_EDIT = "MUTATIONEDIT";
+
 
 }

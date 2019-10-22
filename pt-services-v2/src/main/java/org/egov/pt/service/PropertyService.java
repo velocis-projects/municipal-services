@@ -7,6 +7,7 @@ import org.egov.pt.repository.PropertyRepository;
 import org.egov.pt.util.PropertyUtil;
 import org.egov.pt.validator.PropertyValidator;
 import org.egov.pt.web.models.*;
+import org.egov.pt.web.models.workflow.BusinessService;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,8 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 
+import static org.egov.pt.util.PTConstants.PT_ASSESSMENT_EDIT;
+import static org.egov.pt.util.PTConstants.PT_MUTATION_EDIT;
 import static org.egov.pt.util.PTConstants.PT_SELF_ASSESSMENT;
 
 @Service
@@ -42,6 +45,9 @@ public class PropertyService {
 
     @Autowired
     private PropertyUtil util;
+
+    @Autowired
+    private WorkflowService workflowService;
 
 
     /**
@@ -131,7 +137,7 @@ public class PropertyService {
      * @param request PropertyRequest containing list of properties to be update
      * @return List of updated properties
      */
-    public List<Property> updateProperty(PropertyRequest request) {
+    public List<Property> createNewSelfAssessment(PropertyRequest request) {
         userService.createCitizen(request);
         PropertyCriteria criteria = util.getPropertyCriteriaForSearch(request);
         List<Property> propertiesFromSearchResponse = repository.getProperties(criteria);
@@ -150,7 +156,7 @@ public class PropertyService {
      * @param request PropertyRequest containing list of properties to be update
      * @return List of updated properties
      */
-    public List<Property> update(PropertyRequest request) {
+    public List<Property> updateProperty(PropertyRequest request) {
 
         List<Property> properties = request.getProperties();
 
@@ -165,15 +171,93 @@ public class PropertyService {
             }
         });
 
+
+        if(workflowToPropertiesMap.containsKey(PT_SELF_ASSESSMENT))
+            createNewSelfAssessment(new PropertyRequest(request.getRequestInfo(),workflowToPropertiesMap.get(PT_SELF_ASSESSMENT)));
+
+        if(workflowToPropertiesMap.containsKey(PT_ASSESSMENT_EDIT))
+            updateAssessmentDetail(new PropertyRequest(request.getRequestInfo(),workflowToPropertiesMap.get(PT_ASSESSMENT_EDIT)));
+
+        if (workflowToPropertiesMap.containsKey(PT_MUTATION_EDIT))
+            updateOwnerDetail((new PropertyRequest(request.getRequestInfo(),workflowToPropertiesMap.get(PT_MUTATION_EDIT))));
+
+        return properties;
+    }
+
+
+    public List<Property> updateAssessmentDetail(PropertyRequest request) {
         PropertyCriteria criteria = util.getPropertyCriteriaForSearch(request);
         List<Property> propertiesFromSearchResponse = repository.getProperties(criteria);
-        userService.createCitizen(request);
         propertyValidator.validateUpdateRequest(request,propertiesFromSearchResponse);
-        enrichmentService.enrichCreateRequest(request, true);
-        userService.createUser(request);
-        calculationService.calculateTax(request);
-        producer.push(config.getUpdatePropertyTopic(), request);
+
+        List<Property> propertiesForEdit = new LinkedList<>();
+        List<Property> propertiesForStatusUpdate = new LinkedList<>();
+
+        BusinessService businessService = workflowService.getBusinessService(request.getRequestInfo(),request.getProperties().get(0).getWorkflow());
+
+        request.getProperties().forEach(property -> {
+            if(workflowService.isStateUpdatable(businessService,property.getWorkflow()))
+                propertiesForEdit.add(property);
+            else propertiesForStatusUpdate.add(property);
+        });
+
+        if(!CollectionUtils.isEmpty(propertiesForEdit)){
+            enrichmentService.enrichOwnerInfoAndInstitutionFromDB(propertiesForEdit,propertiesFromSearchResponse);
+            producer.push(config.getUpdatePropertyTopic(), request);
+        }
+        if(!CollectionUtils.isEmpty(propertiesForStatusUpdate)){
+            updateStatus(new PropertyRequest(request.getRequestInfo(),propertiesForStatusUpdate));
+        }
+
+
         return request.getProperties();
+    }
+
+
+    public List<Property> updateOwnerDetail(PropertyRequest request) {
+        PropertyCriteria criteria = util.getPropertyCriteriaForSearch(request);
+        List<Property> propertiesFromSearchResponse = repository.getProperties(criteria);
+        propertyValidator.validateUpdateRequest(request,propertiesFromSearchResponse);
+
+        List<Property> propertiesForEdit = new LinkedList<>();
+        List<Property> propertiesForStatusUpdate = new LinkedList<>();
+
+        BusinessService businessService = workflowService.getBusinessService(request.getRequestInfo(),request.getProperties().get(0).getWorkflow());
+
+        request.getProperties().forEach(property -> {
+            if(workflowService.isStateUpdatable(businessService,property.getWorkflow()))
+                propertiesForEdit.add(property);
+            else propertiesForStatusUpdate.add(property);
+        });
+
+        if(!CollectionUtils.isEmpty(propertiesForEdit)){
+            enrichmentService.enrichPropertyDetailFromDB(request.getProperties(),propertiesFromSearchResponse);
+            producer.push(config.getUpdatePropertyTopic(), request);
+        }
+
+        if(!CollectionUtils.isEmpty(propertiesForStatusUpdate))
+            updateStatus(new PropertyRequest(request.getRequestInfo(),propertiesForStatusUpdate));
+
+        return request.getProperties();
+    }
+
+
+
+    /**
+     * Updates the status of the property
+     * @param request
+     * @return
+     */
+    public List<Property> updateStatus(PropertyRequest request) {
+        List<Property> properties = request.getProperties();
+        AuditDetails updatedAuditDetails = util.getAuditDetails(request.getRequestInfo().getUserInfo().getUuid(),false);
+        properties.forEach(property -> {
+            property.getWorkflow().setAuditDetails(updatedAuditDetails);
+            property.setAuditDetails(updatedAuditDetails);
+        });
+        workflowService.updateStatus(request.getRequestInfo(),properties);
+        producer.push(config.getStatusUpdateTopic(),request);
+        return properties;
     }
 
 
@@ -214,4 +298,6 @@ public class PropertyService {
 
         return properties;
     }
+
+
 }

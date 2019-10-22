@@ -7,11 +7,9 @@ import org.egov.pt.repository.ServiceRequestRepository;
 import org.egov.pt.util.PropertyUtil;
 import org.egov.pt.web.models.Property;
 import org.egov.pt.web.models.PropertyInfo;
+import org.egov.pt.web.models.RequestInfoWrapper;
 import org.egov.pt.web.models.Workflow;
-import org.egov.pt.web.models.workflow.ProcessInstance;
-import org.egov.pt.web.models.workflow.ProcessInstanceRequest;
-import org.egov.pt.web.models.workflow.ProcessInstanceResponse;
-import org.egov.pt.web.models.workflow.State;
+import org.egov.pt.web.models.workflow.*;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,7 +42,7 @@ public class WorkflowService {
      * @param properties Properties whose status are to be updated
      * @return
      */
-    private List<Property> updateStatus(RequestInfo requestInfo, List<Property> properties){
+    public List<Property> updateStatus(RequestInfo requestInfo, List<Property> properties){
 
         List<ProcessInstance> processInstances = new LinkedList<>();
 
@@ -89,7 +87,6 @@ public class WorkflowService {
             else{
                 errorMap.put("PROCESSINSTANCE_NOT_FOUND","The processInStance for assessmentNumber is not found for: "+property.getWorkflow().getApplicationNumber()
                         +" in status update response");
-
             }
         });
 
@@ -98,6 +95,43 @@ public class WorkflowService {
 
         return properties;
 
+    }
+
+
+
+    public BusinessService getBusinessService(RequestInfo requestInfo, Workflow workflow){
+
+        String tenantId = workflow.getTenantId();
+        String workflowName = workflow.getWorkflowName();
+
+        RequestInfoWrapper requestInfoWrapper = RequestInfoWrapper.builder().requestInfo(requestInfo).build();
+        StringBuilder url = util.getBusinessServiceSearchUrl(tenantId,workflowName);
+        Object res = serviceRequestRepository.fetchResult(url, requestInfoWrapper);
+        BusinessServiceResponse businessServiceResponse = null;
+        try{
+             businessServiceResponse = mapper.convertValue(res,BusinessServiceResponse.class);
+        }
+        catch (Exception e){
+           throw new  CustomException("BUSINESSSERVICE_ERROR","Failed to parse businessService search response");
+        }
+
+        return businessServiceResponse.getBusinessServices().get(0);
+    }
+
+
+
+    public Boolean isStateUpdatable(BusinessService businessService, Workflow workflow){
+        State propertyState = null;
+        for(State state : businessService.getStates()){
+            if(state.getState().equalsIgnoreCase(workflow.getStatus())){
+                propertyState = state;
+                break;
+            }
+        }
+        if(propertyState == null)
+            throw new CustomException("INVALID_STATUS","The status: "+workflow.getStatus()+" is not found in the businessService: "+businessService.getBusinessService());
+
+        return propertyState.getIsStateUpdatable();
     }
 
 

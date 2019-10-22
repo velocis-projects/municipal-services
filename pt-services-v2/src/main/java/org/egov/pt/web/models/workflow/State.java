@@ -3,9 +3,11 @@ package org.egov.pt.web.models.workflow;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import lombok.*;
+import org.egov.pt.web.models.AuditDetails;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,15 +28,18 @@ import java.util.List;
 @EqualsAndHashCode(of = {"tenantId","businessServiceId","state"})
 public class State   {
 
+        @NotNull
         @Size(max=256)
         @JsonProperty("uuid")
         private String uuid;
 
+        @NotNull
         @Size(max=256)
         @JsonProperty("tenantId")
         private String tenantId;
 
         @Size(max=256)
+        @NotNull
         @JsonProperty("businessServiceId")
         private String businessServiceId;
 
@@ -42,6 +47,7 @@ public class State   {
         private Long sla;
 
         @Size(max=256)
+        @NotNull
         @JsonProperty("state")
         private String state;
 
@@ -58,6 +64,7 @@ public class State   {
         @JsonProperty("isTerminateState")
         private Boolean isTerminateState;
 
+        @NotNull
         @JsonProperty("isStateUpdatable")
         private Boolean isStateUpdatable;
 

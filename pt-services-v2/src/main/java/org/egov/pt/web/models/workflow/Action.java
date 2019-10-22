@@ -3,6 +3,7 @@ package org.egov.pt.web.models.workflow;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import lombok.*;
+import org.egov.pt.web.models.AuditDetails;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;

@@ -59,6 +59,11 @@ public class PropertyConfiguration {
 
     @Value("${persister.update.drafts.topic}")
     private String updateDraftsTopic;
+
+    @Value("${persister.status.update.property.topic}")
+    private String statusUpdateTopic;
+
+
     
     
     //USER

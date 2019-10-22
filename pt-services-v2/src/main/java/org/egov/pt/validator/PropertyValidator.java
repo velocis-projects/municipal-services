@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.mdms.model.MdmsCriteriaReq;
@@ -17,13 +19,8 @@ import org.egov.pt.repository.ServiceRequestRepository;
 import org.egov.pt.util.ErrorConstants;
 import  org.egov.pt.util.PTConstants;
 import org.egov.pt.util.PropertyUtil;
-import org.egov.pt.web.models.Document;
-import org.egov.pt.web.models.OwnerInfo;
-import org.egov.pt.web.models.Property;
-import org.egov.pt.web.models.PropertyCriteria;
-import org.egov.pt.web.models.PropertyDetail;
-import org.egov.pt.web.models.PropertyRequest;
-import org.egov.pt.web.models.Unit;
+import org.egov.pt.web.models.*;
+import org.egov.pt.web.models.workflow.BusinessService;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -83,6 +80,7 @@ public class PropertyValidator {
         propertyUtil.addAddressIds(propertiesFromSearchResponse,request.getProperties());
         validateMasterData(request);
         validateCitizenInfo(request);
+        validateWorkflow(request,propertiesFromSearchResponse);
         if(request.getRequestInfo().getUserInfo().getType().equalsIgnoreCase("CITIZEN"))
             validateAssessees(request);
     }
@@ -525,6 +523,35 @@ public class PropertyValidator {
         if(Character.getNumericValue(mobileNumber.charAt(0))<5)
             return false;
         return true;
+    }
+
+
+
+    private void validateWorkflow(PropertyRequest request, List<Property> propertiesFromSearchResponse){
+
+        Map<String,Property> idToPropertyFromSearch = propertiesFromSearchResponse.stream()
+                .collect(Collectors.toMap(Property::getPropertyId, Function.identity()));
+
+        HashMap<String,String> errorMap = new HashMap<>();
+        request.getProperties().forEach(property -> {
+            String statusInSearch = idToPropertyFromSearch.get(property.getPropertyId()).getStatus().toString();
+            String workflowNameInSearch = idToPropertyFromSearch.get(property.getPropertyId()).getWorkflow().getWorkflowName();
+                if((property.getWorkflow()==null || property.getWorkflow().isNull())
+                        && statusInSearch.equalsIgnoreCase(Property.StatusEnum.INWORKFLOW.toString())){
+                    errorMap.put("INVALID_WORKFLOW","The workflow object cannot be null as the property is still in workflow");
+                }
+
+                if((property.getWorkflow()!=null && !property.getWorkflow().isNull()) &&
+                        statusInSearch.equalsIgnoreCase(Property.StatusEnum.INWORKFLOW.toString()) &&
+                        !property.getWorkflow().getWorkflowName().equalsIgnoreCase(workflowNameInSearch)){
+                    errorMap.put("INVALID_WORKFLOW","The property wuth id: "+property.getPropertyId() +" is active in another workflow");
+                }
+            }
+        );
+
+        if(!errorMap.isEmpty())
+            throw new CustomException(errorMap);
+
     }
 
 
