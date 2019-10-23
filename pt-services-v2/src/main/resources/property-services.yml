@@ -231,7 +231,7 @@ serviceMaps:
       - jsonPath: $.Properties.*.auditDetails.lastModifiedTime
 
 
-    - query: INSERT INTO eg_pt_workflow_v2(tenantId, id, action, status, applicationnumber, workflowname, active, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?,?, ?, ?, ?);
+    - query: INSERT INTO eg_pt_workflow_v2(tenantId, id, action, status, applicationnumber, workflowname, active, comment, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?,?, ?, ?, ?);
       basePath: Properties.*.workflow
       jsonMaps:
 
@@ -248,6 +248,8 @@ serviceMaps:
       - jsonPath: $.Properties.*.workflow.workflowname
 
       - jsonPath: $.Properties.*.workflow.active
+
+      - jsonPath: $.Properties.*.workflow.comment
 
       - jsonPath: $.Properties.*.workflow.auditDetails.createdBy
 
@@ -767,6 +769,46 @@ serviceMaps:
       - jsonPath: $.Properties.*.propertyDetails.*.auditDetails.lastModifiedTime
 
 
+
+    - query: INSERT INTO eg_pt_workflow_v2(tenantId, id, action, status, applicationnumber, workflowname, active, comment, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?,?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET action=?, status=?,comment=?,lastmodifiedby=?, lastmodifiedtime=?;
+      basePath: Properties.*.workflow
+      jsonMaps:
+
+      - jsonPath: $.Properties.*.tenantId
+
+      - jsonPath: $.Properties.*.workflow.id
+
+      - jsonPath: $.Properties.*.workflow.action
+
+      - jsonPath: $.Properties.*.workflow.status
+
+      - jsonPath: $.Properties.*.workflow.applicationnumber
+
+      - jsonPath: $.Properties.*.workflow.workflowname
+
+      - jsonPath: $.Properties.*.workflow.active
+
+      - jsonPath: $.Properties.*.workflow.comment
+
+      - jsonPath: $.Properties.*.workflow.auditDetails.createdBy
+
+      - jsonPath: $.Properties.*.workflow.auditDetails.lastModifiedBy
+
+      - jsonPath: $.Properties.*.workflow.auditDetails.createdTime
+
+      - jsonPath: $.Properties.*.workflow.auditDetails.lastModifiedTime
+
+      - jsonPath: $.Properties.*.workflow.action
+
+      - jsonPath: $.Properties.*.workflow.status
+
+      - jsonPath: $.Properties.*.workflow.comment
+
+      - jsonPath: $.Properties.*.workflow.auditDetails.lastModifiedBy
+
+      - jsonPath: $.Properties.*.workflow.auditDetails.lastModifiedTime
+
+
   - version: 1.0
     description: Cancel property details in eg_pt_propertydetail_v2  table
     fromTopic: cancel-pt-propertyDetail
@@ -821,13 +863,15 @@ serviceMaps:
     isTransaction: true
     queryMaps:
 
-    - query: UPDATE eg_pt_workflow_v2 SET action=?, status=?,lastmodifiedby=?, lastmodifiedtime=? WHERE id=?;
+    - query: UPDATE eg_pt_workflow_v2 SET action=?, status=?,comment=?,lastmodifiedby=?, lastmodifiedtime=? WHERE id=?;
       basePath: Properties.*.workflow
       jsonMaps:
 
       - jsonPath: $.Properties.*.workflow.action
 
       - jsonPath: $.Properties.*.workflow.status
+
+      - jsonPath: $.Properties.*.workflow.comment
 
       - jsonPath: $.Properties.*.workflow.auditDetails.lastModifiedBy
 

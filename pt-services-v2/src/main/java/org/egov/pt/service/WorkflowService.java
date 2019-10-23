@@ -53,6 +53,7 @@ public class WorkflowService {
                     .action(workflow.getAction())
                     .businessId(workflow.getApplicationNumber())
                     .businessService(workflow.getWorkflowName())
+                    .comment(workflow.getComment())
                     .documents(workflow.getDocuments())
                     .tenantId(property.getTenantId())
                     .build();

@@ -47,6 +47,10 @@ public class Workflow {
     @JsonProperty("workflowName")
     private String workflowName;
 
+    @Size(max=2048)
+    @JsonProperty("comment")
+    private String comment;
+
     @Valid
     @JsonProperty("documents")
     private List<Document> documents;
