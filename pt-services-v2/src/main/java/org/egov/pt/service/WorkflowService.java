@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.egov.pt.util.PTConstants.PT_MODULENAME;
+
 @Service
 @Slf4j
 public class WorkflowService {
@@ -54,6 +56,7 @@ public class WorkflowService {
                     .businessId(workflow.getApplicationNumber())
                     .businessService(workflow.getWorkflowName())
                     .comment(workflow.getComment())
+                    .moduleName(PT_MODULENAME)
                     .documents(workflow.getDocuments())
                     .tenantId(property.getTenantId())
                     .build();

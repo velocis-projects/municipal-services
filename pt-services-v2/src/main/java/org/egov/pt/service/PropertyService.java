@@ -61,6 +61,7 @@ public class PropertyService {
         enrichmentService.enrichCreateRequest(request, false);
         userService.createUser(request);
         userService.createCitizen(request);
+        workflowService.updateStatus(request.getRequestInfo(),request.getProperties());
         calculationService.calculateTax(request);
         producer.push(config.getSavePropertyTopic(), request);
         return request.getProperties();

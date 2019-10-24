@@ -48,11 +48,6 @@ public class EnrichmentService {
             {  property.getAddress().setId(UUID.randomUUID().toString());
             }
 
-            if(property.getWorkflow()!=null && !property.getWorkflow().isNull()){
-                property.setStatus(PropertyInfo.StatusEnum.INWORKFLOW);
-                enrichWorkflow(property,assessmentAuditDetails);
-            }
-
             setAssessmentNo(property.getTenantId(),property.getPropertyDetails(),requestInfo);
             property.getAddress().setTenantId(property.getTenantId());
             property.setAuditDetails(propertyAuditDetails);
@@ -91,6 +86,10 @@ public class EnrichmentService {
                     }
                 }
             });
+            if(property.getWorkflow()!=null && !property.getWorkflow().isNull()){
+                property.setStatus(PropertyInfo.StatusEnum.INWORKFLOW);
+                enrichWorkflow(property,assessmentAuditDetails);
+            }
         }
         if(!onlyPropertyDetail)
             setIdgenIds(request);

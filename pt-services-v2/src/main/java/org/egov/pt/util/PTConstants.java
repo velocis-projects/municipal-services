@@ -71,5 +71,6 @@ public class PTConstants {
 
     public static final String PT_MUTATION_EDIT = "MUTATIONEDIT";
 
+    public static final String PT_MODULENAME = "PT";
 
 }

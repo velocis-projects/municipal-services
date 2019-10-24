@@ -7,7 +7,7 @@ CREATE TABLE eg_pt_workflow_v2(
   applicationNumber character varying(128),
   workflowName character varying(256),
   active boolean,
-  comment character varying(2048);
+  comment character varying(2048),
   createdby character varying(128),
   createdtime bigint,
   lastmodifiedby character varying(128),

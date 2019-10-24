@@ -54,7 +54,6 @@ public class ProcessInstance   {
         @JsonProperty("action")
         private String action = null;
 
-        @NotNull
         @Size(max=64)
         @JsonProperty("moduleName")
         private String moduleName = null;
