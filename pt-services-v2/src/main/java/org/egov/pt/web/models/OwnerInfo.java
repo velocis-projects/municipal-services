@@ -7,7 +7,6 @@ import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.*;
 import org.springframework.validation.annotation.Validated;
 
