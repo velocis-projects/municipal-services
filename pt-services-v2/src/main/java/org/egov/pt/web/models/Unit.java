@@ -92,5 +92,8 @@ public class Unit   {
         @JsonProperty("active")
         private Boolean active;
 
+        @JsonProperty("additionalDetails")
+        private Object additionalDetails;
+
 }
 
