@@ -244,9 +244,14 @@ public class DemandService {
 		/**
 		 * Call demand update in bulk to update the interest or penalty
 		 */
-		DemandRequest request = DemandRequest.builder().demands(demandsToBeUpdated).requestInfo(requestInfo).build();
-		StringBuilder updateDemandUrl = utils.getUpdateDemandUrl();
-		repository.fetchResult(updateDemandUrl, request);
+		/* TODO Need to get clarification on interest. After getting clarified will comment it out.*/
+		/*
+		 * DemandRequest request =
+		 * DemandRequest.builder().demands(demandsToBeUpdated).requestInfo(
+		 * requestInfo).build(); StringBuilder updateDemandUrl =
+		 * utils.getUpdateDemandUrl(); repository.fetchResult(updateDemandUrl,
+		 * request);
+		 */
 		return res;
 	}
 
