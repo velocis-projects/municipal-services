@@ -95,6 +95,7 @@ public class DemandService {
 	 */
 	public Map<String, Calculation> calculate(CalculationReq request) {
 		List<CalculationCriteria> requestCriterias = request.getCalculationCriteria();
+		//We are assuming all property details should be from same source in a property
 		List<CalculationCriteria> criterias = request.getCalculationCriteria().stream().filter(criteria -> !criteria
 				.getProperty().getPropertyDetails().get(0).getSource().equals(SourceEnum.LEGACY_RECORD))
 				.collect(Collectors.toList());
@@ -109,7 +110,10 @@ public class DemandService {
 			return estimateMap;
 		} else {
 			Map<String, Calculation> estimateMap = new HashMap<String, Calculation>();
-			requestCriterias.stream().forEach(criteria -> estimateMap.put(criteria.getProperty().getPropertyDetails().get(0).getAssessmentNumber(), Calculation.builder().build()));
+			//Sending empty Calculation for Legacy Records.
+			requestCriterias.stream().forEach(
+					criteria -> criteria.getProperty().getPropertyDetails().forEach(propertyDetail -> estimateMap
+							.put(propertyDetail.getAssessmentNumber(), Calculation.builder().build())));
 			return estimateMap;
 		}
 	}
