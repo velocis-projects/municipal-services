@@ -212,6 +212,8 @@ public class CalculatorConstants {
 
 	public static final String CONSUMER_CODE_SEARCH_FIELD_NAME = "consumerCode=";
 
+	public static final String CONSUMER_CODE_SEARCH_FIELD_NAME_PAYMENT = "consumerCodes=";
+
 	public static final String DEMAND_ID_SEARCH_FIELD_NAME = "demandId=";
 	
 	public static final String DEMAND_CANCELLED_STATUS = DemandStatus.CANCELLED.toString();

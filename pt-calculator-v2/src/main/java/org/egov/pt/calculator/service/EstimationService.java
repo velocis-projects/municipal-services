@@ -75,6 +75,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONArray;
 
 @Service
 @Slf4j
@@ -109,7 +110,8 @@ public class EstimationService {
 
 		Map<String, Object> masterFinancilMap = mDataService.getMasterMap(request);
 		Map<String, List<Object>> masterMap = new HashMap<>();
-		mDataService.setPropertyMasterValues(requestInfo, tenantId, masterMap);
+		Map<String, JSONArray> jsonMasterMap = new HashMap<>();
+		mDataService.setPropertyMasterValues(requestInfo, tenantId, masterMap, jsonMasterMap);
 		Map<String, Calculation> calculationPropertyMap = new HashMap<>();
 		for (CalculationCriteria criteria : criteriaList) {
 			Property property = criteria.getProperty();

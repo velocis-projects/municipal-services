@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,16 +30,20 @@ import org.egov.pt.calculator.service.ReceiptService;
 import org.egov.pt.calculator.web.models.Assessment;
 import org.egov.pt.calculator.web.models.DemandDetailAndCollection;
 import org.egov.pt.calculator.web.models.GetBillCriteria;
+import org.egov.pt.calculator.web.models.collections.Payment;
+import org.egov.pt.calculator.web.models.collections.PaymentSearchCriteria;
 import org.egov.pt.calculator.web.models.collections.Receipt;
 import org.egov.pt.calculator.web.models.demand.BillAccountDetail;
 import org.egov.pt.calculator.web.models.demand.Demand;
 import org.egov.pt.calculator.web.models.demand.DemandDetail;
+import org.egov.pt.calculator.web.models.demand.TaxPeriod;
 import org.egov.pt.calculator.web.models.property.AuditDetails;
 import org.egov.pt.calculator.web.models.property.RequestInfoWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import static org.egov.pt.calculator.util.CalculatorConstants.*;
 
 import lombok.Getter;
 
@@ -265,6 +270,25 @@ public class CalculatorUtils {
 		return taxAmt;
 	}
 
+	   /**
+     * Returns the Receipt search Url with tenantId, cosumerCode,service name and tax period
+     * parameters
+     *
+     * @param criteria
+     * @return
+     */
+    public StringBuilder getPaymentSearchUrl(PaymentSearchCriteria criteria) {
+
+
+        return new StringBuilder().append(configurations.getCollectionServiceHost())
+                .append(configurations.getPaymentSearchEndpoint()).append(URL_PARAMS_SEPARATER)
+                .append(TENANT_ID_FIELD_FOR_SEARCH_URL).append(criteria.getTenantId())
+                .append(SEPARATER).append(CONSUMER_CODE_SEARCH_FIELD_NAME_PAYMENT)
+                .append(criteria.getConsumerCodes())
+                .append(CalculatorConstants.SEPARATER).append(STATUS_FIELD_FOR_SEARCH_URL)
+                .append(ALLOWED_RECEIPT_STATUS);
+    }
+
 	/**
 	 * Returns url for demand update Api
 	 *
@@ -484,5 +508,37 @@ public class CalculatorUtils {
 
 		return isDepreciationAllowed;
 	}
+
+	/**
+     * Returns the applicable total tax amount to be paid after the receipt
+     *
+     * @param payment
+     * @return
+     */
+    public BigDecimal getTaxAmtFromPaymentForApplicablesGeneration(Payment payment,TaxPeriod taxPeriod) {
+        BigDecimal taxAmt = BigDecimal.ZERO;
+        BigDecimal amtPaid = BigDecimal.ZERO;
+
+        List<BillAccountDetail> billAccountDetails = new LinkedList<>();
+
+        payment.getPaymentDetails().forEach(paymentDetail -> {
+            if(paymentDetail.getBusinessService().equalsIgnoreCase(SERVICE_FIELD_VALUE_PT)) {
+                paymentDetail.getBill().getBillDetails().forEach(billDetail -> {
+                    if (billDetail.getFromPeriod() == taxPeriod.getFromDate() && billDetail.getToPeriod() == taxPeriod.getToDate()) {
+                        billAccountDetails.addAll(billDetail.getBillAccountDetails());
+                    }
+                });
+            }
+        });
+
+
+        for (BillAccountDetail detail : billAccountDetails) {
+            if (TAXES_TO_BE_CONSIDERD.contains(detail.getTaxHeadCode())) {
+                taxAmt = taxAmt.add(detail.getAmount());
+                amtPaid = amtPaid.add(detail.getAdjustedAmount());
+            }
+        }
+        return taxAmt.subtract(amtPaid);
+    }
 
 }

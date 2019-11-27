@@ -58,6 +58,9 @@ public class Configurations {
 	@Value("${egov.receipt.search.endpoint}")
 	private String	ReceiptSearchEndpoint;
 	
+	@Value("${egov.payment.search.endpoint}")
+	private String	PaymentSearchEndpoint;
+
 	// billing slab configs
 		
 	@Value("${billingslab.value.all}")

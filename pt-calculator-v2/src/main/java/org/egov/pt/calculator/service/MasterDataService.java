@@ -152,11 +152,12 @@ public class MasterDataService {
 	 * @param tenantId
 	 */
 	@SuppressWarnings({ "typeSafety", "unchecked" })
-	public void setPropertyMasterValues(RequestInfo requestInfo, String tenantId, Map<String, List<Object>> masterMap) {
+	public void setPropertyMasterValues(RequestInfo requestInfo, String tenantId, Map<String, List<Object>> masterMap, Map<String, JSONArray> jsonMasterMap) {
 
 		MdmsResponse response = mapper.convertValue(repository.fetchResult(calculatorUtils.getMdmsSearchUrl(),
 				calculatorUtils.getPropertyModuleRequest(requestInfo, tenantId)), MdmsResponse.class);
-		Map<String, JSONArray> res = response.getMdmsRes().get(CalculatorConstants.PROPERTY_TAX_MODULE);
+		jsonMasterMap = response.getMdmsRes().get(CalculatorConstants.PROPERTY_TAX_MODULE);
+		Map<String, JSONArray> res = jsonMasterMap;
 
 		for (Entry<String, JSONArray> mapEntry : res.entrySet()) {
 
