@@ -12,6 +12,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -46,6 +47,7 @@ import org.springframework.util.CollectionUtils;
 import static org.egov.pt.calculator.util.CalculatorConstants.*;
 
 import lombok.Getter;
+import net.minidev.json.JSONArray;
 
 @Component
 @Getter
@@ -487,6 +489,24 @@ public class CalculatorUtils {
 	}
 
 	/**
+	 * Returns the finacial year start year.
+	 * 
+	 * @param epoch The epoch time for which end of day time is required
+	 * @return End of day epoch time for the given time
+	 */
+	public static int getFYstartYear(Long epoch) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis(epoch);
+		int year = calendar.get(Calendar.YEAR);
+		// march is 2
+		if (calendar.get(Calendar.MONTH) < 2) {
+			return year - 1;
+		} else {
+			return year;
+		}
+	}
+
+	/**
 	 * Check if Depreciation is allowed for this Property.
 	 * In case there is no receipt the depreciation will be allowed
 	 * @param assessmentYear The year for which existing receipts needs to be checked
@@ -540,5 +560,17 @@ public class CalculatorUtils {
         }
         return taxAmt.subtract(amtPaid);
     }
+
+	public BigDecimal getInterestRateForTaxperiod(String financialYear, List<Object> interestMasterList) {
+
+		for (Object object : interestMasterList){
+			Map<String, Object> interestMap =  (Map<String, Object>) object;
+			if( ((String) interestMap.get(CalculatorConstants.FY_FIELD_NAME)).equals(financialYear) ){
+				return BigDecimal.valueOf(((Number) interestMap.get(CalculatorConstants.RATE_FIELD_NAME)).doubleValue());
+			}
+		}
+
+		return null;
+	}
 
 }
