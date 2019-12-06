@@ -124,7 +124,10 @@ public class PaymentNotificationService {
 
         }
         catch(Exception e)
-        {throw new CustomException("LOCALIZATION ERROR","Unable to get message from localization");}
+        {
+            log.error(e.getMessage());
+            throw new CustomException("LOCALIZATION ERROR","Unable to get message from localization");
+        }
     }
     
     
