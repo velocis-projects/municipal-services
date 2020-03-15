@@ -108,7 +108,12 @@ public class Service   {
     
     REASSIGNREQUESTED("reassignrequested"),
     
-    RESOLVED("resolved");    
+    RESOLVED("resolved"),   
+	  
+	ESCALATEDLEVEL1PENDING("escalatedlevel1pending"),
+	
+	ESCALATEDLEVEL2PENDING("escalatedlevel2pending"),
+	;
 
     private String value;
 
@@ -196,6 +201,9 @@ public class Service   {
   
   @JsonProperty("landmark")
   private String landmark;
+  
+  @JsonProperty("category")
+  private String category;
   
   }
 

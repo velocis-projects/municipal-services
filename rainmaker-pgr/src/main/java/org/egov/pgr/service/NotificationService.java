@@ -18,8 +18,11 @@ import org.egov.pgr.model.ActionInfo;
 import org.egov.pgr.model.Service;
 import org.egov.pgr.model.user.UserResponse;
 import org.egov.pgr.repository.ServiceRequestRepository;
+import org.egov.pgr.utils.ErrorConstants;
 import org.egov.pgr.utils.PGRConstants;
 import org.egov.pgr.utils.PGRUtils;
+import org.egov.pgr.utils.WorkFlowConfigs;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -89,7 +92,7 @@ public class NotificationService {
 				return null;
 			if (null == localizedMessageMap.get(locale + "|" + tenantId)) // static map that saves code-message pair against locale | tenantId.
 				getLocalisedMessages(requestInfo, tenantId, locale, PGRConstants.LOCALIZATION_MODULE_NAME);
-			serviceType = localizedMessageMap.get(locale + "|" + tenantId).get(PGRConstants.LOCALIZATION_COMP_CATEGORY_PREFIX + serviceTypes.get(0)); //result set is always of size one.
+			serviceType = localizedMessageMap.get(locale + "|" + tenantId).get(PGRConstants.LOCALIZATION_COMP_CATEGORY_PREFIX1 + serviceTypes.get(0).toUpperCase()); //result set is always of size one.
 			if(StringUtils.isEmpty(serviceType))
 				serviceType = PGRUtils.splitCamelCase(serviceTypes.get(0));
 		} catch (Exception e) {
@@ -123,8 +126,15 @@ public class NotificationService {
 			}
 			employeeDetails.put("name", JsonPath.read(response, PGRConstants.EMPLOYEE_NAME_JSONPATH));
 			employeeDetails.put("phone", JsonPath.read(response, PGRConstants.EMPLOYEE_PHNO_JSONPATH));
-			employeeDetails.put("department", ((List<String>) JsonPath.read(response, PGRConstants.EMPLOYEE_DEPTCODE_JSONPATH)).get(0));
-			employeeDetails.put("designation", ((List<String>)JsonPath.read(response, PGRConstants.EMPLOYEE_DESGCODE_JSONPATH)).get(0));
+			
+			List<String> depts = JsonPath.read(response, PGRConstants.EMPLOYEE_DEPTCODE_JSONPATH);
+			if(!CollectionUtils.isEmpty(depts)) {
+				employeeDetails.put("department", depts.get(0));
+			}
+			List<String> designnations = JsonPath.read(response, PGRConstants.EMPLOYEE_DESGCODE_JSONPATH);
+			if(!CollectionUtils.isEmpty(designnations)) {
+				employeeDetails.put("designation", designnations.get(0));
+			}
 		} catch (Exception e) {
 			log.error("Exception: ", e);
 		}
@@ -151,11 +161,19 @@ public class NotificationService {
 					 return department;
 				}
 				try {
-					List<String> departments = JsonPath.read(response, "$.MdmsRes.RAINMAKER-PGR.ServiceDefs.[?(@.serviceCode=='" + serviceReq.getServiceCode() + "')].department");
-					if(CollectionUtils.isEmpty(departments)) {
+					List<String> departmentCodes = JsonPath.read(response, "$.MdmsRes.RAINMAKER-PGR.ServiceDefs.[?(@.serviceCode=='" + serviceReq.getServiceCode() + "')].department");
+					if(CollectionUtils.isEmpty(departmentCodes)) {
 						 return department;
 					}else {
-						department = departments.get(0); //Every serviceCode is mapped to always only one dept.
+						String departmentCode = departmentCodes.get(0); //Every serviceCode is mapped to always only one dept.
+						Object response1 = requestService.fetchPgrDepartment(requestInfo, serviceReq.getTenantId(), departmentCode);
+						if (null == response1) {
+							 return department;
+						}
+						List<String> departments = JsonPath.read(response, "$.MdmsRes.RAINMAKER-PGR.PgrDepartment.name");
+						if(!CollectionUtils.isEmpty(departments)) {
+							department = departments.get(0);
+						}
 					}
 				} catch (Exception e) {
 					 return department;
@@ -275,20 +293,91 @@ public class NotificationService {
 				.serviceRequestId(Arrays.asList(serviceReq.getServiceRequestId())).build();
 		ServiceResponse response = (ServiceResponse) requestService.getServiceRequestDetails(requestInfo, serviceReqSearchCriteria);
 		try {
-			List<ActionInfo> actions = response.getActionHistory().get(0).getActions().stream()
-					.filter(obj -> !StringUtils.isEmpty(obj.getAssignee())).collect(Collectors.toList());
-			if(CollectionUtils.isEmpty(actions))
-				return null;
-			return actions.get(0).getAssignee();
+			if((WorkFlowConfigs.STATUS_RESOLVED.equalsIgnoreCase(serviceReq.getStatus().toString()) 
+					|| WorkFlowConfigs.STATUS_CLOSED.equalsIgnoreCase(serviceReq.getStatus().toString()))
+					&& isEscalated(response.getActionHistory().get(0).getActions())) {
+				for(ActionInfo actionInfo : response.getActionHistory().get(0).getActions()){
+					if(WorkFlowConfigs.STATUS_RESOLVED.equalsIgnoreCase(actionInfo.getStatus())) {
+						return actionInfo.getBy().split(":")[0];
+					}
+				}
+			}else {
+				List<ActionInfo> actions = response.getActionHistory().get(0).getActions().stream()
+						.filter(obj -> !StringUtils.isEmpty(obj.getAssignee())).collect(Collectors.toList());
+				if(CollectionUtils.isEmpty(actions))
+					return null;
+				return actions.get(0).getAssignee();
+			}
 		}catch(Exception e) {
 			return null;
 		}
-
+		return null;
+	}
+	
+	private boolean isEscalated(List<ActionInfo> actions) {
+		ActionInfo actionInfo = actions.stream().filter(obj -> 
+			obj.getStatus().equalsIgnoreCase(WorkFlowConfigs.STATUS_ESCALATED_LEVEL2_PENDING)
+			|| obj.getStatus().equalsIgnoreCase(WorkFlowConfigs.STATUS_ESCALATED_LEVEL1_PENDING)).findAny().orElse(null);
+		
+		if(null != actionInfo) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public boolean isEscalatedToLevel2(Service serviceReq, RequestInfo requestInfo) {
+		
+		try {
+			ServiceReqSearchCriteria serviceReqSearchCriteria = ServiceReqSearchCriteria.builder().tenantId(serviceReq.getTenantId())
+					.serviceRequestId(Arrays.asList(serviceReq.getServiceRequestId())).build();
+			ServiceResponse response = (ServiceResponse) requestService.getServiceRequestDetails(requestInfo, serviceReqSearchCriteria);
+			if(null != response) {	
+				ActionInfo actionInfo = response.getActionHistory().get(0).getActions().stream().filter(obj -> 
+					obj.getStatus().equalsIgnoreCase(WorkFlowConfigs.STATUS_ESCALATED_LEVEL2_PENDING)).findAny().orElse(null);
+				
+				if(null != actionInfo) {
+					return true;
+				}
+			}
+		}catch(Exception e) {
+			log.error("Error in isEscalatedToLevel2 "+e);
+		}
+		
+		return false;
 	}
 	
 	public Long getSlaHours() {
 		log.info("Returning default sla: "+egovDefaultServiceSla);
 		return egovDefaultServiceSla;
+	}
+	
+	/**
+	 * Get department on department code
+	 * 
+	 * @param serviceReqSearchCriteria
+	 * @param requestInfo
+	 * @param departmentCode
+	 * @return String
+	 */
+	public String getDepartment(RequestInfo requestInfo, List<String> departmentCodes, String tenantId) {
+		StringBuilder deptUri = new StringBuilder();
+		String department = null;
+		Object response = null;
+		MdmsCriteriaReq mdmsCriteriaReq = pGRUtils.prepareMdMsRequestForDept(deptUri, tenantId, departmentCodes, requestInfo);
+		try {
+			response = serviceRequestRepository.fetchResult(deptUri, mdmsCriteriaReq);
+			if (null == response) {
+				return null;
+			}
+			List<String> departments = JsonPath.read(response, PGRConstants.JSONPATH_DEPARTMENTS);
+			if(!CollectionUtils.isEmpty(departments)) {
+				department = departments.get(0);
+			}
+		} catch (Exception e) {
+			log.error("Exception in getDepartment: " + e);
+		}
+		return department;
 	}
 
 }

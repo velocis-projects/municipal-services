@@ -3,6 +3,7 @@ package org.egov.pgr.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,7 @@ import org.egov.pgr.utils.PGRConstants;
 import org.egov.pgr.utils.PGRUtils;
 import org.egov.pgr.utils.ResponseInfoFactory;
 import org.egov.pgr.utils.WorkFlowConfigs;
+import org.egov.pgr.validator.PGRRequestValidator;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -84,6 +86,9 @@ public class GrievanceService {
 	
 	@Value("${egov.user.create.endpoint}")
 	private String userCreateEndPoint;
+	
+	@Value("${notification.fallback.locale}")
+    private String fallbackLocale;
 
 	@Autowired
 	private ResponseInfoFactory factory;
@@ -102,6 +107,14 @@ public class GrievanceService {
 
 	@Autowired
 	private ServiceRequestRepository serviceRequestRepository;
+	
+	@Autowired
+	private NotificationService notificationService;
+	
+	@Autowired
+	private PGRRequestValidator pgrRequestValidator;
+	
+	public static Map<String, Map<String, String>> localizedMessageMap = new HashMap<>();
 
 	/***
 	 * Asynchronous method performs business logic if any and adds the data to
@@ -153,6 +166,7 @@ public class GrievanceService {
 		if(!CollectionUtils.isEmpty(serviceRequest.getActionInfo())) {
 			actionInfos = serviceRequest.getActionInfo();
 		}
+		boolean isAutoroutingAvailable = false;
 		for (int servReqCount = 0; servReqCount < serviceReqs.size(); servReqCount++) {
 			Service servReq = serviceReqs.get(servReqCount);
 			String currentId = servReqIdList.get(servReqCount);
@@ -162,7 +176,24 @@ public class GrievanceService {
 				if(null != actionInfo) {
 					actionInfo.setUuid(UUID.randomUUID().toString()); actionInfo.setBusinessKey(currentId);
 					actionInfo.setAction(WorkFlowConfigs.ACTION_OPEN); actionInfo.setAssignee(null); actionInfo.setBy(by);
-					actionInfo.setWhen(auditDetails.getCreatedTime()); actionInfo.setTenantId(tenantId); actionInfo.setStatus(actionStatusMap.get(WorkFlowConfigs.ACTION_OPEN));	
+					actionInfo.setWhen(auditDetails.getCreatedTime()); actionInfo.setTenantId(tenantId); actionInfo.setStatus(actionStatusMap.get(WorkFlowConfigs.ACTION_OPEN));
+					
+					//Find autorouting employee for new complaint
+					String employeeCode = fetchAutoroutingEmployee(requestInfo, tenantId, servReq);
+					
+					if(!StringUtils.isEmpty(employeeCode)) {
+						UserResponse userResponse = getUser(requestInfo, tenantId, employeeCode);
+						
+						if(!CollectionUtils.isEmpty(userResponse.getUser())) {
+							ActionInfo newActionInfo = ActionInfo.builder().uuid(UUID.randomUUID().toString()).businessKey(currentId)
+									.action(WorkFlowConfigs.ACTION_ASSIGN).assignee(String.valueOf(userResponse.getUser().get(0).getId()))
+									.by(by).when(auditDetails.getCreatedTime()+1).tenantId(tenantId).media(actionInfo.getMedia())
+									.status(actionStatusMap.get(WorkFlowConfigs.ACTION_ASSIGN)).build();
+							actionInfos.add(newActionInfo);
+							
+							isAutoroutingAvailable = true;
+						}
+					}
 				}else {
 					ActionInfo newActionInfo = ActionInfo.builder().uuid(UUID.randomUUID().toString()).businessKey(currentId)
 							.action(WorkFlowConfigs.ACTION_OPEN).assignee(null).by(by).when(auditDetails.getCreatedTime()).tenantId(tenantId)
@@ -176,11 +207,20 @@ public class GrievanceService {
 				actionInfos.add(newActionInfo);
 			}
 			servReq.setAuditDetails(auditDetails); servReq.setServiceRequestId(currentId);servReq.setActive(true);
-			servReq.setStatus(StatusEnum.OPEN);servReq.setFeedback(null);servReq.setRating(null); 
+			if(isAutoroutingAvailable) {
+				servReq.setStatus(StatusEnum.ASSIGNED);
+			}else {
+				servReq.setStatus(StatusEnum.OPEN);
+			}
+			servReq.setFeedback(null);servReq.setRating(null); 
 			servReq.getAddressDetail().setUuid(UUID.randomUUID().toString());
 			servReq.getAddressDetail().setAuditDetails(auditDetails);
 			servReq.getAddressDetail().setTenantId(tenantId);
 			servReq.setAddressId(servReq.getAddressDetail().getUuid());
+			
+			List<Object> serivceDefs = getServiceType(servReq, requestInfo);
+			if(!CollectionUtils.isEmpty(serivceDefs))
+				servReq.setCategory(String.valueOf(serivceDefs.get(0)));
 		}
 		serviceRequest.setActionInfo(actionInfos);
 	}
@@ -323,20 +363,39 @@ public class GrievanceService {
 		List<Service> serviceReqs = request.getServices();
 		List<ActionInfo> actionInfos = request.getActionInfo();
 		final AuditDetails auditDetails = pGRUtils.getAuditDetails(String.valueOf(requestInfo.getUserInfo().getId()),false);
+		Map<String, String> errorMap1 = new HashMap<>();
+		ServiceResponse serviceResponse = pgrRequestValidator.getServiceRequests(request, errorMap1);
+		List<ActionHistory> historys = serviceResponse.getActionHistory();
+		Map<String, ActionHistory> historyMap = new HashMap<>();
+		historys.forEach(a -> historyMap.put(a.getActions().get(0).getBusinessKey(), a));
+		
 		for (int index = 0; index < serviceReqs.size(); index++) {
 			Service service = serviceReqs.get(index);
 			ActionInfo actionInfo = actionInfos.get(index);
+			actionInfo.setStatus(actionStatusMap.get(actionInfo.getAction()));	
+			//actionInfo.status(actionInfo.getAction()); 
 			service.setAuditDetails(auditDetails); 
 			if(service.getActive() == null) service.setActive(true);
+			
+			//If the action is reopen, then go through the action history & find whether it is reopened 
+			//by 1st time(resolved by LME) or 2nd time(resolved by escalation officer1)
+			
+			ActionHistory history = historyMap.get(service.getServiceRequestId());
+						
 			if(!StringUtils.isEmpty(actionInfo.getAction())) {
-				service.setStatus(StatusEnum.fromValue(actionStatusMap.get(actionInfo.getAction())));
+				if(pGRUtils.checkReopen2ndTime(history, actionInfo.getAction())) {
+					service.setStatus(StatusEnum.fromValue(WorkFlowConfigs.STATUS_ESCALATED_LEVEL2_PENDING));
+					actionInfo.setStatus(WorkFlowConfigs.STATUS_ESCALATED_LEVEL2_PENDING);	
+				}else {
+					service.setStatus(StatusEnum.fromValue(actionStatusMap.get(actionInfo.getAction())));
+				}
 			}
 			String role = pGRUtils.getPrecedentRole(requestInfo.getUserInfo().getRoles().stream().map(Role::getCode)
 					.collect(Collectors.toList()));
 			actionInfo.setUuid(UUID.randomUUID().toString()); actionInfo.setBusinessKey(service.getServiceRequestId()); 
 			actionInfo.setBy(auditDetails.getLastModifiedBy() + ":" + role); actionInfo.setWhen(auditDetails.getLastModifiedTime());
-			actionInfo.setTenantId(service.getTenantId()); actionInfo.status(actionInfo.getAction()); 
-			actionInfo.setStatus(actionStatusMap.get(actionInfo.getAction()));			
+			actionInfo.setTenantId(service.getTenantId()); 
+					
 		}
 		if (!errorMap.isEmpty()) {
 			Map<String, String> newMap = new HashMap<>();
@@ -413,9 +472,20 @@ public class GrievanceService {
 			else
 				throw e;
 		}
-		searcherRequest = pGRUtils.prepareSearchRequestWithDetails(uri, serviceReqSearchCriteria, requestInfo);
-		Object response = serviceRequestRepository.fetchResult(uri, searcherRequest);
-		log.debug(PGRConstants.SEARCHER_RESPONSE_TEXT + response);
+		
+		Object response = null;
+		
+		List<String> codes = requestInfo.getUserInfo().getRoles().stream().map(Role::getCode).collect(Collectors.toList());
+		
+		if ((codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER1) || codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER2))
+				&& CollectionUtils.isEmpty(serviceReqSearchCriteria.getServiceRequestId())) {
+			response = getComplaintListForEscalationOfficer(requestInfo, serviceReqSearchCriteria, uri, response);
+		}else {
+			searcherRequest = pGRUtils.prepareSearchRequestWithDetails(uri, serviceReqSearchCriteria, requestInfo);
+			response = serviceRequestRepository.fetchResult(uri, searcherRequest);
+			log.debug(PGRConstants.SEARCHER_RESPONSE_TEXT + response);
+		}
+		
 		if (null == response)
 			return pGRUtils.getDefaultServiceResponse(requestInfo);
 		ServiceResponse serviceResponse = prepareResult(response, requestInfo);
@@ -424,8 +494,7 @@ public class GrievanceService {
 		else
 			return enrichResult(requestInfo, serviceResponse);
 	}
-	
-	
+
 	
 	/**
 	 * Method to return service requests along with details to plain search
@@ -497,7 +566,20 @@ public class GrievanceService {
 			 */
 			else if (precedentRole.equalsIgnoreCase(PGRConstants.ROLE_EMPLOYEE)) {
 				if (StringUtils.isEmpty(serviceReqSearchCriteria.getAssignedTo()) && CollectionUtils.isEmpty(serviceReqSearchCriteria.getServiceRequestId())) {
-					serviceReqSearchCriteria.setAssignedTo(requestInfo.getUserInfo().getId().toString());
+					
+					//List<String> codes = requestInfo.getUserInfo().getRoles().stream().map(Role::getCode).collect(Collectors.toList());
+					
+					/**if (codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER1) || codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER2)) {
+						//Do not need to set assign anyone for escalation flow if the status is pending
+					}**/
+					if(!CollectionUtils.isEmpty(serviceReqSearchCriteria.getStatus()) 
+							&& (serviceReqSearchCriteria.getStatus().contains(WorkFlowConfigs.STATUS_ESCALATED_LEVEL1_PENDING)
+								|| serviceReqSearchCriteria.getStatus().contains(WorkFlowConfigs.STATUS_ESCALATED_LEVEL2_PENDING))){
+						//Do not need to set assign anyone for escalation flow if the status is pending
+					}
+					else {
+						serviceReqSearchCriteria.setAssignedTo(requestInfo.getUserInfo().getId().toString());
+					}
 				}
 			} 
 			/**
@@ -662,11 +744,30 @@ public class GrievanceService {
 			else
 				throw e;
 		}
-		searcherRequest = pGRUtils.prepareCountRequestWithDetails(uri, serviceReqSearchCriteria, requestInfo);
-		Object response = serviceRequestRepository.fetchResult(uri, searcherRequest);
+		
+		Object response = null;
+		
+		List<String> codes = requestInfo.getUserInfo().getRoles().stream().map(Role::getCode).collect(Collectors.toList());
+		Double count = 0.0;
+		
+		if ((codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER1) || codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER2))
+				&& CollectionUtils.isEmpty(serviceReqSearchCriteria.getServiceRequestId())) {
+			response = getComplaintListForEscalationOfficer(requestInfo, serviceReqSearchCriteria, uri, response);
+			if(null != response) {
+				List serviceList = JsonPath.read(response, PGRConstants.COMPLAINT_JSONPATH);
+				if(!CollectionUtils.isEmpty(serviceList)) {
+					count = new Double(serviceList.size());
+				}
+			}
+		}else {
+			searcherRequest = pGRUtils.prepareCountRequestWithDetails(uri, serviceReqSearchCriteria, requestInfo);
+			response = serviceRequestRepository.fetchResult(uri, searcherRequest);
+			count = JsonPath.read(response, PGRConstants.PG_JSONPATH_COUNT);
+		}
+		
 		if (null == response)
 			return pGRUtils.getDefaultServiceResponse(requestInfo);
-		Double count = JsonPath.read(response, PGRConstants.PG_JSONPATH_COUNT);
+		
 		return new CountResponse(factory.createResponseInfoFromRequestInfo(requestInfo, true), count);
 	}
 
@@ -874,5 +975,422 @@ public class GrievanceService {
 		log.info("map: "+map);
 		return map;
 	}
+	
+	/**
+	 * method to fetch AutoroutingEscalationMap from mdms based on category,sector
+	 * 
+	 * @param requestInfo
+	 * @param tenantId
+	 * @param category
+	 * @param sector
+	 * @return Object
+	 * @author Tonmoy
+	 */
+	public Object fetchAutoroutingEscalationMap(RequestInfo requestInfo, String tenantId, String category, String sector) {
+		StringBuilder uri = new StringBuilder();
+		MdmsCriteriaReq mdmsCriteriaReq = pGRUtils.prepareAutoroutingEscalationMapSearchMdmsRequestByCategoryAndSector(uri, tenantId, category, sector, requestInfo);
+		Object response = null;
+		try {
+			response = serviceRequestRepository.fetchResult(uri, mdmsCriteriaReq);
+		} catch (Exception e) {
+			log.error("Exception while fetching AutoroutingEscalationMap: " + e);
+		}
+		return response;
 
+	}
+	
+	/**
+	 * method to fetch AutoRoutingEmployee from mdms based on category,sector
+	 * 
+	 * @param requestInfo
+	 * @param tenantId
+	  * @param category
+	 * @param sector
+	 * @return String
+	 * @author Tonmoy
+	 */
+	public String fetchAutoroutingEmployee(RequestInfo requestInfo, String tenantId, Service servReq) {
+		String employeeCode = null;
+		try {
+			String category = null;
+			String sector = null;
+			List<Object> serivceDefs = getServiceType(servReq, requestInfo);
+			if(!CollectionUtils.isEmpty(serivceDefs))
+				category = String.valueOf(serivceDefs.get(0));
+			
+			Address address = servReq.getAddressDetail();
+			if(null != address){
+				sector = address.getMohalla();
+			}
+			//testng purpose.comment in prod
+			sector ="SECTOR-7";
+			Object result = fetchAutoroutingEscalationMap(requestInfo, tenantId, category, sector);
+			if(null != result) {
+				List objList = JsonPath.read(result, PGRConstants.JSONPATH_AUTOROUTING_CODES);
+				if(CollectionUtils.isEmpty(objList)) {
+					return null;
+				}
+				
+				List sectorArr = (List)objList.get(0);
+				for (int i = 0; i < sectorArr.size(); i++) {
+					List<String> sectors = JsonPath.read(sectorArr.get(i), PGRConstants.AUTOROUTING_SECTOR_JSONPATH);
+					if(!CollectionUtils.isEmpty(sectors)) {
+						if(sectors.contains(sector)) {
+							employeeCode = JsonPath.read(sectorArr.get(i), PGRConstants.AUTOROUTING_EMPLOYEE_JSONPATH);
+							break;
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			log.error("Exception while fetching fetchAutoroutingEmployee: " + e);
+		}
+		
+		return employeeCode;
+
+	}
+	
+	/**
+	 * method to fetch Escalating officers(1st level & 2nd level) from mdms based on category,sector
+	 * 
+	 * @param requestInfo
+	 * @param tenantId
+	  * @param category
+	 * @param sector
+	 * @return Map<String,List<String>>
+	 * @author Tonmoy
+	 */
+	public Map<String,List<String>> fetchEscalatingOfficers(RequestInfo requestInfo, String tenantId, Service servReq) {
+		Map<String,List<String>> escalatingOfficerMap = new HashMap<String, List<String>>();
+		List<String> escalationOfficer1 = null;
+		List<String> escalationOfficer2 = null;
+		try {
+			String category = null;
+			List<Object> serivceDefs = getServiceType(servReq, requestInfo);
+			if(!CollectionUtils.isEmpty(serivceDefs))
+				category = String.valueOf(serivceDefs.get(0));
+			
+			Object result = fetchAutoroutingEscalationMap(requestInfo, tenantId, category, null);
+			if(null != result) {
+				escalationOfficer1 = JsonPath.read(result, PGRConstants.JSONPATH_ESCALATING_OFFICER1_CODES);
+				escalationOfficer2 = JsonPath.read(result, PGRConstants.JSONPATH_ESCALATING_OFFICER2_CODES);
+			}
+		} catch (Exception e) {
+			log.error("Exception while fetching fetchEscalatingOfficers: " + e);
+		}
+		escalatingOfficerMap.put("escalationOfficer1", escalationOfficer1);
+		escalatingOfficerMap.put("escalationOfficer2", escalationOfficer2);
+		
+		return escalatingOfficerMap;
+
+	}
+	
+	/**
+	 * Fetches the category, department, Service type, sla hours for the respective service type
+	 * 
+	 * @param serviceReq
+	 * @param requestInfo
+	 * @param locale
+	 * @return
+	 */
+	public List<Object> getServiceType(Service serviceReq, RequestInfo requestInfo) {
+		StringBuilder uri = new StringBuilder();
+		List<Object> listOfValues = new ArrayList<>();
+		String serviceType = null;
+		String categoryCode = null;
+		String departmentCode = null;
+		Integer sla = 0;
+		List<String> categories = null;
+		List<String> departments = null;
+		List<String> serviceTypes = null;
+		List<Integer> slaHours = null;
+		String tenantId = serviceReq.getTenantId().split("[.]")[0]; // localization values are for now state-level.
+		try {
+			MdmsCriteriaReq mdmsCriteriaReq = pGRUtils.prepareSearchRequestForServiceType(uri, serviceReq.getTenantId(),
+					serviceReq.getServiceCode(), requestInfo);
+			
+			Object result = serviceRequestRepository.fetchResult(uri, mdmsCriteriaReq);
+			categories = JsonPath.read(result, PGRConstants.JSONPATH_CATEGORY_CODES);
+			departments = JsonPath.read(result, PGRConstants.JSONPATH_DEPARTMENT_CODES);
+			serviceTypes = JsonPath.read(result, PGRConstants.JSONPATH_SERVICE_CODES);
+			slaHours = JsonPath.read(result, PGRConstants.JSONPATH_SLA);
+			
+			String locale = null;
+	        try {
+	            locale = requestInfo.getMsgId().split("[|]")[1]; // Conventionally locale is sent in the first index of msgid split by |
+	            if (StringUtils.isEmpty(locale))
+	                locale = fallbackLocale;
+	        } catch (Exception e) {
+	            locale = fallbackLocale;
+	        }
+			
+			if (null == localizedMessageMap.get(locale + "|" + tenantId)) // static map that saves code-message pair against locale | tenantId.
+				getLocalisedMessages(requestInfo, tenantId, locale, PGRConstants.LOCALIZATION_MODULE_NAME);
+			
+			serviceType = localizedMessageMap.get(locale + "|" + tenantId).get(PGRConstants.LOCALIZATION_COMP_CATEGORY_PREFIX + serviceTypes.get(0)); //result set is always of size one.
+			
+			if(StringUtils.isEmpty(serviceType))
+				serviceType = PGRUtils.splitCamelCase(serviceTypes.get(0));
+			if(!CollectionUtils.isEmpty(categories))
+				categoryCode = categories.get(0);
+			if(!CollectionUtils.isEmpty(departments))
+				departmentCode = departments.get(0);
+			if(!CollectionUtils.isEmpty(slaHours))
+				sla = Integer.valueOf(slaHours.get(0)) / 24; //converting hours to days.
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		listOfValues.add(categoryCode); 
+		listOfValues.add(departmentCode); 
+		listOfValues.add(serviceType); 
+		listOfValues.add(sla);
+		return listOfValues;
+	}
+
+	/**
+	 * Populates the localized msg cache
+	 * 
+	 * @param requestInfo
+	 * @param tenantId
+	 * @param locale
+	 * @param module
+	 */
+	public void getLocalisedMessages(RequestInfo requestInfo, String tenantId, String locale, String module) {
+		Map<String, String> mapOfCodesAndMessages = new HashMap<>();
+		StringBuilder uri = new StringBuilder();
+		RequestInfoWrapper requestInfoWrapper = pGRUtils.prepareRequestForLocalization(uri, requestInfo, locale,
+				tenantId, module);
+		List<String> codes = null;
+		List<String> messages = null;
+		Object result = null;
+		try {
+			result = serviceRequestRepository.fetchResult(uri, requestInfoWrapper);
+			codes = JsonPath.read(result, PGRConstants.LOCALIZATION_CODES_JSONPATH);
+			messages = JsonPath.read(result, PGRConstants.LOCALIZATION_MSGS_JSONPATH);
+		} catch (Exception e) {
+			log.error("Exception while fetching from localization: " + e);
+		}
+		if (null != result) {
+			for (int i = 0; i < codes.size(); i++) {
+				mapOfCodesAndMessages.put(codes.get(i), messages.get(i));
+			}
+			localizedMessageMap.put(locale + "|" + tenantId, mapOfCodesAndMessages);
+		}
+	}
+	
+	/**
+	 * Fetches Users to be populated in the response
+	 * 
+	 * @param requestInfo
+	 * @param tenantId
+	 * @param userIds
+	 * @return
+	 */
+	public UserResponse getUser(RequestInfo requestInfo, String tenantId, String employeeCode) {
+		ObjectMapper mapper = pGRUtils.getObjectMapper();
+		UserSearchRequest searchRequest = UserSearchRequest.builder().tenantId(tenantId).userName(employeeCode)
+				.userType(PGRConstants.ROLE_EMPLOYEE).requestInfo(requestInfo).build();
+		StringBuilder url = new StringBuilder();
+		url.append(userBasePath).append(userSearchEndPoint);
+		try {
+			UserResponse res = mapper.convertValue(serviceRequestRepository.fetchResult(url, searchRequest), UserResponse.class);
+			if(CollectionUtils.isEmpty(res.getUser())) {
+				return null;
+			}else {
+				return res;
+			}
+		}catch(Exception e) {
+			return null;
+		}
+		
+	}
+	
+	/**
+	 * method to fetch AutoRoutingEmployee from mdms based on category,sector
+	 * 
+	 * @param requestInfo
+	 * @param tenantId
+	  * @param category
+	 * @param sector
+	 * @return String
+	 * @author Tonmoy
+	 */
+	public Map<String,List<String>> fetchCategoriesForEscalationOfficer(RequestInfo requestInfo, String tenantId) {
+		Map<String,List<String>> categoryMap = new HashMap<String, List<String>>();
+		List<String> categoryList1=null;
+		List<String> categoryList2=null;
+		try {
+			//Get category list for escalationOfficer1
+			Object result = fetchCategoriesFromAutoroutingEscalationMap(requestInfo, tenantId);
+			
+			if(null != result) {
+				List objList = JsonPath.read(result, PGRConstants.JSONPATH_AUTOROUTING_MAP_CODES);
+				if(CollectionUtils.isEmpty(objList)) {
+					return null;
+				}
+				
+				//Category list of escalation officer1
+				for (int i = 0; i < objList.size(); i++) {
+					List<String> escalationOfficer1List = JsonPath.read(objList.get(i), PGRConstants.AUTOROUTING_ESCALATING_OFFICER1_JSONPATH);
+					if(!CollectionUtils.isEmpty(escalationOfficer1List)) {
+						if(escalationOfficer1List.contains(requestInfo.getUserInfo().getUserName())) {
+							if(CollectionUtils.isEmpty(categoryList1))
+								categoryList1=new ArrayList<String>();
+							categoryList1.add(JsonPath.read(objList.get(i), PGRConstants.AUTOROUTING_CATEGORY_JSONPATH));
+						}
+					}
+				}
+				
+				//Category list of escalation officer2
+				for (int i = 0; i < objList.size(); i++) {
+					List<String> escalationOfficer2List = JsonPath.read(objList.get(i), PGRConstants.AUTOROUTING_ESCALATING_OFFICER2_JSONPATH);
+					if(!CollectionUtils.isEmpty(escalationOfficer2List)) {
+						if(escalationOfficer2List.contains(requestInfo.getUserInfo().getUserName())) {
+							if(CollectionUtils.isEmpty(categoryList2))
+								categoryList2=new ArrayList<String>();
+							categoryList2.add(JsonPath.read(objList.get(i), PGRConstants.AUTOROUTING_CATEGORY_JSONPATH));
+						}
+					}
+				}
+			}
+			
+		} catch (Exception e) {
+			log.error("Exception while fetching fetchCategoriesForEscalationOfficer: " + e);
+		}
+		
+		categoryMap.put(PGRConstants.MDMS_AUTOROUTING_ESCALATION_OFFICER1_NAME, categoryList1);
+		categoryMap.put(PGRConstants.MDMS_AUTOROUTING_ESCALATION_OFFICER2_NAME, categoryList2);
+		
+		return categoryMap;
+
+	}
+	
+	/**
+	 * method to fetch catrgory list from mdms based on employeeode,escalation officer
+	 * 
+	 * @param requestInfo
+	 * @param tenantId
+	 * @param employeCode
+	 * @param escalationOfficer
+	 * @return Object
+	 * @author Tonmoy
+	 */
+	public Object fetchCategoriesFromAutoroutingEscalationMap(RequestInfo requestInfo, String tenantId) {
+		StringBuilder uri = new StringBuilder();
+		MdmsCriteriaReq mdmsCriteriaReq = pGRUtils.prepareCategoryMdmsRequestByEscalationOfficer(uri, tenantId, requestInfo);
+		Object response = null;
+		try {
+			response = serviceRequestRepository.fetchResult(uri, mdmsCriteriaReq);
+		} catch (Exception e) {
+			log.error("Exception while fetching fetchCategoriesFromAutoroutingEscalationMap: " + e);
+		}
+		return response;
+
+	}
+	
+	/**
+	 * method to search complaint list for escalation officer
+	 * 
+	 * @param requestInfo
+	 * @param serviceReqSearchCriteria
+	 * @param uri
+	 * @param response
+	 * @return Object
+	 * @author Tonmoy
+	 */
+	private Object getComplaintListForEscalationOfficer(RequestInfo requestInfo,
+			ServiceReqSearchCriteria serviceReqSearchCriteria, StringBuilder uri, Object response) {
+		
+		//If the user is escalation officer then 1st get the pending complaint of 1st level & get the pending complaint of 2nd level 
+		// & merge these two results in the response. Because same user can be the escalation officer at 1st 
+		//level in one department & 2nd level officer in other department  
+		try {
+			SearcherRequest searcherRequest;
+			Object firstLevelResponse = null;
+			Object secondLevelResponse = null;
+			List firstLevelServiceList = null;
+			List firstLevelActionHistoryList = null;
+			List secondLevelServiceList = null;
+			List secondLevelActionHistoryList = null;
+			
+			Map<String,List<String>> categoryList = fetchCategoriesForEscalationOfficer(requestInfo, serviceReqSearchCriteria.getTenantId());		
+			List<String> categoryListForEscalatingOfficer1 = categoryList.get(PGRConstants.MDMS_AUTOROUTING_ESCALATION_OFFICER1_NAME);
+			List<String> categoryListForEscalatingOfficer2 = categoryList.get(PGRConstants.MDMS_AUTOROUTING_ESCALATION_OFFICER2_NAME);
+			
+			
+			if(!CollectionUtils.isEmpty(categoryListForEscalatingOfficer1)) {
+				serviceReqSearchCriteria.setCategory(categoryListForEscalatingOfficer1);
+				List<String> status = new ArrayList<String>();
+				status.add(WorkFlowConfigs.STATUS_ESCALATED_LEVEL1_PENDING);
+				serviceReqSearchCriteria.setStatus(status);
+				searcherRequest = pGRUtils.prepareSearchRequestWithDetails(uri, serviceReqSearchCriteria, requestInfo);
+				firstLevelResponse = serviceRequestRepository.fetchResult(uri, searcherRequest);
+				log.debug(PGRConstants.SEARCHER_RESPONSE_TEXT + firstLevelResponse);
+				if(null != firstLevelResponse) {
+					firstLevelServiceList = JsonPath.read(firstLevelResponse, PGRConstants.COMPLAINT_JSONPATH);
+					firstLevelActionHistoryList = JsonPath.read(firstLevelResponse, PGRConstants.COMPLAINT_ACTION_HISTORY_JSONPATH);
+				}
+			}
+			if(!CollectionUtils.isEmpty(categoryListForEscalatingOfficer2)) {
+				serviceReqSearchCriteria.setCategory(categoryListForEscalatingOfficer2);
+				List<String> status = new ArrayList<String>();
+				status.add(WorkFlowConfigs.STATUS_ESCALATED_LEVEL2_PENDING);
+				serviceReqSearchCriteria.setStatus(status);
+				uri = new StringBuilder();
+				searcherRequest = pGRUtils.prepareSearchRequestWithDetails(uri, serviceReqSearchCriteria, requestInfo);
+				secondLevelResponse = serviceRequestRepository.fetchResult(uri, searcherRequest);
+				log.debug(PGRConstants.SEARCHER_RESPONSE_TEXT + secondLevelResponse);
+				if(null != secondLevelResponse) {
+					secondLevelServiceList = JsonPath.read(secondLevelResponse, PGRConstants.COMPLAINT_JSONPATH);
+					secondLevelActionHistoryList = JsonPath.read(secondLevelResponse, PGRConstants.COMPLAINT_ACTION_HISTORY_JSONPATH);
+				}
+			}
+			if(CollectionUtils.isEmpty(firstLevelServiceList)) {
+				response = secondLevelResponse;
+			}else if(CollectionUtils.isEmpty(secondLevelServiceList)) {
+				response = firstLevelResponse;
+			}else {
+					
+				LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>)firstLevelResponse;
+				List obj = (List)map.get("services");
+				LinkedHashMap<String, Object> map1 = (LinkedHashMap<String, Object>)secondLevelResponse;
+				List obj1 = (List)map1.get("services");
+				
+				List<Object> finalObj = new ArrayList<Object>();
+				finalObj.addAll(obj);
+				finalObj.addAll(obj1);
+				
+				map1.put("services", finalObj);
+				
+				response = secondLevelResponse;
+				
+			}
+		}catch(Exception e) {
+			log.error("Error in generating final response for escalation officer "+e);
+		}
+		return response;
+	}
+	
+	/**
+	 * method to fetch PGR Department from mdms based on department code
+	 * 
+	 * @param requestInfo
+	 * @param tenantId
+	 * @param departmentCode
+	 * @return Object
+	 * @author Tonmoy
+	 */
+	public Object fetchPgrDepartment(RequestInfo requestInfo, String tenantId, String departmentCode) {
+		StringBuilder uri = new StringBuilder();
+		MdmsCriteriaReq mdmsCriteriaReq = pGRUtils.prepareSearchRequestForPgrDepartment(uri, tenantId, departmentCode, requestInfo);
+		Object response = null;
+		try {
+			response = serviceRequestRepository.fetchResult(uri, mdmsCriteriaReq);
+		} catch (Exception e) {
+			log.error("Exception while fetching pgrdepartment: " + e);
+		}
+		return response;
+
+	}
 }

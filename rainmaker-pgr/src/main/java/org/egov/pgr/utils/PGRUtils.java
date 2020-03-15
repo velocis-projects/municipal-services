@@ -360,7 +360,7 @@ public class PGRUtils {
 		MdmsCriteria mdmsCriteria = MdmsCriteria.builder().tenantId(tenantId).moduleDetails(moduleDetails).build();
 		return MdmsCriteriaReq.builder().requestInfo(requestInfo).mdmsCriteria(mdmsCriteria).build();
 	}
-
+	
 	public RequestInfoWrapper prepareRequestForEmployeeSearch(StringBuilder uri, RequestInfo requestInfo,
 			ServiceReqSearchCriteria serviceReqSearchCriteria) {
 		RequestInfoWrapper requestInfoWrapper = new RequestInfoWrapper();
@@ -583,5 +583,110 @@ public class PGRUtils {
 		} else
 			errors.add(errorMsg);
 	}
+	
+	/**
+	 * Prepares request and uri for service request search
+	 * 
+	 * @param uri
+	 * @param tenantId
+	 * @param requestInfo
+	 * @return MdmsCriteriaReq
+	 * @author Tonmoy
+	 */
+	public MdmsCriteriaReq prepareAutoroutingEscalationMapSearchMdmsRequestByCategoryAndSector(StringBuilder uri, String tenantId, String category,
+			String sector, RequestInfo requestInfo) {
+	
+		uri.append(mdmsHost).append(mdmsEndpoint);
+		MasterDetail masterDetail = org.egov.mdms.model.MasterDetail.builder()
+				.name(PGRConstants.MDMS_AUTOROUTING_ESCALATION_MAP_MASTER_NAME)
+				.filter("[?(@.active == true)]")
+				.build();
+		
+		if(!StringUtils.isEmpty(category)) {
+			masterDetail.setFilter("[?((@.category == '" + category + "') && (@.active == true))]");
+		}	
+		List<MasterDetail> masterDetails = new ArrayList<>();
+		masterDetails.add(masterDetail);
+		ModuleDetail moduleDetail = ModuleDetail.builder().moduleName(PGRConstants.MDMS_PGR_MOD_NAME)
+				.masterDetails(masterDetails).build();
+		List<ModuleDetail> moduleDetails = new ArrayList<>();
+		moduleDetails.add(moduleDetail);
+		MdmsCriteria mdmsCriteria = MdmsCriteria.builder().tenantId(tenantId).moduleDetails(moduleDetails).build();
+		return MdmsCriteriaReq.builder().requestInfo(requestInfo).mdmsCriteria(mdmsCriteria).build();
+	}
 
+	/**
+	 * Check whether the complaint is reopened for 2nd time or not
+	 * 
+	 * @param actionInfo
+	 * @return boolean
+	 */
+	public boolean checkReopen2ndTime(ActionHistory history, String action) {
+		List<ActionInfo> infos = history.getActions();
+		
+		for (int i = 0; i <= infos.size() - 1; i++) {
+			String status = infos.get(i).getStatus();
+			if (WorkFlowConfigs.STATUS_ESCALATED_LEVEL1_PENDING.equalsIgnoreCase(status)
+					&& WorkFlowConfigs.ACTION_REOPEN.equalsIgnoreCase(action)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Prepares request and uri for service request search
+	 * 
+	 * @param uri
+	 * @param tenantId
+	 * @param employeCode
+	 * @param escalationOfficer
+	 * @param requestInfo
+	 * @return MdmsCriteriaReq
+	 * @author Tonmoy
+	 */
+	public MdmsCriteriaReq prepareCategoryMdmsRequestByEscalationOfficer(StringBuilder uri, String tenantId, RequestInfo requestInfo) {
+	
+		uri.append(mdmsHost).append(mdmsEndpoint);
+		MasterDetail masterDetail = org.egov.mdms.model.MasterDetail.builder()
+				.name(PGRConstants.MDMS_AUTOROUTING_ESCALATION_MAP_MASTER_NAME)
+				.filter("[?(@.active == true)]")
+				.build();
+			
+		List<MasterDetail> masterDetails = new ArrayList<>();
+		masterDetails.add(masterDetail);
+		ModuleDetail moduleDetail = ModuleDetail.builder().moduleName(PGRConstants.MDMS_PGR_MOD_NAME)
+				.masterDetails(masterDetails).build();
+		List<ModuleDetail> moduleDetails = new ArrayList<>();
+		moduleDetails.add(moduleDetail);
+		MdmsCriteria mdmsCriteria = MdmsCriteria.builder().tenantId(tenantId).moduleDetails(moduleDetails).build();
+		return MdmsCriteriaReq.builder().requestInfo(requestInfo).mdmsCriteria(mdmsCriteria).build();
+	}
+	
+	/**
+	 * Prepares request and uri for PGR department search from MDMS
+	 * 
+	 * @param uri
+	 * @param tenantId
+	 * @param departmentCode
+	 * @param requestInfo
+	 * @return MdmsCriteriaReq
+	 * @author Tonmoy
+	 */
+	public MdmsCriteriaReq prepareSearchRequestForPgrDepartment(StringBuilder uri, String tenantId, String departmentCode,
+			RequestInfo requestInfo) {
+		uri.append(mdmsHost).append(mdmsEndpoint);
+		
+		MasterDetail masterDetail = org.egov.mdms.model.MasterDetail.builder()
+				.name(PGRConstants.MDMS_PGR_DEPARTMENT_MASTER_NAME).build();
+		masterDetail.setFilter("[?((@.code == " + departmentCode + ") && (@.active == true))]");
+		List<MasterDetail> masterDetails = new ArrayList<>();
+		masterDetails.add(masterDetail);
+		ModuleDetail moduleDetail = ModuleDetail.builder().moduleName(PGRConstants.MDMS_PGR_MOD_NAME)
+				.masterDetails(masterDetails).build();
+		List<ModuleDetail> moduleDetails = new ArrayList<>();
+		moduleDetails.add(moduleDetail);
+		MdmsCriteria mdmsCriteria = MdmsCriteria.builder().tenantId(tenantId).moduleDetails(moduleDetails).build();
+		return MdmsCriteriaReq.builder().requestInfo(requestInfo).mdmsCriteria(mdmsCriteria).build();
+	}
 }

@@ -31,6 +31,11 @@ public class PGRConstants {
 	public static final String MDMS_DEPT_MASTERS_MASTER_NAME = "Department";
 	public static final String MDMS_DESIGNATION_MASTERS_MASTER_NAME = "Designation";
 	public static final String LOCALIZATION_MODULE_NAME = "rainmaker-pgr";
+	public static final String MDMS_SECTOR_MASTER_NAME = "Sector";
+	public static final String MDMS_PGR_DEPARTMENT_MASTER_NAME = "PgrDepartment";
+	public static final String MDMS_AUTOROUTING_ESCALATION_MAP_MASTER_NAME = "AutoroutingEscalationMap";
+	public static final String MDMS_AUTOROUTING_ESCALATION_OFFICER1_NAME = "escalationOfficer1";
+	public static final String MDMS_AUTOROUTING_ESCALATION_OFFICER2_NAME = "escalationOfficer2";
 	
 
 	public static final String LOCALIZATION_CODE_SUBMIT_CITIZEN = "pgr.sms.notification.submit.citizen";
@@ -54,6 +59,7 @@ public class PGRConstants {
 	public static final String LOCALIZATION_CODE_DEFAULT = "pgr.sms.notification.default";
 	public static final String LOCALIZATION_CODE_COMMENT_DEFAULT = "pgr.sms.notification.comment.default";
 	public static final String LOCALIZATION_COMP_CATEGORY_PREFIX = "pgr.complaint.category.";
+	public static final String LOCALIZATION_COMP_CATEGORY_PREFIX1 = "SERVICEDEFS.";
 
 
 	public static final String SERVICE_CODES = "serviceCode";
@@ -62,6 +68,13 @@ public class PGRConstants {
 	public static final String JSONPATH_SLA = "$.MdmsRes.RAINMAKER-PGR.ServiceDefs.*.slaHours";
 	public static final String JSONPATH_DEPARTMENTS = "$.MdmsRes.common-masters.Department";
 	public static final String JSONPATH_DESIGNATIONS = "$.MdmsRes.common-masters.Designation";
+	public static final String JSONPATH_CATEGORY_CODES = "$.MdmsRes.RAINMAKER-PGR.ServiceDefs.*.menuPath";
+	public static final String JSONPATH_DEPARTMENT_CODES = "$.MdmsRes.RAINMAKER-PGR.ServiceDefs.*.department";
+	public static final String JSONPATH_ESCALATING_OFFICER1_CODES = "$.MdmsRes.RAINMAKER-PGR.AutoroutingEscalationMap.*.escalationOfficer1";
+	public static final String JSONPATH_ESCALATING_OFFICER2_CODES = "$.MdmsRes.RAINMAKER-PGR.AutoroutingEscalationMap.*.escalationOfficer2";
+	public static final String JSONPATH_AUTOROUTING_CODES = "$.MdmsRes.RAINMAKER-PGR.AutoroutingEscalationMap.*.autoRouting";
+	public static final String JSONPATH_AUTOROUTING_CATEGORY_CODES = "$.MdmsRes.RAINMAKER-PGR.AutoroutingEscalationMap.*.category";
+	public static final String JSONPATH_AUTOROUTING_MAP_CODES = "$.MdmsRes.RAINMAKER-PGR.AutoroutingEscalationMap";
 
 	public static final String SERVICE_NAME = "serviceName";
 	public static final String DEFAULT_COMPLAINT_TYPE = "resolution";
@@ -73,6 +86,13 @@ public class PGRConstants {
 	public static final String EMPLOYEE_TENANTID_JSONPATH = "$.Employees[0].tenantId";
 	public static final String EMPLOYEE_BASE_JSONPATH = "$.Employees";
 	public static final String DEPARTMENTNAME_EMPLOYEE_JSONPATH = "$.Department[0].name";
+	public static final String AUTOROUTING_SECTOR_JSONPATH = "$.Sector";
+	public static final String AUTOROUTING_EMPLOYEE_JSONPATH = "$.Employee";
+	public static final String AUTOROUTING_CATEGORY_JSONPATH = "$.category";
+	public static final String AUTOROUTING_ESCALATING_OFFICER1_JSONPATH = "$.escalationOfficer1";
+	public static final String AUTOROUTING_ESCALATING_OFFICER2_JSONPATH = "$.escalationOfficer2";
+	public static final String COMPLAINT_JSONPATH = "$.services.*.services";
+	public static final String COMPLAINT_ACTION_HISTORY_JSONPATH = "$.services.*.actionhistory";
 	
 	public static final String LOCALIZATION_CODES_JSONPATH = "$.messages.*.code";
 	public static final String LOCALIZATION_MSGS_JSONPATH = "$.messages.*.message";
@@ -121,6 +141,8 @@ public class PGRConstants {
 	public static final String ROLE_GRO = "GRO";
 	public static final String ROLE_DGRO = "DGRO";
 	public static final String ROLE_CSR = "CSR";
+	public static final String ROLE_ESCALATION_OFFICER1 = "ESCALATION_OFFICER1";
+	public static final String ROLE_ESCALATION_OFFICER2 = "ESCALATION_OFFICER2";
 	
 	
 	public static final String ROLE_NAME_CITIZEN = "Citizen";
@@ -128,6 +150,8 @@ public class PGRConstants {
 	public static final String ROLE_NAME_GRO = "Grievance Routing Officer";
 	public static final String ROLE_NAME_DGRO = "Department Grievance Routing Officer";
 	public static final String ROLE_NAME_CSR = "Customer Support Representative";
+	public static final String ROLE_NAME_ESCALATION_OFFICER1 = "1st level escalation officer";
+	public static final String ROLE_NAME_ESCALATION_OFFICER2 = "2nd level escalation officer";
 	
 	
 	private static Map<String, String> statusNotifKeyMap = prepareStatusNotifKeyMap();

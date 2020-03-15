@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.pgr.contract.Action;
@@ -141,10 +142,40 @@ public class PGRNotificationConsumer {
      */
     public void process(ServiceRequest serviceReqRequest) {
         if (!CollectionUtils.isEmpty(serviceReqRequest.getActionInfo())) {
+
+        	//Capture multiple action against single businesskey(complaint no)
+        	Map<String,List<ActionInfo>> actionMap = new HashMap<String, List<ActionInfo>>();
+        	for (ActionInfo actionInfo : serviceReqRequest.getActionInfo()) {
+        		if(CollectionUtils.isEmpty(actionMap.get(actionInfo.getBusinessKey()))){
+        			List<ActionInfo> infos = new ArrayList<ActionInfo>();
+        			infos.add(actionInfo);
+        			actionMap.put(actionInfo.getBusinessKey(), infos);
+        		}else {
+        			List<ActionInfo> infos = actionMap.get(actionInfo.getBusinessKey());
+        			infos.add(actionInfo);
+        			actionMap.put(actionInfo.getBusinessKey(), infos);
+        		}
+        	}
+        	
             for (ActionInfo actionInfo : serviceReqRequest.getActionInfo()) {
                 if (null != actionInfo && (!StringUtils.isEmpty(actionInfo.getStatus()) || !StringUtils.isEmpty(actionInfo.getComment()))) {
-                    Service service = serviceReqRequest.getServices()
-                            .get(serviceReqRequest.getActionInfo().indexOf(actionInfo));
+                   
+                	//skip one action for auto routing case because two action generate at a time.Take latest action.
+                	if(!CollectionUtils.isEmpty(actionMap.get(actionInfo.getBusinessKey()))){
+                		List<ActionInfo> infos = actionMap.get(actionInfo.getBusinessKey());
+                		if(infos.size() == 2 && WorkFlowConfigs.STATUS_OPENED.equalsIgnoreCase(actionInfo.getStatus())) {
+                			continue;
+                		}
+                	}
+                	
+                	//Service service = serviceReqRequest.getServices().get(serviceReqRequest.getActionInfo().indexOf(actionInfo));
+                	Service service = serviceReqRequest.getServices().stream()
+                			  .filter(s -> actionInfo.getBusinessKey().equals(s.getServiceRequestId()))
+                			  .findAny()
+                			  .orElse(null);
+                	if(null == service)
+                		continue;
+                	
                     if (isNotificationEnabled(actionInfo.getStatus(), serviceReqRequest.getRequestInfo().getUserInfo().getType(), actionInfo.getComment(), actionInfo.getAction())) {
                         if (isSMSNotificationEnabled) {
                             List<SMSRequest> smsRequests = prepareSMSRequest(service, actionInfo, serviceReqRequest.getRequestInfo());
@@ -293,7 +324,8 @@ public class PGRNotificationConsumer {
                     .replaceAll(PGRConstants.SMS_NOTIFICATION_USER_NAME_KEY, requestInfo.getUserInfo().getName());
         } else {
             text = messageMap.get(PGRConstants.getStatusRoleLocalizationKeyMap().get(actionInfo.getStatus() + "|" + role));
-            if (actionInfo.getStatus().equals(WorkFlowConfigs.STATUS_OPENED)) {
+            if (actionInfo.getStatus().equals(WorkFlowConfigs.STATUS_ESCALATED_LEVEL1_PENDING)
+            		|| actionInfo.getStatus().equals(WorkFlowConfigs.STATUS_ESCALATED_LEVEL2_PENDING)) {
                 if (null != actionInfo.getAction() && actionInfo.getAction().equals(WorkFlowConfigs.ACTION_REOPEN)) {
                     text = messageMap.get(PGRConstants.getActionRoleLocalizationKeyMap().get(WorkFlowConfigs.ACTION_REOPEN + "|" + role));
                     employeeDetails = notificationService.getEmployeeDetails(serviceReq.getTenantId(), actionInfo.getAssignee(), requestInfo);
@@ -304,12 +336,14 @@ public class PGRNotificationConsumer {
                 if (null != employeeDetails) {
                     List<String> deptCodes = new ArrayList<>();
                     deptCodes.add(employeeDetails.get("department"));
-                    department = notificationService.getDepartmentForNotification(serviceReq, deptCodes, requestInfo);
+                    //department = notificationService.getDepartmentForNotification(serviceReq, deptCodes, requestInfo);
+                    //Get department name from common master
+                    department = notificationService.getDepartment(requestInfo, deptCodes, serviceReq.getTenantId());
                     designation = notificationService.getDesignation(serviceReq, employeeDetails.get("designation"), requestInfo);
                 } else {
                     return getDefaultMessage(messageMap, actionInfo.getStatus(), actionInfo.getAction(), actionInfo.getComment());
                 }
-                if (StringUtils.isEmpty(department) || StringUtils.isEmpty(designation) || StringUtils.isEmpty(employeeDetails.get("name")))
+                if (StringUtils.isEmpty(designation) || StringUtils.isEmpty(employeeDetails.get("name")))
                     return getDefaultMessage(messageMap, actionInfo.getStatus(), actionInfo.getAction(), actionInfo.getComment());
 
                 text = text.replaceAll(PGRConstants.SMS_NOTIFICATION_EMP_NAME_KEY, employeeDetails.get("name"))
@@ -328,6 +362,13 @@ public class PGRNotificationConsumer {
                 employeeDetails = notificationService.getEmployeeDetails(serviceReq.getTenantId(), assignee, requestInfo);
 
                 text = text.replaceAll(PGRConstants.SMS_NOTIFICATION_EMP_NAME_KEY, employeeDetails.get("name"));
+                
+                //if complaint is resolved by escalation level2 officer, then citizen cannot re-open it.
+                //For this purpose we are trimming the last part of the message
+                if(notificationService.isEscalatedToLevel2(serviceReq, requestInfo)) {
+                	if(!ArrayUtils.isEmpty(text.split("\\.")))
+                		text = text.split("\\.")[0]+".";
+                }
             }
             if (actionInfo.getStatus().equals(WorkFlowConfigs.STATUS_CLOSED)) {
                 ServiceReqSearchCriteria serviceReqSearchCriteria = ServiceReqSearchCriteria.builder().tenantId(serviceReq.getTenantId())
@@ -384,7 +425,8 @@ public class PGRNotificationConsumer {
         boolean isNotifEnabled = false;
         List<String> notificationEnabledStatusList = Arrays.asList(notificationEnabledStatuses.split(","));
         if (notificationEnabledStatusList.contains(status)) {
-            if (status.equalsIgnoreCase(WorkFlowConfigs.STATUS_OPENED) && action.equals(WorkFlowConfigs.ACTION_REOPEN) && isReopenNotifEnaled) {
+            if ((status.equalsIgnoreCase(WorkFlowConfigs.STATUS_ESCALATED_LEVEL1_PENDING) || status.equalsIgnoreCase(WorkFlowConfigs.STATUS_ESCALATED_LEVEL2_PENDING))
+            		&& action.equals(WorkFlowConfigs.ACTION_REOPEN) && isReopenNotifEnaled) {
                 isNotifEnabled = true;
             }
             if (status.equalsIgnoreCase(WorkFlowConfigs.STATUS_ASSIGNED) && action.equals(WorkFlowConfigs.ACTION_REASSIGN) && isReassignNotifEnaled) {
