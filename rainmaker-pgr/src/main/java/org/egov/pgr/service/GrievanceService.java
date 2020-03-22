@@ -1108,6 +1108,7 @@ public class GrievanceService {
 		try {
 			MdmsCriteriaReq mdmsCriteriaReq = pGRUtils.prepareSearchRequestForServiceType(uri, serviceReq.getTenantId(),
 					serviceReq.getServiceCode(), requestInfo);
+			log.info("Criteria to fetch servicedefs from MDMS:"+mdmsCriteriaReq.toString());
 			
 			Object result = serviceRequestRepository.fetchResult(uri, mdmsCriteriaReq);
 			categories = JsonPath.read(result, PGRConstants.JSONPATH_CATEGORY_CODES);
@@ -1123,12 +1124,16 @@ public class GrievanceService {
 	        } catch (Exception e) {
 	            locale = fallbackLocale;
 	        }
+	        
+	        log.info("Get data from servicedefs- categories:"+categories+" ,departments: "+departments+" ,serviceTypes:"+serviceTypes+" ,slaHours:"+slaHours);
 			
 			if (null == localizedMessageMap.get(locale + "|" + tenantId)) // static map that saves code-message pair against locale | tenantId.
 				getLocalisedMessages(requestInfo, tenantId, locale, PGRConstants.LOCALIZATION_MODULE_NAME);
 			
-			serviceType = localizedMessageMap.get(locale + "|" + tenantId).get(PGRConstants.LOCALIZATION_COMP_CATEGORY_PREFIX + serviceTypes.get(0)); //result set is always of size one.
+			if(!CollectionUtils.isEmpty(serviceTypes))
+				serviceType = localizedMessageMap.get(locale + "|" + tenantId).get(PGRConstants.LOCALIZATION_COMP_CATEGORY_PREFIX + serviceTypes.get(0).toUpperCase()); //result set is always of size one.
 			
+			log.info("Sub Category:"+serviceType);
 			if(StringUtils.isEmpty(serviceType))
 				serviceType = PGRUtils.splitCamelCase(serviceTypes.get(0));
 			if(!CollectionUtils.isEmpty(categories))
@@ -1138,7 +1143,7 @@ public class GrievanceService {
 			if(!CollectionUtils.isEmpty(slaHours))
 				sla = Integer.valueOf(slaHours.get(0)) / 24; //converting hours to days.
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Error in fetching servicedefs"+e);
 		}
 		
 		listOfValues.add(categoryCode); 

@@ -182,6 +182,7 @@ public class PGRUtils {
 		if(!areInactiveComplaintCategoriesEnabled) {
 			masterDetail.setFilter("[?((@.serviceCode=='" + serviceCode + "') && (@.active == true))]");
 		}
+		log.info("serviceCode:"+serviceCode);
 		List<MasterDetail> masterDetails = new ArrayList<>();
 		masterDetails.add(masterDetail);
 		ModuleDetail moduleDetail = ModuleDetail.builder().moduleName(PGRConstants.MDMS_PGR_MOD_NAME)

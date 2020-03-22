@@ -58,8 +58,8 @@ public class PGRConstants {
 	public static final String LOCALIZATION_CODE_COMMENT = "pgr.sms.notification.comment";
 	public static final String LOCALIZATION_CODE_DEFAULT = "pgr.sms.notification.default";
 	public static final String LOCALIZATION_CODE_COMMENT_DEFAULT = "pgr.sms.notification.comment.default";
-	public static final String LOCALIZATION_COMP_CATEGORY_PREFIX = "pgr.complaint.category.";
-	public static final String LOCALIZATION_COMP_CATEGORY_PREFIX1 = "SERVICEDEFS.";
+	public static final String LOCALIZATION_COMP_CATEGORY_PREFIX_OLD = "pgr.complaint.category.";
+	public static final String LOCALIZATION_COMP_CATEGORY_PREFIX = "SERVICEDEFS.";
 
 
 	public static final String SERVICE_CODES = "serviceCode";

@@ -85,14 +85,19 @@ public class NotificationService {
 		List<Integer> slaHours = null;
 		String tenantId = serviceReq.getTenantId().split("[.]")[0]; // localization values are for now state-level.
 		try {
+			log.info("Criteria to fetch servicedefs from MDMS:"+mdmsCriteriaReq.toString());
+			
 			Object result = serviceRequestRepository.fetchResult(uri, mdmsCriteriaReq);
 			serviceTypes = JsonPath.read(result, PGRConstants.JSONPATH_SERVICE_CODES);
 			slaHours = JsonPath.read(result, PGRConstants.JSONPATH_SLA);
+			
+			log.info("Result Servicedefs from MDMS- serviceTypes:"+serviceTypes+" ,slaHours:"+slaHours);
 			if (CollectionUtils.isEmpty(serviceTypes) || CollectionUtils.isEmpty(slaHours))
 				return null;
 			if (null == localizedMessageMap.get(locale + "|" + tenantId)) // static map that saves code-message pair against locale | tenantId.
 				getLocalisedMessages(requestInfo, tenantId, locale, PGRConstants.LOCALIZATION_MODULE_NAME);
-			serviceType = localizedMessageMap.get(locale + "|" + tenantId).get(PGRConstants.LOCALIZATION_COMP_CATEGORY_PREFIX1 + serviceTypes.get(0).toUpperCase()); //result set is always of size one.
+			serviceType = localizedMessageMap.get(locale + "|" + tenantId).get(PGRConstants.LOCALIZATION_COMP_CATEGORY_PREFIX + serviceTypes.get(0).toUpperCase()); //result set is always of size one.
+			log.info("Sub Category (Service type):"+serviceType);
 			if(StringUtils.isEmpty(serviceType))
 				serviceType = PGRUtils.splitCamelCase(serviceTypes.get(0));
 		} catch (Exception e) {
