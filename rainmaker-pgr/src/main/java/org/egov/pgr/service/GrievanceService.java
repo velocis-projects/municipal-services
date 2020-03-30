@@ -178,22 +178,6 @@ public class GrievanceService {
 					actionInfo.setAction(WorkFlowConfigs.ACTION_OPEN); actionInfo.setAssignee(null); actionInfo.setBy(by);
 					actionInfo.setWhen(auditDetails.getCreatedTime()); actionInfo.setTenantId(tenantId); actionInfo.setStatus(actionStatusMap.get(WorkFlowConfigs.ACTION_OPEN));
 					
-					//Find autorouting employee for new complaint
-					String employeeCode = fetchAutoroutingEmployee(requestInfo, tenantId, servReq);
-					
-					if(!StringUtils.isEmpty(employeeCode)) {
-						UserResponse userResponse = getUser(requestInfo, tenantId, employeeCode);
-						
-						if(!CollectionUtils.isEmpty(userResponse.getUser())) {
-							ActionInfo newActionInfo = ActionInfo.builder().uuid(UUID.randomUUID().toString()).businessKey(currentId)
-									.action(WorkFlowConfigs.ACTION_ASSIGN).assignee(String.valueOf(userResponse.getUser().get(0).getId()))
-									.by(by).when(auditDetails.getCreatedTime()+1).tenantId(tenantId).media(actionInfo.getMedia())
-									.status(actionStatusMap.get(WorkFlowConfigs.ACTION_ASSIGN)).build();
-							actionInfos.add(newActionInfo);
-							
-							isAutoroutingAvailable = true;
-						}
-					}
 				}else {
 					ActionInfo newActionInfo = ActionInfo.builder().uuid(UUID.randomUUID().toString()).businessKey(currentId)
 							.action(WorkFlowConfigs.ACTION_OPEN).assignee(null).by(by).when(auditDetails.getCreatedTime()).tenantId(tenantId)
@@ -206,6 +190,33 @@ public class GrievanceService {
 						.status(actionStatusMap.get(WorkFlowConfigs.ACTION_OPEN)).build();
 				actionInfos.add(newActionInfo);
 			}
+			
+			String employeeCode = "";
+			try {
+				//Find autorouting employee for new complaint
+				employeeCode = fetchAutoroutingEmployee(requestInfo, tenantId, servReq);
+				
+				if(!StringUtils.isEmpty(employeeCode)) {
+					UserResponse userResponse = getUser(requestInfo, tenantId, employeeCode);
+					
+					if(!CollectionUtils.isEmpty(userResponse.getUser())) {
+						ActionInfo newActionInfo = ActionInfo.builder().uuid(UUID.randomUUID().toString()).businessKey(currentId)
+								.action(WorkFlowConfigs.ACTION_ASSIGN).assignee(String.valueOf(userResponse.getUser().get(0).getId()))
+								.by(by).when(auditDetails.getCreatedTime()+1).tenantId(tenantId).media(actionInfo.getMedia())
+								.status(actionStatusMap.get(WorkFlowConfigs.ACTION_ASSIGN)).build();
+						actionInfos.add(newActionInfo);
+						
+						isAutoroutingAvailable = true;
+					}
+				}
+			}catch(Exception e) {
+				log.error("Unable to auto assign complaint to employee {}",employeeCode,e);
+			}
+			
+			if(!isAutoroutingAvailable) {
+				log.info("Auto routing employee not available for this compliant.");
+			}
+			
 			servReq.setAuditDetails(auditDetails); servReq.setServiceRequestId(currentId);servReq.setActive(true);
 			if(isAutoroutingAvailable) {
 				servReq.setStatus(StatusEnum.ASSIGNED);
@@ -1022,8 +1033,7 @@ public class GrievanceService {
 			if(null != address){
 				sector = address.getMohalla();
 			}
-			//testng purpose.comment in prod
-			sector ="SECTOR-7";
+			
 			Object result = fetchAutoroutingEscalationMap(requestInfo, tenantId, category, sector);
 			if(null != result) {
 				List objList = JsonPath.read(result, PGRConstants.JSONPATH_AUTOROUTING_CODES);
