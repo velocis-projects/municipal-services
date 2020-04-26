@@ -480,4 +480,18 @@ public class PGRRequestValidator {
 		return lasModifiedTime;
 		
 	}
+	
+	/**
+	 * validates the legality of the escalation search criteria given
+	 * 
+	 * @param criteria
+	 * @param requestInfo
+	 */
+	public void validateEscalationSearch(ServiceReqSearchCriteria criteria, RequestInfo requestInfo) {
+		Map<String, String> errorMap = new HashMap<>();
+		validateUserRBACProxy(errorMap, requestInfo);
+		
+		if (!errorMap.isEmpty())
+			throw new CustomException(errorMap);
+	}
 }

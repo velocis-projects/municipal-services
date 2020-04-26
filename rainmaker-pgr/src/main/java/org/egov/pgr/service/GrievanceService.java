@@ -2,6 +2,7 @@ package org.egov.pgr.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -202,12 +203,14 @@ public class GrievanceService {
 					if(!CollectionUtils.isEmpty(userResponse.getUser())) {
 						ActionInfo newActionInfo = ActionInfo.builder().uuid(UUID.randomUUID().toString()).businessKey(currentId)
 								.action(WorkFlowConfigs.ACTION_ASSIGN).assignee(String.valueOf(userResponse.getUser().get(0).getId()))
-								.by(by).when(auditDetails.getCreatedTime()+1).tenantId(tenantId).media(actionInfo.getMedia())
+								.by(by).when(auditDetails.getCreatedTime()+1).tenantId(tenantId)
 								.status(actionStatusMap.get(WorkFlowConfigs.ACTION_ASSIGN)).build();
 						actionInfos.add(newActionInfo);
 						
 						isAutoroutingAvailable = true;
 					}
+				}else {
+					log.info("Employee {} not found for auto routing.",employeeCode);
 				}
 			}catch(Exception e) {
 				log.error("Unable to auto assign complaint to employee {}",employeeCode,e);
@@ -232,6 +235,9 @@ public class GrievanceService {
 			List<Object> serivceDefs = getServiceType(servReq, requestInfo);
 			if(!CollectionUtils.isEmpty(serivceDefs))
 				servReq.setCategory(String.valueOf(serivceDefs.get(0)));
+				if((Integer)serivceDefs.get(3) > 0) {
+					servReq.setSlaEndTime(auditDetails.getCreatedTime()+ Long.parseLong(serivceDefs.get(3).toString())*60*60*1000); // convert sla hour to millisecond
+				}
 		}
 		serviceRequest.setActionInfo(actionInfos);
 	}
@@ -389,7 +395,7 @@ public class GrievanceService {
 			if(service.getActive() == null) service.setActive(true);
 			
 			//If the action is reopen, then go through the action history & find whether it is reopened 
-			//by 1st time(resolved by LME) or 2nd time(resolved by escalation officer1)
+			//1st time(last resolved by LME) or 2nd time(last resolved by escalation officer1)
 			
 			ActionHistory history = historyMap.get(service.getServiceRequestId());
 						
@@ -406,7 +412,12 @@ public class GrievanceService {
 			actionInfo.setUuid(UUID.randomUUID().toString()); actionInfo.setBusinessKey(service.getServiceRequestId()); 
 			actionInfo.setBy(auditDetails.getLastModifiedBy() + ":" + role); actionInfo.setWhen(auditDetails.getLastModifiedTime());
 			actionInfo.setTenantId(service.getTenantId()); 
-					
+			
+			//Check complaint is already escalated or not. If already escalated then set the assignee value at the time of resolve/reject
+			
+			if(pGRUtils.checkComplaintAlreadyEscalated(history, actionInfo.getAction())) {
+				actionInfo.setAssignee(auditDetails.getLastModifiedBy());
+			}
 		}
 		if (!errorMap.isEmpty()) {
 			Map<String, String> newMap = new HashMap<>();
@@ -486,10 +497,13 @@ public class GrievanceService {
 		
 		Object response = null;
 		
-		List<String> codes = requestInfo.getUserInfo().getRoles().stream().map(Role::getCode).collect(Collectors.toList());
+		//List<String> codes = requestInfo.getUserInfo().getRoles().stream().map(Role::getCode).collect(Collectors.toList());
 		
-		if ((codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER1) || codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER2))
-				&& CollectionUtils.isEmpty(serviceReqSearchCriteria.getServiceRequestId())) {
+		/*if ((codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER1) || codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER2))
+				&& CollectionUtils.isEmpty(serviceReqSearchCriteria.getServiceRequestId())) {*/
+		if(!CollectionUtils.isEmpty(serviceReqSearchCriteria.getStatus()) 
+				&& (serviceReqSearchCriteria.getStatus().contains(WorkFlowConfigs.STATUS_ESCALATED_LEVEL1_PENDING)
+					|| serviceReqSearchCriteria.getStatus().contains(WorkFlowConfigs.STATUS_ESCALATED_LEVEL2_PENDING))){
 			response = getComplaintListForEscalationOfficer(requestInfo, serviceReqSearchCriteria, uri, response);
 		}else {
 			searcherRequest = pGRUtils.prepareSearchRequestWithDetails(uri, serviceReqSearchCriteria, requestInfo);
@@ -757,12 +771,15 @@ public class GrievanceService {
 		}
 		
 		Object response = null;
-		
-		List<String> codes = requestInfo.getUserInfo().getRoles().stream().map(Role::getCode).collect(Collectors.toList());
 		Double count = 0.0;
 		
-		if ((codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER1) || codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER2))
-				&& CollectionUtils.isEmpty(serviceReqSearchCriteria.getServiceRequestId())) {
+		//List<String> codes = requestInfo.getUserInfo().getRoles().stream().map(Role::getCode).collect(Collectors.toList());
+		
+		/*if ((codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER1) || codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER2))
+				&& CollectionUtils.isEmpty(serviceReqSearchCriteria.getServiceRequestId())) {*/
+		if(!CollectionUtils.isEmpty(serviceReqSearchCriteria.getStatus()) 
+				&& (serviceReqSearchCriteria.getStatus().contains(WorkFlowConfigs.STATUS_ESCALATED_LEVEL1_PENDING)
+					|| serviceReqSearchCriteria.getStatus().contains(WorkFlowConfigs.STATUS_ESCALATED_LEVEL2_PENDING))){
 			response = getComplaintListForEscalationOfficer(requestInfo, serviceReqSearchCriteria, uri, response);
 			if(null != response) {
 				List serviceList = JsonPath.read(response, PGRConstants.COMPLAINT_JSONPATH);
@@ -1407,5 +1424,97 @@ public class GrievanceService {
 		}
 		return response;
 
+	}
+	
+	/**
+	 * Method to return service requests along with details acc to V5 design
+	 * received from the repo to the controller in the reqd format
+	 * 
+	 * @param requestInfo
+	 * @param serviceReqSearchCriteria
+	 * @return ServiceReqResponse
+	 * @author Tonmoy
+	 */
+	public Object getEscalationServiceRequestDetails(RequestInfo requestInfo, ServiceReqSearchCriteria serviceReqSearchCriteria) {
+		StringBuilder uri = new StringBuilder();
+		SearcherRequest searcherRequest = null;
+		try {
+			enrichEscalationSearchRequest(requestInfo, serviceReqSearchCriteria);
+		} catch (CustomException e) {
+			if (e.getMessage().equals(ErrorConstants.NO_DATA_MSG))
+				return pGRUtils.getDefaultServiceResponse(requestInfo);
+			else
+				throw e;
+		}
+		
+		searcherRequest = pGRUtils.prepareSearchRequestWithDetails(uri, serviceReqSearchCriteria, requestInfo);
+		Object response = serviceRequestRepository.fetchResult(uri, searcherRequest);
+		log.debug(PGRConstants.SEARCHER_RESPONSE_TEXT + response);
+		
+		if (null == response)
+			return pGRUtils.getDefaultServiceResponse(requestInfo);
+		ServiceResponse serviceResponse = prepareResult(response, requestInfo);
+		
+		
+		if(CollectionUtils.isEmpty(serviceResponse.getServices())) {
+			log.info("No record found for auto escalation.");
+			return serviceResponse;
+		}else {
+			serviceResponse = enrichResult(requestInfo, serviceResponse);
+			if(!CollectionUtils.isEmpty(serviceResponse.getServices())) {
+				int totalRecord = serviceResponse.getServices().size();
+				log.info("Total compliants record found for auto escalation is "+totalRecord);
+				int success =0;
+				for(int i=0; i<serviceResponse.getServices().size(); i++) {
+					Service service = serviceResponse.getServices().get(i);
+					ActionHistory actionHistory = serviceResponse.getActionHistory().get(i);
+					
+					if(pGRUtils.checkAutoEscalatedWithoutResolved(actionHistory)) {
+						log.info("complaint {} is already auto escalated.",service.getServiceRequestId());
+						continue;
+					}
+					
+					log.info("Escalation started for complaint "+service.getServiceRequestId());
+					
+					List<ActionInfo> actionInfo = new ArrayList<ActionInfo>();
+					actionInfo.add(ActionInfo.builder().action(WorkFlowConfigs.ACTION_REOPEN).build());
+					List<Service> services = new ArrayList<Service>();
+					services.add(service);
+					ServiceRequest request = ServiceRequest.builder().requestInfo(requestInfo).actionInfo(actionInfo).services(services).build();
+					
+					try {
+						update(request);
+						success++;
+						log.info("Escalation success for complaint "+service.getServiceRequestId());
+					}catch(Exception e) {
+						log.error("Error in auto escalation for compliant {}",service.getServiceRequestId(),e);
+					}
+				}
+				log.info("Total escalation success is {} out of {}",success,totalRecord);
+			}
+		}
+		
+		return serviceResponse;
+	}
+	
+	/**
+	 * Method to enrich the request for search based on roles.
+	 * 
+	 * @param requestInfo
+	 * @param serviceReqSearchCriteria
+	 */
+	public void enrichEscalationSearchRequest(RequestInfo requestInfo, ServiceReqSearchCriteria serviceReqSearchCriteria) {
+		log.info("Enriching request for escalation search");
+		
+		serviceReqSearchCriteria.setTenantId(PGRConstants.TENANT_ID.split("[.]")[0]);
+		serviceReqSearchCriteria.setActive(true);
+		serviceReqSearchCriteria.setSlaEndTime(new Date().getTime());
+		
+		List<String> status = new ArrayList<String>();
+		status.add(WorkFlowConfigs.STATUS_OPENED);
+		status.add(WorkFlowConfigs.STATUS_ASSIGNED);
+		status.add(WorkFlowConfigs.STATUS_REASSIGN_REQUESTED);
+		status.add(WorkFlowConfigs.STATUS_ESCALATED_LEVEL1_PENDING);
+		serviceReqSearchCriteria.setStatus(status);
 	}
 }

@@ -17,6 +17,7 @@ public class PGRConstants {
 	//Notification
 	public static final String TEMPLATE_COMPLAINT_EMAIL = "./src/main/resources/email-templates/velocityEmailNotifSample.vm";
 	
+	public static final String  TENANT_ID = "ch.chandigarh";
 	
 	public static final String SEARCHER_PGR_MOD_NAME = "rainmaker-pgr-V2";
 	public static final String SEARCHER_SRSEARCH_DEF_NAME = "serviceSearchWithDetails";
@@ -143,6 +144,7 @@ public class PGRConstants {
 	public static final String ROLE_CSR = "CSR";
 	public static final String ROLE_ESCALATION_OFFICER1 = "ESCALATION_OFFICER1";
 	public static final String ROLE_ESCALATION_OFFICER2 = "ESCALATION_OFFICER2";
+	public static final String ROLE_SYSTEM = "SYSTEM";
 	
 	
 	public static final String ROLE_NAME_CITIZEN = "Citizen";

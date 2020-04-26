@@ -205,5 +205,8 @@ public class Service   {
   @JsonProperty("category")
   private String category;
   
+  @JsonProperty("slaEndTime")
+  private Long slaEndTime = null;
+  
   }
 
