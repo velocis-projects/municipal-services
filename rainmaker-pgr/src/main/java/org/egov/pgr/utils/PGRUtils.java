@@ -641,7 +641,7 @@ public class PGRUtils {
 	}
 	
 	/**
-	 * Check whether the complaint is escalated last time
+	 * Check whether the escalated complaint is resolving/rejecting by any employee
 	 * 
 	 * @param actionInfo
 	 * @return boolean
@@ -653,8 +653,8 @@ public class PGRUtils {
 			String status = infos.get(i).getStatus();
 			if ((WorkFlowConfigs.STATUS_ESCALATED_LEVEL1_PENDING.equalsIgnoreCase(status)
 					|| WorkFlowConfigs.STATUS_ESCALATED_LEVEL2_PENDING.equalsIgnoreCase(status))
-					&& (WorkFlowConfigs.ACTION_RESOLVE.equalsIgnoreCase(action)) 
-						|| WorkFlowConfigs.ACTION_REJECT.equalsIgnoreCase(action)){
+					&& (WorkFlowConfigs.ACTION_RESOLVE.equalsIgnoreCase(action) 
+						|| WorkFlowConfigs.ACTION_REJECT.equalsIgnoreCase(action))){
 				return true;
 			}
 		}

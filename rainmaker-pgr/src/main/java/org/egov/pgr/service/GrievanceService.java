@@ -413,9 +413,15 @@ public class GrievanceService {
 			actionInfo.setBy(auditDetails.getLastModifiedBy() + ":" + role); actionInfo.setWhen(auditDetails.getLastModifiedTime());
 			actionInfo.setTenantId(service.getTenantId()); 
 			
-			//Check complaint is already escalated or not. If already escalated then set the assignee value at the time of resolve/reject
+			//If GRO resolves/reject any complaint (LME assigned complaint/ Escalated complaint) then we set the assignee.
 			
-			if(pGRUtils.checkComplaintAlreadyEscalated(history, actionInfo.getAction())) {
+			if(PGRConstants.ROLE_GRO.equalsIgnoreCase(role) 
+					&& (WorkFlowConfigs.ACTION_RESOLVE.equalsIgnoreCase(actionInfo.getAction())
+							|| WorkFlowConfigs.ACTION_REJECT.equalsIgnoreCase(actionInfo.getAction()))) {
+				actionInfo.setAssignee(auditDetails.getLastModifiedBy());
+			}
+			//If escalated complaint is resolved or reject by escalation officer then set the assignee value of escalation officer
+			else if(pGRUtils.checkComplaintAlreadyEscalated(history, actionInfo.getAction())) {
 				actionInfo.setAssignee(auditDetails.getLastModifiedBy());
 			}
 		}

@@ -131,6 +131,7 @@ public class NotificationService {
 			}
 			employeeDetails.put("name", JsonPath.read(response, PGRConstants.EMPLOYEE_NAME_JSONPATH));
 			employeeDetails.put("phone", JsonPath.read(response, PGRConstants.EMPLOYEE_PHNO_JSONPATH));
+			employeeDetails.put("uuid", JsonPath.read(response, PGRConstants.USER_UUID_JSONPATH));
 			
 			List<String> depts = JsonPath.read(response, PGRConstants.EMPLOYEE_DEPTCODE_JSONPATH);
 			if(!CollectionUtils.isEmpty(depts)) {
@@ -281,6 +282,7 @@ public class NotificationService {
 			Map<String, String> employeeDetails = getEmployeeDetails(tenantId, assignee, requestInfo);
 			if(!StringUtils.isEmpty(employeeDetails.get("phone"))) {
 				phoneNumber = employeeDetails.get("phone");
+				uuid = employeeDetails.get("uuid");
 			}
 		}
 		return phoneNumber + "|" + uuid;
