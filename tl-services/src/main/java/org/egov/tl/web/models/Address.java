@@ -58,7 +58,8 @@ public class Address   {
         @Size(max=64)
         @JsonProperty("type")
         private String type = null;
-
+        
+        @Size(max=256)
         @JsonProperty("addressLine1")
         private String addressLine1 = null;
 

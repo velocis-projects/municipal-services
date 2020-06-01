@@ -151,7 +151,6 @@ public class TradeLicenseService {
     public List<TradeLicense> search(TradeLicenseSearchCriteria criteria, RequestInfo requestInfo, String serviceFromPath){
         List<TradeLicense> licenses;
         tlValidator.validateSearch(requestInfo,criteria,serviceFromPath);
-        criteria.setBusinessService(serviceFromPath);
         enrichmentService.enrichSearchCriteriaWithAccountId(requestInfo,criteria);
          if(criteria.getMobileNumber()!=null){
              licenses = getLicensesFromMobileNumber(criteria,requestInfo);
@@ -160,6 +159,27 @@ public class TradeLicenseService {
              licenses = getLicensesWithOwnerInfo(criteria,requestInfo);
          }
        return licenses;
+    }
+    
+    /**
+     * fetch count of the tradeLicense for the given criteria if search is on owner parameter then first user service
+     *  is called followed by query to db
+     * @param tradeLicenseRequest
+     */
+    
+    public int count(TradeLicenseSearchCriteria criteria, RequestInfo requestInfo, String serviceFromPath){
+       
+       int licensesCount;
+        enrichmentService.enrichSearchCriteriaWithAccountId(requestInfo,criteria);
+       
+        if(criteria.getMobileNumber()!=null){
+        	licensesCount = getLicensesCountFromMobileNumber(criteria,requestInfo);
+        }
+        else {
+        	licensesCount = repository.getLicenseCount(criteria);
+        }
+         
+       return licensesCount;
     }
 
     public void checkEndStateAndAddBPARoles(TradeLicenseRequest tradeLicenseRequest) {
@@ -212,6 +232,19 @@ public class TradeLicenseService {
         licenses = enrichmentService.enrichTradeLicenseSearch(licenses,criteria,requestInfo);
         return licenses;
     }
+    
+    
+    //TO fetch license count
+    
+    public int getLicensesCountFromMobileNumber(TradeLicenseSearchCriteria criteria, RequestInfo requestInfo){
+        UserDetailResponse userDetailResponse = userService.getUser(criteria,requestInfo);
+        // If user not found with given user fields return empty list
+        if(userDetailResponse.getUser().size()==0){
+            return 0;
+        }
+        enrichmentService.enrichTLCriteriaWithOwnerids(criteria,userDetailResponse);
+        return repository.getLicenseCount(criteria);
+    } 
 
 
     /**
@@ -226,6 +259,7 @@ public class TradeLicenseService {
 
         criteria.setTenantId(request.getLicenses().get(0).getTenantId());
         criteria.setIds(ids);
+        criteria.setLimit(ids.size());
         criteria.setBusinessService(request.getLicenses().get(0).getBusinessService());
 
         List<TradeLicense> licenses = repository.getLicenses(criteria);
@@ -303,4 +337,5 @@ public class TradeLicenseService {
         repository.update(tradeLicenseRequest, idToIsStateUpdatableMap);
         return tradeLicenseRequest.getLicenses();
     }
+    
 }

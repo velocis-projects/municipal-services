@@ -1,23 +1,29 @@
 package org.egov.tlcalculator.web.models.tradelicense;
 import java.math.BigDecimal;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.annotations.ApiModel;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import org.egov.tlcalculator.web.models.*;
-import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import org.egov.tlcalculator.web.models.Accessory;
+import org.egov.tlcalculator.web.models.Address;
+import org.egov.tlcalculator.web.models.AuditDetails;
+import org.egov.tlcalculator.web.models.Document;
+import org.springframework.validation.annotation.Validated;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Builder;
 
 /**
  * A Object holds the basic data for a Trade License
@@ -127,7 +133,7 @@ public class TradeLicenseDetail   {
     private List<Document> verificationDocuments = null;
 
     @JsonProperty("additionalDetail")
-    private Object additionalDetail = null;
+    private JsonNode additionalDetail = null;
 
     @JsonProperty("institution")
     private Institution institution = null;

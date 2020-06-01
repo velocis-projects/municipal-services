@@ -52,14 +52,35 @@ public class TLQueryBuilder {
             "tlownerdoc.userid as docuserid,tlownerdoc.tradeLicenseDetailId as doctradelicensedetailid,tlownerdoc.id as ownerdocid,"+
             "tlownerdoc.documenttype as ownerdocType,tlownerdoc.filestoreid as ownerfileStoreId,tlownerdoc.documentuid as ownerdocuid,tlownerdoc.active as ownerdocactive," +
             " tlinsti.id as instiid,tlinsti.name as authorisedpersonname,tlinsti.type as institutiontype,tlinsti.tenantid as institenantId,tlinsti.active as instiactive, "+
-            " tlinsti.instituionname as instiinstituionname, tlinsti.contactno as insticontactno, tlinsti.organisationregistrationno as instiorganisationregistrationno, tlinsti.address as instiaddress FROM eg_tl_tradelicense tl"
+            " tlinsti.instituionname as instiinstituionname, tlinsti.contactno as insticontactno, tlinsti.organisationregistrationno as instiorganisationregistrationno, tlinsti.address as instiaddress, tl.applicationnumber as tl_applicationnumber  FROM eg_tl_tradelicense tl"
             +INNER_JOIN_STRING
             +"eg_tl_tradelicensedetail tld ON tld.tradelicenseid = tl.id"
             +INNER_JOIN_STRING
             +"eg_tl_address tladdress ON tladdress.tradelicensedetailid = tld.id"
             +INNER_JOIN_STRING
             +"eg_tl_owner tlowner ON tlowner.tradelicensedetailid = tld.id"
+            +LEFT_OUTER_JOIN_STRING
+            +"eg_tl_tradeunit tlunit ON tlunit.tradelicensedetailid = tld.id"
+            +LEFT_OUTER_JOIN_STRING
+            +"eg_tl_accessory tlacc ON tlacc.tradelicensedetailid = tld.id"
+            +LEFT_OUTER_JOIN_STRING
+            +"eg_tl_document_owner tlownerdoc ON tlownerdoc.userid = tlowner.id"
+            +LEFT_OUTER_JOIN_STRING
+            +"eg_tl_applicationdocument tlapldoc ON tlapldoc.tradelicensedetailid = tld.id"
+            +LEFT_OUTER_JOIN_STRING
+            +"eg_tl_verificationdocument tlverdoc ON tlverdoc.tradelicensedetailid = tld.id"
+            +LEFT_OUTER_JOIN_STRING
+            +"eg_tl_institution tlinsti ON tlinsti.tradelicensedetailid = tld.id ";
+    
+    
+    private static final String COUNT_QUERY = "SELECT count (distinct tl.id) FROM eg_tl_tradelicense tl"
             +INNER_JOIN_STRING
+            +"eg_tl_tradelicensedetail tld ON tld.tradelicenseid = tl.id"
+            +INNER_JOIN_STRING
+            +"eg_tl_address tladdress ON tladdress.tradelicensedetailid = tld.id"
+            +INNER_JOIN_STRING
+            +"eg_tl_owner tlowner ON tlowner.tradelicensedetailid = tld.id"
+            +LEFT_OUTER_JOIN_STRING
             +"eg_tl_tradeunit tlunit ON tlunit.tradelicensedetailid = tld.id"
             +LEFT_OUTER_JOIN_STRING
             +"eg_tl_accessory tlacc ON tlacc.tradelicensedetailid = tld.id"
@@ -74,18 +95,24 @@ public class TLQueryBuilder {
 
 
       private final String paginationWrapper = "SELECT * FROM " +
-              "(SELECT *, DENSE_RANK() OVER (ORDER BY tl_id) offset_ FROM " +
+              "(SELECT *, DENSE_RANK() OVER (ORDER BY tl_applicationnumber desc) offset_ FROM " +
               "({})" +
               " result) result_offset " +
-              "WHERE offset_ > ? AND offset_ <= ?";
+              "WHERE offset_ > ? AND offset_ <= ? "+
+              "ORDER BY :column :order"
+              ;
 
 
 
 
 
     public String getTLSearchQuery(TradeLicenseSearchCriteria criteria, List<Object> preparedStmtList) {
+    	return addPaginationWrapper(this._getQuery(criteria, preparedStmtList, QUERY), preparedStmtList,criteria);
+    }
+    
+    private String _getQuery(TradeLicenseSearchCriteria criteria, List<Object> preparedStmtList, String query) {
 
-        StringBuilder builder = new StringBuilder(QUERY);
+        StringBuilder builder = new StringBuilder(query);
 
         addBusinessServiceClause(criteria,preparedStmtList,builder);
 
@@ -164,17 +191,35 @@ public class TLQueryBuilder {
             builder.append("  tl.applicationDate <= ? ");
             preparedStmtList.add(criteria.getToDate());
         }
-
-
+        
+        if(criteria.getBusinessService()!=null){
+            addClauseIfRequired(preparedStmtList,builder);
+            builder.append("  tl.businessService = ? ");
+            preparedStmtList.add(criteria.getBusinessService());
+        }
+        
+        if(criteria.getApplicationType()!=null){
+            addClauseIfRequired(preparedStmtList,builder);
+            builder.append("  tl.applicationtype = ? ");
+            preparedStmtList.add(criteria.getApplicationType());
+        }
 
        // enrichCriteriaForUpdateSearch(builder,preparedStmtList,criteria);
 
-        return addPaginationWrapper(builder.toString(),preparedStmtList,criteria);
+        return builder.toString();
     }
+    
+    //TO fetch license count
+    
+    public String getTLCountQuery(TradeLicenseSearchCriteria criteria, List<Object> preparedStmtList) {
+
+    	return this._getQuery(criteria, preparedStmtList, COUNT_QUERY);
+    }
+    
 
 
     private void addBusinessServiceClause(TradeLicenseSearchCriteria criteria,List<Object> preparedStmtList,StringBuilder builder){
-        if ((criteria.getBusinessService() == null) || (businessServiceTL.equals(criteria.getBusinessService()))) {
+        if (businessServiceTL.equals(criteria.getBusinessService())) {
             addClauseIfRequired(preparedStmtList, builder);
             builder.append(" (tl.businessservice=? or tl.businessservice isnull) ");
             preparedStmtList.add(businessServiceTL);
@@ -205,8 +250,17 @@ public class TLQueryBuilder {
                                       TradeLicenseSearchCriteria criteria){
         int limit = config.getDefaultLimit();
         int offset = config.getDefaultOffset();
+        
         String finalQuery = paginationWrapper.replace("{}",query);
-
+        
+        if(criteria.getSortBy()!= null && criteria.getSortOrder()!= null){
+        	finalQuery= finalQuery.replace(":column", criteria.getSortBy());
+        	finalQuery= finalQuery.replace(":order", criteria.getSortOrder());
+        }else{
+        	finalQuery= finalQuery.replace(":column", "applicationnumber");
+        	finalQuery= finalQuery.replace(":order", "desc");
+        }
+       
         if(criteria.getLimit()!=null && criteria.getLimit()<=config.getMaxSearchLimit())
             limit = criteria.getLimit();
 

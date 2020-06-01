@@ -23,6 +23,11 @@ import java.util.*;
 
 import static org.egov.tl.util.TLConstants.*;
 import static org.egov.tl.util.TLConstants.COMMON_MASTERS_MODULE;
+import static org.egov.tl.util.CTLConstants.businessService_REHRI_RC;
+import static org.egov.tl.util.CTLConstants.businessService_REHRI_DL;
+import static org.egov.tl.util.CTLConstants.businessService_DHOBI_GHAT;
+import static org.egov.tl.util.CTLConstants.businessService_BOOK_SHOP;
+
 
 @Component
 @Slf4j
@@ -77,6 +82,14 @@ public class TradeUtil {
             case businessService_BPA:
                 uri.append(config.getCalculateEndpointBPA());
                 break;
+
+            case businessService_REHRI_RC:
+            case businessService_REHRI_DL:
+            case businessService_DHOBI_GHAT:
+            case businessService_BOOK_SHOP:
+                uri.append(config.getCalculateEndpointTL().replace("%SERVICE%", businessService));
+                break;
+
         }
         return uri;
     }

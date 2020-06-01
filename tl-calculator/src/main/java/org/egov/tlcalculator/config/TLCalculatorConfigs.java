@@ -95,5 +95,7 @@ public class TLCalculatorConfigs {
     @Value("${egov.tl.calculationtype.accessory.default}")
     private String defaultAccessoryCalculationType;
 
+    @Value("${egov.ctl.allowedBusinessServices}")
+    private String allowedBusinessServices;
 
 }

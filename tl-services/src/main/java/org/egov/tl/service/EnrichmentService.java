@@ -1,8 +1,21 @@
 package org.egov.tl.service;
 
+import static org.egov.tl.util.CTLConstants.businessService_BOOK_SHOP;
+import static org.egov.tl.util.CTLConstants.businessService_DHOBI_GHAT;
+import static org.egov.tl.util.CTLConstants.businessService_REHRI_DL;
+import static org.egov.tl.util.CTLConstants.businessService_REHRI_RC;
+import static org.egov.tl.util.TLConstants.ACTION_APPLY;
+import static org.egov.tl.util.TLConstants.ACTION_INITIATE;
+import static org.egov.tl.util.TLConstants.CITIZEN_SENDBACK_ACTION;
+import static org.egov.tl.util.TLConstants.STATUS_APPLIED;
+import static org.egov.tl.util.TLConstants.STATUS_INITIATED;
+import static org.egov.tl.util.TLConstants.businessService_BPA;
+import static org.egov.tl.util.TLConstants.businessService_TL;
+
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.tl.config.TLConfiguration;
 import org.egov.tl.repository.IdGenRepository;
+import org.egov.tl.util.CTLConstants;
 import org.egov.tl.util.TLConstants;
 import org.egov.tl.util.TradeUtil;
 import org.egov.tl.web.models.*;
@@ -14,10 +27,10 @@ import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import static org.egov.tl.util.TLConstants.*;
+import java.util.*;	
+import java.util.stream.Collectors;	
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 
 @Service
@@ -63,6 +76,13 @@ public class EnrichmentService {
                 tradeLicense.setBusinessService(businessService);
             }
             switch (businessService) {
+	            case businessService_REHRI_RC:
+				case businessService_REHRI_DL:
+				case businessService_DHOBI_GHAT:
+				case businessService_BOOK_SHOP:
+					setCTLLicenseValidity(tradeLicense);
+					enrichCTLTradeUnits(tradeLicense);
+					break;
                 case businessService_TL:
                     Map<String, Long> taxPeriods = tradeUtil.getTaxPeriods(tradeLicense, mdmsData);
                     if (tradeLicense.getLicenseType().equals(TradeLicense.LicenseTypeEnum.PERMANENT) || tradeLicense.getValidTo() == null)
@@ -161,6 +181,10 @@ public class EnrichmentService {
             businessService = businessService_TL;
         List<String> applicationNumbers = null;
         switch (businessService) {
+        	case businessService_REHRI_RC:
+			case businessService_REHRI_DL:
+			case businessService_DHOBI_GHAT:
+			case businessService_BOOK_SHOP:
             case businessService_TL:
                 applicationNumbers = getIdList(requestInfo, tenantId, config.getApplicationNumberIdgenNameTL(), config.getApplicationNumberIdgenFormatTL(), request.getLicenses().size());
                 break;
@@ -317,6 +341,10 @@ public class EnrichmentService {
             if (businessService == null)
                 businessService = businessService_TL;
             switch (businessService) {
+	            case businessService_REHRI_RC:
+				case businessService_REHRI_DL:
+				case businessService_DHOBI_GHAT:
+				case businessService_BOOK_SHOP:
                 case businessService_TL:
                     if (license.getAction().equalsIgnoreCase(ACTION_INITIATE))
                         license.setStatus(STATUS_INITIATED);
@@ -432,6 +460,10 @@ public class EnrichmentService {
             if (businessService == null)
                 businessService = businessService_TL;
             switch (businessService) {
+	            case businessService_REHRI_RC:
+				case businessService_REHRI_DL:
+				case businessService_DHOBI_GHAT:
+				case businessService_BOOK_SHOP:
                 case businessService_TL:
                     licenseNumbers=getIdList(requestInfo, tenantId, config.getLicenseNumberIdgenNameTL(), config.getLicenseNumberIdgenFormatTL(), count);
                     break;
@@ -460,6 +492,45 @@ public class EnrichmentService {
                 }
             }
         }
+    }
+    
+    
+    private Date addYearsToDate(Date dateFrom,int years){
+    	Calendar c = Calendar.getInstance();
+    	try {
+    		Date validTo = null;
+		    SimpleDateFormat df2 = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+		    Date fromDate = df2.parse(df2.format(dateFrom));						
+		    c.setTime(fromDate);
+		    c.add(Calendar.YEAR,years);
+		    c.add(Calendar.DATE,-1);
+		    validTo = c.getTime();
+		    df2.format(validTo);
+		    return validTo;	    
+    	} catch (ParseException e) {
+    		throw new CustomException("LICENSE VALIDITY ERROR", "Could not add years to from date");
+		}
+    }
+    
+    private String getLicensePeriod(long dob){
+    	SimpleDateFormat df2 = new SimpleDateFormat("yyyy-MM-dd");
+		String licensePeriod=null;
+    	try {   		
+			Date birthDate = new Date(dob);
+			String birthday = df2.format(birthDate);
+		    LocalDate birthDateLocal = LocalDate.parse(birthday);
+		    LocalDate today = LocalDate.now();
+			int age = Period.between(birthDateLocal, today).getYears();
+			if(age <=50)
+			 licensePeriod = "15";			 
+			else
+			 licensePeriod = "5";
+			
+			return licensePeriod;
+			
+    	}catch (Exception e1) {
+			throw new CustomException("DOB ERROR", "Could not read dob as a valid date");
+		}
     }
 
 
@@ -507,6 +578,10 @@ public class EnrichmentService {
      */
     public void postStatusEnrichment(TradeLicenseRequest tradeLicenseRequest,List<String>endstates){
         setLicenseNumberAndIssueDate(tradeLicenseRequest,endstates);
+    	List<TradeLicense> licenses = tradeLicenseRequest.getLicenses();
+    	for (int i = 0; i < licenses.size(); i++) {
+    		setCTLLicenseValidity(licenses.get(i));
+    	}
     }
 
 
@@ -520,7 +595,7 @@ public class EnrichmentService {
         Set<String> licenseIds = new HashSet<>();
         licenses.forEach(license -> licenseIds.add(license.getId()));
         criteria.setIds(new LinkedList<>(licenseIds));
-        criteria.setBusinessService(licenses.get(0).getBusinessService());
+        criteria.setLimit(licenseIds.size());
         return criteria;
     }
 
@@ -548,6 +623,110 @@ public class EnrichmentService {
     }
 
 
-
+    private void enrichCTLTradeUnits(TradeLicense license) {
+    	TradeLicenseDetail licenseDetail = license.getTradeLicenseDetail();
+    	String businessService = license.getBusinessService();
+    	TradeUnit e = null;
+    	String licensePeriod =null;
+    	switch(businessService) {
+    		case businessService_REHRI_DL:    
+    				Long dob = licenseDetail.getOwners().get(0).getDob();
+    				//Getting license period using DOB.
+    				 licensePeriod = getLicensePeriod(dob);
+    				//Updating licensePeriod in additional details.
+    				JsonNode addtionalDetails = licenseDetail.getAdditionalDetail();
+    				((ObjectNode)addtionalDetails).put("licensePeriod", licensePeriod+" years");
+        			e = TradeUnit.builder()
+		    				.tradeType(businessService)
+		    				.uom("year")
+		    				.uomValue(licensePeriod)
+		    				.build();    			
+        			break;
+    		case businessService_REHRI_RC:
+    			 licensePeriod = licenseDetail.getAdditionalDetail().get("licensePeriod").asText().split("years")[0];
+    			 e = TradeUnit.builder()
+						.tradeType(businessService)
+						.uom("year")
+						.uomValue(licensePeriod)
+						.build();
+    			break;    			
+    		case businessService_DHOBI_GHAT:
+    			String tradeUnitType = license.getApplicationType() == ApplicationTypeEnum.RENEW ? businessService+"_RENEW" : businessService;
+    			e = TradeUnit.builder()
+        				.tradeType(tradeUnitType)
+        				.uom("year")
+        				.uomValue("1")
+        				.build();
+        		break;
+    		case businessService_BOOK_SHOP:
+    			e = TradeUnit.builder()
+				.tradeType(businessService)
+				.uom("year")
+				.uomValue("5")
+				.build();
+    			break;
+    	}
+    	if (e != null) {
+    		license.getTradeLicenseDetail().getTradeUnits().add(e);	
+    	}
+    	
+    }
+    
+    private void setCTLLicenseValidity(TradeLicense license) {
+            
+            if (license.getStatus() != null && !TLConstants.STATUS_APPROVED.equalsIgnoreCase(license.getStatus())) {
+            	return;
+            }
+            
+            Long now = System.currentTimeMillis();
+            //set validFrom Date
+            switch (license.getBusinessService()) {
+            	case businessService_REHRI_RC:
+            	case businessService_REHRI_DL:
+            	case businessService_DHOBI_GHAT:
+            	case businessService_BOOK_SHOP:
+            		if(license.getApplicationType() != null && license.getApplicationType() == ApplicationTypeEnum.RENEW){
+            			JsonNode oldLicenseValidTo = license.getTradeLicenseDetail().getAdditionalDetail().get("oldLicenseValidTo");
+        	        	if((oldLicenseValidTo != null) && (oldLicenseValidTo.asLong() > now)){
+        	        		try {
+        	            		Date oldDate = new Date(oldLicenseValidTo.asLong());
+        	            		Calendar c = Calendar.getInstance();
+        	            		SimpleDateFormat df2 = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        	         		    Date fromDate = df2.parse(df2.format(oldDate));c.setTime(fromDate);
+        	         		    c.add(Calendar.DATE,1);
+        	         		    Date validFrom = c.getTime();
+        	         		    df2.format(validFrom);
+        	         		    license.setValidFrom(validFrom.getTime());
+        	            	} catch (ParseException e) {
+        						throw new CustomException("LICENSE VALIDITY ERROR", "Could not parse oldLicenseValidTo as a valid date");
+        					}
+        	        	} else {
+        	        		license.setValidFrom(now);
+        	        	}
+        	        }else{
+        	        	license.setValidFrom(now);
+        	        }
+            		break;
+            }
+            
+            //set validTo Date
+            Date dateFrom = new Date(license.getValidFrom());
+            switch(license.getBusinessService()) {
+            	case businessService_REHRI_RC:
+            	case businessService_REHRI_DL:
+            		if(license.getTradeLicenseDetail().getAdditionalDetail().get("licensePeriod")!=null){
+    					int period = Integer.parseInt(license.getTradeLicenseDetail().getAdditionalDetail().get("licensePeriod").asText().split("years")[0].trim());
+    					license.setValidTo(addYearsToDate(dateFrom,period).getTime());
+    				}
+            		break;
+            	case businessService_DHOBI_GHAT:
+            		license.setValidTo(addYearsToDate(dateFrom,1).getTime());
+            		break;
+            	case businessService_BOOK_SHOP:
+            		license.setValidTo(addYearsToDate(dateFrom,5).getTime());
+            		break;
+            }
+                           
+    	}
 
 }

@@ -38,6 +38,34 @@ public class  TradeLicense   {
         @JsonProperty("tenantId")
         private String tenantId = null;
 
+        public enum ApplicationTypeEnum {
+            NEW("New"),
+            
+            RENEW("Renew");
+
+            private String value;
+
+            ApplicationTypeEnum(String value) {
+              this.value = value;
+            }
+
+            @Override
+            @JsonValue
+            public String toString() {
+              return String.valueOf(value);
+            }
+
+            @JsonCreator
+            public static ApplicationTypeEnum fromValue(String text) {
+              for (ApplicationTypeEnum b : ApplicationTypeEnum.values()) {
+                if (String.valueOf(b.value).equalsIgnoreCase(text)) {
+                  return b;
+                }
+              }
+              return null;
+            }
+          }
+        
               /**
    * Unique Identifier of the Trade License (UUID)
    */
@@ -70,10 +98,13 @@ public class  TradeLicense   {
   }
 
         @JsonProperty("businessService")
-        private String businessService = "TL";
+        private String businessService = null;
 
         @JsonProperty("licenseType")
         private LicenseTypeEnum licenseType = null;
+        
+        @JsonProperty("applicationType")
+        private ApplicationTypeEnum applicationType = null;
 
         @Size(max=64)
         @JsonProperty("licenseNumber")

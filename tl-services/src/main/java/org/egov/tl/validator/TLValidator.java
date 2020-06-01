@@ -88,12 +88,6 @@ public class TLValidator {
         if (!allowedservices.contains(businessServiceFromPath)) {
             throw new CustomException("BUSINESSSERVICE_NOTALLOWED", " The business service is not allowed in this module");
         }
-        for (TradeLicense license : request.getLicenses()) {
-            String licenseBusinessService = license.getBusinessService()==null?businessService_TL:license.getBusinessService();
-            if (!StringUtils.equals(businessServiceFromPath, licenseBusinessService)) {
-                throw new CustomException("BUSINESSSERVICE_NOTMATCHING", " The business service inside license not matching with the one sent in path variable");
-            }
-        }
     }
 
     private void validateTLSpecificNotNullFields(TradeLicenseRequest request) {
@@ -460,9 +454,9 @@ public class TLValidator {
      */
     public void validateSearch(RequestInfo requestInfo, TradeLicenseSearchCriteria criteria, String serviceFromPath) {
         String serviceInSearchCriteria = criteria.getBusinessService();
-        if ((serviceInSearchCriteria != null) && (!StringUtils.equals(serviceFromPath, serviceInSearchCriteria))) {
+        /*if ((serviceInSearchCriteria != null) && (!StringUtils.equals(serviceFromPath, serviceInSearchCriteria))) {
             throw new CustomException("INVALID SEARCH", "Business service in Path param and requestbody not matching");
-        }
+        }*/
 
         List<String> allowedservices = Arrays.asList(allowedBusinessService.split(","));
         if ((serviceFromPath != null) && (!allowedservices.contains(serviceFromPath))) {
@@ -472,8 +466,8 @@ public class TLValidator {
         if(!requestInfo.getUserInfo().getType().equalsIgnoreCase("CITIZEN" )&& criteria.isEmpty())
             throw new CustomException("INVALID SEARCH","Search without any paramters is not allowed");
 
-        if(!requestInfo.getUserInfo().getType().equalsIgnoreCase("CITIZEN" )&& criteria.tenantIdOnly())
-            throw new CustomException("INVALID SEARCH","Search based only on tenantId is not allowed");
+        /*if(!requestInfo.getUserInfo().getType().equalsIgnoreCase("CITIZEN" )&& criteria.tenantIdOnly())
+            throw new CustomException("INVALID SEARCH","Search based only on tenantId is not allowed");*/
 
         if(!requestInfo.getUserInfo().getType().equalsIgnoreCase("CITIZEN" )&& !criteria.tenantIdOnly()
                 && criteria.getTenantId()==null)

@@ -11,10 +11,12 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +34,7 @@ public class TLRowMapper  implements ResultSetExtractor<List<TradeLicense>> {
 
     public List<TradeLicense> extractData(ResultSet rs) throws SQLException, DataAccessException {
 
-        Map<String, TradeLicense> tradeLicenseMap = new HashMap<>();
+    	LinkedHashMap<String, TradeLicense> tradeLicenseMap = new LinkedHashMap<>();
 
         while (rs.next()) {
             String id = rs.getString("tl_id");
@@ -59,6 +61,7 @@ public class TLRowMapper  implements ResultSetExtractor<List<TradeLicense>> {
                 currentTradeLicense = TradeLicense.builder().auditDetails(auditdetails)
                         .licenseNumber(rs.getString("licensenumber"))
                         .licenseType(TradeLicense.LicenseTypeEnum.fromValue(rs.getString("licensetype")))
+                        .applicationType(TradeLicense.ApplicationTypeEnum.fromValue(rs.getString("applicationtype")))
                         .oldLicenseNumber(rs.getString("oldlicensenumber"))
                         .applicationDate(applicationDate)
                         .applicationNumber(rs.getString("applicationnumber"))
@@ -71,7 +74,6 @@ public class TLRowMapper  implements ResultSetExtractor<List<TradeLicense>> {
                         .action(rs.getString("action"))
                         .status(rs.getString("status"))
                         .tenantId(tenantId)
-                        .tradeName(rs.getString("tradeName"))
                         .propertyId(rs.getString("propertyid"))
                         .oldPropertyId(rs.getString("oldpropertyid"))
                         .businessService(rs.getString("businessservice"))

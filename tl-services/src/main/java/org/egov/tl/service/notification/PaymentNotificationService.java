@@ -27,6 +27,10 @@ import static org.egov.tl.util.BPAConstants.NOTIFICATION_APPROVED;
 import static org.egov.tl.util.BPAConstants.NOTIFICATION_PENDINGDOCVERIFICATION;
 import static org.egov.tl.util.TLConstants.businessService_BPA;
 import static org.egov.tl.util.TLConstants.businessService_TL;
+import static org.egov.tl.util.CTLConstants.businessService_REHRI_RC;
+import static org.egov.tl.util.CTLConstants.businessService_REHRI_DL;
+import static org.egov.tl.util.CTLConstants.businessService_DHOBI_GHAT;
+import static org.egov.tl.util.CTLConstants.businessService_BOOK_SHOP;
 
 
 @Service
@@ -101,6 +105,10 @@ public class PaymentNotificationService {
                         requestInfo,valMap.get(businessServiceKey));
                 switch(valMap.get(businessServiceKey))
                 {
+	                case businessService_REHRI_RC:
+	    			case businessService_REHRI_DL:
+	    			case businessService_DHOBI_GHAT:
+	    			case businessService_BOOK_SHOP:
                     case businessService_TL:
                         String localizationMessages = util.getLocalizationMessages(license.getTenantId(), requestInfo);
                         List<SMSRequest> smsRequests = getSMSRequests(license, valMap, localizationMessages);
