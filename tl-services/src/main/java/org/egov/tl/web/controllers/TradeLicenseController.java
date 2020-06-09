@@ -75,6 +75,19 @@ import javax.servlet.http.HttpServletRequest;
                 .build();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+ 
+   //TO fetch application count
+    @RequestMapping(value = {"/{servicename}/_count", "/_count"}, method = RequestMethod.POST)
+    public ResponseEntity<TradeLicenseCountResponse> count(@Valid @RequestBody RequestInfoWrapper requestInfoWrapper,
+                                                       @Valid @ModelAttribute TradeLicenseSearchCriteria criteria,
+                                                       @PathVariable(required = false) String servicename) {
+        int licensesCount = tradeLicenseService.count(criteria, requestInfoWrapper.getRequestInfo(), servicename);
+
+        TradeLicenseCountResponse response = TradeLicenseCountResponse.builder().licensesCount(licensesCount).responseInfo(
+                responseInfoFactory.createResponseInfoFromRequestInfo(requestInfoWrapper.getRequestInfo(), true))
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
 
 }

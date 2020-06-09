@@ -1,25 +1,36 @@
 package org.egov.tlcalculator.web.controllers;
 
 
+import static org.egov.tlcalculator.utils.TLCalculatorConstants.businessService_BPA;
+import static org.egov.tlcalculator.utils.TLCalculatorConstants.businessService_TL;
+
 import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+
 import org.egov.tlcalculator.service.BPACalculationService;
+import org.egov.tlcalculator.service.CTLCalculationService;
 import org.egov.tlcalculator.service.CalculationService;
 import org.egov.tlcalculator.service.DemandService;
-import org.egov.tlcalculator.web.models.*;
-import org.egov.tlcalculator.web.models.demand.BillResponse;
+import org.egov.tlcalculator.web.models.BillAndCalculations;
+import org.egov.tlcalculator.web.models.Calculation;
+import org.egov.tlcalculator.web.models.CalculationReq;
+import org.egov.tlcalculator.web.models.CalculationRes;
+import org.egov.tlcalculator.web.models.RequestInfoWrapper;
 import org.egov.tlcalculator.web.models.demand.GenerateBillCriteria;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
-import static org.egov.tlcalculator.utils.TLCalculatorConstants.businessService_BPA;
-import static org.egov.tlcalculator.utils.TLCalculatorConstants.businessService_TL;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 @javax.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2018-09-27T14:56:03.454+05:30")
@@ -38,14 +49,17 @@ public class CalculatorController {
 
 	private BPACalculationService bpaCalculationService;
 
+	private CTLCalculationService ctlCalculationService;
+	
 	@Autowired
-	public CalculatorController(ObjectMapper objectMapper, HttpServletRequest request,
+	public CalculatorController(ObjectMapper objectMapper, HttpServletRequest request, CTLCalculationService ctlCalculationService,
 								CalculationService calculationService, DemandService demandService, BPACalculationService bpaCalculationService) {
 		this.objectMapper = objectMapper;
 		this.request = request;
 		this.calculationService = calculationService;
 		this.demandService = demandService;
 		this.bpaCalculationService = bpaCalculationService;
+		this.ctlCalculationService = ctlCalculationService;
 	}
 
 	/**
@@ -53,13 +67,13 @@ public class CalculatorController {
 	 * @param calculationReq The calculation Request
 	 * @return Calculation Response
 	 */
-	@RequestMapping(value = {"/{servicename}/_calculate","/_calculate"}, method = RequestMethod.POST)
-	public ResponseEntity<CalculationRes> calculate(@Valid @RequestBody CalculationReq calculationReq,@PathVariable(required = false) String servicename) {
+	@RequestMapping(value = {"/{serviceName}/_calculate","/_calculate"}, method = RequestMethod.POST)
+	public ResponseEntity<CalculationRes> calculate(@Valid @RequestBody CalculationReq calculationReq,@PathVariable(required = false) String serviceName) {
 
-		if(servicename==null)
-			servicename = businessService_TL;
+		if(serviceName==null)
+			serviceName = businessService_TL;
 		List<Calculation> calculations = null;
-		switch(servicename)
+		switch(serviceName)
 		{
 			case businessService_TL:
 				calculations = calculationService.calculate(calculationReq);
@@ -68,8 +82,14 @@ public class CalculatorController {
 			case businessService_BPA:
 				calculations = bpaCalculationService.calculate(calculationReq);
 				break;
-			default:
-				throw new CustomException("UNKNOWN_BUSINESSSERVICE", " Business Service not supported");
+			
+			default: {
+				if ( ctlCalculationService.isAllowedBusinessService(serviceName)) {
+					calculations = ctlCalculationService.calculate(calculationReq); 
+				} else {					
+					throw new CustomException("UNKNOWN_BUSINESSSERVICE", " Business Service not supported");
+				}
+			}
 		}
 
 		CalculationRes calculationRes = CalculationRes.builder().calculations(calculations).build();

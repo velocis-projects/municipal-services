@@ -17,6 +17,10 @@ import java.util.Map;
 
 import static org.egov.tl.util.TLConstants.businessService_BPA;
 import static org.egov.tl.util.TLConstants.businessService_TL;
+import static org.egov.tl.util.CTLConstants.businessService_REHRI_RC;
+import static org.egov.tl.util.CTLConstants.businessService_REHRI_DL;
+import static org.egov.tl.util.CTLConstants.businessService_DHOBI_GHAT;
+import static org.egov.tl.util.CTLConstants.businessService_BOOK_SHOP;
 
 @Service
 public class EditNotificationService {
@@ -39,6 +43,10 @@ public class EditNotificationService {
             businessService = businessService_TL;
         switch(businessService)
         {
+	        case businessService_REHRI_RC:
+			case businessService_REHRI_DL:
+			case businessService_DHOBI_GHAT:
+			case businessService_BOOK_SHOP:
             case businessService_TL:
                 util.sendSMS(smsRequests,config.getIsTLSMSEnabled());
                 break;

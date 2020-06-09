@@ -196,7 +196,7 @@ public class ActionValidator {
                                 errorMap.put("INVALID UPDATE", "Id of accessory cannot be null");
                         });
                     }
-                    if(!CollectionUtils.isEmpty(license.getTradeLicenseDetail().getApplicationDocuments())){
+                    if( !namefBusinessService.equals(businessService_TL) && !CollectionUtils.isEmpty(license.getTradeLicenseDetail().getApplicationDocuments())){
                         license.getTradeLicenseDetail().getApplicationDocuments().forEach(document -> {
                             if(document.getId()==null)
                                 errorMap.put("INVALID UPDATE", "Id of applicationDocument cannot be null");

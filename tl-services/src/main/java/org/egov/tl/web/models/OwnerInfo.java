@@ -1,5 +1,6 @@
 package org.egov.tl.web.models;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,6 +23,7 @@ import javax.validation.constraints.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class OwnerInfo extends User  {
 
         @JsonProperty("isPrimaryOwner")
@@ -75,8 +77,6 @@ public class OwnerInfo extends User  {
 
         @JsonProperty("relationship")
         private RelationshipEnum relationship;
-
-
 
         @Builder
         public OwnerInfo(Long id, String uuid, String userName, String password, String salutation, String name,

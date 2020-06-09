@@ -26,12 +26,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.egov.tl.util.TLConstants.*;
+import static org.egov.tl.util.CTLConstants.*;
 
 
 @Service
@@ -56,6 +58,9 @@ public class PaymentUpdateService {
 
 	@Value("${workflow.bpa.businessServiceCode.fallback_enabled}")
 	private Boolean pickWFServiceNameFromTradeTypeOnly;
+	
+	@Value("${egov.allowed.businessServices}")
+	private String allowedBusinessServices;
 
 	@Autowired
 	public PaymentUpdateService(TradeLicenseService tradeLicenseService, TLConfiguration config, TLRepository repository,
@@ -92,8 +97,9 @@ public class PaymentUpdateService {
 			RequestInfo requestInfo = paymentRequest.getRequestInfo();
 			List<PaymentDetail> paymentDetails = paymentRequest.getPayment().getPaymentDetails();
 			String tenantId = paymentRequest.getPayment().getTenantId();
+			List<String> allowedservices = Arrays.asList(allowedBusinessServices.split(","));
 			for(PaymentDetail paymentDetail : paymentDetails){
-				if (paymentDetail.getBusinessService().equalsIgnoreCase(businessService_TL) || paymentDetail.getBusinessService().equalsIgnoreCase(businessService_BPA)) {
+		        if (allowedservices.contains(paymentDetail.getBusinessService())) {
 					TradeLicenseSearchCriteria searchCriteria = new TradeLicenseSearchCriteria();
 					searchCriteria.setTenantId(tenantId);
 					searchCriteria.setApplicationNumber(paymentDetail.getBill().getConsumerCode());
@@ -101,6 +107,10 @@ public class PaymentUpdateService {
 					List<TradeLicense> licenses = tradeLicenseService.getLicensesWithOwnerInfo(searchCriteria, requestInfo);
 					String wfbusinessServiceName = null;
 					switch (paymentDetail.getBusinessService()) {
+						case businessService_REHRI_RC:
+						case businessService_REHRI_DL:
+						case businessService_DHOBI_GHAT:
+						case businessService_BOOK_SHOP:
 						case businessService_TL:
 							wfbusinessServiceName = config.getTlBusinessServiceValue();
 							break;

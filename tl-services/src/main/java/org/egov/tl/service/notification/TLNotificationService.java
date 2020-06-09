@@ -18,6 +18,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.egov.tl.util.BPAConstants.NOTIFICATION_APPROVED;
+import static org.egov.tl.util.CTLConstants.businessService_BOOK_SHOP;
+import static org.egov.tl.util.CTLConstants.businessService_DHOBI_GHAT;
+import static org.egov.tl.util.CTLConstants.businessService_REHRI_DL;
+import static org.egov.tl.util.CTLConstants.businessService_REHRI_RC;
 import static org.egov.tl.util.TLConstants.businessService_BPA;
 import static org.egov.tl.util.TLConstants.businessService_TL;
 
@@ -54,13 +58,26 @@ public class TLNotificationService {
 			businessService = businessService_TL;
 		switch(businessService)
 		{
+			case businessService_REHRI_RC:
+			case businessService_REHRI_DL:
+			case businessService_DHOBI_GHAT:
+			case businessService_BOOK_SHOP:
 			case businessService_TL:
 				List<SMSRequest> smsRequestsTL = new LinkedList<>();
+				List<EmailRequest> emailRequestsTL = new LinkedList<>();
+
 				if(null != config.getIsTLSMSEnabled()) {
 					if(config.getIsTLSMSEnabled()) {
 						enrichSMSRequest(request,smsRequestsTL);
 						if(!CollectionUtils.isEmpty(smsRequestsTL))
 							util.sendSMS(smsRequestsTL,true);
+					}
+				}
+				if(null != config.getIsTLEMAILEnabled()) {
+					if(config.getIsTLEMAILEnabled()) {
+						enrichEMAILRequest(request,emailRequestsTL);
+						if(!CollectionUtils.isEmpty(emailRequestsTL))
+							util.sendEMAIL(emailRequestsTL,true);
 					}
 				}
 				if(null != config.getIsUserEventsNotificationEnabledForTL()) {
@@ -105,12 +122,12 @@ public class TLNotificationService {
 			if (businessService == null)
 				businessService = businessService_TL;
 			String message = null;
-			if (businessService.equals(businessService_TL)) {
-				String localizationMessages = util.getLocalizationMessages(tenantId, request.getRequestInfo());
-				message = util.getCustomizedMsg(request.getRequestInfo(), license, localizationMessages);
-			} else {
+			if (businessService.equals(businessService_BPA)) {
 				String localizationMessages = bpaNotificationUtil.getLocalizationMessages(tenantId, request.getRequestInfo());
 				message = bpaNotificationUtil.getCustomizedMsg(request.getRequestInfo(), license, localizationMessages);
+			} else {
+				String localizationMessages = util.getLocalizationMessages(tenantId, request.getRequestInfo());
+				message = util.getCustomizedMsg(request.getRequestInfo(), license, localizationMessages);
 			}
             if(message==null) continue;
 
@@ -120,7 +137,40 @@ public class TLNotificationService {
                 if(owner.getMobileNumber()!=null)
                     mobileNumberToOwner.put(owner.getMobileNumber(),owner.getName());
             });
-            smsRequests.addAll(util.createSMSRequest(message,mobileNumberToOwner));
+           smsRequests.addAll(util.createSMSRequest(message,mobileNumberToOwner));
+        }
+    }
+    
+    
+    /**
+     * Enriches the emailRequest with the customized messages
+     * @param request The tradeLicenseRequest from kafka topic
+     * @param emailRequests List of EMAILRequets
+     */
+    private void enrichEMAILRequest(TradeLicenseRequest request,List<EmailRequest> emailRequests){
+        String tenantId = request.getLicenses().get(0).getTenantId();
+        for(TradeLicense license : request.getLicenses()){
+			String businessService = license.getBusinessService();
+			if (businessService == null)
+				businessService = businessService_TL;
+			String message = null;
+			if (businessService.equals(businessService_BPA)) {
+				String localizationMessages = bpaNotificationUtil.getLocalizationMessages(tenantId, request.getRequestInfo());
+				message = bpaNotificationUtil.getCustomizedMsg(request.getRequestInfo(), license, localizationMessages);
+			} else {
+				String localizationMessages = util.getLocalizationMessages(tenantId, request.getRequestInfo());
+				message = util.getCustomizedMsg(request.getRequestInfo(), license, localizationMessages);
+			}
+            if(message==null) continue;
+
+            Map<String,String > emailIdToOwner = new HashMap<>();
+            
+            license.getTradeLicenseDetail().getOwners().forEach(owner -> {
+                if(owner.getEmailId()!=null)
+                	emailIdToOwner.put(owner.getEmailId(),owner.getName());
+            });
+			message = message.replace("\\n","");
+            emailRequests.addAll(util.createEMAILRequest(message,emailIdToOwner));
         }
     }
     

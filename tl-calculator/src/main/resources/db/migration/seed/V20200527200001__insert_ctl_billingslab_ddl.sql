@@ -1,0 +1,27 @@
+INSERT INTO public.eg_ctl_billingslab(
+	tenantid, id, businessservice, applicationtype, feetype, uom, fromuom, touom, rate, createdtime, createdby, lastmodifiedtime, lastmodifiedby)
+	VALUES 
+	('ch.chandigarh', '991fc13e-555d-47f1-91fc-40579a53d8ba', 'CTL.REHRI_REGISTRATION', 'New', 'FEE', 'year', 5, 10, 600, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', '30423308-10c3-43f0-8d1d-8874c70e53ec', 'CTL.REHRI_REGISTRATION', 'New', 'FEE', 'year', 10, 15, 1000, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', 'f01f0943-47fc-4b4d-a994-93a9bf36d172', 'CTL.REHRI_REGISTRATION', 'New', 'FEE', 'year', 15, 20, 1500, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', '41bb04da-5a2d-41f1-93dd-29f0c34855ac', 'CTL.REHRI_REGISTRATION', 'Renew', 'FEE', 'year', 5, 10, 600, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', '85738a7b-18aa-4482-912f-345382e02597', 'CTL.REHRI_REGISTRATION', 'Renew', 'FEE', 'year', 10, 15, 1000, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', 'd58177a7-8fe2-4001-b6fb-0b5f0d20db93', 'CTL.REHRI_REGISTRATION', 'Renew', 'FEE', 'year', 15, 20, 1500, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', 'd58177a7-8fe2-4001-b6fb-0b5f0d20db23', 'CTL.REHRI_REGISTRATION', 'Renew', 'PENALTY', 'month', 0, 3, 100, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', '85738a7b-18aa-4482-912f-345382e02599', 'CTL.REHRI_REGISTRATION', 'Renew', 'PENALTY', 'month', 3, 6, 150, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', 'd58177a7-8fe2-4001-b6fb-0b5f0d20db94', 'CTL.REHRI_REGISTRATION', 'Renew', 'PENALTY', 'month', 6, 1200, 200, 1590571012446, 1, 1590571012446, 1),	
+	('ch.chandigarh', '991fc13e-555d-47f1-91fc-40579a53d8bb', 'CTL.REHRI_DRIVING_LICENSE', 'New', 'FEE', 'year', 5, 10, 200, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', 'f01f0943-47fc-4b4d-a994-93a9bf36d173', 'CTL.REHRI_DRIVING_LICENSE', 'New', 'FEE', 'year', 15, 20, 300, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', '41bb04da-5a2d-41f1-93dd-29f0c34855bd', 'CTL.REHRI_DRIVING_LICENSE', 'Renew', 'FEE', 'year', 5, 10, 200, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', 'd58177a7-8fe2-4001-b6fb-0b5f0d20db87', 'CTL.REHRI_DRIVING_LICENSE', 'Renew', 'FEE', 'year', 15, 20, 300, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', 'd58177a7-8fe2-4001-b6fb-0b5f0d20db21', 'CTL.REHRI_DRIVING_LICENSE', 'Renew', 'PENALTY', 'month', 0, 3, 100, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', '85738a7b-18aa-4482-912f-345382e02588', 'CTL.REHRI_DRIVING_LICENSE', 'Renew', 'PENALTY', 'month', 3, 6, 150, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', 'd58177a7-8fe2-4001-b6fb-0b5f0d20db78', 'CTL.REHRI_DRIVING_LICENSE', 'Renew', 'PENALTY', 'month', 6, 1200, 200, 1590571012446, 1, 1590571012446, 1),	
+	('ch.chandigarh', '991fc13e-555d-47f1-91fc-40579a53d8ad', 'CTL.DHOBI_GHAT', 'New', 'FEE', 'year', 1, 2, 15, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', '41bb04da-5a2d-41f1-93dd-29f0c34855ec', 'CTL.DHOBI_GHAT', 'Renew', 'FEE', 'year', 1, 2, 10, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', '236de768-c21b-4a24-a5d0-6602f17b3cf1', 'CTL.DHOBI_GHAT', 'Renew', 'PENALTY', 'month', 0, 1200, 0, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', '991fc13e-555d-47f3-91fc-40579a53d8ed', 'CTL.OLD_BOOK_MARKET', 'New', 'FEE', 'year', 0, 10, 4038, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', '41bb04da-5a2d-41f4-93dd-29f0c34855ae', 'CTL.OLD_BOOK_MARKET', 'Renew', 'FEE', 'year', 0, 10, 4038, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', '44ec6a1a-dcd0-4538-a228-816198bed219', 'CTL.OLD_BOOK_MARKET', 'Renew', 'PENALTY', 'month', 0, 1200, 0, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', '41bb04da-5a2d-41f3-93dd-29f0c34854ac', 'CTL.OLD_BOOK_MARKET', 'New', 'TAX', 'year', 0, 10, 18, 1590571012446, 1, 1590571012446, 1),
+	('ch.chandigarh', '41bb04da-5a2d-41f2-93dd-29f0c34854ed', 'CTL.OLD_BOOK_MARKET', 'Renew', 'TAX', 'year', 0, 10, 18, 1590571012446, 1, 1590571012446, 1);

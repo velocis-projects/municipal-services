@@ -26,6 +26,7 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 import static org.egov.tl.util.TLConstants.*;
+import static org.egov.tl.util.CTLConstants.*;
 @Service
 @Slf4j
 public class WorkflowIntegrator {
@@ -44,7 +45,7 @@ public class WorkflowIntegrator {
 
 	private static final String DOCUMENTSKEY = "documents";
 
-	private static final String ASSIGNEEKEY = "assignes";
+	private static final String ASSIGNEEKEY = "assignee";
 
 	private static final String UUIDKEY = "uuid";
 
@@ -113,6 +114,10 @@ public class WorkflowIntegrator {
 				obj.put(TENANTIDKEY, wfTenantId);
 				switch(businessServiceFromMDMS)
 				{
+					case businessService_REHRI_RC:
+					case businessService_REHRI_DL:
+					case businessService_DHOBI_GHAT:
+					case businessService_BOOK_SHOP:
 					case businessService_TL:
 						obj.put(BUSINESSSERVICEKEY, config.getTlBusinessServiceValue());
 						obj.put(MODULENAMEKEY, TLMODULENAMEVALUE);
@@ -130,8 +135,14 @@ public class WorkflowIntegrator {
 				}
 				obj.put(ACTIONKEY, license.getAction());
 				obj.put(COMMENTKEY, license.getComment());
-				if (!CollectionUtils.isEmpty(license.getAssignee()))
-					obj.put(ASSIGNEEKEY, uuidmaps);
+				if (!CollectionUtils.isEmpty(license.getAssignee())) {
+					if (uuidmaps.size() == 1) {
+						obj.put(ASSIGNEEKEY, uuidmaps.get(0));						
+					} else {
+						obj.put(ASSIGNEEKEY, uuidmaps);
+					}
+					
+				}
 				obj.put(DOCUMENTSKEY, license.getWfDocuments());
 				array.add(obj);
 			}

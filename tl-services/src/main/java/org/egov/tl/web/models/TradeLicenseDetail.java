@@ -125,6 +125,7 @@ public class TradeLicenseDetail   {
         @NotNull
         @JsonProperty("tradeUnits")
         @Valid
+        @Builder.Default
         private List<TradeUnit> tradeUnits = new ArrayList<>();
 
         @JsonProperty("accessories")

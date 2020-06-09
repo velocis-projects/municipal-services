@@ -50,9 +50,14 @@ public class TLConstants {
     public static final String NOTIFICATION_SENDBACK_CITIZEN= "tl.en.sendback.citizen";
 
     public static final String NOTIFICATION_FORWARD_CITIZEN = "tl.en.forward.citizen";
+    
+    public static final String NOTIFICATION_SUBMITTED = "tl.en.counter.submitted";
 
-
+    public static final String NOTIFICATION_APRROVED_AND_PAYMENT_PENDING = "tl.en.counter.approved.payment.pending";
+    
     public static final String DEFAULT_OBJECT_MODIFIED_MSG = "Dear <1>,Your Trade License with application number <APPLICATION_NUMBER> was modified.";
+    
+    public static  final String EMAIL_SUBJECT = "Chandigarh mSeva Application Status";
 
 
     // MDMS
@@ -164,7 +169,18 @@ public class TLConstants {
     public static final String ACTION_SENDBACKTOCITIZEN_FIELDINSPECTION  = "SENDBACKTOCITIZEN_CITIZENACTIONREQUIRED";
 
     public static final String ACTION_FORWARD_CITIZENACTIONREQUIRED  = "FORWARDTOEMPLOYEE_FIELDINSPECTION";
+    
+    public static final String ACTION_FORWARD_CLERK  = "SUBMIT_PENDINGL1VERIFICATION";
+    
+    public static final String ACTION_SENDBACKTOCITIZEN_CLERK  = "SENDBACK1_INITIATED";
+    
+    public static final String ACTION_STATUS_REJECTED_CLERK  = "REJECT1_REJECTED";
 
+    public static final String ACTION_STATUS_REJECTED_SA  = "REJECT2_REJECTED";
+
+    public static final String ACTION_STATUS_REJECTED_SI  = "REJECT3_REJECTED";
+
+    public static final String ACTION_STATUS_REJECTED_CO  = "REJECT4_REJECTED";
 
     public static final String ACTION_STATUS_PAID  = "PAID";
 

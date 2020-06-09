@@ -1,0 +1,71 @@
+serviceMaps:
+ serviceName: TL Calculator
+ mappings:
+ - version: 1.0
+   name: tl-calculator
+   description: Persists the billing slabs of ctl into db
+   fromTopic: save-ctl-billingslab
+   isTransaction: true
+   queryMaps:
+    - query: INSERT INTO eg_ctl_billingslab(id, tenantid, businessservice, applicationtype, feetype, uom, fromUom, toUom, rate, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, cast(? as double precision), cast(? as double precision), ?, ?, ?, ?, ?);
+      basePath: CTLBillingSlabs.*
+      jsonMaps:
+
+       - jsonPath: $.CTLBillingSlabs.*.id
+
+       - jsonPath: $.CTLBillingSlabs.*.tenantId
+
+       - jsonPath: $.CTLBillingSlabs.*.businessService
+
+       - jsonPath: $.CTLBillingSlabs.*.applicationType
+
+       - jsonPath: $.CTLBillingSlabs.*.feeType
+
+       - jsonPath: $.CTLBillingSlabs.*.uom
+
+       - jsonPath: $.CTLBillingSlabs.*.fromUom
+
+       - jsonPath: $.CTLBillingSlabs.*.toUom
+
+       - jsonPath: $.CTLBillingSlabs.*.rate
+              
+       - jsonPath: $.CTLBillingSlabs.*.auditDetails.createdBy
+
+       - jsonPath: $.CTLBillingSlabs.*.auditDetails.createdTime
+
+       - jsonPath: $.CTLBillingSlabs.*.auditDetails.lastModifiedBy
+
+       - jsonPath: $.CTLBillingSlabs.*.auditDetails.lastModifiedTime
+       
+       
+ - version: 1.0
+   name: tl-calculator
+   description: Updates the billing slabs of tl into db
+   fromTopic: update-ctl-billingslab
+   isTransaction: true
+   queryMaps:
+   
+    - query: INSERT INTO eg_ctl_billingslab_audit SELECT * FROM eg_ctl_billingslab WHERE id = ?;
+      
+      basePath: CTLBillingSlabs.*
+      jsonMaps:
+       - jsonPath: $.CTLBillingSlabs.*.id
+       
+       
+    - query: UPDATE eg_ctl_billingSlab SET   rate=?, lastmodifiedby=?, lastmodifiedtime=? WHERE id=? AND tenantid=?;
+
+      basePath: CTLBillingSlabs.*
+      jsonMaps:
+
+       - jsonPath: $.CTLBillingSlabs.*.rate
+
+       - jsonPath: $.CTLBillingSlabs.*.auditDetails.lastModifiedBy
+
+       - jsonPath: $.CTLBillingSlabs.*.auditDetails.lastModifiedTime
+       
+       - jsonPath: $.CTLBillingSlabs.*.id
+
+       - jsonPath: $.CTLBillingSlabs.*.tenantId
+       
+     
+    

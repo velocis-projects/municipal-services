@@ -61,6 +61,18 @@ public class TLRepository {
         sortChildObjectsById(licenses);
         return licenses;
     }
+    
+    /**
+     * 
+     */
+    public int getLicenseCount(TradeLicenseSearchCriteria criteria) {
+        List<Object> preparedStmtList = new ArrayList<>();
+        String query = queryBuilder.getTLCountQuery(criteria, preparedStmtList);
+        log.info("Query: " + query);
+       int TLCount =  jdbcTemplate.queryForObject(query, preparedStmtList.toArray(), Integer.class);
+        
+        return TLCount;
+    }
 
     /**
      * Pushes the request on save topic
@@ -118,7 +130,8 @@ public class TLRepository {
             return;
         tradeLicenses.forEach(license -> {
             license.getTradeLicenseDetail().getOwners().sort(Comparator.comparing(User::getUuid));
-            license.getTradeLicenseDetail().getTradeUnits().sort(Comparator.comparing(TradeUnit::getId));
+            if(!CollectionUtils.isEmpty(license.getTradeLicenseDetail().getTradeUnits()))
+            	license.getTradeLicenseDetail().getTradeUnits().sort(Comparator.comparing(TradeUnit::getId));
             if(!CollectionUtils.isEmpty(license.getTradeLicenseDetail().getAccessories()))
                 license.getTradeLicenseDetail().getAccessories().sort(Comparator.comparing(Accessory::getId));
             if(!CollectionUtils.isEmpty(license.getTradeLicenseDetail().getApplicationDocuments()))

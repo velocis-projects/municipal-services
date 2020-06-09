@@ -14,6 +14,7 @@ import org.egov.tlcalculator.utils.TLCalculatorConstants;
 import org.egov.tlcalculator.web.models.*;
 import org.egov.tlcalculator.web.models.tradelicense.TradeLicense;
 import org.egov.tlcalculator.web.models.demand.*;
+import org.egov.tlcalculator.web.models.demand.Demand.StatusEnum;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -189,6 +190,7 @@ public class DemandService {
             if (calculation.getAccessoryBillingIds() != null && !CollectionUtils.isEmpty(calculation.getAccessoryBillingIds().getBillingSlabIds()))
                 combinedBillingSlabs.addAll(calculation.getAccessoryBillingIds().getBillingSlabIds());
             Demand singleDemand = Demand.builder()
+            		.status(StatusEnum.ACTIVE)
                     .consumerCode(consumerCode)
                     .demandDetails(demandDetails)
                     .payer(owner)
@@ -197,7 +199,7 @@ public class DemandService {
                     .taxPeriodFrom(taxPeriodFrom)
                     .taxPeriodTo(taxPeriodTo)
                     .consumerType("tradelicense")
-                    .businessService(config.getBusinessServiceTL())
+                    .businessService(businessService)
                     .additionalDetails(Collections.singletonMap(BILLINGSLAB_KEY, combinedBillingSlabs))
                     .build();
             switch (businessService) {
@@ -283,9 +285,6 @@ public class DemandService {
         String tenantId = billCriteria.getTenantId();
 
         List<Demand> demands = searchDemand(tenantId,Collections.singleton(consumerCode),requestInfo,billCriteria.getBusinessService());
-
-        if(!StringUtils.equals(businessServiceFromPath,billCriteria.getBusinessService()))
-            throw new CustomException("BUSINESSSERVICE_MISMATCH","Business Service in Path variable and bill criteria are different");
 
         if(CollectionUtils.isEmpty(demands))
             throw new CustomException("INVALID CONSUMERCODE","Bill cannot be generated.No demand exists for the given consumerCode");

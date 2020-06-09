@@ -174,6 +174,14 @@ public class TLConfiguration {
 
     @Value("${notification.sms.enabled.forBPA}")
     private Boolean isBPASMSEnabled;
+    
+    
+    //EMAIL
+    @Value("${kafka.topics.notification.email}")
+    private String emailNotifTopic;
+
+    @Value("${notification.email.enabled.forTL}")
+    private Boolean isTLEMAILEnabled;
 
     //Localization
     @Value("${egov.localization.host}")
