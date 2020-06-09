@@ -1,5 +1,7 @@
 package org.egov.tl.web.models;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.*;
@@ -16,4 +18,5 @@ public class EmailRequest {
     private String body;
     @JsonProperty("isHTML")
     private boolean isHTML;
+	private List<EmailAttachment> attachments;
 }

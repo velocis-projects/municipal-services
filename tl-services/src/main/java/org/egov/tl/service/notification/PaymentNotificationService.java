@@ -117,6 +117,11 @@ public class PaymentNotificationService {
 	    				 String clt_localizationMessages = util.getLocalizationMessages(license.getTenantId(), requestInfo);
 	                        List<SMSRequest> ctl_smsRequests = getCTLSMSRequests(license, valMap, clt_localizationMessages);
 	                        util.sendSMS(ctl_smsRequests, config.getIsTLSMSEnabled());
+	                        
+	                     if (config.getIsTLEMAILEnabled()) {
+	                    	 List<EmailRequest> ctlEmailRequests = getCTLEmailRequests(license, valMap, clt_localizationMessages);
+	                    	 util.sendEMAIL(ctlEmailRequests,true);
+	                     }
 	                        break;
                     case businessService_TL:
                         String localizationMessages = util.getLocalizationMessages(license.getTenantId(), requestInfo);
@@ -185,10 +190,21 @@ public class PaymentNotificationService {
             SMSRequest payerSMSRequest = getCTLPayerSMSRequest(license,valMap,localizationMessages);
 
             List<SMSRequest> totalSMS = new LinkedList<>();
-            totalSMS.add(ownersSMSRequest);
             totalSMS.add(payerSMSRequest);
+            totalSMS.add(ownersSMSRequest);
 
             return totalSMS;
+    }
+    
+    private List<EmailRequest> getCTLEmailRequests(TradeLicense license, Map<String,String> valMap,String localizationMessages){
+        EmailRequest ownersSMSRequest = getCTLOwnerEmailRequest(license,valMap,localizationMessages);
+//        EmailRequest payerSMSRequest = getCTLPayerEmailRequest(license,valMap,localizationMessages);
+
+        List<EmailRequest> totalEmails = new LinkedList<>();
+//        totalEmails.add(ownersSMSRequest);
+//        totalEmails.add(payerSMSRequest);
+
+        return totalEmails;
     }
 
     /**
@@ -242,6 +258,27 @@ public class PaymentNotificationService {
         String customizedMsg = message.replace("<1>",valMap.get(paidByKey));
         SMSRequest smsRequest = new SMSRequest(valMap.get(payerMobileNumberKey),customizedMsg);
         return smsRequest;
+    }
+    
+    /**
+     * Creates SMSRequest for the owners
+     * @param license The tradeLicense for which the receipt is created
+     * @param valMap The Map containing the values from receipt
+     * @param localizationMessages The localization message to be sent
+     * @return The list of the SMS Requests
+     */
+    private EmailRequest getCTLOwnerEmailRequest(TradeLicense license, Map<String,String> valMap,String localizationMessages){
+        String message = util.getCTLOwnerPaymentMsg(license,valMap,localizationMessages);
+        
+        String customizedMsg = message.replace("<1>",valMap.get(payerName));
+        EmailRequest emailRequest = EmailRequest.builder()
+        								.subject("Your license is generated")
+        								.isHTML(true)
+        								.email(valMap.get("ownerEmail"))
+        								.body(customizedMsg)
+        								.build();
+        		
+        return emailRequest;
     }
     
     /**

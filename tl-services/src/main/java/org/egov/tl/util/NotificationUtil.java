@@ -399,8 +399,9 @@ public class NotificationUtil {
 	 */
 	public String getCTLOwnerPaymentMsg(TradeLicense license, Map<String, String> valMap, String localizationMessages) {
 		String messageTemplate = getMessageTemplate(CTLConstants.CTL_NOTIFICATION_PAYMENT_OWNER, localizationMessages);
-		messageTemplate = messageTemplate.replace("<2>", valMap.get(receiptNumberKey));
-		messageTemplate = messageTemplate.replace("<3>", license.getLicenseNumber());
+		messageTemplate = messageTemplate.replace("<3>", getMessageTemplate(license.getBusinessService(), localizationMessages));
+		messageTemplate = messageTemplate.replace("<2>", license.getApplicationNumber());
+		messageTemplate = messageTemplate.replace("<4>", license.getLicenseNumber());
 		return messageTemplate;
 	}
 
@@ -434,7 +435,7 @@ public class NotificationUtil {
 	public String getCTLPayerPaymentMsg(TradeLicense license, Map<String, String> valMap, String localizationMessages) {
 		String messageTemplate = getMessageTemplate(CTLConstants.CTL_NOTIFICATION_PAYMENT_PAYER, localizationMessages);
 		messageTemplate = messageTemplate.replace("<2>", valMap.get(amountPaidKey));
-		messageTemplate = messageTemplate.replace("<3>", getMessageTemplate(license.getBusinessService(), localizationMessages));
+		messageTemplate = messageTemplate.replace("<3>", license.getApplicationNumber());
 		messageTemplate = messageTemplate.replace("<4>", valMap.get(receiptNumberKey));
 		return messageTemplate;
 	}
@@ -556,7 +557,7 @@ public class NotificationUtil {
 		List<EmailRequest> emailRequest = new LinkedList<>();
 		for (Map.Entry<String, String> entryset : emailIdToOwner.entrySet()) {
 			String customizedMsg = message.replace("<1>", entryset.getValue());
-			emailRequest.add(new EmailRequest(entryset.getKey(), TLConstants.EMAIL_SUBJECT,customizedMsg, false));
+//			emailRequest.add(new EmailRequest(entryset.getKey(), TLConstants.EMAIL_SUBJECT,customizedMsg, false));
 		}
 		return emailRequest;
 	}
