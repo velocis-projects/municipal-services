@@ -172,16 +172,8 @@ public class TLConstants {
     
     public static final String ACTION_FORWARD_CLERK  = "SUBMIT_PENDINGL1VERIFICATION";
     
-    public static final String ACTION_SENDBACKTOCITIZEN_CLERK  = "SENDBACK1_INITIATED";
+    public static final String ACTION_SENDBACKTOCITIZEN_CLERK  = "SENDBACK_INITIATED";
     
-    public static final String ACTION_STATUS_REJECTED_CLERK  = "REJECT1_REJECTED";
-
-    public static final String ACTION_STATUS_REJECTED_SA  = "REJECT2_REJECTED";
-
-    public static final String ACTION_STATUS_REJECTED_SI  = "REJECT3_REJECTED";
-
-    public static final String ACTION_STATUS_REJECTED_CO  = "REJECT4_REJECTED";
-
     public static final String ACTION_STATUS_PAID  = "PAID";
 
 

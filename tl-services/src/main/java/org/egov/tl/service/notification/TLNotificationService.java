@@ -122,12 +122,23 @@ public class TLNotificationService {
 			if (businessService == null)
 				businessService = businessService_TL;
 			String message = null;
-			if (businessService.equals(businessService_BPA)) {
-				String localizationMessages = bpaNotificationUtil.getLocalizationMessages(tenantId, request.getRequestInfo());
-				message = bpaNotificationUtil.getCustomizedMsg(request.getRequestInfo(), license, localizationMessages);
-			} else {
-				String localizationMessages = util.getLocalizationMessages(tenantId, request.getRequestInfo());
-				message = util.getCustomizedMsg(request.getRequestInfo(), license, localizationMessages);
+			String localizationMessages;
+			switch(businessService) {
+				case businessService_BPA:
+					localizationMessages = bpaNotificationUtil.getLocalizationMessages(tenantId, request.getRequestInfo());
+					message = bpaNotificationUtil.getCustomizedMsg(request.getRequestInfo(), license, localizationMessages);
+					break;
+				case businessService_TL:
+					localizationMessages = util.getLocalizationMessages(tenantId, request.getRequestInfo());
+					message = util.getCustomizedMsg(request.getRequestInfo(), license, localizationMessages);
+					break;
+				case businessService_REHRI_RC:
+				case businessService_REHRI_DL:
+				case businessService_DHOBI_GHAT:
+				case businessService_BOOK_SHOP:
+					localizationMessages = util.getLocalizationMessages(tenantId, request.getRequestInfo());
+					message = util.getCustomizedCTLMessage(request.getRequestInfo(), license, localizationMessages);
+					break;
 			}
             if(message==null) continue;
 
@@ -150,25 +161,39 @@ public class TLNotificationService {
     private void enrichEMAILRequest(TradeLicenseRequest request,List<EmailRequest> emailRequests){
         String tenantId = request.getLicenses().get(0).getTenantId();
         for(TradeLicense license : request.getLicenses()){
-			String businessService = license.getBusinessService();
-			if (businessService == null)
-				businessService = businessService_TL;
-			String message = null;
-			if (businessService.equals(businessService_BPA)) {
-				String localizationMessages = bpaNotificationUtil.getLocalizationMessages(tenantId, request.getRequestInfo());
-				message = bpaNotificationUtil.getCustomizedMsg(request.getRequestInfo(), license, localizationMessages);
-			} else {
-				String localizationMessages = util.getLocalizationMessages(tenantId, request.getRequestInfo());
-				message = util.getCustomizedMsg(request.getRequestInfo(), license, localizationMessages);
-			}
-            if(message==null) continue;
-
-            Map<String,String > emailIdToOwner = new HashMap<>();
+        	Map<String,String > emailIdToOwner = new HashMap<>();
             
             license.getTradeLicenseDetail().getOwners().forEach(owner -> {
                 if(owner.getEmailId()!=null)
                 	emailIdToOwner.put(owner.getEmailId(),owner.getName());
             });
+            if (emailIdToOwner.isEmpty()) {
+            	continue;
+            }
+        	String businessService = license.getBusinessService();
+			if (businessService == null)
+				businessService = businessService_TL;
+			String message = null;
+			String localizationMessages;
+			switch(businessService) {
+				case businessService_BPA:
+					localizationMessages = bpaNotificationUtil.getLocalizationMessages(tenantId, request.getRequestInfo());
+					message = bpaNotificationUtil.getCustomizedMsg(request.getRequestInfo(), license, localizationMessages);
+					break;
+				case businessService_TL:
+					localizationMessages = util.getLocalizationMessages(tenantId, request.getRequestInfo());
+					message = util.getCustomizedMsg(request.getRequestInfo(), license, localizationMessages);
+					break;
+				case businessService_REHRI_RC:
+				case businessService_REHRI_DL:
+				case businessService_DHOBI_GHAT:
+				case businessService_BOOK_SHOP:
+					localizationMessages = util.getLocalizationMessages(tenantId, request.getRequestInfo());
+					message = util.getCustomizedCTLMessage(request.getRequestInfo(), license, localizationMessages);
+					break;
+			}
+            if(message==null) continue;
+
 			message = message.replace("\\n","");
             emailRequests.addAll(util.createEMAILRequest(message,emailIdToOwner));
         }
