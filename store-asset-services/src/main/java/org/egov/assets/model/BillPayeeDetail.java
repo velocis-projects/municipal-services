@@ -1,211 +1,210 @@
 package org.egov.assets.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+import java.util.Objects;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * BillPayeeDetail
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-12-28T09:20:06.607Z")
 
-public class BillPayeeDetail   {
-  @JsonProperty("tenantId")
-  private String tenantId = null;
+public class BillPayeeDetail {
+	@JsonProperty("tenantId")
+	private String tenantId = null;
 
-  @JsonProperty("id")
-  private String id = null;
+	@JsonProperty("id")
+	private String id = null;
 
-  @JsonProperty("accountDetailType")
-  private AccountDetailType accountDetailType = null;
+	@JsonProperty("accountDetailType")
+	private AccountDetailType accountDetailType = null;
 
-  @JsonProperty("accountDetailKey")
-  private AccountDetailKey accountDetailKey = null;
+	@JsonProperty("accountDetailKey")
+	private AccountDetailKey accountDetailKey = null;
 
-  @JsonProperty("amount")
-  private Double amount = null;
+	@JsonProperty("amount")
+	private Double amount = null;
 
-  @JsonProperty("auditDetails")
-  private AuditDetails auditDetails = null;
+	@JsonProperty("auditDetails")
+	private AuditDetails auditDetails = null;
 
-  public BillPayeeDetail tenantId(String tenantId) {
-    this.tenantId = tenantId;
-    return this;
-  }
+	public BillPayeeDetail tenantId(String tenantId) {
+		this.tenantId = tenantId;
+		return this;
+	}
 
-   /**
-   * tenantId Unique Identifier of the tenant, Like AP, AP.Kurnool etc. represents the client for which the transaction is created. 
-   * @return tenantId
-  **/
-  @ApiModelProperty(required = true, value = "tenantId Unique Identifier of the tenant, Like AP, AP.Kurnool etc. represents the client for which the transaction is created. ")
-  @NotNull
+	/**
+	 * tenantId Unique Identifier of the tenant, Like AP, AP.Kurnool etc. represents
+	 * the client for which the transaction is created.
+	 * 
+	 * @return tenantId
+	 **/
 
- @Size(min=0,max=256)
-  public String getTenantId() {
-    return tenantId;
-  }
+	@NotNull
 
-  public void setTenantId(String tenantId) {
-    this.tenantId = tenantId;
-  }
+	@Size(min = 0, max = 256)
+	public String getTenantId() {
+		return tenantId;
+	}
 
-  public BillPayeeDetail id(String id) {
-    this.id = id;
-    return this;
-  }
+	public void setTenantId(String tenantId) {
+		this.tenantId = tenantId;
+	}
 
-   /**
-   * Unique Identifier of the BillPayeeDetail 
-   * @return id
-  **/
-  @ApiModelProperty(value = "Unique Identifier of the BillPayeeDetail ")
+	public BillPayeeDetail id(String id) {
+		this.id = id;
+		return this;
+	}
 
+	/**
+	 * Unique Identifier of the BillPayeeDetail
+	 * 
+	 * @return id
+	 **/
 
-  public String getId() {
-    return id;
-  }
+	public String getId() {
+		return id;
+	}
 
-  public void setId(String id) {
-    this.id = id;
-  }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-  public BillPayeeDetail accountDetailType(AccountDetailType accountDetailType) {
-    this.accountDetailType = accountDetailType;
-    return this;
-  }
+	public BillPayeeDetail accountDetailType(AccountDetailType accountDetailType) {
+		this.accountDetailType = accountDetailType;
+		return this;
+	}
 
-   /**
-   * account detail type of the BillPayeeDetail 
-   * @return accountDetailType
-  **/
-  @ApiModelProperty(required = true, value = "account detail type of the BillPayeeDetail ")
-  @NotNull
+	/**
+	 * account detail type of the BillPayeeDetail
+	 * 
+	 * @return accountDetailType
+	 **/
 
-  @Valid
+	@NotNull
 
-  public AccountDetailType getAccountDetailType() {
-    return accountDetailType;
-  }
+	@Valid
 
-  public void setAccountDetailType(AccountDetailType accountDetailType) {
-    this.accountDetailType = accountDetailType;
-  }
+	public AccountDetailType getAccountDetailType() {
+		return accountDetailType;
+	}
 
-  public BillPayeeDetail accountDetailKey(AccountDetailKey accountDetailKey) {
-    this.accountDetailKey = accountDetailKey;
-    return this;
-  }
+	public void setAccountDetailType(AccountDetailType accountDetailType) {
+		this.accountDetailType = accountDetailType;
+	}
 
-   /**
-   * account detail key of the BillPayeeDetail 
-   * @return accountDetailKey
-  **/
-  @ApiModelProperty(required = true, value = "account detail key of the BillPayeeDetail ")
-  @NotNull
+	public BillPayeeDetail accountDetailKey(AccountDetailKey accountDetailKey) {
+		this.accountDetailKey = accountDetailKey;
+		return this;
+	}
 
-  @Valid
+	/**
+	 * account detail key of the BillPayeeDetail
+	 * 
+	 * @return accountDetailKey
+	 **/
 
-  public AccountDetailKey getAccountDetailKey() {
-    return accountDetailKey;
-  }
+	@NotNull
 
-  public void setAccountDetailKey(AccountDetailKey accountDetailKey) {
-    this.accountDetailKey = accountDetailKey;
-  }
+	@Valid
 
-  public BillPayeeDetail amount(Double amount) {
-    this.amount = amount;
-    return this;
-  }
+	public AccountDetailKey getAccountDetailKey() {
+		return accountDetailKey;
+	}
 
-   /**
-   * amount of the BillPayeeDetail 
-   * @return amount
-  **/
-  @ApiModelProperty(required = true, value = "amount of the BillPayeeDetail ")
-  @NotNull
+	public void setAccountDetailKey(AccountDetailKey accountDetailKey) {
+		this.accountDetailKey = accountDetailKey;
+	}
 
+	public BillPayeeDetail amount(Double amount) {
+		this.amount = amount;
+		return this;
+	}
 
-  public Double getAmount() {
-    return amount;
-  }
+	/**
+	 * amount of the BillPayeeDetail
+	 * 
+	 * @return amount
+	 **/
 
-  public void setAmount(Double amount) {
-    this.amount = amount;
-  }
+	@NotNull
 
-  public BillPayeeDetail auditDetails(AuditDetails auditDetails) {
-    this.auditDetails = auditDetails;
-    return this;
-  }
+	public Double getAmount() {
+		return amount;
+	}
 
-   /**
-   * Get auditDetails
-   * @return auditDetails
-  **/
-  @ApiModelProperty(value = "")
+	public void setAmount(Double amount) {
+		this.amount = amount;
+	}
 
-  @Valid
+	public BillPayeeDetail auditDetails(AuditDetails auditDetails) {
+		this.auditDetails = auditDetails;
+		return this;
+	}
 
-  public AuditDetails getAuditDetails() {
-    return auditDetails;
-  }
+	/**
+	 * Get auditDetails
+	 * 
+	 * @return auditDetails
+	 **/
 
-  public void setAuditDetails(AuditDetails auditDetails) {
-    this.auditDetails = auditDetails;
-  }
+	@Valid
 
+	public AuditDetails getAuditDetails() {
+		return auditDetails;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    BillPayeeDetail billPayeeDetail = (BillPayeeDetail) o;
-    return Objects.equals(this.tenantId, billPayeeDetail.tenantId) &&
-        Objects.equals(this.id, billPayeeDetail.id) &&
-        Objects.equals(this.accountDetailType, billPayeeDetail.accountDetailType) &&
-        Objects.equals(this.accountDetailKey, billPayeeDetail.accountDetailKey) &&
-        Objects.equals(this.amount, billPayeeDetail.amount) &&
-        Objects.equals(this.auditDetails, billPayeeDetail.auditDetails);
-  }
+	public void setAuditDetails(AuditDetails auditDetails) {
+		this.auditDetails = auditDetails;
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(tenantId, id, accountDetailType, accountDetailKey, amount, auditDetails);
-  }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		BillPayeeDetail billPayeeDetail = (BillPayeeDetail) o;
+		return Objects.equals(this.tenantId, billPayeeDetail.tenantId) && Objects.equals(this.id, billPayeeDetail.id)
+				&& Objects.equals(this.accountDetailType, billPayeeDetail.accountDetailType)
+				&& Objects.equals(this.accountDetailKey, billPayeeDetail.accountDetailKey)
+				&& Objects.equals(this.amount, billPayeeDetail.amount)
+				&& Objects.equals(this.auditDetails, billPayeeDetail.auditDetails);
+	}
 
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class BillPayeeDetail {\n");
-    
-    sb.append("    tenantId: ").append(toIndentedString(tenantId)).append("\n");
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    accountDetailType: ").append(toIndentedString(accountDetailType)).append("\n");
-    sb.append("    accountDetailKey: ").append(toIndentedString(accountDetailKey)).append("\n");
-    sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
-    sb.append("    auditDetails: ").append(toIndentedString(auditDetails)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(tenantId, id, accountDetailType, accountDetailKey, amount, auditDetails);
+	}
 
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(Object o) {
-    if (o == null) {
-      return "null";
-    }
-    return o.toString().replace("\n", "\n    ");
-  }
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("class BillPayeeDetail {\n");
+
+		sb.append("    tenantId: ").append(toIndentedString(tenantId)).append("\n");
+		sb.append("    id: ").append(toIndentedString(id)).append("\n");
+		sb.append("    accountDetailType: ").append(toIndentedString(accountDetailType)).append("\n");
+		sb.append("    accountDetailKey: ").append(toIndentedString(accountDetailKey)).append("\n");
+		sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
+		sb.append("    auditDetails: ").append(toIndentedString(auditDetails)).append("\n");
+		sb.append("}");
+		return sb.toString();
+	}
+
+	/**
+	 * Convert the given object to string with each line indented by 4 spaces
+	 * (except the first line).
+	 */
+	private String toIndentedString(Object o) {
+		if (o == null) {
+			return "null";
+		}
+		return o.toString().replace("\n", "\n    ");
+	}
 }
-

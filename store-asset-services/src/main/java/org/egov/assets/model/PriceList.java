@@ -1,8 +1,5 @@
 package org.egov.assets.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -11,19 +8,17 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
 /**
  * This object holds the pricelist information of different materials from various suppliers   
  */
-@ApiModel(description = "This object holds the pricelist information of different materials from various suppliers   ")
-@javax.annotation.Generated(value = "org.egov.inv.codegen.languages.SpringCodegen", date = "2017-11-08T13:51:07.770Z")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -115,9 +110,7 @@ public class PriceList   {
    * Unique Identifier of the PriceList record. 
    * @return id
   **/
-  @ApiModelProperty(value = "Unique Identifier of the PriceList record. ")
-
-
+  
   public String getId() {
     return id;
   }
@@ -135,9 +128,7 @@ public class PriceList   {
    * Tenant id of the PriceList
    * @return tenantId
   **/
-  @ApiModelProperty(value = "Tenant id of the PriceList")
-
- @Size(min=2,max=128)
+   @Size(min=2,max=128)
   public String getTenantId() {
     return tenantId;
   }
@@ -155,7 +146,7 @@ public class PriceList   {
    * Name of the vendor supplying materials required 
    * @return supplier
   **/
-  @ApiModelProperty(required = true, value = "Name of the vendor supplying materials required ")
+  
   @NotNull
 
   public Supplier getSupplier() {
@@ -175,10 +166,8 @@ public class PriceList   {
    * type of the information about the material we are getting from the supplier 
    * @return rateType
   **/
-  @ApiModelProperty(required = true, value = "type of the information about the material we are getting from the supplier ")
+  
   @NotNull
-
-
   public RateTypeEnum getRateType() {
     return rateType;
   }
@@ -196,10 +185,8 @@ public class PriceList   {
    * reference no of the material contract from the supplier 
    * @return rateContractNumber
   **/
-  @ApiModelProperty(required = true, value = "reference no of the material contract from the supplier ")
+  
   @NotNull
-
-
   public String getRateContractNumber() {
     return rateContractNumber;
   }
@@ -217,10 +204,8 @@ public class PriceList   {
    * contract date of the rate for item with the supplier.Date in epoc format. 
    * @return rateContractDate
   **/
-  @ApiModelProperty(required = true, value = "contract date of the rate for item with the supplier.Date in epoc format. ")
+  
   @NotNull
-
-
   public Long getRateContractDate() {
     return rateContractDate;
   }
@@ -238,10 +223,8 @@ public class PriceList   {
    * Agreement no with the supplier of materials 
    * @return agreementNumber
   **/
-  @ApiModelProperty(required = true, value = "Agreement no with the supplier of materials ")
+  
   @NotNull
-
-
   public String getAgreementNumber() {
     return agreementNumber;
   }
@@ -259,10 +242,8 @@ public class PriceList   {
    * Date on which agreement done with supplier 
    * @return agreementDate
   **/
-  @ApiModelProperty(required = true, value = "Date on which agreement done with supplier ")
+  
   @NotNull
-
-
   public Long getAgreementDate() {
     return agreementDate;
   }
@@ -280,10 +261,8 @@ public class PriceList   {
    * Date from which the agreement is valid with supplier 
    * @return agreementStartDate
   **/
-  @ApiModelProperty(required = true, value = "Date from which the agreement is valid with supplier ")
+  
   @NotNull
-
-
   public Long getAgreementStartDate() {
     return agreementStartDate;
   }
@@ -301,10 +280,8 @@ public class PriceList   {
    * Date on which the agreement expires with the supplier 
    * @return agreementEndDate
   **/
-  @ApiModelProperty(required = true, value = "Date on which the agreement expires with the supplier ")
+  
   @NotNull
-
-
   public Long getAgreementEndDate() {
     return agreementEndDate;
   }
@@ -322,10 +299,8 @@ public class PriceList   {
    * active or inactive flag of the supplier price detail 
    * @return active
   **/
-  @ApiModelProperty(required = true, value = "active or inactive flag of the supplier price detail ")
+  
   @NotNull
-
-
   public Boolean getActive() {
     return active;
   }
@@ -343,10 +318,7 @@ public class PriceList   {
    * File Store id of the rate contract with the supplier 
    * @return fileStoreId
   **/
-  @ApiModelProperty(value = "File Store id of the rate contract with the supplier ")
-
-
-  public String getFileStoreId() {
+    public String getFileStoreId() {
     return fileStoreId;
   }
 
@@ -371,10 +343,7 @@ public class PriceList   {
    * Get priceListDetails
    * @return priceListDetails
   **/
-  @ApiModelProperty(value = "")
-
-  @Valid
-
+    @Valid
   public List<PriceListDetails> getPriceListDetails() {
     return priceListDetails;
   }
@@ -392,9 +361,7 @@ public class PriceList   {
    * Get auditDetails
    * @return auditDetails
   **/
-  @ApiModelProperty(value = "")
-
-  @Valid
+    @Valid
 
   public AuditDetails getAuditDetails() {
     return auditDetails;

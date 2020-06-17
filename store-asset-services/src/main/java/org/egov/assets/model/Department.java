@@ -1,208 +1,199 @@
 package org.egov.assets.model;
 
 import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import org.springframework.validation.annotation.Validated;
+
 import javax.validation.Valid;
-import javax.validation.constraints.*;
+import javax.validation.constraints.Size;
+
+import org.springframework.validation.annotation.Validated;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * 
  */
-@ApiModel(description = "")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-10-28T13:21:55.964+05:30")
+public class Department {
+	@JsonProperty("id")
+	private String id = null;
 
-public class Department   {
-  @JsonProperty("id")
-  private String id = null;
+	@JsonProperty("tenantId")
+	private String tenantId = null;
 
-  @JsonProperty("tenantId")
-  private String tenantId = null;
+	@JsonProperty("code")
+	private String code = null;
 
-  @JsonProperty("code")
-  private String code = null;
+	@JsonProperty("name")
+	private String name = null;
 
-  @JsonProperty("name")
-  private String name = null;
+	@JsonProperty("active")
+	private Boolean active = null;
 
-  @JsonProperty("active")
-  private Boolean active = null;
+	@JsonProperty("auditDetails")
+	private AuditDetails auditDetails = null;
 
-  @JsonProperty("auditDetails")
-  private AuditDetails auditDetails = null;
+	public Department id(String id) {
+		this.id = id;
+		return this;
+	}
 
-  public Department id(String id) {
-    this.id = id;
-    return this;
-  }
+	/**
+	 * Unique Identifier of the Department
+	 * 
+	 * @return id
+	 **/
 
-   /**
-   * Unique Identifier of the Department 
-   * @return id
-  **/
-  @ApiModelProperty(value = "Unique Identifier of the Department ")
+	public String getId() {
+		return id;
+	}
 
+	public void setId(String id) {
+		this.id = id;
+	}
 
-  public String getId() {
-    return id;
-  }
+	public Department tenantId(String tenantId) {
+		this.tenantId = tenantId;
+		return this;
+	}
 
-  public void setId(String id) {
-    this.id = id;
-  }
+	/**
+	 * Tenant id of the Department
+	 * 
+	 * @return tenantId
+	 **/
 
-  public Department tenantId(String tenantId) {
-    this.tenantId = tenantId;
-    return this;
-  }
+	@Size(min = 4, max = 128)
+	public String getTenantId() {
+		return tenantId;
+	}
 
-   /**
-   * Tenant id of the Department
-   * @return tenantId
-  **/
-  @ApiModelProperty(value = "Tenant id of the Department")
+	public void setTenantId(String tenantId) {
+		this.tenantId = tenantId;
+	}
 
- @Size(min=4,max=128)
-  public String getTenantId() {
-    return tenantId;
-  }
+	public Department code(String code) {
+		this.code = code;
+		return this;
+	}
 
-  public void setTenantId(String tenantId) {
-    this.tenantId = tenantId;
-  }
+	/**
+	 * code of the Department
+	 * 
+	 * @return code
+	 **/
 
-  public Department code(String code) {
-    this.code = code;
-    return this;
-  }
+	public String getCode() {
+		return code;
+	}
 
-   /**
-   * code of the Department 
-   * @return code
-  **/
-  @ApiModelProperty(value = "code of the Department ")
+	public void setCode(String code) {
+		this.code = code;
+	}
 
+	public Department name(String name) {
+		this.name = name;
+		return this;
+	}
 
-  public String getCode() {
-    return code;
-  }
+	/**
+	 * name of the Department
+	 * 
+	 * @return name
+	 **/
 
-  public void setCode(String code) {
-    this.code = code;
-  }
+	public String getName() {
+		return name;
+	}
 
-  public Department name(String name) {
-    this.name = name;
-    return this;
-  }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-   /**
-   * name of the Department 
-   * @return name
-  **/
-  @ApiModelProperty(value = "name of the Department ")
+	public Department active(Boolean active) {
+		this.active = active;
+		return this;
+	}
 
+	/**
+	 * Whether Department is Active or not. If the value is TRUE, then Department is
+	 * active,If the value is FALSE then Department is inactive,Default value is
+	 * TRUE
+	 * 
+	 * @return active
+	 **/
 
-  public String getName() {
-    return name;
-  }
+	public Boolean isActive() {
+		return active;
+	}
 
-  public void setName(String name) {
-    this.name = name;
-  }
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
 
-  public Department active(Boolean active) {
-    this.active = active;
-    return this;
-  }
+	public Department auditDetails(AuditDetails auditDetails) {
+		this.auditDetails = auditDetails;
+		return this;
+	}
 
-   /**
-   * Whether Department is Active or not. If the value is TRUE, then Department is active,If the value is FALSE then Department is inactive,Default value is TRUE 
-   * @return active
-  **/
-  @ApiModelProperty(value = "Whether Department is Active or not. If the value is TRUE, then Department is active,If the value is FALSE then Department is inactive,Default value is TRUE ")
+	/**
+	 * Get auditDetails
+	 * 
+	 * @return auditDetails
+	 **/
 
+	@Valid
 
-  public Boolean isActive() {
-    return active;
-  }
+	public AuditDetails getAuditDetails() {
+		return auditDetails;
+	}
 
-  public void setActive(Boolean active) {
-    this.active = active;
-  }
+	public void setAuditDetails(AuditDetails auditDetails) {
+		this.auditDetails = auditDetails;
+	}
 
-  public Department auditDetails(AuditDetails auditDetails) {
-    this.auditDetails = auditDetails;
-    return this;
-  }
+	@Override
+	public boolean equals(java.lang.Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		Department department = (Department) o;
+		return Objects.equals(this.id, department.id) && Objects.equals(this.tenantId, department.tenantId)
+				&& Objects.equals(this.code, department.code) && Objects.equals(this.name, department.name)
+				&& Objects.equals(this.active, department.active)
+				&& Objects.equals(this.auditDetails, department.auditDetails);
+	}
 
-   /**
-   * Get auditDetails
-   * @return auditDetails
-  **/
-  @ApiModelProperty(value = "")
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, tenantId, code, name, active, auditDetails);
+	}
 
-  @Valid
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("class Department {\n");
 
-  public AuditDetails getAuditDetails() {
-    return auditDetails;
-  }
+		sb.append("    id: ").append(toIndentedString(id)).append("\n");
+		sb.append("    tenantId: ").append(toIndentedString(tenantId)).append("\n");
+		sb.append("    code: ").append(toIndentedString(code)).append("\n");
+		sb.append("    name: ").append(toIndentedString(name)).append("\n");
+		sb.append("    active: ").append(toIndentedString(active)).append("\n");
+		sb.append("    auditDetails: ").append(toIndentedString(auditDetails)).append("\n");
+		sb.append("}");
+		return sb.toString();
+	}
 
-  public void setAuditDetails(AuditDetails auditDetails) {
-    this.auditDetails = auditDetails;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    Department department = (Department) o;
-    return Objects.equals(this.id, department.id) &&
-        Objects.equals(this.tenantId, department.tenantId) &&
-        Objects.equals(this.code, department.code) &&
-        Objects.equals(this.name, department.name) &&
-        Objects.equals(this.active, department.active) &&
-        Objects.equals(this.auditDetails, department.auditDetails);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, tenantId, code, name, active, auditDetails);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class Department {\n");
-    
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    tenantId: ").append(toIndentedString(tenantId)).append("\n");
-    sb.append("    code: ").append(toIndentedString(code)).append("\n");
-    sb.append("    name: ").append(toIndentedString(name)).append("\n");
-    sb.append("    active: ").append(toIndentedString(active)).append("\n");
-    sb.append("    auditDetails: ").append(toIndentedString(auditDetails)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
-    }
-    return o.toString().replace("\n", "\n    ");
-  }
+	/**
+	 * Convert the given object to string with each line indented by 4 spaces
+	 * (except the first line).
+	 */
+	private String toIndentedString(java.lang.Object o) {
+		if (o == null) {
+			return "null";
+		}
+		return o.toString().replace("\n", "\n    ");
+	}
 }
-

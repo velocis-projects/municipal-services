@@ -1,17 +1,12 @@
 package org.egov.assets.model;
 
 import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
 
 /**
  * Page
  */
-@javax.annotation.Generated(value = "org.egov.inv.codegen.languages.SpringCodegen", date = "2017-11-08T13:51:07.770Z")
 
 public class Page   {
   @JsonProperty("totalResults")
@@ -38,9 +33,7 @@ public class Page   {
    * total results of the Pagination
    * @return totalResults
   **/
-  @ApiModelProperty(value = "total results of the Pagination")
-
-
+  
   public Integer getTotalResults() {
     return totalResults;
   }
@@ -58,9 +51,7 @@ public class Page   {
    * total pages of the Pagination
    * @return totalPages
   **/
-  @ApiModelProperty(value = "total pages of the Pagination")
-
-
+  
   public Integer getTotalPages() {
     return totalPages;
   }
@@ -78,9 +69,7 @@ public class Page   {
    * Number of records in a per page in  the Pagination, Default value is 20
    * @return pageSize
   **/
-  @ApiModelProperty(value = "Number of records in a per page in  the Pagination, Default value is 20")
-
-
+  
   public Integer getPageSize() {
     return pageSize;
   }
@@ -98,9 +87,7 @@ public class Page   {
    * current page of the Pagination
    * @return currentPage
   **/
-  @ApiModelProperty(value = "current page of the Pagination")
-
-
+  
   public Integer getCurrentPage() {
     return currentPage;
   }
@@ -118,9 +105,7 @@ public class Page   {
    * page number of the Pagination, Default value is 0
    * @return offSet
   **/
-  @ApiModelProperty(value = "page number of the Pagination, Default value is 0")
-
-
+  
   public Integer getOffSet() {
     return offSet;
   }

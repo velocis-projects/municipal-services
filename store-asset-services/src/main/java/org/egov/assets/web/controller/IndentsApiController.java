@@ -12,8 +12,8 @@ import javax.validation.constraints.Size;
 import org.egov.assets.model.IndentRequest;
 import org.egov.assets.model.IndentResponse;
 import org.egov.assets.model.IndentSearch;
-import org.egov.assets.model.RequestInfo;
 import org.egov.assets.service.IndentService;
+import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,7 +60,7 @@ public class IndentsApiController {
 		IndentSearch is = new IndentSearch().builder().tenantId(tenantId).ids(ids).indentDate(indentDate)
 				.indentNumber(indentNumber).indentPurpose(indentPurpose).inventoryType(inventoryType)
 				.issueStore(issueStore).indentType(indentType).searchPurpose(searchPurpose).build();
-		IndentResponse response = indentService.search(is, new RequestInfo());
+		IndentResponse response = indentService.search(is, requestInfo);
 		return new ResponseEntity(response, HttpStatus.OK);
 	}
 
@@ -80,7 +80,7 @@ public class IndentsApiController {
 			@RequestParam(value = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
 			@RequestParam(value = "sortBy", required = false, defaultValue = "id") String sortBy) {
 		// do some magic!
-		return new ResponseEntity<IndentResponse>(HttpStatus.OK);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@PostMapping(value = "/_update", produces = { "application/json" }, consumes = { "application/json" })

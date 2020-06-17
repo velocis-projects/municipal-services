@@ -17,12 +17,12 @@ import org.egov.assets.common.exception.CustomBindException;
 import org.egov.assets.common.exception.ErrorCode;
 import org.egov.assets.common.exception.InvalidDataException;
 import org.egov.assets.model.Disposal;
+import org.egov.assets.model.Disposal.DisposalStatusEnum;
 import org.egov.assets.model.DisposalDetail;
 import org.egov.assets.model.DisposalRequest;
 import org.egov.assets.model.DisposalResponse;
 import org.egov.assets.model.DisposalSearchContract;
 import org.egov.assets.model.Material;
-import org.egov.assets.model.RequestInfo;
 import org.egov.assets.model.Scrap;
 import org.egov.assets.model.ScrapDetail;
 import org.egov.assets.model.ScrapResponse;
@@ -31,7 +31,6 @@ import org.egov.assets.model.Store;
 import org.egov.assets.model.StoreGetRequest;
 import org.egov.assets.model.StoreResponse;
 import org.egov.assets.model.Uom;
-import org.egov.assets.model.Disposal.DisposalStatusEnum;
 import org.egov.assets.repository.DisposalDetailJdbcRepository;
 import org.egov.assets.repository.DisposalJdbcRepository;
 import org.egov.assets.repository.ScrapDetailJdbcRepository;
@@ -39,6 +38,7 @@ import org.egov.assets.repository.StoreJdbcRepository;
 import org.egov.assets.repository.entity.DisposalDetailEntity;
 import org.egov.assets.repository.entity.ScrapDetailEntity;
 import org.egov.assets.util.InventoryUtilities;
+import org.egov.common.contract.request.RequestInfo;
 import org.egov.tracer.kafka.LogAwareKafkaTemplate;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,7 +165,11 @@ public class DisposalService extends DomainService {
 							}
 							if (disposalDetail.getDisposalQuantity().compareTo(BigDecimal.ZERO) <= 0)
 								errors.addDataError(ErrorCode.QUANTITY_GT_ZERO.getCode(), "disposalquantity",
-										String.valueOf(i), InventoryUtilities.getQuantityInSelectedUom(disposalDetail.getDisposalQuantity(), disposalDetail.getUom().getConversionFactor()).toString());
+										String.valueOf(i),
+										InventoryUtilities
+												.getQuantityInSelectedUom(disposalDetail.getDisposalQuantity(),
+														disposalDetail.getUom().getConversionFactor())
+												.toString());
 							if (disposalDetail.getScrapDetails() != null)
 								if (disposalDetail.getScrapDetails().getQuantity() != null
 										&& disposalDetail.getScrapDetails().getDisposalQuantity() != null)
@@ -175,8 +179,16 @@ public class DisposalService extends DomainService {
 							if (disposalDetail.getDisposalQuantity()
 									.compareTo(disposalDetail.getPendingScrapQuantity()) > 0)
 								errors.addDataError(ErrorCode.QUANTITY1_LTE_QUANTITY2.getCode(), "disposalquantity",
-										"scrapquantity", InventoryUtilities.getQuantityInSelectedUom(disposalDetail.getDisposalQuantity(), disposalDetail.getUom().getConversionFactor()).toString(),
-										InventoryUtilities.getQuantityInSelectedUom(disposalDetail.getPendingScrapQuantity(), disposalDetail.getUom().getConversionFactor()).toString(), String.valueOf(i));
+										"scrapquantity",
+										InventoryUtilities
+												.getQuantityInSelectedUom(disposalDetail.getDisposalQuantity(),
+														disposalDetail.getUom().getConversionFactor())
+												.toString(),
+										InventoryUtilities
+												.getQuantityInSelectedUom(disposalDetail.getPendingScrapQuantity(),
+														disposalDetail.getUom().getConversionFactor())
+												.toString(),
+										String.valueOf(i));
 							if (disposalDetail.getDisposalValue().compareTo(BigDecimal.ZERO) <= 0)
 								errors.addDataError(ErrorCode.QUANTITY_GT_ZERO.getCode(), "disposalvalue",
 										String.valueOf(i), disposalDetail.getDisposalValue().toString());
@@ -198,7 +210,11 @@ public class DisposalService extends DomainService {
 							}
 							if (disposalDetail.getDisposalQuantity().compareTo(BigDecimal.ZERO) <= 0)
 								errors.addDataError(ErrorCode.QUANTITY_GT_ZERO.getCode(), "disposalquantity",
-										String.valueOf(i), InventoryUtilities.getQuantityInSelectedUom(disposalDetail.getDisposalQuantity(), disposalDetail.getUom().getConversionFactor()).toString());
+										String.valueOf(i),
+										InventoryUtilities
+												.getQuantityInSelectedUom(disposalDetail.getDisposalQuantity(),
+														disposalDetail.getUom().getConversionFactor())
+												.toString());
 							DisposalDetailEntity disposalDetailEntity = new DisposalDetailEntity();
 							disposalDetailEntity.setId(disposalDetail.getId());
 							disposalDetailEntity.setTenantId(disposal.getTenantId());
@@ -211,16 +227,22 @@ public class DisposalService extends DomainService {
 								if (disposalDetail.getScrapDetails().getQuantity() != null
 										&& disposalDetail.getScrapDetails().getDisposalQuantity() != null)
 									disposalDetail
-											.setPendingScrapQuantity(
-													(disposalDetail.getScrapDetails().getQuantity()
-															.subtract(disposalDetail.getScrapDetails()
-																	.getDisposalQuantity()))
-																			.add(disDetail.getDisposalQuantity()));
+											.setPendingScrapQuantity((disposalDetail.getScrapDetails().getQuantity()
+													.subtract(disposalDetail.getScrapDetails().getDisposalQuantity()))
+															.add(disDetail.getDisposalQuantity()));
 							if (disposalDetail.getDisposalQuantity()
 									.compareTo(disposalDetail.getPendingScrapQuantity()) > 0)
 								errors.addDataError(ErrorCode.QUANTITY1_LTE_QUANTITY2.getCode(), "disposalquantity",
-										"scrapquantity", InventoryUtilities.getQuantityInSelectedUom(disposalDetail.getDisposalQuantity(), disposalDetail.getUom().getConversionFactor()).toString(),
-										InventoryUtilities.getQuantityInSelectedUom(disposalDetail.getPendingScrapQuantity(), disposalDetail.getUom().getConversionFactor()).toString(), String.valueOf(i));
+										"scrapquantity",
+										InventoryUtilities
+												.getQuantityInSelectedUom(disposalDetail.getDisposalQuantity(),
+														disposalDetail.getUom().getConversionFactor())
+												.toString(),
+										InventoryUtilities
+												.getQuantityInSelectedUom(disposalDetail.getPendingScrapQuantity(),
+														disposalDetail.getUom().getConversionFactor())
+												.toString(),
+										String.valueOf(i));
 							if (disposalDetail.getDisposalValue().compareTo(BigDecimal.ZERO) <= 0)
 								errors.addDataError(ErrorCode.QUANTITY_GT_ZERO.getCode(), "disposalvalue",
 										String.valueOf(i), disposalDetail.getDisposalValue().toString());
@@ -258,28 +280,29 @@ public class DisposalService extends DomainService {
 				Map<String, Material> materialMap = getMaterials(disposal.getTenantId(), mapper, new RequestInfo());
 				Map<String, Uom> uomMap = getUoms(disposal.getTenantId(), mapper, new RequestInfo());
 				for (DisposalDetail disposalDetail : disposal.getDisposalDetails()) {
-						if (disposalDetail.getMaterial() != null && disposalDetail.getMaterial().getCode() != null) {
-							if (materialMap.get(disposalDetail.getMaterial().getCode()) == null)
-								throw new CustomException("invalid.ref.value",
-										"the field material should have a valid value which exists in the system.");
-							else
-								disposalDetail.setMaterial(materialMap.get(disposalDetail.getMaterial().getCode()));
+					if (disposalDetail.getMaterial() != null && disposalDetail.getMaterial().getCode() != null) {
+						if (materialMap.get(disposalDetail.getMaterial().getCode()) == null)
+							throw new CustomException("invalid.ref.value",
+									"the field material should have a valid value which exists in the system.");
+						else
+							disposalDetail.setMaterial(materialMap.get(disposalDetail.getMaterial().getCode()));
 
-						}
-						if (disposalDetail.getUom() != null && disposalDetail.getUom().getCode() != null) {
-							if (uomMap.get(disposalDetail.getUom().getCode()) == null)
-								throw new CustomException("invalid.ref.value",
-										"the field uom should have a valid value which exists in the system.");
-							else
-								disposalDetail.setUom(uomMap.get(disposalDetail.getUom().getCode()));
-						}
+					}
+					if (disposalDetail.getUom() != null && disposalDetail.getUom().getCode() != null) {
+						if (uomMap.get(disposalDetail.getUom().getCode()) == null)
+							throw new CustomException("invalid.ref.value",
+									"the field uom should have a valid value which exists in the system.");
+						else
+							disposalDetail.setUom(uomMap.get(disposalDetail.getUom().getCode()));
+					}
 					if (disposalDetail.getScrapDetails() != null && disposalDetail.getScrapDetails().getId() != null) {
 						ScrapDetailEntity entity = new ScrapDetailEntity();
 						entity.setId(disposalDetail.getScrapDetails().getId());
 						entity.setTenantId(disposal.getTenantId());
 
 						disposalDetail.setScrapDetails(scrapDetailJdbcRepository.findById(entity) != null
-								? scrapDetailJdbcRepository.findById(entity).toDomain() : null);
+								? scrapDetailJdbcRepository.findById(entity).toDomain()
+								: null);
 					}
 				}
 			}
@@ -435,18 +458,27 @@ public class DisposalService extends DomainService {
 				List<DisposalDetail> listOfDisposalDetails = new ArrayList<>();
 				if (pageDisposalDetail != null)
 					listOfDisposalDetails = pageDisposalDetail.getPagedData();
-				if(disposalSearchContract.getPurpose() != null){
-					if(disposalSearchContract.getPurpose().equals("update")){
-				for(DisposalDetail disposalDetail : listOfDisposalDetails){
-					if (disposalDetail.getScrapDetails() != null && disposalDetail.getScrapDetails().getId() != null) {
-						ScrapDetailEntity entity = new ScrapDetailEntity();
-						entity.setId(disposalDetail.getScrapDetails().getId());
-						entity.setTenantId(disposal.getTenantId());
-                        disposalDetail.setScrapDetails(scrapDetailJdbcRepository.findById(entity) != null
-								? scrapDetailJdbcRepository.findById(entity).toDomain() : null);
-					}
-					disposalDetail.setPendingScrapQuantity(getSearchConvertedQuantity(disposalDetail.getScrapDetails().getQuantity().subtract(disposalDetail.getScrapDetails().getDisposalQuantity()).add(disposalDetail.getDisposalQuantity()), uoms.get(disposalDetail.getUom().getCode()).getConversionFactor()));
-				}
+				if (disposalSearchContract.getPurpose() != null) {
+					if (disposalSearchContract.getPurpose().equals("update")) {
+						for (DisposalDetail disposalDetail : listOfDisposalDetails) {
+							if (disposalDetail.getScrapDetails() != null
+									&& disposalDetail.getScrapDetails().getId() != null) {
+								ScrapDetailEntity entity = new ScrapDetailEntity();
+								entity.setId(disposalDetail.getScrapDetails().getId());
+								entity.setTenantId(disposal.getTenantId());
+								disposalDetail.setScrapDetails(scrapDetailJdbcRepository.findById(entity) != null
+										? scrapDetailJdbcRepository.findById(entity).toDomain()
+										: null);
+							}
+							disposalDetail
+									.setPendingScrapQuantity(
+											getSearchConvertedQuantity(
+													disposalDetail.getScrapDetails().getQuantity()
+															.subtract(disposalDetail.getScrapDetails()
+																	.getDisposalQuantity())
+															.add(disposalDetail.getDisposalQuantity()),
+													uoms.get(disposalDetail.getUom().getCode()).getConversionFactor()));
+						}
 					}
 				}
 				disposal.setDisposalDetails(listOfDisposalDetails);
@@ -495,10 +527,12 @@ public class DisposalService extends DomainService {
 											if (disposalDetail.getScrapDetails() != null)
 												disposalDetail.getScrapDetails()
 														.setUom(uomMap.get(scrapDetail.getUom().getCode()));
-											disposalDetail.setPendingScrapQuantity(InventoryUtilities
-													.getQuantityInSelectedUom(scrapDetail.getQuantity()
-												    .subtract(scrapDetail.getDisposalQuantity()),
-													uomMap.get(scrapDetail.getUom().getCode()).getConversionFactor()));
+											disposalDetail.setPendingScrapQuantity(
+													InventoryUtilities.getQuantityInSelectedUom(
+															scrapDetail.getQuantity()
+																	.subtract(scrapDetail.getDisposalQuantity()),
+															uomMap.get(scrapDetail.getUom().getCode())
+																	.getConversionFactor()));
 										}
 									}
 								}

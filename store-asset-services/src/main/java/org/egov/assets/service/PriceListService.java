@@ -22,7 +22,6 @@ import org.egov.assets.model.PriceListDetails;
 import org.egov.assets.model.PriceListRequest;
 import org.egov.assets.model.PriceListResponse;
 import org.egov.assets.model.PriceListSearchRequest;
-import org.egov.assets.model.RequestInfo;
 import org.egov.assets.model.Supplier;
 import org.egov.assets.model.SupplierGetRequest;
 import org.egov.assets.model.Uom;
@@ -33,6 +32,7 @@ import org.egov.assets.repository.PriceListRepository;
 import org.egov.assets.repository.PurchaseOrderJdbcRepository;
 import org.egov.assets.repository.SupplierJdbcRepository;
 import org.egov.assets.repository.entity.PriceListEntity;
+import org.egov.common.contract.request.RequestInfo;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -98,7 +98,8 @@ public class PriceListService extends DomainService {
 				if (priceList.getAgreementNumber() != null)
 					priceList.setAgreementNumber(priceList.getAgreementNumber().toUpperCase());
 			});
-			//validate(priceListRequest.getPriceLists(), Constants.ACTION_CREATE, tenantId, priceListRequest); // Temp Commented By Prakash
+			// validate(priceListRequest.getPriceLists(), Constants.ACTION_CREATE, tenantId,
+			// priceListRequest); // Temp Commented By Prakash
 			priceListRequest.getPriceLists().forEach(priceList -> {
 				priceList.getPriceListDetails().forEach(priceListDetail -> {
 
@@ -170,7 +171,8 @@ public class PriceListService extends DomainService {
 					priceList.setAgreementNumber(priceList.getAgreementNumber().toUpperCase());
 			});
 
-			//validate(priceListRequest.getPriceLists(), Constants.ACTION_UPDATE, tenantId, priceListRequest); // Temp Committed By Prakash
+			// validate(priceListRequest.getPriceLists(), Constants.ACTION_UPDATE, tenantId,
+			// priceListRequest); // Temp Committed By Prakash
 			List<String> ids = new ArrayList<String>();
 			priceListRequest.getPriceLists().stream().forEach(priceList -> {
 				priceList.setAuditDetails(mapAuditDetailsForUpdate(priceListRequest.getRequestInfo()));
@@ -314,9 +316,9 @@ public class PriceListService extends DomainService {
 
 					Material material = materialService.fetchMaterial(tenantId, pld.getMaterial().getCode(),
 							priceListRequest.getRequestInfo());
-					
+
 					Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "Uom", "code",
-							pld.getUom().getCode(), Uom.class);
+							pld.getUom().getCode(), Uom.class, priceListRequest.getRequestInfo());
 
 					if (isEmpty(material.getCode())) {
 						errors.addDataError(ErrorCode.MATERIAL_NAME_NOT_EXIST.getCode(),
@@ -447,9 +449,11 @@ public class PriceListService extends DomainService {
 		return s2;
 	}
 
-	public PriceListResponse getTenderUsedQty(String material, String priceListId, String uom, String tenantId) {
+	public PriceListResponse getTenderUsedQty(String material, String priceListId, String uom, String tenantId,
+			RequestInfo requestInfo) {
 		PriceListResponse plr = new PriceListResponse();
-		Uom uomFetch = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "Uom", "code", uom, Uom.class);
+		Uom uomFetch = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "Uom", "code", uom, Uom.class,
+				requestInfo);
 		plr.setPriceLists(Arrays.asList(PriceList.builder()
 				.priceListDetails(Arrays.asList(PriceListDetails
 						.builder().tenderUsedQuantity(purchaseOrderJdbcRepository

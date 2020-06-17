@@ -39,8 +39,13 @@
  */
 package org.egov.assets.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import net.minidev.json.JSONArray;
+import static org.springframework.util.StringUtils.isEmpty;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.egov.assets.common.Constants;
 import org.egov.assets.common.DomainService;
@@ -49,17 +54,36 @@ import org.egov.assets.common.Pagination;
 import org.egov.assets.common.exception.CustomBindException;
 import org.egov.assets.common.exception.ErrorCode;
 import org.egov.assets.common.exception.InvalidDataException;
-import org.egov.assets.model.*;
-import org.egov.assets.repository.*;
+import org.egov.assets.model.Department;
+import org.egov.assets.model.Indent;
+import org.egov.assets.model.IndentSearch;
+import org.egov.assets.model.Location;
+import org.egov.assets.model.MaterialIssue;
+import org.egov.assets.model.MaterialIssueSearchContract;
+import org.egov.assets.model.MaterialReceipt;
+import org.egov.assets.model.MaterialReceiptSearch;
+import org.egov.assets.model.PurchaseOrder;
+import org.egov.assets.model.PurchaseOrderSearch;
+import org.egov.assets.model.Store;
+import org.egov.assets.model.StoreGetRequest;
+import org.egov.assets.model.StoreRequest;
+import org.egov.assets.model.StoreResponse;
+import org.egov.assets.repository.IndentJdbcRepository;
+import org.egov.assets.repository.MaterialIssueJdbcRepository;
+import org.egov.assets.repository.MaterialReceiptJdbcRepository;
+import org.egov.assets.repository.PurchaseOrderJdbcRepository;
+import org.egov.assets.repository.StoreJdbcRepository;
 import org.egov.assets.repository.entity.StoreEntity;
+import org.egov.common.contract.request.RequestInfo;
 import org.egov.tracer.kafka.LogAwareKafkaTemplate;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.springframework.util.StringUtils.isEmpty;
+import net.minidev.json.JSONArray;
 
 @Service
 public class StoreService extends DomainService {
@@ -102,7 +126,7 @@ public class StoreService extends DomainService {
 
 	public StoreResponse create(StoreRequest storeRequest, String tenantId) {
 		try {
-			StoreRequest fetchRelated = storeRequest;// fetchRelated(storeRequest, tenantId);
+			StoreRequest fetchRelated = fetchRelated(storeRequest, tenantId);
 			validate(fetchRelated.getStores(), Constants.ACTION_CREATE, tenantId);
 			List<String> sequenceNos = storeJdbcRepository.getSequence(Store.class.getSimpleName(),
 					storeRequest.getStores().size());
@@ -122,14 +146,14 @@ public class StoreService extends DomainService {
 			response.setResponseInfo(getResponseInfo(storeRequest.getRequestInfo()));
 			return response;
 		} catch (CustomBindException e) {
-			throw e;
+			throw new CustomException("STORE_EXCEPTION", e.getMessage());
 		}
 	}
 
 	public StoreResponse update(StoreRequest storeRequest, String tenantId) {
 
 		try {
-			StoreRequest fetchRelated = storeRequest;// fetchRelated(storeRequest, tenantId);
+			StoreRequest fetchRelated = fetchRelated(storeRequest, tenantId);
 			validate(fetchRelated.getStores(), Constants.ACTION_UPDATE, tenantId);
 
 			List<Store> storeList = new ArrayList<>();
@@ -161,7 +185,7 @@ public class StoreService extends DomainService {
 			response.setResponseInfo(getResponseInfo(storeRequest.getRequestInfo()));
 			return response;
 		} catch (CustomBindException e) {
-			throw e;
+			throw new CustomException("STORE_EXCEPTION", e.getMessage());
 		}
 	}
 
@@ -169,18 +193,20 @@ public class StoreService extends DomainService {
 
 		StoreResponse storeResponse = new StoreResponse();
 		Pagination<Store> search = storeJdbcRepository.search(storeGetRequest);
-		// Map<String, Department> departmentMap =
-		// getDepartment(storeGetRequest.getTenantId());
-		if (search.getPagedData().size() > 0) {
+		if (!search.getPagedData().isEmpty()) {
+
+			Map<String, Department> departmentMap = getDepartment(storeGetRequest.getTenantId());
+			Map<String, Location> locationMap = getLocation(storeGetRequest.getTenantId());
+
 			for (Store store : search.getPagedData()) {
-				// store.setDepartment(departmentMap.get(store.getDepartment().getCode()));
+				store.setDepartment(departmentMap.get(store.getDepartment().getCode()));
+				store.setOfficeLocation(locationMap.get(store.getOfficeLocation().getCode()));
 			}
 
 			storeResponse.setResponseInfo(null);
 			storeResponse.setStores(search.getPagedData());
 			return storeResponse;
 		} else {
-
 			storeResponse.setResponseInfo(null);
 			storeResponse.setStores(Collections.EMPTY_LIST);
 			return storeResponse;
@@ -198,7 +224,6 @@ public class StoreService extends DomainService {
 					throw new InvalidDataException("stores", ErrorCode.NOT_NULL.getCode(), null);
 				}
 			}
-
 				break;
 
 			case Constants.ACTION_UPDATE: {
@@ -236,9 +261,9 @@ public class StoreService extends DomainService {
 			}
 
 		} catch (IllegalArgumentException e) {
-
+			throw new CustomException("STORE_EXCEPTION", e.getMessage());
 		}
-		if (errors.getValidationErrors().size() > 0)
+		if (!errors.getValidationErrors().isEmpty())
 			throw errors;
 	}
 
@@ -248,21 +273,22 @@ public class StoreService extends DomainService {
 
 		for (Store store : stores) {
 			// fetch and set department
-			if (null != store && null != store.getDepartment() && !isEmpty(store.getDepartment().getCode())) {
+			if (null != store && !isEmpty(store.getDepartment().getCode())) {
 				Object object = mdmsRepository.fetchObject(tenantId, "common-masters", "Department", "code",
-						store.getDepartment().getCode(), Department.class);
+						store.getDepartment().getCode(), Department.class, storeRequest.getRequestInfo());
 				store.setDepartment((Department) object);
 			}
 
 			// fetch and add office location
-			if (null != store && null != store.getOfficeLocation() && !isEmpty(store.getOfficeLocation().getCode())) {
-				Object object = mdmsRepository.fetchObject(tenantId, "inventory", "Location", "code",
-						store.getOfficeLocation().getCode(), Location.class);
+			if (null != store && !isEmpty(store.getOfficeLocation().getCode())) {
+				Object object = mdmsRepository.fetchObject(tenantId, "store-asset", "Location", "code",
+						store.getOfficeLocation().getCode(), Location.class, storeRequest.getRequestInfo());
 
 				store.setOfficeLocation((Location) object);
 			}
 
-			store.setCode(store.getCode().toUpperCase());
+			if (store != null && store.getCode() != null)
+				store.setCode(store.getCode().toUpperCase());
 		}
 
 		return storeRequest;
@@ -274,7 +300,7 @@ public class StoreService extends DomainService {
 		indentSearch.setTenantId(tenantId);
 
 		Pagination<Indent> indents = indentJdbcRepository.search(indentSearch);
-		if (indents.getPagedData().size() > 0) {
+		if (!indents.getPagedData().isEmpty()) {
 			return true;
 		}
 
@@ -284,7 +310,7 @@ public class StoreService extends DomainService {
 
 		Pagination<PurchaseOrder> purchaseOrders = purchaseOrderJdbcRepository.search(purchaseOrderSearch);
 
-		if (purchaseOrders.getPagedData().size() > 0) {
+		if (!purchaseOrders.getPagedData().isEmpty()) {
 			return true;
 		}
 
@@ -294,7 +320,7 @@ public class StoreService extends DomainService {
 
 		Pagination<MaterialReceipt> issueStoreMaterialReceipt = materialReceiptJdbcRepository.search(issueStoreSearch);
 
-		if (issueStoreMaterialReceipt.getPagedData().size() > 0) {
+		if (!issueStoreMaterialReceipt.getPagedData().isEmpty()) {
 			return true;
 		}
 
@@ -305,7 +331,7 @@ public class StoreService extends DomainService {
 		Pagination<MaterialReceipt> receivingStoreMaterialReceipt = materialReceiptJdbcRepository
 				.search(receivingStoreSearch);
 
-		if (receivingStoreMaterialReceipt.getPagedData().size() > 0) {
+		if (!receivingStoreMaterialReceipt.getPagedData().isEmpty()) {
 			return true;
 		}
 
@@ -315,7 +341,7 @@ public class StoreService extends DomainService {
 
 		Pagination<MaterialIssue> fromStoreSearch = materialIssueJdbcRepository.search(fromStoreIssue, null);
 
-		if (fromStoreSearch.getPagedData().size() > 0) {
+		if (!fromStoreSearch.getPagedData().isEmpty()) {
 			return true;
 		}
 
@@ -325,7 +351,7 @@ public class StoreService extends DomainService {
 
 		Pagination<MaterialIssue> toStoreSearch = materialIssueJdbcRepository.search(toStoreIssue, null);
 
-		if (toStoreSearch.getPagedData().size() > 0) {
+		if (!toStoreSearch.getPagedData().isEmpty()) {
 			return true;
 		}
 
@@ -337,13 +363,28 @@ public class StoreService extends DomainService {
 				new RequestInfo());
 		Map<String, Department> departmentMap = new HashMap<>();
 		ObjectMapper mapper = new ObjectMapper();
-		if (responseJSONArray != null && responseJSONArray.size() > 0) {
+		if (responseJSONArray != null && !responseJSONArray.isEmpty()) {
 			for (int i = 0; i < responseJSONArray.size(); i++) {
 				Department department = mapper.convertValue(responseJSONArray.get(i), Department.class);
 				departmentMap.put(department.getCode(), department);
 			}
 		}
 		return departmentMap;
+	}
+
+	private Map<String, Location> getLocation(String tenantId) {
+		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "store-asset", "Location", null, null,
+				new RequestInfo());
+
+		Map<String, Location> locationMap = new HashMap<>();
+		ObjectMapper mapper = new ObjectMapper();
+		if (responseJSONArray != null && !responseJSONArray.isEmpty()) {
+			for (int i = 0; i < responseJSONArray.size(); i++) {
+				Location location = mapper.convertValue(responseJSONArray.get(i), Location.class);
+				locationMap.put(location.getCode(), location);
+			}
+		}
+		return locationMap;
 	}
 
 }

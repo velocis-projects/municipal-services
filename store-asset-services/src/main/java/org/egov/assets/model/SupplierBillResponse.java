@@ -1,19 +1,18 @@
 package org.egov.assets.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import javax.validation.Valid;
+
+import org.egov.common.contract.response.ResponseInfo;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Hold the supplier bill response information.
  */
-@ApiModel(description = "Hold the supplier bill response information.")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-12-28T09:20:06.607Z")
 
 public class SupplierBillResponse {
     @JsonProperty("ResponseInfo")
@@ -32,10 +31,7 @@ public class SupplierBillResponse {
      *
      * @return responseInfo
      **/
-    @ApiModelProperty(value = "")
-
-    @Valid
-
+        @Valid
     public ResponseInfo getResponseInfo() {
         return responseInfo;
     }
@@ -62,10 +58,7 @@ public class SupplierBillResponse {
      *
      * @return supplierBills
      **/
-    @ApiModelProperty(value = "")
-
-    @Valid
-
+        @Valid
     public List<SupplierBill> getSupplierBills() {
         return supplierBills;
     }

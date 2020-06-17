@@ -1,4 +1,4 @@
-package org.egov.assets.model;
+/*package org.egov.assets.model;
 
 import java.util.Objects;
 
@@ -11,9 +11,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-/**
+*//**
  * RequestInfo should be used to carry meta information about the requests to the server as described in the fields below. All eGov APIs will use requestinfo as a part of the request body to carry this meta information. Some of this information will be returned back from the server as part of the ResponseInfo in the response body to ensure correlation.
- */
+ *//*
 @ApiModel(description = "RequestInfo should be used to carry meta information about the requests to the server as described in the fields below. All eGov APIs will use requestinfo as a part of the request body to carry this meta information. Some of this information will be returned back from the server as part of the ResponseInfo in the response body to ensure correlation.")
 @javax.annotation.Generated(value = "org.egov.inv.codegen.languages.SpringCodegen", date = "2017-11-08T13:51:07.770Z")
  
@@ -56,10 +56,10 @@ public class RequestInfo   {
     return this;
   }
 
-   /**
+   *//**
    * unique API ID
    * @return apiId
-  **/
+  **//*
   @ApiModelProperty(required = true, value = "unique API ID")
   @NotNull
 
@@ -77,10 +77,10 @@ public class RequestInfo   {
     return this;
   }
 
-   /**
+   *//**
    * API version - for HTTP based request this will be same as used in path
    * @return ver
-  **/
+  **//*
   @ApiModelProperty(required = true, value = "API version - for HTTP based request this will be same as used in path")
   @NotNull
 
@@ -98,10 +98,10 @@ public class RequestInfo   {
     return this;
   }
 
-   /**
+   *//**
    * time in epoch
    * @return ts
-  **/
+  **//*
   @ApiModelProperty(required = true, value = "time in epoch")
   @NotNull
 
@@ -119,10 +119,10 @@ public class RequestInfo   {
     return this;
   }
 
-   /**
+   *//**
    * API action to be performed like _create, _update, _search (denoting POST, PUT, GET) or _oauth etc
    * @return action
-  **/
+  **//*
   @ApiModelProperty(required = true, value = "API action to be performed like _create, _update, _search (denoting POST, PUT, GET) or _oauth etc")
   @NotNull
 
@@ -140,11 +140,11 @@ public class RequestInfo   {
     return this;
   }
 
-   /**
+   *//**
    * Device ID from which the API is called
    * @return did
-  **/
-  @ApiModelProperty(value = "Device ID from which the API is called")
+  **//*
+  
 
  @Size(max=1024)
   public String getDid() {
@@ -160,11 +160,11 @@ public class RequestInfo   {
     return this;
   }
 
-   /**
+   *//**
    * API key (API key provided to the caller in case of server to server communication)
    * @return key
-  **/
-  @ApiModelProperty(value = "API key (API key provided to the caller in case of server to server communication)")
+  **//*
+  
 
  @Size(max=256)
   public String getKey() {
@@ -180,10 +180,10 @@ public class RequestInfo   {
     return this;
   }
 
-   /**
+   *//**
    * Unique request message id from the caller
    * @return msgId
-  **/
+  **//*
   @ApiModelProperty(required = true, value = "Unique request message id from the caller")
   @NotNull
 
@@ -201,11 +201,11 @@ public class RequestInfo   {
     return this;
   }
 
-   /**
+   *//**
    * UserId of the user calling
    * @return requesterId
-  **/
-  @ApiModelProperty(value = "UserId of the user calling")
+  **//*
+  
 
  @Size(max=256)
   public String getRequesterId() {
@@ -221,11 +221,11 @@ public class RequestInfo   {
     return this;
   }
 
-   /**
+   *//**
    * //session/jwt/saml token/oauth token - the usual value that would go into HTTP bearer token
    * @return authToken
-  **/
-  @ApiModelProperty(value = "//session/jwt/saml token/oauth token - the usual value that would go into HTTP bearer token")
+  **//*
+  
 
 
   public String getAuthToken() {
@@ -241,11 +241,11 @@ public class RequestInfo   {
     return this;
   }
 
-   /**
+   *//**
    * Get userInfo
    * @return userInfo
-  **/
-  @ApiModelProperty(value = "")
+  **//*
+  
 
   @Valid
 
@@ -262,10 +262,10 @@ public class RequestInfo   {
     return this;
   }
 
-   /**
+   *//**
    * Get correlationId
    * @return correlationId
-  **/
+  **//*
   @ApiModelProperty(readOnly = true, value = "")
 
 
@@ -325,10 +325,10 @@ public class RequestInfo   {
     return sb.toString();
   }
 
-  /**
+  *//**
    * Convert the given object to string with each line indented by 4 spaces
    * (except the first line).
-   */
+   *//*
   private String toIndentedString(java.lang.Object o) {
     if (o == null) {
       return "null";
@@ -337,3 +337,4 @@ public class RequestInfo   {
   }
 }
 
+*/

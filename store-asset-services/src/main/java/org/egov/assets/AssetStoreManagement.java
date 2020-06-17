@@ -21,11 +21,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
 
 @SpringBootApplication
-@EnableSwagger2
 @EnableAutoConfiguration
 @ComponentScan(basePackages = {"org.egov.assets","org.egov.assets.common"})
 @Import({TracerConfiguration.class})

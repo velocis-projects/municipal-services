@@ -1,136 +1,121 @@
 package org.egov.assets.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import java.util.Objects;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Objects;
 
-/**
- *
- */
-@ApiModel(description = "")
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-12-28T09:20:06.607Z")
 
 public class AccountCodePurpose {
-    @JsonProperty("id")
-    private String id = null;
+	@JsonProperty("id")
+	private String id = null;
 
-    @JsonProperty("name")
-    private String name = null;
+	@JsonProperty("name")
+	private String name = null;
 
-    @JsonProperty("auditDetails")
-    private Auditable auditDetails = null;
+	@JsonProperty("auditDetails")
+	private Auditable auditDetails = null;
 
-    public AccountCodePurpose id(String id) {
-        this.id = id;
-        return this;
-    }
+	public AccountCodePurpose id(String id) {
+		this.id = id;
+		return this;
+	}
 
-    /**
-     * Unique Identifier of the AccountCodePurpose
-     *
-     * @return id
-     **/
-    @ApiModelProperty(value = "Unique Identifier of the AccountCodePurpose ")
+	/**
+	 * Unique Identifier of the AccountCodePurpose
+	 *
+	 * @return id
+	 **/
+	public String getId() {
+		return id;
+	}
 
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public String getId() {
-        return id;
-    }
+	public AccountCodePurpose name(String name) {
+		this.name = name;
+		return this;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	/**
+	 * name of the AccountCodePurpose
+	 *
+	 * @return name
+	 **/
 
-    public AccountCodePurpose name(String name) {
-        this.name = name;
-        return this;
-    }
+	@NotNull
+	@Size(min = 3, max = 256)
+	public String getName() {
+		return name;
+	}
 
-    /**
-     * name of the AccountCodePurpose
-     *
-     * @return name
-     **/
-    @ApiModelProperty(required = true, value = "name of the AccountCodePurpose ")
-    @NotNull
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    @Size(min = 3, max = 256)
-    public String getName() {
-        return name;
-    }
+	public AccountCodePurpose auditDetails(Auditable auditDetails) {
+		this.auditDetails = auditDetails;
+		return this;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	/**
+	 * Get auditDetails
+	 *
+	 * @return auditDetails
+	 **/
+	@Valid
+	public Auditable getAuditDetails() {
+		return auditDetails;
+	}
 
-    public AccountCodePurpose auditDetails(Auditable auditDetails) {
-        this.auditDetails = auditDetails;
-        return this;
-    }
+	public void setAuditDetails(Auditable auditDetails) {
+		this.auditDetails = auditDetails;
+	}
 
-    /**
-     * Get auditDetails
-     *
-     * @return auditDetails
-     **/
-    @ApiModelProperty(value = "")
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		AccountCodePurpose accountCodePurpose = (AccountCodePurpose) o;
+		return Objects.equals(this.id, accountCodePurpose.id) && Objects.equals(this.name, accountCodePurpose.name)
+				&& Objects.equals(this.auditDetails, accountCodePurpose.auditDetails);
+	}
 
-    @Valid
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, name, auditDetails);
+	}
 
-    public Auditable getAuditDetails() {
-        return auditDetails;
-    }
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("class AccountCodePurpose {\n");
 
-    public void setAuditDetails(Auditable auditDetails) {
-        this.auditDetails = auditDetails;
-    }
+		sb.append("    id: ").append(toIndentedString(id)).append("\n");
+		sb.append("    name: ").append(toIndentedString(name)).append("\n");
+		sb.append("    auditDetails: ").append(toIndentedString(auditDetails)).append("\n");
+		sb.append("}");
+		return sb.toString();
+	}
 
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        AccountCodePurpose accountCodePurpose = (AccountCodePurpose) o;
-        return Objects.equals(this.id, accountCodePurpose.id) &&
-                Objects.equals(this.name, accountCodePurpose.name) &&
-                Objects.equals(this.auditDetails, accountCodePurpose.auditDetails);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, auditDetails);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class AccountCodePurpose {\n");
-
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    name: ").append(toIndentedString(name)).append("\n");
-        sb.append("    auditDetails: ").append(toIndentedString(auditDetails)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
-    }
+	/**
+	 * Convert the given object to string with each line indented by 4 spaces
+	 * (except the first line).
+	 */
+	private String toIndentedString(Object o) {
+		if (o == null) {
+			return "null";
+		}
+		return o.toString().replace("\n", "\n    ");
+	}
 }
-

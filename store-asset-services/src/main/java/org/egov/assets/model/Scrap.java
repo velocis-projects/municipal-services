@@ -1,28 +1,20 @@
 package org.egov.assets.model;
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-
 import java.util.ArrayList;
 import java.util.List;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import java.util.Objects;
 
-import org.egov.assets.model.AuditDetails;
-import org.egov.assets.model.ScrapDetail;
-import org.egov.assets.model.Store;
-import org.egov.assets.model.WorkFlowDetails;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * This object holds the scrap information.   
  */
-@ApiModel(description = "This object holds the scrap information.   ")
-@javax.annotation.Generated(value = "org.egov.inv.codegen.languages.SpringCodegen", date = "2017-11-08T13:51:07.770Z")
-
 public class Scrap   {
   @JsonProperty("id")
   private String id = null;
@@ -104,9 +96,7 @@ public class Scrap   {
    * Unique Identifier of the Scrap 
    * @return id
   **/
-  @ApiModelProperty(value = "Unique Identifier of the Scrap ")
-
-
+  
   public String getId() {
     return id;
   }
@@ -124,9 +114,7 @@ public class Scrap   {
    * Tenant id of the Scrap
    * @return tenantId
   **/
-  @ApiModelProperty(value = "Tenant id of the Scrap")
-
- @Size(min=4,max=128)
+   @Size(min=4,max=128)
   public String getTenantId() {
     return tenantId;
   }
@@ -144,7 +132,7 @@ public class Scrap   {
    * Get store
    * @return store
   **/
-  @ApiModelProperty(required = true, value = "")
+  
   @NotNull
 
   
@@ -166,7 +154,7 @@ public class Scrap   {
    * scrapNumber  Auto generated number, read only 
    * @return scrapNumber
   **/
-  @ApiModelProperty(required = true, readOnly = true, value = "scrapNumber  Auto generated number, read only ")
+  
   @NotNull
 
 
@@ -187,7 +175,7 @@ public class Scrap   {
    * scrap date of the Scrap 
    * @return scrapDate
   **/
-  @ApiModelProperty(required = true, value = "scrap date of the Scrap ")
+  
   @NotNull
 
 
@@ -208,7 +196,7 @@ public class Scrap   {
    * description of the Scrap 
    * @return description
   **/
-  @ApiModelProperty(value = "description of the Scrap ")
+  
 
  @Size(max=500)
   public String getDescription() {
@@ -233,7 +221,7 @@ public class Scrap   {
    * scrap details of the Scrap 
    * @return scrapDetails
   **/
-  @ApiModelProperty(required = true, value = "scrap details of the Scrap ")
+  
   @NotNull
 
   
@@ -255,10 +243,7 @@ public class Scrap   {
    * scrap status of the Scrap 
    * @return scrapStatus
   **/
-  @ApiModelProperty(value = "scrap status of the Scrap ")
-
-
-  public ScrapStatusEnum getScrapStatus() {
+    public ScrapStatusEnum getScrapStatus() {
     return scrapStatus;
   }
 
@@ -275,9 +260,7 @@ public class Scrap   {
    * Get workFlowDetails
    * @return workFlowDetails
   **/
-  @ApiModelProperty(value = "")
-
-  @Valid
+    @Valid
 
   public WorkFlowDetails getWorkFlowDetails() {
     return workFlowDetails;
@@ -296,9 +279,7 @@ public class Scrap   {
    * state id of the Scrap 
    * @return stateId
   **/
-  @ApiModelProperty(value = "state id of the Scrap ")
-
-
+ 
   public Long getStateId() {
     return stateId;
   }
@@ -316,10 +297,7 @@ public class Scrap   {
    * Designation of the created by user at the time of Scrap Note creation.
    * @return designation
   **/
-  @ApiModelProperty(value = "Designation of the created by user at the time of Scrap Note creation.")
-
-
-  public String getDesignation() {
+    public String getDesignation() {
     return designation;
   }
 
@@ -336,9 +314,7 @@ public class Scrap   {
    * Get auditDetails
    * @return auditDetails
   **/
-  @ApiModelProperty(value = "")
-
-  @Valid
+    @Valid
 
   public AuditDetails getAuditDetails() {
     return auditDetails;

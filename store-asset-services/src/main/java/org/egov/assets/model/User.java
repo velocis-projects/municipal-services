@@ -1,16 +1,17 @@
 package org.egov.assets.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
-import org.joda.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+
+import org.joda.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * User
@@ -133,9 +134,7 @@ public class User {
      *
      * @return id
      **/
-    @ApiModelProperty(value = "The unique id an user.")
-
-
+    
     public Long getId() {
         return id;
     }
@@ -154,7 +153,7 @@ public class User {
      *
      * @return userName
      **/
-    @ApiModelProperty(required = true, value = "The unique username used for user login.")
+    
     @NotNull
 
     @Size(min = 1, max = 64)
@@ -176,7 +175,7 @@ public class User {
      *
      * @return password
      **/
-    @ApiModelProperty(value = "Password for user login.")
+    
 
     @Size(max = 64)
     public String getPassword() {
@@ -197,7 +196,7 @@ public class User {
      *
      * @return salutation
      **/
-    @ApiModelProperty(value = "The salutation of user name. Example- Mr, Miss, Mrs")
+    
 
     @Size(max = 5)
     public String getSalutation() {
@@ -218,7 +217,7 @@ public class User {
      *
      * @return name
      **/
-    @ApiModelProperty(required = true, value = "The full name of the user.")
+    
     @NotNull
 
     @Size(min = 3, max = 100)
@@ -240,7 +239,7 @@ public class User {
      *
      * @return gender
      **/
-    @ApiModelProperty(required = true, value = "Gender of the user.")
+    
     @NotNull
 
 
@@ -262,7 +261,7 @@ public class User {
      *
      * @return mobileNumber
      **/
-    @ApiModelProperty(required = true, value = "Mobile number ofuser the user")
+    
     @NotNull
 
     @Size(max = 10)
@@ -284,7 +283,7 @@ public class User {
      *
      * @return emailId
      **/
-    @ApiModelProperty(value = "Email address of the user")
+    
 
     @Size(max = 128)
     public String getEmailId() {
@@ -305,7 +304,7 @@ public class User {
      *
      * @return altContactNumber
      **/
-    @ApiModelProperty(value = "Alternate contact number of the user")
+    
 
     @Size(max = 10)
     public String getAltContactNumber() {
@@ -326,7 +325,7 @@ public class User {
      *
      * @return pan
      **/
-    @ApiModelProperty(value = "PAN number of the user")
+    
 
     @Size(max = 10)
     public String getPan() {
@@ -347,7 +346,7 @@ public class User {
      *
      * @return aadhaarNumber
      **/
-    @ApiModelProperty(value = "Aadhaar number of the user")
+    
 
     @Pattern(regexp = "[0-9]")
     @Size(max = 12)
@@ -369,7 +368,7 @@ public class User {
      *
      * @return permanentAddress
      **/
-    @ApiModelProperty(value = "Permanent address of the user.")
+    
 
     @Size(max = 300)
     public String getPermanentAddress() {
@@ -390,8 +389,7 @@ public class User {
      *
      * @return permanentCity
      **/
-    @ApiModelProperty(value = "City of the permanent address.")
-
+    
     @Size(max = 300)
     public String getPermanentCity() {
         return permanentCity;
@@ -411,7 +409,7 @@ public class User {
      *
      * @return permanentPincode
      **/
-    @ApiModelProperty(value = "Permanent address pincode.")
+    
 
     @Size(max = 6)
     public String getPermanentPincode() {
@@ -432,7 +430,7 @@ public class User {
      *
      * @return correspondenceCity
      **/
-    @ApiModelProperty(value = "City of the correspondence address.")
+    
 
     @Size(max = 50)
     public String getCorrespondenceCity() {
@@ -453,7 +451,7 @@ public class User {
      *
      * @return correspondencePincode
      **/
-    @ApiModelProperty(value = "Permanent address pincode.")
+    
 
     @Size(max = 6)
     public String getCorrespondencePincode() {
@@ -474,7 +472,7 @@ public class User {
      *
      * @return correspondenceAddress
      **/
-    @ApiModelProperty(value = "Correspondence address of the user.")
+   
 
     @Size(max = 300)
     public String getCorrespondenceAddress() {
@@ -495,10 +493,8 @@ public class User {
      *
      * @return active
      **/
-    @ApiModelProperty(required = true, value = "True if the user is active and False if the user is inactive.")
+    
     @NotNull
-
-
     public Boolean getActive() {
         return active;
     }
@@ -517,10 +513,8 @@ public class User {
      *
      * @return dob
      **/
-    @ApiModelProperty(value = "Data of bith of the user in dd/mm/yyyy format.")
-
+    
     @Valid
-
     public LocalDate getDob() {
         return dob;
     }
@@ -539,7 +533,7 @@ public class User {
      *
      * @return pwdExpiryDate
      **/
-    @ApiModelProperty(readOnly = true, value = "Date on which the password registered will expire.")
+    
 
     @Valid
 
@@ -561,7 +555,7 @@ public class User {
      *
      * @return locale
      **/
-    @ApiModelProperty(required = true, value = "Value will be set to \"en_IN\".")
+    
     @NotNull
 
     @Size(max = 10)
@@ -583,7 +577,7 @@ public class User {
      *
      * @return type
      **/
-    @ApiModelProperty(required = true, value = "System set value internally. For employee value will be always \"EMPLOYEE\". For citizen value will be \"CITIZEN\".")
+    
     @NotNull
 
     @Size(max = 20)
@@ -605,9 +599,7 @@ public class User {
      *
      * @return signature
      **/
-    @ApiModelProperty(value = "Image to be loaded for the signature of the employee")
-
-
+    
     public String getSignature() {
         return signature;
     }
@@ -626,9 +618,7 @@ public class User {
      *
      * @return accountLocked
      **/
-    @ApiModelProperty(value = "Set to True if account is locked after several incorrect password attempt. False if account is not locked.")
-
-
+    
     public Boolean getAccountLocked() {
         return accountLocked;
     }
@@ -655,8 +645,7 @@ public class User {
      *
      * @return roles
      **/
-    @ApiModelProperty(value = "List of roles that are attached to the user.")
-
+    
     @Valid
 
     public List<Role> getRoles() {
@@ -677,7 +666,7 @@ public class User {
      *
      * @return fatherOrHusbandName
      **/
-    @ApiModelProperty(value = "Name of user's father or husband.")
+    
 
     @Size(max = 100)
     public String getFatherOrHusbandName() {
@@ -698,7 +687,7 @@ public class User {
      *
      * @return bloodGroup
      **/
-    @ApiModelProperty(value = "Blood group of the user.")
+    
 
     @Size(max = 3)
     public String getBloodGroup() {
@@ -719,7 +708,7 @@ public class User {
      *
      * @return identificationMark
      **/
-    @ApiModelProperty(value = "Any identification mark of the person.")
+   
 
     @Size(max = 300)
     public String getIdentificationMark() {
@@ -740,9 +729,7 @@ public class User {
      *
      * @return photo
      **/
-    @ApiModelProperty(value = "Image to be loaded for the photo of the user")
-
-
+    
     public String getPhoto() {
         return photo;
     }
@@ -761,9 +748,6 @@ public class User {
      *
      * @return createdBy
      **/
-    @ApiModelProperty(value = "Id of the user who created the record.")
-
-
     public Long getCreatedBy() {
         return createdBy;
     }
@@ -782,9 +766,7 @@ public class User {
      *
      * @return createdDate
      **/
-    @ApiModelProperty(value = "Date on which the user master data was added into the system.")
-
-    @Valid
+        @Valid
 
     public LocalDate getCreatedDate() {
         return createdDate;
@@ -804,10 +786,7 @@ public class User {
      *
      * @return lastModifiedBy
      **/
-    @ApiModelProperty(value = "Id of the user who last modified the record.")
-
-
-    public Long getLastModifiedBy() {
+        public Long getLastModifiedBy() {
         return lastModifiedBy;
     }
 
@@ -825,9 +804,7 @@ public class User {
      *
      * @return lastModifiedDate
      **/
-    @ApiModelProperty(value = "Date on which the user master data was last modified.")
-
-    @Valid
+        @Valid
 
     public LocalDate getLastModifiedDate() {
         return lastModifiedDate;
@@ -847,10 +824,7 @@ public class User {
      *
      * @return otpReference
      **/
-    @ApiModelProperty(value = "This is the UUID token that we genarate as part of OTP.")
-
-
-    public String getOtpReference() {
+        public String getOtpReference() {
         return otpReference;
     }
 
@@ -868,10 +842,8 @@ public class User {
      *
      * @return tenantId
      **/
-    @ApiModelProperty(required = true, value = "Unique Identifier of the tenant, Like AP, AP.Kurnool etc.")
+    
     @NotNull
-
-
     public String getTenantId() {
         return tenantId;
     }

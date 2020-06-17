@@ -1,217 +1,207 @@
 package org.egov.assets.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import java.util.Objects;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  *
  */
-@ApiModel(description = "")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-12-28T09:20:06.607Z")
 
 public class FinancialStatus {
-    @JsonProperty("id")
-    private String id = null;
+	@JsonProperty("id")
+	private String id = null;
 
-    @JsonProperty("moduleType")
-    private String moduleType = null;
+	@JsonProperty("moduleType")
+	private String moduleType = null;
 
-    @JsonProperty("code")
-    private String code = null;
+	@JsonProperty("code")
+	private String code = null;
 
-    @JsonProperty("name")
-    private String name = null;
+	@JsonProperty("name")
+	private String name = null;
 
-    @JsonProperty("description")
-    private String description = null;
+	@JsonProperty("description")
+	private String description = null;
 
-    @JsonProperty("auditDetails")
-    private Auditable auditDetails = null;
+	@JsonProperty("auditDetails")
+	private Auditable auditDetails = null;
 
-    public FinancialStatus id(String id) {
-        this.id = id;
-        return this;
-    }
+	public FinancialStatus id(String id) {
+		this.id = id;
+		return this;
+	}
 
-    /**
-     * Unique Identifier of the FinancialStatus
-     *
-     * @return id
-     **/
-    @ApiModelProperty(value = "Unique Identifier of the FinancialStatus ")
+	/**
+	 * Unique Identifier of the FinancialStatus
+	 *
+	 * @return id
+	 **/
 
+	public String getId() {
+		return id;
+	}
 
-    public String getId() {
-        return id;
-    }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public FinancialStatus moduleType(String moduleType) {
+		this.moduleType = moduleType;
+		return this;
+	}
 
-    public FinancialStatus moduleType(String moduleType) {
-        this.moduleType = moduleType;
-        return this;
-    }
+	/**
+	 * module type of the FinancialStatus
+	 *
+	 * @return moduleType
+	 **/
+	@NotNull
 
-    /**
-     * module type of the FinancialStatus
-     *
-     * @return moduleType
-     **/
-    @ApiModelProperty(required = true, value = "module type of the FinancialStatus ")
-    @NotNull
+	@Size(min = 3, max = 50)
+	public String getModuleType() {
+		return moduleType;
+	}
 
-    @Size(min = 3, max = 50)
-    public String getModuleType() {
-        return moduleType;
-    }
+	public void setModuleType(String moduleType) {
+		this.moduleType = moduleType;
+	}
 
-    public void setModuleType(String moduleType) {
-        this.moduleType = moduleType;
-    }
+	public FinancialStatus code(String code) {
+		this.code = code;
+		return this;
+	}
 
-    public FinancialStatus code(String code) {
-        this.code = code;
-        return this;
-    }
+	/**
+	 * code of the FinancialStatus
+	 *
+	 * @return code
+	 **/
 
-    /**
-     * code of the FinancialStatus
-     *
-     * @return code
-     **/
-    @ApiModelProperty(required = true, value = "code of the FinancialStatus ")
-    @NotNull
+	@NotNull
 
-    @Size(min = 3, max = 20)
-    public String getCode() {
-        return code;
-    }
+	@Size(min = 3, max = 20)
+	public String getCode() {
+		return code;
+	}
 
-    public void setCode(String code) {
-        this.code = code;
-    }
+	public void setCode(String code) {
+		this.code = code;
+	}
 
-    public FinancialStatus name(String name) {
-        this.name = name;
-        return this;
-    }
+	public FinancialStatus name(String name) {
+		this.name = name;
+		return this;
+	}
 
-    /**
-     * name of the FinancialStatus
-     *
-     * @return name
-     **/
-    @ApiModelProperty(required = true, value = "name of the FinancialStatus ")
-    @NotNull
+	/**
+	 * name of the FinancialStatus
+	 *
+	 * @return name
+	 **/
 
-    @Size(min = 3, max = 20)
-    public String getName() {
-        return name;
-    }
+	@NotNull
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	@Size(min = 3, max = 20)
+	public String getName() {
+		return name;
+	}
 
-    public FinancialStatus description(String description) {
-        this.description = description;
-        return this;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    /**
-     * description of the FinancialStatus
-     *
-     * @return description
-     **/
-    @ApiModelProperty(required = true, value = "description of the FinancialStatus ")
-    @NotNull
+	public FinancialStatus description(String description) {
+		this.description = description;
+		return this;
+	}
 
-    @Size(min = 3, max = 250)
-    public String getDescription() {
-        return description;
-    }
+	/**
+	 * description of the FinancialStatus
+	 *
+	 * @return description
+	 **/
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+	@NotNull
 
-    public FinancialStatus auditDetails(Auditable auditDetails) {
-        this.auditDetails = auditDetails;
-        return this;
-    }
+	@Size(min = 3, max = 250)
+	public String getDescription() {
+		return description;
+	}
 
-    /**
-     * Get auditDetails
-     *
-     * @return auditDetails
-     **/
-    @ApiModelProperty(value = "")
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
-    @Valid
+	public FinancialStatus auditDetails(Auditable auditDetails) {
+		this.auditDetails = auditDetails;
+		return this;
+	}
 
-    public Auditable getAuditDetails() {
-        return auditDetails;
-    }
+	/**
+	 * Get auditDetails
+	 *
+	 * @return auditDetails
+	 **/
 
-    public void setAuditDetails(Auditable auditDetails) {
-        this.auditDetails = auditDetails;
-    }
+	@Valid
 
+	public Auditable getAuditDetails() {
+		return auditDetails;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        FinancialStatus financialStatus = (FinancialStatus) o;
-        return Objects.equals(this.id, financialStatus.id) &&
-                Objects.equals(this.moduleType, financialStatus.moduleType) &&
-                Objects.equals(this.code, financialStatus.code) &&
-                Objects.equals(this.name, financialStatus.name) &&
-                Objects.equals(this.description, financialStatus.description) &&
-                Objects.equals(this.auditDetails, financialStatus.auditDetails);
-    }
+	public void setAuditDetails(Auditable auditDetails) {
+		this.auditDetails = auditDetails;
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, moduleType, code, name, description, auditDetails);
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		FinancialStatus financialStatus = (FinancialStatus) o;
+		return Objects.equals(this.id, financialStatus.id)
+				&& Objects.equals(this.moduleType, financialStatus.moduleType)
+				&& Objects.equals(this.code, financialStatus.code) && Objects.equals(this.name, financialStatus.name)
+				&& Objects.equals(this.description, financialStatus.description)
+				&& Objects.equals(this.auditDetails, financialStatus.auditDetails);
+	}
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class FinancialStatus {\n");
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, moduleType, code, name, description, auditDetails);
+	}
 
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    moduleType: ").append(toIndentedString(moduleType)).append("\n");
-        sb.append("    code: ").append(toIndentedString(code)).append("\n");
-        sb.append("    name: ").append(toIndentedString(name)).append("\n");
-        sb.append("    description: ").append(toIndentedString(description)).append("\n");
-        sb.append("    auditDetails: ").append(toIndentedString(auditDetails)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("class FinancialStatus {\n");
 
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
-    }
+		sb.append("    id: ").append(toIndentedString(id)).append("\n");
+		sb.append("    moduleType: ").append(toIndentedString(moduleType)).append("\n");
+		sb.append("    code: ").append(toIndentedString(code)).append("\n");
+		sb.append("    name: ").append(toIndentedString(name)).append("\n");
+		sb.append("    description: ").append(toIndentedString(description)).append("\n");
+		sb.append("    auditDetails: ").append(toIndentedString(auditDetails)).append("\n");
+		sb.append("}");
+		return sb.toString();
+	}
+
+	/**
+	 * Convert the given object to string with each line indented by 4 spaces
+	 * (except the first line).
+	 */
+	private String toIndentedString(Object o) {
+		if (o == null) {
+			return "null";
+		}
+		return o.toString().replace("\n", "\n    ");
+	}
 }
-

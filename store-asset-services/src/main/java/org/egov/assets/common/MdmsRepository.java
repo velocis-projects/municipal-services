@@ -39,115 +39,122 @@
  */
 package org.egov.assets.common;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import net.minidev.json.JSONArray;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.egov.common.contract.request.RequestInfo;
-import org.egov.mdms.model.*;
+import org.egov.mdms.model.MasterDetail;
+import org.egov.mdms.model.MdmsCriteria;
+import org.egov.mdms.model.MdmsCriteriaReq;
+import org.egov.mdms.model.MdmsResponse;
+import org.egov.mdms.model.ModuleDetail;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import net.minidev.json.JSONArray;
 
 @Service
 public class MdmsRepository {
 
-    private final RestTemplate restTemplate;
+	private final RestTemplate restTemplate;
 
-    private final String mdmsBySearchCriteriaUrl;
+	private final String mdmsBySearchCriteriaUrl;
 
-    @Autowired
-    public MdmsRepository(final RestTemplate restTemplate,
-                          @Value("${egov.services.egov_mdms.hostname}") final String mdmsServiceHostname,
-                          @Value("${egov.services.egov_mdms.searchpath}") final String mdmsBySearchCriteriaUrl) {
+	@Autowired
+	public MdmsRepository(final RestTemplate restTemplate,
+			@Value("${egov.services.egov_mdms.hostname}") final String mdmsServiceHostname,
+			@Value("${egov.services.egov_mdms.searchpath}") final String mdmsBySearchCriteriaUrl) {
 
-        this.restTemplate = restTemplate;
-        this.mdmsBySearchCriteriaUrl = mdmsServiceHostname + mdmsBySearchCriteriaUrl;
-    }
+		this.restTemplate = restTemplate;
+		this.mdmsBySearchCriteriaUrl = mdmsServiceHostname + mdmsBySearchCriteriaUrl;
+	}
 
-    public JSONArray getByCriteria(final String tenantId, final String moduleName, final String masterName,
-                                   final String filterFieldName,
-                                   final String filterFieldValue, final org.egov.assets.model.RequestInfo info) {
+	public JSONArray getByCriteria(final String tenantId, final String moduleName, final String masterName,
+			final String filterFieldName, final String filterFieldValue, final RequestInfo info) {
 
-        List<MasterDetail> masterDetails;
-        List<ModuleDetail> moduleDetails;
-        MdmsCriteriaReq request = null;
-        MdmsResponse response = null;
-        masterDetails = new ArrayList<>();
-        moduleDetails = new ArrayList<>();
+		List<MasterDetail> masterDetails;
+		List<ModuleDetail> moduleDetails;
+		MdmsCriteriaReq request = null;
+		MdmsResponse response = null;
+		masterDetails = new ArrayList<>();
+		moduleDetails = new ArrayList<>();
 
-        masterDetails.add(MasterDetail.builder().name(masterName).build());
-        if (filterFieldName != null && filterFieldValue != null && !filterFieldName.isEmpty() && !filterFieldValue.isEmpty())
-            masterDetails.get(0).setFilter("[?(@." + filterFieldName + " == '" + filterFieldValue + "')]");
-        moduleDetails.add(ModuleDetail.builder().moduleName(moduleName).masterDetails(masterDetails).build());
+		masterDetails.add(MasterDetail.builder().name(masterName).build());
+		if (filterFieldName != null && filterFieldValue != null && !filterFieldName.isEmpty()
+				&& !filterFieldValue.isEmpty())
+			masterDetails.get(0).setFilter("[?(@." + filterFieldName + " == '" + filterFieldValue + "')]");
+		moduleDetails.add(ModuleDetail.builder().moduleName(moduleName).masterDetails(masterDetails).build());
 
-        request = MdmsCriteriaReq.builder()
-                .mdmsCriteria(MdmsCriteria.builder().moduleDetails(moduleDetails).tenantId(tenantId).build())
-                .requestInfo(getRequestInfo(info)).build();
-        response = restTemplate.postForObject(mdmsBySearchCriteriaUrl, request, MdmsResponse.class);
-        if (response == null || response.getMdmsRes() == null || !response.getMdmsRes().containsKey(moduleName)
-                || response.getMdmsRes().get(moduleName) == null
-                || !response.getMdmsRes().get(moduleName).containsKey(masterName)
-                || response.getMdmsRes().get(moduleName).get(masterName) == null)
-            return null;
-        else
-            return response.getMdmsRes().get(moduleName).get(masterName);
-    }
+		request = MdmsCriteriaReq.builder()
+				.mdmsCriteria(MdmsCriteria.builder().moduleDetails(moduleDetails).tenantId(getTenantId(tenantId, moduleName)).build())
+				.requestInfo(info).build();
+		response = restTemplate.postForObject(mdmsBySearchCriteriaUrl, request, MdmsResponse.class);
+		if (response == null || response.getMdmsRes() == null || !response.getMdmsRes().containsKey(moduleName)
+				|| response.getMdmsRes().get(moduleName) == null
+				|| !response.getMdmsRes().get(moduleName).containsKey(masterName)
+				|| response.getMdmsRes().get(moduleName).get(masterName) == null)
+			return null;
+		else
+			return response.getMdmsRes().get(moduleName).get(masterName);
+	}
 
-    public Object fetchObject(String tenantId, String moduleName, String masterName, String filterField,
-                              String fieldValue, Class className) {
+	private String getTenantId(String tenantId, String moduleName) {
+		if (!moduleName.equalsIgnoreCase("common-masters")) {
+			tenantId = tenantId.split("\\.")[0];
+		}
+		return tenantId;
+	}
 
-        JSONArray responseJSONArray;
-        final ObjectMapper mapper = new ObjectMapper();
+	public Object fetchObject(String tenantId, String moduleName, String masterName, String filterField,
+			String fieldValue, Class className, RequestInfo requestInfo) {
 
-        responseJSONArray = getByCriteria(tenantId, moduleName,
-                masterName, filterField, fieldValue, new org.egov.assets.model.RequestInfo());
+		JSONArray responseJSONArray;
+		final ObjectMapper mapper = new ObjectMapper();
 
+		responseJSONArray = getByCriteria(tenantId, moduleName, masterName, filterField, fieldValue, requestInfo);
 
-        if (responseJSONArray != null && responseJSONArray.size() > 0)
-            return mapper.convertValue(responseJSONArray.get(0), className);
-        else
-            throw new CustomException(className.getSimpleName(), "Given " + className.getSimpleName().toString() + " is invalid: " + fieldValue);
+		if (responseJSONArray != null && responseJSONArray.size() > 0)
+			return mapper.convertValue(responseJSONArray.get(0), className);
+		else
+			throw new CustomException(className.getSimpleName(),
+					"Given " + className.getSimpleName().toString() + " is invalid: " + fieldValue);
 
-    }
+	}
 
-    public List<Object> fetchObjectList(String tenantId, String moduleName, String masterName, String filterField,
-                                        String fieldValue, Class className) {
-        List<Object> objectList = new ArrayList();
-        JSONArray responseJSONArray;
-        final ObjectMapper mapper = new ObjectMapper();
+	public List<Object> fetchObjectList(String tenantId, String moduleName, String masterName, String filterField,
+			String fieldValue, Class className, RequestInfo requestInfo) {
+		List<Object> objectList = new ArrayList();
+		JSONArray responseJSONArray;
+		final ObjectMapper mapper = new ObjectMapper();
 
-        responseJSONArray = getByCriteria(tenantId, moduleName,
-                masterName, filterField, fieldValue, new org.egov.assets.model.RequestInfo());
+		responseJSONArray = getByCriteria(tenantId, moduleName, masterName, filterField, fieldValue, requestInfo);
 
+		if (responseJSONArray != null && responseJSONArray.size() > 0) {
+			for (Object j : responseJSONArray) {
+				Object o = mapper.convertValue(j, className);
+				objectList.add(o);
+			}
+		} else {
+			throw new CustomException(className.getSimpleName(),
+					"Given " + className.getSimpleName().toString() + " is invalid: " + fieldValue);
+		}
+		return objectList;
 
-        if (responseJSONArray != null && responseJSONArray.size() > 0) {
-            for (Object j : responseJSONArray) {
-                Object o = mapper.convertValue(j, className);
-                objectList.add(o);
-            }
-        } else {
-            throw new CustomException(className.getSimpleName(), "Given " + className.getSimpleName().toString() + " is invalid: " + fieldValue);
-        }
-        return objectList;
+	}
 
-    }
-
-
-    public RequestInfo getRequestInfo(org.egov.assets.model.RequestInfo requestInfo) {
-        RequestInfo info = new RequestInfo();
-        return info.builder().action(requestInfo.getAction())
-                .apiId(requestInfo.getApiId())
-                .authToken(requestInfo.getAuthToken())
-                .correlationId(requestInfo.getCorrelationId())
-                .did(requestInfo.getDid())
-                .key(requestInfo.getKey())
-                .msgId(requestInfo.getMsgId())
-                .ts(requestInfo.getTs())
-                //.userInfo(requestInfo.getUserInfo())
-                .ver(requestInfo.getVer()).build();
-    }
+	/*
+	 * public RequestInfo getRequestInfo(RequestInfo requestInfo) { RequestInfo info
+	 * = new RequestInfo(); return
+	 * info.builder().action(requestInfo.getAction()).apiId(requestInfo.getApiId())
+	 * .authToken(requestInfo.getAuthToken()).correlationId(requestInfo.
+	 * getCorrelationId())
+	 * .did(requestInfo.getDid()).key(requestInfo.getKey()).msgId(requestInfo.
+	 * getMsgId()) .ts(requestInfo.getTs()) // .userInfo(requestInfo.getUserInfo())
+	 * .ver(requestInfo.getVer()).build(); }
+	 */
 }

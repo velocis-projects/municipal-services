@@ -1,28 +1,18 @@
 package org.egov.assets.model;
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import java.util.Objects;
 
-import org.egov.assets.model.Material;
-import org.egov.assets.model.PriceList;
-import org.egov.assets.model.PurchaseIndentDetail;
-import org.egov.assets.model.Uom;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * This object holds the purchase material information. 
  */
-@ApiModel(description = "This object holds the purchase material information. ")
-@javax.annotation.Generated(value = "org.egov.inv.codegen.languages.SpringCodegen", date = "2017-12-27T10:36:36.253Z")
-
 public class PurchaseOrderDetail   {
   @JsonProperty("id")
   private String id = null;
@@ -87,9 +77,7 @@ public class PurchaseOrderDetail   {
    * Unique Identifier of the Purchase Material 
    * @return id
   **/
-  @ApiModelProperty(value = "Unique Identifier of the Purchase Material ")
-
-
+  
   public String getId() {
     return id;
   }
@@ -107,9 +95,7 @@ public class PurchaseOrderDetail   {
    * Tenant id of the Purchase Material
    * @return tenantId
   **/
-  @ApiModelProperty(value = "Tenant id of the Purchase Material")
-
- @Size(min=4,max=128)
+   @Size(min=4,max=128)
   public String getTenantId() {
     return tenantId;
   }
@@ -127,7 +113,7 @@ public class PurchaseOrderDetail   {
    * Get material
    * @return material
   **/
-  @ApiModelProperty(required = true, value = "")
+  
   @NotNull
 
  
@@ -149,9 +135,7 @@ public class PurchaseOrderDetail   {
    * purchaseOrderNumber reference from purchase order 
    * @return purchaseOrderNumber
   **/
-  @ApiModelProperty(readOnly = true, value = "purchaseOrderNumber reference from purchase order ")
-
-
+  
   public String getPurchaseOrderNumber() {
     return purchaseOrderNumber;
   }
@@ -169,11 +153,7 @@ public class PurchaseOrderDetail   {
    * Order of items selected.
    * @return orderNumber
   **/
-  @ApiModelProperty(value = "Order of items selected.")
-
-   
-
-  public BigDecimal getOrderNumber() {
+    public BigDecimal getOrderNumber() {
     return orderNumber;
   }
 
@@ -190,11 +170,8 @@ public class PurchaseOrderDetail   {
    * Get uom
    * @return uom
   **/
-  @ApiModelProperty(required = true, value = "")
-  @NotNull
-
   
-
+  @NotNull
   public Uom getUom() {
     return uom;
   }
@@ -212,11 +189,7 @@ public class PurchaseOrderDetail   {
    * Get priceList
    * @return priceList
   **/
-  @ApiModelProperty(value = "")
-
-  
-
-  public PriceList getPriceList() {
+    public PriceList getPriceList() {
     return priceList;
   }
 
@@ -233,11 +206,8 @@ public class PurchaseOrderDetail   {
    * user orderd quantity of the PurchaseMaterial 
    * @return userQuantity
   **/
-  @ApiModelProperty(required = true, value = "user orderd quantity of the PurchaseMaterial ")
-  @NotNull
-
   
-
+  @NotNull
   public BigDecimal getUserQuantity() {
     return userQuantity;
   }
@@ -255,10 +225,7 @@ public class PurchaseOrderDetail   {
    * order quantity of the PurchaseMaterial in base uom  
    * @return orderQuantity
   **/
-  @ApiModelProperty(value = "order quantity of the PurchaseMaterial in base uom  ")
-
   
-
   public BigDecimal getOrderQuantity() {
     return orderQuantity;
   }
@@ -276,11 +243,7 @@ public class PurchaseOrderDetail   {
    * order quantity of the PurchaseMaterial 
    * @return receivedQuantity
   **/
-  @ApiModelProperty(value = "order quantity of the PurchaseMaterial ")
-
-  
-
-  public BigDecimal getReceivedQuantity() {
+    public BigDecimal getReceivedQuantity() {
     return receivedQuantity;
   }
 
@@ -297,11 +260,7 @@ public class PurchaseOrderDetail   {
    * order quantity of the PurchaseMaterial 
    * @return usedQuantity
   **/
-  @ApiModelProperty(value = "order quantity of the PurchaseMaterial ")
-
-  
-
-  public BigDecimal getUsedQuantity() {
+    public BigDecimal getUsedQuantity() {
     return usedQuantity;
   }
 
@@ -318,11 +277,8 @@ public class PurchaseOrderDetail   {
    * unit price of  PurchaseMaterial 
    * @return unitPrice
   **/
-  @ApiModelProperty(required = true, value = "unit price of  PurchaseMaterial ")
-  @NotNull
-
   
-
+  @NotNull
   public BigDecimal getUnitPrice() {
     return unitPrice;
   }
@@ -340,9 +296,7 @@ public class PurchaseOrderDetail   {
    * remarks of the Purchase material details 
    * @return description
   **/
-  @ApiModelProperty(value = "remarks of the Purchase material details ")
-
- @Size(max=512)
+   @Size(max=512)
   public String getDescription() {
     return description;
   }
@@ -360,9 +314,7 @@ public class PurchaseOrderDetail   {
    * temporary field used to show indent number. If multiple indent numbers used, then show multiple as string in this field. 
    * @return indentNumber
   **/
-  @ApiModelProperty(value = "temporary field used to show indent number. If multiple indent numbers used, then show multiple as string in this field. ")
-
- @Size(max=512)
+   @Size(max=512)
   public String getIndentNumber() {
     return indentNumber;
   }
@@ -380,10 +332,7 @@ public class PurchaseOrderDetail   {
    * temporary field used to show indent pending quantity to be used for purchase order. If multiple indent numbers used, then show total quantity by combining indent pending quantities. 
    * @return indentQuantity
   **/
-  @ApiModelProperty(value = "temporary field used to show indent pending quantity to be used for purchase order. If multiple indent numbers used, then show total quantity by combining indent pending quantities. ")
-
   
-
   public BigDecimal getIndentQuantity() {
     return indentQuantity;
   }
@@ -401,10 +350,7 @@ public class PurchaseOrderDetail   {
    * temporary field used to show tender quantity. If rate type is tender, then show tender quantity. 
    * @return tenderQuantity
   **/
-  @ApiModelProperty(value = "temporary field used to show tender quantity. If rate type is tender, then show tender quantity. ")
-
   
-
   public BigDecimal getTenderQuantity() {
     return tenderQuantity;
   }
@@ -422,10 +368,7 @@ public class PurchaseOrderDetail   {
    * temporary field used to show tender available quantity. If rate type is tender, then show tender quantity which are already used in purchase orders. 
    * @return tenderAvailableQuantity
   **/
-  @ApiModelProperty(value = "temporary field used to show tender available quantity. If rate type is tender, then show tender quantity which are already used in purchase orders. ")
-
   
-
   public BigDecimal getTenderAvailableQuantity() {
     return tenderAvailableQuantity;
   }
@@ -451,11 +394,7 @@ public class PurchaseOrderDetail   {
    * Get purchaseIndentDetails
    * @return purchaseIndentDetails
   **/
-  @ApiModelProperty(value = "")
-
-  
-
-  public List<PurchaseIndentDetail> getPurchaseIndentDetails() {
+    public List<PurchaseIndentDetail> getPurchaseIndentDetails() {
     return purchaseIndentDetails;
   }
 

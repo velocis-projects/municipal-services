@@ -1,13 +1,11 @@
 package org.egov.assets.service;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.egov.assets.model.IdGenerationRequest;
 import org.egov.assets.model.IdGenerationResponse;
 import org.egov.assets.model.IdRequest;
-import org.egov.assets.model.RequestInfo;
-import org.egov.tracer.http.LogAwareRestTemplate;
 import org.egov.tracer.model.CustomException;
 import org.egov.tracer.model.Error;
 import org.egov.tracer.model.ErrorRes;
@@ -16,9 +14,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 @Repository
 public class IdgenRepository {
@@ -32,7 +31,7 @@ public class IdgenRepository {
     private String createPath;
 
     @Autowired
-    private LogAwareRestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
     public String getIdGeneration(String tenantId, org.egov.common.contract.request.RequestInfo requestInfo, String name) {
 

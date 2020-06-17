@@ -6,10 +6,10 @@ import java.util.Objects;
 
 import javax.validation.Valid;
 
+import org.egov.common.contract.response.ResponseInfo;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -17,7 +17,6 @@ import lombok.NoArgsConstructor;
 /**
  * Contract class for material receipt inward web response. Array of MaterialReceipt items  are used in case of search ,create or update request.
  */
-@ApiModel(description = "Contract class for material receipt inward web response. Array of MaterialReceipt items  are used in case of search ,create or update request.")
 @javax.annotation.Generated(value = "org.egov.inv.codegen.languages.SpringCodegen", date = "2017-11-08T13:51:07.770Z")
 @Builder
 @AllArgsConstructor
@@ -41,9 +40,7 @@ public class TransferInwardResponse   {
    * Get responseInfo
    * @return responseInfo
   **/
-  @ApiModelProperty(value = "")
-
-  public ResponseInfo getResponseInfo() {
+    public ResponseInfo getResponseInfo() {
     return responseInfo;
   }
 
@@ -68,9 +65,7 @@ public class TransferInwardResponse   {
    * Used for search result and create only
    * @return transferInwards
   **/
-  @ApiModelProperty(value = "Used for search result and create only")
-
-  public List<MaterialReceipt> getTransferInwards() {
+    public List<MaterialReceipt> getTransferInwards() {
     return transferInwards;
   }
 
@@ -87,10 +82,7 @@ public class TransferInwardResponse   {
    * Get page
    * @return page
   **/
-  @ApiModelProperty(value = "")
-
-  @Valid
-
+    @Valid
   public Page getPage() {
     return page;
   }

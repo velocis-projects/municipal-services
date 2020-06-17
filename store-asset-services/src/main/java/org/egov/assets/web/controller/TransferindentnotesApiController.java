@@ -8,9 +8,9 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.egov.assets.model.RequestInfo;
 import org.egov.assets.model.TransferIndentNoteRequest;
 import org.egov.assets.model.TransferIndentNoteResponse;
+import org.egov.common.contract.request.RequestInfo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

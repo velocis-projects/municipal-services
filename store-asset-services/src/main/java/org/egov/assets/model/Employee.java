@@ -1,17 +1,17 @@
 package org.egov.assets.model;
 
 import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import org.springframework.validation.annotation.Validated;
+
 import javax.validation.Valid;
-import javax.validation.constraints.*;
+import javax.validation.constraints.Size;
+
+import org.springframework.validation.annotation.Validated;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * 
  */
-@ApiModel(description = "")
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-10-28T13:21:55.964+05:30")
 
@@ -41,7 +41,6 @@ public class Employee {
 	 * 
 	 * @return id
 	 **/
-	@ApiModelProperty(value = "Unique Identifier of the Employee ")
 
 	public String getId() {
 		return id;
@@ -61,7 +60,6 @@ public class Employee {
 	 * 
 	 * @return tenantId
 	 **/
-	@ApiModelProperty(value = "Tenant id of the Transfer Indent Note")
 
 	@Size(min = 4, max = 128)
 	public String getTenantId() {
@@ -82,7 +80,6 @@ public class Employee {
 	 * 
 	 * @return code
 	 **/
-	@ApiModelProperty(value = "code of the Employee ")
 
 	public String getCode() {
 		return code;
@@ -102,7 +99,6 @@ public class Employee {
 	 * 
 	 * @return name
 	 **/
-	@ApiModelProperty(value = "name of the Employee ")
 
 	public String getName() {
 		return name;
@@ -122,7 +118,6 @@ public class Employee {
 	 * 
 	 * @return auditDetails
 	 **/
-	@ApiModelProperty(value = "")
 
 	@Valid
 
@@ -143,10 +138,8 @@ public class Employee {
 			return false;
 		}
 		Employee employee = (Employee) o;
-		return Objects.equals(this.id, employee.id)
-				&& Objects.equals(this.tenantId, employee.tenantId)
-				&& Objects.equals(this.code, employee.code)
-				&& Objects.equals(this.name, employee.name)
+		return Objects.equals(this.id, employee.id) && Objects.equals(this.tenantId, employee.tenantId)
+				&& Objects.equals(this.code, employee.code) && Objects.equals(this.name, employee.name)
 				&& Objects.equals(this.auditDetails, employee.auditDetails);
 	}
 
@@ -161,12 +154,10 @@ public class Employee {
 		sb.append("class Employee {\n");
 
 		sb.append("    id: ").append(toIndentedString(id)).append("\n");
-		sb.append("    tenantId: ").append(toIndentedString(tenantId))
-				.append("\n");
+		sb.append("    tenantId: ").append(toIndentedString(tenantId)).append("\n");
 		sb.append("    code: ").append(toIndentedString(code)).append("\n");
 		sb.append("    name: ").append(toIndentedString(name)).append("\n");
-		sb.append("    auditDetails: ").append(toIndentedString(auditDetails))
-				.append("\n");
+		sb.append("    auditDetails: ").append(toIndentedString(auditDetails)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

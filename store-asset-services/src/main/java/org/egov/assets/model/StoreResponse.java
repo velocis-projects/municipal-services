@@ -1,29 +1,24 @@
 package org.egov.assets.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+
+import javax.validation.Valid;
+
+import org.egov.common.contract.response.ResponseInfo;
+import org.springframework.validation.annotation.Validated;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-
-
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
-
 /**
  * Contract class for web response. Array of Store items  are used in case of search ,create or update request.
  */
-@ApiModel(description = "Contract class for web response. Array of Store items  are used in case of search ,create or update request.")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-10-28T13:21:55.964+05:30")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -47,9 +42,7 @@ public class StoreResponse   {
    * Get responseInfo
    * @return responseInfo
   **/
-  @ApiModelProperty(value = "")
-
-  @Valid
+    @Valid
 
   public ResponseInfo getResponseInfo() {
     return responseInfo;
@@ -76,9 +69,7 @@ public class StoreResponse   {
    * Used for search result and create only
    * @return stores
   **/
-  @ApiModelProperty(value = "Used for search result and create only")
-
-  @Valid
+    @Valid
 
   public List<Store> getStores() {
     return stores;
@@ -97,9 +88,7 @@ public class StoreResponse   {
    * Get page
    * @return page
   **/
-  @ApiModelProperty(value = "")
-
-  @Valid
+    @Valid
 
   public Page getPage() {
     return page;

@@ -7,8 +7,8 @@ import org.egov.assets.common.exception.ErrorCode;
 import org.egov.assets.common.exception.InvalidDataException;
 import org.egov.assets.model.Error;
 import org.egov.assets.model.ErrorRes;
-import org.egov.assets.model.ResponseInfo;
-import org.egov.assets.model.ResponseInfo.StatusEnum;
+import org.egov.assets.model.StatusNums.StatusEnum;
+import org.egov.common.contract.response.ResponseInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -32,15 +32,12 @@ public class CustomControllerAdvice {
 		return ex.getMessage();
 	}
 
- 
-
-
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(InvalidDataException.class)
-	public ErrorRes  handleBindingErrors(InvalidDataException ex) {
+	public ErrorRes handleBindingErrors(InvalidDataException ex) {
 		ErrorRes errRes = new ErrorRes();
 		ResponseInfo responseInfo = new ResponseInfo();
-		responseInfo.setStatus(StatusEnum.FAILED);
+		responseInfo.setStatus(StatusEnum.FAILED.toString());
 		errRes.setResponseInfo(responseInfo);
 		errRes.setErrors(ex.getValidationErrors());
 		return errRes;
@@ -48,14 +45,13 @@ public class CustomControllerAdvice {
 
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	@ExceptionHandler(org.apache.kafka.common.errors.TimeoutException.class)
-	public  ErrorRes  handleThrowable(
-			org.apache.kafka.common.errors.TimeoutException ex) {
+	public ErrorRes handleThrowable(org.apache.kafka.common.errors.TimeoutException ex) {
 		ErrorRes errRes = new ErrorRes();
 		ex.printStackTrace();
 		ResponseInfo responseInfo = new ResponseInfo();
-		responseInfo.setStatus(StatusEnum.FAILED);
+		responseInfo.setStatus(StatusEnum.FAILED.toString());
 		errRes.setResponseInfo(responseInfo);
-		Error error = new  Error();
+		Error error = new Error();
 
 		error.setCode(ErrorCode.KAFKA_TIMEOUT_ERROR.getCode());
 		error.setMessage(ErrorCode.KAFKA_TIMEOUT_ERROR.getMessage());
@@ -65,31 +61,25 @@ public class CustomControllerAdvice {
 		errRes.setErrors(errors);
 		return errRes;
 	}
-	
-	/*@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-	@ExceptionHandler(Exception.class)
-	public ErrorRes handleServerError(Exception ex) {
-		ex.printStackTrace();
-		ErrorRes errRes = new ErrorRes();
-		ex.printStackTrace();
-		ResponseInfo responseInfo = new ResponseInfo();
-		responseInfo.setStatus(StatusEnum.FAILED);
-		errRes.setResponseInfo(responseInfo);
-		Error error = new  Error();
-		error.setCode(ErrorCode.INTERNAL_SERVER_ERROR.getCode());
-		error.setMessage(ErrorCode.INTERNAL_SERVER_ERROR.getDescription());
-		error.setDescription(ex.getMessage());
-		List<Error> errors = new ArrayList<>();
-		errors.add(error);
-		errRes.setErrors(errors);
-		return errRes;
 
-	  
-	 
-	}*/
-	
-	
-	
+	/*
+	 * @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	 * 
+	 * @ExceptionHandler(Exception.class) public ErrorRes
+	 * handleServerError(Exception ex) { ex.printStackTrace(); ErrorRes errRes = new
+	 * ErrorRes(); ex.printStackTrace(); ResponseInfo responseInfo = new
+	 * ResponseInfo(); responseInfo.setStatus(StatusEnum.FAILED);
+	 * errRes.setResponseInfo(responseInfo); Error error = new Error();
+	 * error.setCode(ErrorCode.INTERNAL_SERVER_ERROR.getCode());
+	 * error.setMessage(ErrorCode.INTERNAL_SERVER_ERROR.getDescription());
+	 * error.setDescription(ex.getMessage()); List<Error> errors = new
+	 * ArrayList<>(); errors.add(error); errRes.setErrors(errors); return errRes;
+	 * 
+	 * 
+	 * 
+	 * }
+	 */
+
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	@ExceptionHandler(NullPointerException.class)
 	public ErrorRes handleServerError(NullPointerException ex) {
@@ -97,9 +87,9 @@ public class CustomControllerAdvice {
 		ErrorRes errRes = new ErrorRes();
 		ex.printStackTrace();
 		ResponseInfo responseInfo = new ResponseInfo();
-		responseInfo.setStatus(StatusEnum.FAILED);
+		responseInfo.setStatus(StatusEnum.FAILED.toString());
 		errRes.setResponseInfo(responseInfo);
-		Error error = new  Error();
+		Error error = new Error();
 		error.setCode(ErrorCode.NULL_POINTER_ERROR.getCode());
 		error.setMessage(ErrorCode.NULL_POINTER_ERROR.getMessage());
 		error.setDescription(ErrorCode.NULL_POINTER_ERROR.getDescription());
@@ -108,17 +98,17 @@ public class CustomControllerAdvice {
 		errRes.setErrors(errors);
 		return errRes;
 	}
-	 
+
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-	@ExceptionHandler(InvalidDataAccessApiUsageException.class )
+	@ExceptionHandler(InvalidDataAccessApiUsageException.class)
 	public ErrorRes handleServerError(InvalidDataAccessApiUsageException ex) {
 		ex.printStackTrace();
 		ErrorRes errRes = new ErrorRes();
 		ex.printStackTrace();
 		ResponseInfo responseInfo = new ResponseInfo();
-		responseInfo.setStatus(StatusEnum.FAILED);
+		responseInfo.setStatus(StatusEnum.FAILED.toString());
 		errRes.setResponseInfo(responseInfo);
-		Error error = new  Error();
+		Error error = new Error();
 		error.setCode(ErrorCode.SQL_ERROR.getCode());
 		error.setMessage(ErrorCode.SQL_ERROR.getMessage());
 		error.setDescription(ErrorCode.SQL_ERROR.getDescription());
@@ -127,20 +117,18 @@ public class CustomControllerAdvice {
 		errRes.setErrors(errors);
 		return errRes;
 
-	  
-	 
 	}
 
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-	@ExceptionHandler(BadSqlGrammarException.class )
+	@ExceptionHandler(BadSqlGrammarException.class)
 	public ErrorRes handleServerError(BadSqlGrammarException ex) {
 		ex.printStackTrace();
 		ErrorRes errRes = new ErrorRes();
 		ex.printStackTrace();
 		ResponseInfo responseInfo = new ResponseInfo();
-		responseInfo.setStatus(StatusEnum.FAILED);
+		responseInfo.setStatus(StatusEnum.FAILED.toString());
 		errRes.setResponseInfo(responseInfo);
-		Error error = new  Error();
+		Error error = new Error();
 		error.setCode(ErrorCode.SQL_ERROR.getCode());
 		error.setMessage(ErrorCode.SQL_ERROR.getMessage());
 		error.setDescription(ErrorCode.SQL_ERROR.getDescription());
@@ -149,44 +137,33 @@ public class CustomControllerAdvice {
 		errRes.setErrors(errors);
 		return errRes;
 
-	  
-	 
 	}
 
-/*	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-	@ExceptionHandler(Throwable.class)
-	public ErrorRes  handleThrowable(Exception ex) {
-		ErrorRes errRes = new ErrorRes();
-		ex.printStackTrace();
-		ResponseInfo responseInfo = new ResponseInfo();
-		responseInfo.setStatus(StatusEnum.FAILED);
-		errRes.setResponseInfo(responseInfo);
-		Error error = new Error();
-
-		error.setCode(500);
-		error.setMessage("Internal Server Error");
-		error.setDescription(ex.getMessage());
-		return errRes;
-	}
-
-	
-
-	@ResponseStatus(HttpStatus.UNAUTHORIZED)
-	@ExceptionHandler(UnauthorizedAccessException.class)
-	public ErrorResponse handleAuthenticationError(UnauthorizedAccessException ex) {
-		ex.printStackTrace();
-		ErrorResponse errRes = new ErrorResponse();
-
-		ResponseInfo responseInfo = new ResponseInfo();
-		responseInfo.setStatus(HttpStatus.UNAUTHORIZED.toString());
-		errRes.setResponseInfo(responseInfo);
-		Error error = new Error();
-
-		error.setCode(404);
-		error.setMessage("Un Authorized Access");
-		error.setDescription(ex.getMessage());
-		errRes.setError(error);
-		return errRes;
-	}
-*/
+	/*
+	 * @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	 * 
+	 * @ExceptionHandler(Throwable.class) public ErrorRes handleThrowable(Exception
+	 * ex) { ErrorRes errRes = new ErrorRes(); ex.printStackTrace(); ResponseInfo
+	 * responseInfo = new ResponseInfo(); responseInfo.setStatus(StatusEnum.FAILED);
+	 * errRes.setResponseInfo(responseInfo); Error error = new Error();
+	 * 
+	 * error.setCode(500); error.setMessage("Internal Server Error");
+	 * error.setDescription(ex.getMessage()); return errRes; }
+	 * 
+	 * 
+	 * 
+	 * @ResponseStatus(HttpStatus.UNAUTHORIZED)
+	 * 
+	 * @ExceptionHandler(UnauthorizedAccessException.class) public ErrorResponse
+	 * handleAuthenticationError(UnauthorizedAccessException ex) {
+	 * ex.printStackTrace(); ErrorResponse errRes = new ErrorResponse();
+	 * 
+	 * ResponseInfo responseInfo = new ResponseInfo();
+	 * responseInfo.setStatus(HttpStatus.UNAUTHORIZED.toString());
+	 * errRes.setResponseInfo(responseInfo); Error error = new Error();
+	 * 
+	 * error.setCode(404); error.setMessage("Un Authorized Access");
+	 * error.setDescription(ex.getMessage()); errRes.setError(error); return errRes;
+	 * }
+	 */
 }

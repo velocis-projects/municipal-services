@@ -11,15 +11,10 @@ import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-
 /**
  * This object holds the materail issue detail information for both indent and
  * non indent.
  */
-@ApiModel(description = "This object holds the materail issue detail information for both indent and non indent. ")
-@javax.annotation.Generated(value = "org.egov.inv.codegen.languages.SpringCodegen", date = "2017-12-27T10:36:36.253Z")
 
 public class MaterialIssueDetail {
 	@JsonProperty("id")
@@ -39,7 +34,7 @@ public class MaterialIssueDetail {
 
 	@JsonProperty("quantityIssued")
 	private BigDecimal quantityIssued = null;
-	
+
 	@JsonProperty("balanceQuantity")
 	private BigDecimal balanceQuantity = null;
 
@@ -83,8 +78,6 @@ public class MaterialIssueDetail {
 	 * 
 	 * @return id
 	 **/
-	@ApiModelProperty(value = "Unique Identifier of the Material Issue Details ")
-
 	public String getId() {
 		return id;
 	}
@@ -103,7 +96,7 @@ public class MaterialIssueDetail {
 	 * 
 	 * @return tenantId
 	 **/
-	@ApiModelProperty(required = true, value = "Tenant id of the Material Issue Details")
+
 	@NotNull
 
 	@Size(min = 4, max = 128)
@@ -125,8 +118,8 @@ public class MaterialIssueDetail {
 	 * 
 	 * @return material
 	 **/
-	@ApiModelProperty(required = true, value = "Applicable for Non Indent Issue. ")
-    @NotNull
+
+	@NotNull
 
 	public Material getMaterial() {
 		return material;
@@ -146,8 +139,6 @@ public class MaterialIssueDetail {
 	 * 
 	 * @return orderNumber
 	 **/
-	@ApiModelProperty(value = "Order of items issued.")
-
 	public BigDecimal getOrderNumber() {
 		return orderNumber;
 	}
@@ -171,9 +162,6 @@ public class MaterialIssueDetail {
 	 * 
 	 * @return pendingIndentQuantity
 	 **/
-	@ApiModelProperty(value = "Pending Indent Quantity. ")
-	
-
 	public BigDecimal getPendingIndentQuantity() {
 		return pendingIndentQuantity;
 	}
@@ -187,8 +175,6 @@ public class MaterialIssueDetail {
 	 * 
 	 * @return userQuantityIssued
 	 **/
-	@ApiModelProperty(value = "Quantity issued of the Material Issue Detail. ")
-
 	@Valid
 
 	public BigDecimal getUserQuantityIssued() {
@@ -209,9 +195,6 @@ public class MaterialIssueDetail {
 	 * 
 	 * @return quantityIssued
 	 **/
-	@ApiModelProperty(required = true, value = "Quantity issued of the Material Issue Detail in Base UOM ")
-
-
 	public BigDecimal getQuantityIssued() {
 		return quantityIssued;
 	}
@@ -219,7 +202,7 @@ public class MaterialIssueDetail {
 	public void setQuantityIssued(BigDecimal quantityIssued) {
 		this.quantityIssued = quantityIssued;
 	}
-	
+
 	public MaterialIssueDetail balanceQuantity(BigDecimal balanceQuantity) {
 		this.balanceQuantity = balanceQuantity;
 		return this;
@@ -230,9 +213,6 @@ public class MaterialIssueDetail {
 	 * 
 	 * @return balanceQuantity
 	 **/
-	@ApiModelProperty(required = true, value = "Quantity issued of the Material Issue Detail in Base UOM ")
-
-
 	public BigDecimal getBalanceQuantity() {
 		return balanceQuantity;
 	}
@@ -240,7 +220,6 @@ public class MaterialIssueDetail {
 	public void setBalanceQuantity(BigDecimal balanceQuantity) {
 		this.balanceQuantity = balanceQuantity;
 	}
-
 
 	public MaterialIssueDetail value(BigDecimal value) {
 		this.value = value;
@@ -252,9 +231,6 @@ public class MaterialIssueDetail {
 	 * 
 	 * @return value
 	 **/
-	@ApiModelProperty(required = true, value = "Total value of issued material.   Send value 0 if price not defined. ")
-
-
 	public BigDecimal getValue() {
 		return value;
 	}
@@ -273,9 +249,8 @@ public class MaterialIssueDetail {
 	 * 
 	 * @return uom
 	 **/
-	@ApiModelProperty(required = true, value = "unit of measure of selected material.")
-	@NotNull
 
+	@NotNull
 	public Uom getUom() {
 		return uom;
 	}
@@ -294,8 +269,6 @@ public class MaterialIssueDetail {
 	 * 
 	 * @return voucherHeader
 	 **/
-	@ApiModelProperty(value = "financial voucher passed id map")
-
 	public String getVoucherHeader() {
 		return voucherHeader;
 	}
@@ -315,8 +288,6 @@ public class MaterialIssueDetail {
 	 * 
 	 * @return indentDetail
 	 **/
-	@ApiModelProperty(value = "Applicable for Indent Issue. Balance quantity to be issued of the IndentDetails. Mandatory in case of indent issue.")
-
 	public IndentDetail getIndentDetail() {
 		return indentDetail;
 	}
@@ -335,10 +306,7 @@ public class MaterialIssueDetail {
 	 * 
 	 * @return scrapedQuantity
 	 **/
-	@ApiModelProperty(value = "Quantity utilized in scrap creation ")
-
 	@Valid
-
 	public BigDecimal getScrapedQuantity() {
 		return scrapedQuantity;
 	}
@@ -357,8 +325,6 @@ public class MaterialIssueDetail {
 	 * 
 	 * @return scrapValue
 	 **/
-	@ApiModelProperty(value = "If item writeoffed or scrapped, then define the scrap value. ")
-
 	public BigDecimal getScrapValue() {
 		return scrapValue;
 	}
@@ -377,8 +343,6 @@ public class MaterialIssueDetail {
 	 * 
 	 * @return mrnNumber
 	 **/
-	@ApiModelProperty(value = "Receipt number reference. ")
-
 	@Size(max = 100)
 	public String getMrnNumber() {
 		return mrnNumber;
@@ -398,8 +362,6 @@ public class MaterialIssueDetail {
 	 * 
 	 * @return description
 	 **/
-	@ApiModelProperty(value = "description of the Material Issue Detail. ")
-
 	@Size(max = 512)
 	public String getDescription() {
 		return description;
@@ -428,8 +390,6 @@ public class MaterialIssueDetail {
 	 * 
 	 * @return materialIssuedFromReceipts
 	 **/
-	@ApiModelProperty(value = "List of materials issued from receipt detail")
-
 	public List<MaterialIssuedFromReceipt> getMaterialIssuedFromReceipts() {
 		return materialIssuedFromReceipts;
 	}
@@ -468,8 +428,8 @@ public class MaterialIssueDetail {
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, tenantId, material, orderNumber, userQuantityIssued, quantityIssued, balanceQuantity,
-				value, uom, voucherHeader, indentDetail, scrapedQuantity, scrapValue, mrnNumber,
-				description, materialIssuedFromReceipts);
+				value, uom, voucherHeader, indentDetail, scrapedQuantity, scrapValue, mrnNumber, description,
+				materialIssuedFromReceipts);
 	}
 
 	@Override

@@ -1,23 +1,18 @@
 package org.egov.assets.model;
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-
 import java.util.ArrayList;
 import java.util.List;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import java.util.Objects;
 
-import org.egov.assets.model.MaterialReceipt;
-import org.egov.assets.model.RequestInfo;
+import javax.validation.constraints.NotNull;
+
+import org.egov.common.contract.request.RequestInfo;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Contract class for material receipt inward request. Array of MaterialReceipt items  are used in case of create or update
  */
-@ApiModel(description = "Contract class for material receipt inward request. Array of MaterialReceipt items  are used in case of create or update")
 @javax.annotation.Generated(value = "org.egov.inv.codegen.languages.SpringCodegen", date = "2017-11-08T13:51:07.770Z")
 
 public class TransferInwardRequest   {
@@ -36,9 +31,7 @@ public class TransferInwardRequest   {
    * Get requestInfo
    * @return requestInfo
   **/
-  @ApiModelProperty(required = true, value = "")
   @NotNull
-
   public RequestInfo getRequestInfo() {
     return requestInfo;
   }
@@ -61,7 +54,6 @@ public class TransferInwardRequest   {
    * Used for search result and create only
    * @return transferInwards
   **/
-  @ApiModelProperty(required = true, value = "Used for search result and create only")
   @NotNull
 
   public List<MaterialReceipt> getTransferInwards() {

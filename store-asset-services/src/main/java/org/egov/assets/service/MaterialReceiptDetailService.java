@@ -1,15 +1,20 @@
 package org.egov.assets.service;
 
-import org.egov.assets.common.DomainService;
-import org.egov.assets.common.Pagination;
-import org.egov.assets.model.*;
-import org.egov.assets.repository.MaterialReceiptDetailJdbcRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+
+import org.egov.assets.common.DomainService;
+import org.egov.assets.common.Pagination;
+import org.egov.assets.model.MaterialReceiptAddInfoSearch;
+import org.egov.assets.model.MaterialReceiptDetail;
+import org.egov.assets.model.MaterialReceiptDetailAddnlinfo;
+import org.egov.assets.model.MaterialReceiptDetailSearch;
+import org.egov.assets.model.Uom;
+import org.egov.assets.repository.MaterialReceiptDetailJdbcRepository;
+import org.egov.common.contract.request.RequestInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class MaterialReceiptDetailService extends DomainService {
