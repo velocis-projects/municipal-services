@@ -41,7 +41,12 @@ public class MDMSService {
 		this.config = config;
 		this.restTemplate = restTemplate;
 	}
-
+	
+	/**
+	 * Get mdms criteria request 
+	 * @param Requestinfo and tenant id
+	 * @return Mdms criteria request 
+	 */
 	private MdmsCriteriaReq getMDMSRequest(RequestInfo requestInfo, String tenantId) {
 
 		List<MasterDetail> fyMasterDetails = new ArrayList<>();
@@ -57,8 +62,14 @@ public class MDMSService {
 		return MdmsCriteriaReq.builder().requestInfo(requestInfo).mdmsCriteria(mdmsCriteria).build();
 	}
 
+	/**
+	 * Get notification template from mdms 
+	 * @param RequestInfo and template
+	 * @return Notification template
+	 */
 	public NotificationTemplate getTemplate(RequestInfo requestInfo, Template template) {
-		Object mdmsData = mDMSCall(requestInfo, template.getTenantId());
+		String tenantId=template.getTenantId();
+		Object mdmsData = mDMSCall(requestInfo, tenantId.split("\\.")[0]);
 
 		HashMap<String, Object> calculationType = new HashMap<>();
 		try {
@@ -100,13 +111,22 @@ public class MDMSService {
 
 		return NotificationTemplate.builder().build();
 	}
-
+	/**
+	 * Get result from mdms 
+	 * @param RequestInfo and tenantId
+	 * @return Mdms reponse data 
+	 */
 	public Object mDMSCall(RequestInfo requestInfo, String tenantId) {
 		MdmsCriteriaReq mdmsCriteriaReq = getMDMSRequest(requestInfo, tenantId);
 		StringBuilder url = getMdmsSearchUrl();
 		return fetchResult(url, mdmsCriteriaReq);
 	}
 
+	/**
+	 * Get result from mdms 
+	 * @param Request and uri
+	 * @return Mdms reponse data 
+	 */
 	public Object fetchResult(StringBuilder uri, Object request) {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);

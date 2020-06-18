@@ -35,17 +35,30 @@ public class EventPressMasterRepository {
 		this.config = config;
 		this.pressMasterRowMapper = pressMasterRowMapper;
 	}
-
+	/**
+     * Pushes the request on save topic
+     *
+     * @param PressMaster to create press master 
+     */
 	public void createPress(PressMaster pressMaster) {
 		RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(pressMaster).build();
 		producer.push(config.getPressMasterSaveTopic(), infoWrapper);
 	}
 
+	/**
+     * Pushes the request on update topic
+     *
+     * @param PressMaster to update press master 
+     */
 	public void updatePress(PressMaster pressMaster) {
 		RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(pressMaster).build();
 		producer.push(config.getPressMasterUpdateTopic(), infoWrapper);
 	}
 
+	/**
+     * Searches press master in database 
+     * @param PressMaster object
+     */
 	public List<PressMaster> getPress(PressMaster pressMaster) {
 		LocalDate today = LocalDate.now();
 		LocalDate periodDate = today.minusDays(Integer.parseInt(config.getPeriodTenderNotice()));
@@ -59,7 +72,11 @@ public class EventPressMasterRepository {
 						periodDays, periodDays },
 				pressMasterRowMapper);
 	}
-
+	/**
+     * Pushes the request on delete topic
+     *
+     * @param PressMaster to delete press master 
+     */
 	public void deletePress(PressMaster pressMaster) {
 		RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(pressMaster).build();
 		producer.push(config.getPressMasterDeleteTopic(), infoWrapper);

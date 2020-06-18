@@ -21,6 +21,9 @@ import lombok.ToString;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+/**
+ * A Object holds the basic data for a event
+ */
 @ToString
 public class EventDetail {
 

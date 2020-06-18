@@ -48,7 +48,11 @@ public class TenderNoticePublicationService {
 		this.deviceSource = deviceSource;
 		this.idgen = idgen;
 	}
-
+	/**
+	 * Creates Tender for the given criteria
+	 * @param requestInfoWrapper to create tender 
+	 * @return Tender Response
+	 */
 	public ResponseEntity<ResponseInfoWrapper> createTender(RequestInfoWrapper requestInfoWrapper,
 			String requestHeader) {
 		try {
@@ -68,7 +72,7 @@ public class TenderNoticePublicationService {
 			String tenderNoticeUuid = UUID.randomUUID().toString();
 			tenderNotice.setTenderNoticeUuid(tenderNoticeUuid);
 			tenderNotice.setTenderDocumentList(tenderNotice.getTenderDocument().toJSONString());
-
+    //Idgen service call to generate tender id
 			IdGenerationResponse id = idgenrepository.getId(requestInfoWrapper.getRequestInfo(),
 					tenderNotice.getTenantId(), config.getAppTenderNoticeNumberIdgenName(),
 					config.getAppTenderNoticeNumberIdgenFormat(), 1);
@@ -76,7 +80,7 @@ public class TenderNoticePublicationService {
 				tenderNotice.setTenderNoticeId(id.getIdResponses().get(0).getId());
 			else
 				throw new CustomException(CommonConstants.TENDERNOTICE_EXCEPTION_CODE, CommonConstants.ID_GENERATION);
-
+    //workflow service call to integrate tender workflow
 			workflowIntegration(requestInfoWrapper, tenderNotice);
 			repository.createTender(tenderNotice);
 
@@ -90,6 +94,11 @@ public class TenderNoticePublicationService {
 		}
 	}
 
+	/**
+	 * Update Tender for the given criteria
+	 * @param requestInfoWrapper to update tender 
+	 * @return Tender Response
+	 */
 	public ResponseEntity<ResponseInfoWrapper> updateTender(RequestInfoWrapper requestInfoWrapper) {
 
 		try {
@@ -109,7 +118,11 @@ public class TenderNoticePublicationService {
 			throw new CustomException(CommonConstants.TENDERNOTICE_EXCEPTION_CODE, e.getMessage());
 		}
 	}
-
+	/**
+	 * Get Tender for the given criteria
+	 * @param requestInfoWrapper to get tender 
+	 * @return Tender Response
+	 */
 	public ResponseEntity<ResponseInfoWrapper> getTender(RequestInfoWrapper requestInfoWrapper) {
 		try {
 			TenderNotice tenderNotice = objectMapper.convertValue(requestInfoWrapper.getRequestBody(),
@@ -125,6 +138,11 @@ public class TenderNoticePublicationService {
 		}
 	}
 
+	/**
+	 * Publish Tender for the given criteria
+	 * @param requestInfoWrapper to publish tender 
+	 * @return Tender Response
+	 */
 	public ResponseEntity<ResponseInfoWrapper> publish(RequestInfoWrapper requestInfoWrapper) {
 		try {
 			TenderNotice tenderNotice = objectMapper.convertValue(requestInfoWrapper.getRequestBody(),
@@ -134,6 +152,7 @@ public class TenderNoticePublicationService {
 			if (!existingPress.isEmpty() && existingPress.size() == 1) {
 				TenderNotice tenderExisting = existingPress.get(0);
 				repository.isValidTenderUuid(tenderNotice);
+				//workflow service call to integrate tender workflow
 				workflowIntegration(requestInfoWrapper, tenderNotice);
 
 				String notificationTemplateUuid = UUID.randomUUID().toString();
@@ -175,6 +194,15 @@ public class TenderNoticePublicationService {
 		}
 	}
 
+	/**
+	 * Method to integrate with workflow
+	 *
+	 * takes the tender request as parameter constructs the work-flow request
+	 *
+	 * and sets the resultant status from wf-response back to tender object
+	 *
+	 * @param tenderNotice
+	 */
 	private void workflowIntegration(RequestInfoWrapper requestInfoWrapper, TenderNotice tenderNotice) {
 		try {
 			ProcessInstanceRequest workflowRequest = new ProcessInstanceRequest();

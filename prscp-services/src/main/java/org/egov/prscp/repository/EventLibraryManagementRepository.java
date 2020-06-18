@@ -39,7 +39,11 @@ public class EventLibraryManagementRepository {
 		this.producer = producer;
 		this.config = config;
 	}
-
+	/**
+     * Pushes the request on library upload topic
+     *
+     * @param Library Object to upload Library
+     */
 	public List<Library> uploadLibrary(Library library) {
 		List<Library> libs = new ArrayList<>();
 
@@ -64,6 +68,10 @@ public class EventLibraryManagementRepository {
 		return libs;
 	}
 
+	/**
+     * Searches library uuid in database 
+     * @param Library object
+     */
 	public List<Library> getLibrary(Library library) {
 		return jdbcTemplate.query(
 				PrQueryBuilder.GET_LIBRARY_QUERY, new Object[] { library.getEventDetailUuid(),
@@ -71,15 +79,29 @@ public class EventLibraryManagementRepository {
 				libraryrowMapper);
 	}
 
+	/**
+     * Pushes the request on delete topic
+     *
+     * @param Library Object to delete Library
+     */
 	public void deleteLibrary(Library library) {
 		RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(library).build();
 		producer.push(config.getLibraryDeletTopic(), infoWrapper);
 	}
-
+	
+	/**
+     * Pushes the request on send invitation topic
+     *
+     * @param notificationReceiver to send Library upload notification
+     */
 	public void sendUploadNotification(Library library) {
 		producer.push(config.getUploadLibraryNotification(), library);
 	}
 
+	/**
+     * Searches event uuid in database 
+     * @param Library object
+     */
 	public Integer checkEventUuid(Library library) {
 		return jdbcTemplate.queryForObject(PrQueryBuilder.CHECK_EVEVT_UUID,
 				new Object[] { library.getEventDetailUuid(), library.getModuleCode(), library.getTenantId() },

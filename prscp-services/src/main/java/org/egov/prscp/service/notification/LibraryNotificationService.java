@@ -59,7 +59,11 @@ public class LibraryNotificationService {
 		this.mdmsService = mdmsService;
 		this.userUtil = userUtil;
 	}
-
+	/**
+	 * Send notification for event library upload  
+	 * @param notificationreceiver to send notification 
+	 * @return email and sms notification
+	 */
 	public void sendLibraryUploadNotificaiton(Library library) {
 		log.info("Started : Send Notification sendLibraryUploadNotificaiton(): " + library.toString());
 		try {

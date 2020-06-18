@@ -33,6 +33,12 @@ public class EventLibraryManagementService {
 		this.deviceSource = deviceSource;
 	}
 
+	
+	/**
+	 * Upload Library for the given criteria
+	 * @param requestInfoWrapper to upload Library
+	 * @return Library Response
+	 */
 	public ResponseEntity<ResponseInfoWrapper> uploadLibrary(RequestInfoWrapper requestInfoWrapper,
 			String requestHeader) {
 		try {
@@ -63,6 +69,11 @@ public class EventLibraryManagementService {
 		}
 	}
 
+	/**
+	 * Get Library for the given criteria
+	 * @param requestInfoWrapper to get Library
+	 * @return Library Response
+	 */
 	public ResponseEntity<ResponseInfoWrapper> getLibrary(RequestInfoWrapper requestInfoWrapper) {
 		try {
 			int count = 0;
@@ -81,6 +92,11 @@ public class EventLibraryManagementService {
 		}
 	}
 
+	/**
+	 * Delete Library for the given criteria
+	 * @param requestInfoWrapper to Delete Library
+	 * @return Library Response
+	 */
 	public ResponseEntity<ResponseInfoWrapper> deleteLibrary(RequestInfoWrapper requestInfoWrapper) {
 		try {
 			int count = 0;

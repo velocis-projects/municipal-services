@@ -54,7 +54,7 @@ public class PublicRelationEvent {
 	private Long validTo = null;
 
 	/**
-	 * 1. Perform action to change the state of the trade license. 2. INITIATE, if
+	 * 1. Perform action to change the state of the prscp services. 2. INITIATE, if
 	 * application is getting submitted without required document. 3. APPLY, if
 	 * application is getting submitted with application documents, in that case api
 	 * will validate all the required application document. 4. APPROVE action is

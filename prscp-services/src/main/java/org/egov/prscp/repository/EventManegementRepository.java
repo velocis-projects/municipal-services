@@ -42,6 +42,13 @@ public class EventManegementRepository {
 		this.producer = producer;
 		this.config = config;
 	}
+	
+	
+	/**
+     * Searches event for given eventuuid in database
+     * @param event object
+     * @return List of event from search
+     */
 
 	public List<EventDetail> getEvent(EventDetail eventDetail) {
 
@@ -72,6 +79,12 @@ public class EventManegementRepository {
 		return jdbcTemplate.query(PrQueryBuilder.Event_QUERY, preparedStmtList.toArray(), eventRowMapper);
 	}
 
+	/**
+     * sends reminder invitation
+     * @param status
+     * @return List of event details
+     */
+
 	public List<EventDetail> getEventReminder(String status) {
 		List<Object> preparedStmtList = new ArrayList<>();
 		preparedStmtList.add(status);
@@ -79,24 +92,47 @@ public class EventManegementRepository {
 				eventRowMapper);
 	}
 
+	
+	/**
+     * Pushes the request on save topic
+     *
+     * @param JSONObject to create event
+     */
 	public void createEvent(EventDetail eventDetail) {
 		RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(eventDetail).build();
 		producer.push(config.getSaveEventTopic(), infoWrapper);
 	}
-
+	/**
+     * Pushes the request on update topic
+     *
+     * @param JSONObject to update event
+     */
 	public void updateEvent(EventDetail eventDetail) {
 		RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(eventDetail).build();
 		producer.push(config.getUpdateEventDetailsTopic(), infoWrapper);
 	}
-
+	
+	/**
+     * Pushes the request on send invitation topic
+     *
+     * @param notificationReceiver to send event notification
+     */
 	public void sendEventUpdateNotification(NotificationReceiver notificationReceiver) {
 		producer.push(config.getInvitationSendTopic(), notificationReceiver);
 	}
-
+	/**
+     * Pushes the request on update status topic
+     *
+     * @param JSONObject to update event status
+     */
 	public void updateEventStatus(RequestInfoWrapper infoWrapper) {
 		producer.push(config.getUpdateEventStatusTopic(), infoWrapper);
 	}
-	
+	/**
+     * Searches event  in database
+     * @param event object
+     * 
+     */
 	public void checkEventExist(EventDetail eventDetail){
 		Map<String, String> errorMap = new HashMap<>();
 		int i= jdbcTemplate.queryForObject(PrQueryBuilder.GET_EVENT_EXIST_QUERY,

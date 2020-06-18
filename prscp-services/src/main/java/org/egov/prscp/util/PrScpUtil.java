@@ -16,7 +16,7 @@ import org.egov.mdms.model.MdmsCriteriaReq;
 import org.egov.mdms.model.ModuleDetail;
 import org.egov.prscp.config.PrScpConfiguration;
 import org.egov.prscp.web.models.AuditDetails;
-import org.egov.prscp.web.models.PrRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

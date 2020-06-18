@@ -21,6 +21,11 @@ public class FileStoreUtils {
 	@Autowired
 	private PrScpConfiguration config;
 
+	/**
+	 * Get file path of documents 
+	 * @param filestoreIds 
+	 * @return list of file paths
+	 */
 	public List<Files> getFiles(String tenantId, List<Files> fileStoreIds) {
 
 		StringBuilder url = new StringBuilder(config.getFilStoreHost());

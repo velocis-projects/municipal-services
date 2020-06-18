@@ -24,18 +24,36 @@ public class GeneratePressNotesController {
 		this.generatePressNotesService = generatePressNotesService;
 	}
 
+	
+	/**
+	 * Generates press note for the given criteria
+	 * @param requestInfoWrapper to generate press note
+	 * @return Press note Response
+	 */
 	@PostMapping(value = "/_create")
 	public ResponseEntity<ResponseInfoWrapper> createPressNote(@RequestBody RequestInfoWrapper requestInfoWrapper,
 			@RequestHeader("User-Agent") String request) {
 		return generatePressNotesService.createPressNote(requestInfoWrapper, request);
 
 	}
+	
+	/**
+	 * Get press note for the given criteria
+	 * @param requestInfoWrapper to get single or all press notes
+	 * @return Press note Response
+	 */
 
 	@PostMapping(value = "/_get")
 	public ResponseEntity<ResponseInfoWrapper> getPressNote(@Valid @RequestBody RequestInfoWrapper requestInfoWrapper) {
 		return generatePressNotesService.getPressNote(requestInfoWrapper);
 	}
 
+	
+	/**
+	 * Update press note for the given criteria
+	 * @param requestInfoWrapper to update press note
+	 * @return Press note Response
+	 */
 	@PostMapping(value = "/_update")
 	public ResponseEntity<ResponseInfoWrapper> updatePressNote(
 			@Valid @RequestBody RequestInfoWrapper requestInfoWrapper) {

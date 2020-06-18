@@ -43,6 +43,11 @@ public class EventCommitteeMasterService {
 		this.producer = producer;
 	}
 
+	/**
+	 * Get committee for the given criteria
+	 * @param requestInfoWrapper to get single or all committee
+	 * @return list of Events
+	 */
 	public ResponseEntity<ResponseInfoWrapper> getCommittee(RequestInfoWrapper requestInfoWrapper) {
 		try {
 			CommitteeDetail committeeDetail = objectMapper.convertValue(requestInfoWrapper.getRequestBody(),
@@ -59,6 +64,13 @@ public class EventCommitteeMasterService {
 		}
 	}
 
+	
+	/**
+	 * Create committee for the given criteria
+	 * @param requestInfoWrapper to create committee
+	 * Pushes the request on save topic
+	 * @return The object of created committee
+	 */
 	public ResponseEntity<ResponseInfoWrapper> createCommittee(RequestInfoWrapper requestInfoWrapper) {
 
 		try {
@@ -122,6 +134,12 @@ public class EventCommitteeMasterService {
 		}
 	}
 
+	/**
+	 * Update committee for the given criteria
+	 * @param requestInfoWrapper to update committee
+	 * Pushes the request on update topic
+	 * @return The object of updated committee
+	 */
 	public ResponseEntity<ResponseInfoWrapper> updateCommittee(RequestInfoWrapper requestInfoWrapper) {
 
 		try {

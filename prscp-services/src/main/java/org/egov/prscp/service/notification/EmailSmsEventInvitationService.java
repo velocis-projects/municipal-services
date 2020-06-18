@@ -82,6 +82,11 @@ public class EmailSmsEventInvitationService {
 		this.mdmsService = mdmsService;
 	}
 
+	/**
+	 * Send notification for event, press note tender notice
+	 * @param notificationreceiver to send notification 
+	 * @return email and sms notification
+	 */
 	public void sendEmailAndSMS(NotificationReceiver notificationReceiver) {
 
 		if (notificationReceiver.getReceiverType() != null && notificationReceiver.getModuleCode() != null
@@ -100,6 +105,11 @@ public class EmailSmsEventInvitationService {
 		}
 	}
 
+	/**
+	 * Send notification for event invitation
+	 * @param notificationreceiver to send notification 
+	 * @return email and sms notification
+	 */
 	private void sendEventInvitation(NotificationReceiver notificationReceiver) {
 		log.info("Started : Send Notification sendEventInvitation(): " + notificationReceiver.toString());
 		try {
@@ -224,7 +234,11 @@ public class EmailSmsEventInvitationService {
 			throw new CustomException(CommonConstants.NOTIFICATION_EVENT_SEND_EXCEPTION_CODE, e.getMessage());
 		}
 	}
-
+	/**
+	 * Send notification for press note  
+	 * @param notificationreceiver to send notification 
+	 * @return email and sms notification
+	 */
 	private void sendPressNoteNotification(NotificationReceiver notificationReceiver) {
 		log.info("Started : Send Notification sendPressNoteNotification(): " + notificationReceiver.toString());
 		try {
@@ -317,7 +331,11 @@ public class EmailSmsEventInvitationService {
 			throw new CustomException(CommonConstants.NOTIFICATION_PRESSNOTE_SEND_EXCEPTION_CODE, e.getMessage());
 		}
 	}
-
+	/**
+	 * Send notification for tender notice  
+	 * @param notificationreceiver to send notification 
+	 * @return email and sms notification
+	 */
 	private void sendTenderNoticeNotification(NotificationReceiver notificationReceiver) {
 		log.info("Started : Send Notification sendTenderNoticeNotification(): " + notificationReceiver.toString());
 		try {
@@ -354,19 +372,7 @@ public class EmailSmsEventInvitationService {
 
 					// Sending
 					if (!emailContent.isEmpty() && tenderNoticeDetail != null) {
-						/*
-						 * List<Files> attachments = Arrays.asList(objectMapper
-						 * .readValue(tenderNoticeDetail.getTenderDocument().toJSONString(),
-						 * Files[].class));
-						 * 
-						 * List<Files> attachmentsUrls =
-						 * fileStoreUtils.getFiles(notificationReceiver.getTenantId(), attachments);
-						 * 
-						 * StringBuilder emailAttachments = new StringBuilder(); StringBuilder
-						 * smsAttachments = new StringBuilder(); for (Files files : attachmentsUrls) {
-						 * emailAttachments.append(files.getUrl() + " ");
-						 * smsAttachments.append(files.getUrl() + " "); }
-						 */
+					
 						String emailSubject = (emailContent.isEmpty() ? "" : emailContent.get(0).getEmailSubject());
 						String emailBody = (emailContent.isEmpty() ? "" : emailContent.get(0).getEmailBody());
 						String smsTemplate = notificationTemplate.getSmsContent();
@@ -376,12 +382,11 @@ public class EmailSmsEventInvitationService {
 
 						emailBody = emailBody == null ? ""
 								: emailBody.replace("[:tenderNotice:]", tenderNoticeDetail.getNoteContent());
-						// emailBody = emailBody.replace("[:tenderDocument:]", emailAttachments);
+					
 
 						smsTemplate = smsTemplate == null ? ""
 								: smsTemplate.replace("[:tenderNotice:]", tenderNoticeDetail.getNoteContent());
-						// smsTemplate = smsTemplate.replace("[:tenderDocument:]", smsAttachments);
-
+					
 						for (PublicationList press : publicationLists) {
 
 							StringBuilder builderEmail = new StringBuilder(
@@ -433,7 +438,12 @@ public class EmailSmsEventInvitationService {
 			throw new CustomException(CommonConstants.NOTIFICATION_TENDER_SEND_EXCEPTION_CODE, e.getMessage());
 		}
 	}
-
+	
+	/**
+	 * Send notification for update event  
+	 * @param notificationreceiver to send notification 
+	 * @return email and sms notification
+	 */
 	private void sendEventUpdateNotification(NotificationReceiver notificationReceiver) {
 		log.info("Started : Send Notification sendEventUpdateNotification(): " + notificationReceiver.toString());
 		try {
@@ -562,7 +572,11 @@ public class EmailSmsEventInvitationService {
 			throw new CustomException(CommonConstants.NOTIFICATION_EVENT_SEND_UPDATE_EXCEPTION_CODE, e.getMessage());
 		}
 	}
-
+	/**
+	 * Send notification for cancel event  
+	 * @param notificationreceiver to send notification 
+	 * @return email and sms notification
+	 */
 	private void sendEventCancelNotification(NotificationReceiver notificationReceiver) {
 		log.info("Started : Send Notification sendEventCancelNotification(): " + notificationReceiver.toString());
 		try {
@@ -662,7 +676,11 @@ public class EmailSmsEventInvitationService {
 			throw new CustomException(CommonConstants.NOTIFICATION_EVENT_SEND_CANCEL_EXCEPTION_CODE, e.getMessage());
 		}
 	}
-
+	/**
+	 * Get email attachments 
+	 * @param filestore paths 
+	 * @return list of email attachments
+	 */
 	public List<EmailAttachment> attachmentsEmail(List<Files> attachmentsUrls) {
 		log.info("Started : Send Notification attachmentsEmail(): " + attachmentsUrls.toString());
 		List<EmailAttachment> attachedDocs = new ArrayList<>();

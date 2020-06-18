@@ -62,7 +62,12 @@ public class NotificationTemplateService {
 		this.eventManegementRepository = eventManegementRepository;
 		this.generatePressNotesRepository = generatePressNotesRepository;
 	}
-
+	
+	/**
+	 * Get Template for the given criteria
+	 * @param requestInfoWrapper to get single or all templates
+	 * @return list of Template
+	 */
 	public ResponseEntity<ResponseInfoWrapper> getTemplate(RequestInfoWrapper requestInfoWrapper) {
 		try {
 
@@ -91,7 +96,12 @@ public class NotificationTemplateService {
 			throw new CustomException(CommonConstants.TEMPLATE_EXCEPTION_CODE, e.getMessage());
 		}
 	}
-
+	
+	/**
+	 * Get Event Template for the given criteria
+	 * @param requestInfoWrapper to get Event template
+	 * @return Notification template
+	 */
 	public NotificationTemplate getEventTemplate(NotificationTemplate notificationTemplate, Template template) {
 		try {
 			List<EmailContent> emailContent = Arrays
@@ -157,7 +167,11 @@ public class NotificationTemplateService {
 		}
 		return notificationTemplate;
 	}
-
+	/**
+	 * Get Press Note Template for the given criteria
+	 * @param requestInfoWrapper to get Press note template
+	 * @return Notification template
+	 */
 	public NotificationTemplate getPressNoteTemplate(NotificationTemplate notificationTemplate, Template template) {
 		try {
 			notificationTemplate.setEventDetailUuid(template.getTemplateMappedUuid());
@@ -171,7 +185,11 @@ public class NotificationTemplateService {
 		}
 		return notificationTemplate;
 	}
-
+	/**
+	 * Get Tender Template for the given criteria
+	 * @param requestInfoWrapper to get Tender template
+	 * @return Notification template
+	 */
 	public NotificationTemplate getTenderTemplate(NotificationTemplate notificationTemplate, Template template) {
 		try {
 			notificationTemplate.setTemplateMappedUuid(template.getTemplateMappedUuid());
@@ -218,6 +236,11 @@ public class NotificationTemplateService {
 		return notificationTemplate;
 	}
 
+	/**
+     * Re-send event, press note , tender invitation
+     * @param requestInfoWrapper for Guest contact details
+     * @return Notification to Guest contact details 
+     */
 	public ResponseEntity<ResponseInfoWrapper> resendInvitation(RequestInfoWrapper requestInfoWrapper) {
 		try {
 			GuestsResend guestsResend = objectMapper.convertValue(requestInfoWrapper.getRequestBody(),

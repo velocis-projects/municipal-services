@@ -48,7 +48,11 @@ public class EventManagementService {
 		this.idgenrepository = idgenrepository;
 		this.deviceSource = deviceSource;
 	}
-
+	/**
+	 * Get event for the given criteria
+	 * @param requestInfoWrapper to get single or all events
+	 * @return list of Events
+	 */
 	public ResponseEntity<ResponseInfoWrapper> getEvent(RequestInfoWrapper requestInfo) {
 		try {
 			EventDetail eventDetail = objectMapper.convertValue(requestInfo.getRequestBody(), EventDetail.class);
@@ -62,6 +66,12 @@ public class EventManagementService {
 		}
 	}
 
+	 /**
+     * Create event for the given for the given request
+     * @param requestInfoWrapper to create event
+     * @return The object of created event
+     */
+	
 	public ResponseEntity<ResponseInfoWrapper> createEvent(RequestInfoWrapper requestInfoWrapper,
 			String requestHeader) {
 
@@ -80,6 +90,7 @@ public class EventManagementService {
 			eventDetail.setLastModifiedBy(requestInfoWrapper.getAuditDetails().getLastModifiedBy());
 			eventDetail.setLastModifiedTime(requestInfoWrapper.getAuditDetails().getLastModifiedTime());
 			eventDetail.setActive(true);
+			//idgen service call to genrate event id
 			IdGenerationResponse id = idgenrepository.getId(requestInfoWrapper.getRequestInfo(),
 					eventDetail.getTenantId(), config.getApplicationNumberIdgenName(),
 					config.getApplicationNumberIdgenFormat(), 1);
@@ -104,6 +115,12 @@ public class EventManagementService {
 					e.getMessage());
 		}
 	}
+	
+	/**
+	 * Update event for the given criteria
+	 * @param requestInfoWrapper to update event
+	 * @return object of event 
+	 */
 
 	public ResponseEntity<ResponseInfoWrapper> updateEvent(RequestInfoWrapper requestInfoWrapper) {
 
@@ -139,6 +156,12 @@ public class EventManagementService {
 		}
 	}
 
+	
+	/**
+	 * Update event status for the given criteria
+	 * @param requestInfoWrapper to update event status
+	 * @return object of event status
+	 */
 	public ResponseEntity<ResponseInfoWrapper> updateEventStatus(RequestInfoWrapper requestInfoWrapper) {
 		try {
 
@@ -167,7 +190,7 @@ public class EventManagementService {
 			throw new CustomException(CommonConstants.EVENT_EXCEPTION_CODE, e.getMessage());
 		}
 	}
-
+//method to validate request parameter for event
 	private void validateEvent(EventDetail eventDetail) {
 		Pattern validatePatternDate = Pattern.compile("[0-9]{1,2}(\\/)[0-9]{1,2}(\\/)[0-9]{4}");
 		Pattern validatePatternTime = Pattern.compile("(?:[01]\\d|2[0123]):(?:[012345]\\d)");
