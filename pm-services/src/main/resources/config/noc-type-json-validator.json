@@ -1,0 +1,350 @@
+{
+   "PETNOC":{
+      "applicantName":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z ]{1,250}$",
+         "isbackendRequired":"true"
+      },
+      "houseNo":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "sector":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "nameOfPetDog":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z ]{1,100}$",
+         "isbackendRequired":"true"
+      },
+      "age":{
+         "mandatory":"true",
+         "validateRegularExp":"^[0-9-_]*$",
+         "isbackendRequired":"true"
+      },
+      "sex":{
+         "mandatory":"true",
+         "validateRegularExp":"^[A-Z-_]{1,10}$",
+         "isbackendRequired":"true"
+      },
+      "breed":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z-_ ]{1,100}$",
+         "isbackendRequired":"true"
+      },
+      "color":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z-_ ]{1,35}$",
+         "isbackendRequired":"true"
+      },
+      "identificationMark":{
+         "mandatory":"false",
+         "validateRegularExp":"^[a-zA-Z0-9 ]+$",
+         "isbackendRequired":"false"
+      },
+      "uploadPetPicture":{
+         "mandatory":"true",
+         "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
+         "isbackendRequired":"false"
+      },
+      "uploadVaccinationCertificate":{
+         "mandatory":"true",
+         "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
+         "isbackendRequired":"false"
+      },
+      "immunizationNameVeterinaryDoctor":{
+         "mandatory":"false",
+         "validateRegularExp":"^[a-zA-Z. ]{1,250}$",
+         "isbackendRequired":"false"
+      },
+      "veterinaryCouncilRegistrationNo":{
+         "mandatory":"false",
+         "validateRegularExp":"[a-zA-Z0-9-\/ ]++$",
+         "isbackendRequired":"false"
+      },
+      "immunizationContactDetail":{
+         "mandatory":"false",
+         "validateRegularExp":"(0/91)?[1-9][0-9]{9}",
+         "isbackendRequired":"false"
+      },
+      "immunizationClinicNo":{
+         "mandatory":"false",
+         "validateRegularExp":"^[a-zA-Z0-9-\/, ]*$",
+         "isbackendRequired":"false"
+      },
+      "immunizationSector":{
+         "mandatory":"false",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"false"
+      },
+      "remarks":{
+         "mandatory":"false",
+         "validateRegularExp":"",
+         "isbackendRequired":"false"
+      }
+   },
+   "ROADCUTNOC":{
+      "typeOfApplicant":{
+         "mandatory":"false",
+         "validateRegularExp":"[a-zA-Z-_ ]++$",
+         "isbackendRequired":"true"
+      },
+      "purposeOfRoadCutting":{
+         "mandatory":"true",
+         "validateRegularExp":"[a-zA-Z-_ ]++$",
+         "isbackendRequired":"true"
+      },
+      "applicantName":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z ]{1,250}$",
+         "isbackendRequired":"true"
+      },
+      "division":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "ward":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "sector":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "requestedLocation":{
+         "mandatory":"false",
+         "validateRegularExp":"^[a-zA-Z0-9!@#$&()\\-`.+,/\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "landmark":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "length":{
+         "mandatory":"true",
+         "validateRegularExp":"^(?=.*[1-9])[0-9]*[.,]?[0-9]{1,2}$",
+         "isbackendRequired":"true"
+      },
+      "width":{
+         "mandatory":"true",
+         "validateRegularExp":"^(?=.*[1-9])[0-9]*[.,]?[0-9]{1,2}$",
+         "isbackendRequired":"true"
+      },
+      "uploadDocuments":{
+         "mandatory":"true",
+         "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
+         "isbackendRequired":"true"
+      },
+      "remarks":{
+         "mandatory":"false",
+         "validateRegularExp":"",
+         "isbackendRequired":"false"
+      }
+   },
+   "SELLMEATNOC":{
+      "applicantName":{
+         "mandatory":"true",
+         "validateRegularExp":"[a-zA-Z ]++$",
+         "isbackendRequired":"true"
+      },
+      "fatherHusbandName":{
+         "mandatory":"true",
+         "validateRegularExp":"[a-zA-Z ]++$",
+         "isbackendRequired":"true"
+      },
+      "houseNo":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "shopNumber":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "sector":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "ward":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "division":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "nocSought":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z0-9-_\/,() ]*$",
+         "isbackendRequired":"true"
+      },
+      "uploadDocuments":{
+         "mandatory":"true",
+         "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
+         "isbackendRequired":"true"
+      },
+      "remarks":{
+         "mandatory":"false",
+         "validateRegularExp":"",
+         "isbackendRequired":"false"
+      }
+   },
+   "ADVERTISEMENTNOC":{
+      "typeOfApplicant":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z-_ ]*$",
+         "isbackendRequired":"true"
+      },
+      "applicantName":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z ]{1,250}$",
+         "isbackendRequired":"true"
+      },
+      "tan":{
+         "mandatory":"false",
+         "validateRegularExp":"^([a-zA-Z]){5}([0-9]){4}([a-zA-Z]){1}?$",
+         "isbackendRequired":"false"
+      },
+      "pan":{
+         "mandatory":"false",
+         "validateRegularExp":"^([a-zA-Z]){5}([0-9]){4}([a-zA-Z]){1}?$",
+         "isbackendRequired":"false"
+      },
+      "cin":{
+         "mandatory":"false",
+         "validateRegularExp":"^([L|U]{1})([0-9]{5})([A-Za-z]{2})([0-9]{4})([A-Za-z]{3})([0-9]{6})$",
+         "isbackendRequired":"false"
+      },
+      "gstin":{
+         "mandatory":"false",
+         "validateRegularExp":"^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$",
+         "isbackendRequired":"false"
+      },
+      "applicantAddress":{
+         "mandatory":"false",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "applicantLandmark":{
+         "mandatory":"false",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "applicantDivision":{
+         "mandatory":"false",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "applicantWard":{
+         "mandatory":"false",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "sector":{
+         "mandatory":"false",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "applicantVillageSuSector":{
+         "mandatory":"true",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "mobileNo":{
+         "mandatory":"true",
+         "validateRegularExp":"(0/91)?[1-9][0-9]{9}",
+         "isbackendRequired":"true"
+      },
+      "emailId":{
+         "mandatory":"true",
+         "validateRegularExp":"^(.+)@(.+)$",
+         "isbackendRequired":"true"
+      },
+      "typeOfAdvertisement":{
+         "mandatory":"false",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"false"
+      },
+      "subTypeOfAdvertisement":{
+         "mandatory":"false",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"false"
+      },
+      "duration":{
+         "mandatory":"true",
+         "validateRegularExp":"[A-Za-z]++$",
+         "isbackendRequired":"true"
+      },
+      "fromDateToDisplay":{
+         "mandatory":"true",
+         "validateRegularExp":"\\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])*",
+         "isbackendRequired":"true"
+      },
+      "toDateToDisplay":{
+         "mandatory":"true",
+         "validateRegularExp":"\\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])*",
+         "isbackendRequired":"true"
+      },
+      "locationOfAdvertisement":{
+         "mandatory":"false",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "advertisementLandmark":{
+         "mandatory":"false",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "advertisementSector":{
+         "mandatory":"false",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "advertisementVillageSubSector":{
+         "mandatory":"false",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "advertisementMatterDescription":{
+         "mandatory":"false",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "isbackendRequired":"true"
+      },
+      "space":{
+         "mandatory":"true",
+         "validateRegularExp":"[0-9.]++$",
+         "isbackendRequired":"true"
+      },
+      "exemptedCategory":{
+         "mandatory":"true",
+         "validateRegularExp":"[0-1]++$",
+         "isbackendRequired":"true"
+      },
+      "date":{
+         "mandatory":"true",
+         "validateRegularExp":"\\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])*",
+         "isbackendRequired":"true"
+      },
+      "uploadDocuments":{
+         "mandatory":"true",
+         "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
+         "isbackendRequired":"true"
+      },
+      "remarks":{
+         "mandatory":"false",
+         "validateRegularExp":"",
+         "isbackendRequired":"false"
+      }
+   }
+}
