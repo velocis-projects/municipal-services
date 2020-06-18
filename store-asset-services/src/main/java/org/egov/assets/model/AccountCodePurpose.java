@@ -43,11 +43,6 @@ public class AccountCodePurpose {
 		return this;
 	}
 
-	/**
-	 * name of the AccountCodePurpose
-	 *
-	 * @return name
-	 **/
 
 	@NotNull
 	@Size(min = 3, max = 256)
@@ -64,11 +59,6 @@ public class AccountCodePurpose {
 		return this;
 	}
 
-	/**
-	 * Get auditDetails
-	 *
-	 * @return auditDetails
-	 **/
 	@Valid
 	public Auditable getAuditDetails() {
 		return auditDetails;

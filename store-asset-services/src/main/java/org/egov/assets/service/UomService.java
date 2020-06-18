@@ -18,7 +18,7 @@ public class UomService {
 
 	private static final String MODULE_CODE = "common-masters";
 
-	private static final String UOM_MASTER_NAME = "Uom";
+	private static final String UOM_MASTER_NAME = "UOM";
 
 	@Autowired
 	private MdmsRepository mdmsRepository;
