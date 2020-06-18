@@ -15,12 +15,12 @@ import org.egov.assets.model.AdvanceRequisitionDetails;
 import org.egov.assets.model.AdvanceRequisitionStatus;
 import org.egov.assets.model.AdvanceRequisitionType;
 import org.egov.assets.model.ChartOfAccount;
-import org.egov.assets.model.RequestInfo;
 import org.egov.assets.model.SupplierAdvanceRequisition;
 import org.egov.assets.model.SupplierAdvanceRequisitionRequest;
 import org.egov.assets.model.SupplierAdvanceRequisitionResponse;
 import org.egov.assets.model.SupplierAdvanceRequisitionSearch;
 import org.egov.assets.repository.SupplierAdvanceRequisitionJdbcRepository;
+import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class SupplierAdvanceRequisitionService extends DomainService {
 
 	@Autowired
 	private RestTemplate restTemplate;
-	
+
 	@Autowired
 	private SupplierAdvanceRequisitionJdbcRepository supplierAdvanceRequisitionRepository;
 
@@ -50,22 +50,33 @@ public class SupplierAdvanceRequisitionService extends DomainService {
 	private String updateKey;
 
 	@Transactional
-	public SupplierAdvanceRequisitionResponse create(SupplierAdvanceRequisitionRequest supplierAdvanceRequisitionRequest) {
+	public SupplierAdvanceRequisitionResponse create(
+			SupplierAdvanceRequisitionRequest supplierAdvanceRequisitionRequest) {
 
 		try {
 			validate(supplierAdvanceRequisitionRequest.getSupplierAdvanceRequisitions(), Constants.ACTION_CREATE);
-			List<String> sequenceNos = supplierAdvanceRequisitionRepository.getSequence(SupplierAdvanceRequisition.class.getSimpleName(),
+			List<String> sequenceNos = supplierAdvanceRequisitionRepository.getSequence(
+					SupplierAdvanceRequisition.class.getSimpleName(),
 					supplierAdvanceRequisitionRequest.getSupplierAdvanceRequisitions().size());
 			int i = 0;
 			for (SupplierAdvanceRequisition b : supplierAdvanceRequisitionRequest.getSupplierAdvanceRequisitions()) {
 				ArrayList<AdvanceRequisitionDetails> lard = new ArrayList<AdvanceRequisitionDetails>();
-				//since there will be no debit in case of advance amount, only credit amount populated in details.
-				lard.add(AdvanceRequisitionDetails.builder().creditAmount(b.getAdvanceAdjustedAmount()).chartOfAccounts(ChartOfAccount.builder().name(AdvanceRequisitionType.SUPPLIER.name()).tenantId(b.getTenantId()).build()).build());
-				AdvanceRequisition advReq = AdvanceRequisition.builder().arfType(AdvanceRequisitionType.SUPPLIER).advanceRequisitionDate(new Date().getTime()).status(AdvanceRequisitionStatus.APPROVED).amount(b.getAdvanceAdjustedAmount()).tenantId(b.getTenantId()).advanceRequisitionDetails(lard).build();
-				//persist the above advance requisition by sending the object to financial service, get the id, set that id as id for supplier advance requisition
+				// since there will be no debit in case of advance amount, only credit amount
+				// populated in details.
+				lard.add(AdvanceRequisitionDetails
+						.builder().creditAmount(b.getAdvanceAdjustedAmount()).chartOfAccounts(ChartOfAccount.builder()
+								.name(AdvanceRequisitionType.SUPPLIER.name()).tenantId(b.getTenantId()).build())
+						.build());
+				AdvanceRequisition advReq = AdvanceRequisition.builder().arfType(AdvanceRequisitionType.SUPPLIER)
+						.advanceRequisitionDate(new Date().getTime()).status(AdvanceRequisitionStatus.APPROVED)
+						.amount(b.getAdvanceAdjustedAmount()).tenantId(b.getTenantId()).advanceRequisitionDetails(lard)
+						.build();
+				// persist the above advance requisition by sending the object to financial
+				// service, get the id, set that id as id for supplier advance requisition
 				b.setId(sequenceNos.get(i));
 				i++;
-				b.setAuditDetails(getAuditDetails(supplierAdvanceRequisitionRequest.getRequestInfo(), Constants.ACTION_CREATE));
+				b.setAuditDetails(
+						getAuditDetails(supplierAdvanceRequisitionRequest.getRequestInfo(), Constants.ACTION_CREATE));
 			}
 			kafkaQue.send(saveTopic, saveKey, supplierAdvanceRequisitionRequest);
 			SupplierAdvanceRequisitionResponse response = new SupplierAdvanceRequisitionResponse();
@@ -79,12 +90,14 @@ public class SupplierAdvanceRequisitionService extends DomainService {
 	}
 
 	@Transactional
-	public SupplierAdvanceRequisitionResponse update(SupplierAdvanceRequisitionRequest supplierAdvanceRequisitionRequest) {
+	public SupplierAdvanceRequisitionResponse update(
+			SupplierAdvanceRequisitionRequest supplierAdvanceRequisitionRequest) {
 
 		try {
 			validate(supplierAdvanceRequisitionRequest.getSupplierAdvanceRequisitions(), Constants.ACTION_UPDATE);
 			for (SupplierAdvanceRequisition b : supplierAdvanceRequisitionRequest.getSupplierAdvanceRequisitions()) {
-				b.setAuditDetails(getAuditDetails(supplierAdvanceRequisitionRequest.getRequestInfo(), Constants.ACTION_UPDATE));
+				b.setAuditDetails(
+						getAuditDetails(supplierAdvanceRequisitionRequest.getRequestInfo(), Constants.ACTION_UPDATE));
 			}
 
 			kafkaQue.send(updateTopic, updateKey, supplierAdvanceRequisitionRequest);
@@ -119,29 +132,32 @@ public class SupplierAdvanceRequisitionService extends DomainService {
 		try {
 
 			switch (method) {
-				case Constants.ACTION_UPDATE: {
-					if (supplierAdvanceRequisitions == null) {
-						errors.addDataError(ErrorCode.NOT_NULL.getCode(), "supplierAdvanceRequisitions", "null");
-					}
-					if(errors.getValidationErrors().size()>0)
-						break;
+			case Constants.ACTION_UPDATE: {
+				if (supplierAdvanceRequisitions == null) {
+					errors.addDataError(ErrorCode.NOT_NULL.getCode(), "supplierAdvanceRequisitions", "null");
 				}
-	
-				case Constants.ACTION_CREATE: {
-					if (supplierAdvanceRequisitions == null) {
-						errors.addDataError(ErrorCode.NOT_NULL.getCode(), "supplierAdvanceRequisitions", "null");
-					}
-					if(errors.getValidationErrors().size()>0)
-						break;
+				if (errors.getValidationErrors().size() > 0)
+					break;
+			}
+
+			case Constants.ACTION_CREATE: {
+				if (supplierAdvanceRequisitions == null) {
+					errors.addDataError(ErrorCode.NOT_NULL.getCode(), "supplierAdvanceRequisitions", "null");
+				}
+				if (errors.getValidationErrors().size() > 0)
+					break;
+			}
+			}
+
+			for (SupplierAdvanceRequisition supplierAdvanceRequisition : supplierAdvanceRequisitions) {
+				if (!supplierAdvanceRequisitionRepository.checkPOValidity(
+						supplierAdvanceRequisition.getPurchaseOrder().getPurchaseOrderNumber(),
+						supplierAdvanceRequisition.getTenantId())) {
+					errors.addDataError(ErrorCode.INVALID_PONUMBER_FOR_ADVREQ.getCode(), "purchaseOrderNumber",
+							supplierAdvanceRequisition.getPurchaseOrder().getPurchaseOrderNumber());
 				}
 			}
-			
-			for(SupplierAdvanceRequisition supplierAdvanceRequisition : supplierAdvanceRequisitions) {
-				if(!supplierAdvanceRequisitionRepository.checkPOValidity(supplierAdvanceRequisition.getPurchaseOrder().getPurchaseOrderNumber(), supplierAdvanceRequisition.getTenantId())) {
-					errors.addDataError(ErrorCode.INVALID_PONUMBER_FOR_ADVREQ.getCode(), "purchaseOrderNumber", supplierAdvanceRequisition.getPurchaseOrder().getPurchaseOrderNumber());
-				}
-			}
-			
+
 		} catch (IllegalArgumentException e) {
 
 		}
@@ -149,5 +165,5 @@ public class SupplierAdvanceRequisitionService extends DomainService {
 			throw errors;
 
 	}
-	
+
 }

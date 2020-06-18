@@ -37,7 +37,7 @@ public class ReceiptnotesApiController {
 			@NotNull @RequestParam(value = "tenantId", required = true) String tenantId,
 			@Valid @RequestBody MaterialReceiptRequest materialReceipt) {
 		MaterialReceiptResponse materialReceiptResponse = receiptNoteService.create(materialReceipt, tenantId);
-		return new ResponseEntity<MaterialReceiptResponse>(materialReceiptResponse, HttpStatus.OK);
+		return new ResponseEntity<>(materialReceiptResponse, HttpStatus.OK);
 	}
 
 	@PostMapping(value = "/_search", produces = { "application/json" }, consumes = { "application/json" })
@@ -61,7 +61,7 @@ public class ReceiptnotesApiController {
 				.receiptDate(receiptDateT0).supplierBillPaid(supplierBillPaid).pageNumber(pageNumber).pageSize(pageSize)
 				.build();
 		MaterialReceiptResponse materialReceiptResponse = receiptNoteService.search(materialReceiptSearch);
-		return new ResponseEntity<MaterialReceiptResponse>(materialReceiptResponse, HttpStatus.OK);
+		return new ResponseEntity<>(materialReceiptResponse, HttpStatus.OK);
 	}
 
 	@PostMapping(value = "/_update", produces = { "application/json" }, consumes = { "application/json" })
@@ -69,7 +69,7 @@ public class ReceiptnotesApiController {
 			@NotNull @RequestParam(value = "tenantId", required = true) String tenantId,
 			@Valid @RequestBody MaterialReceiptRequest materialReceipt) {
 		MaterialReceiptResponse materialReceiptResponse = receiptNoteService.update(materialReceipt, tenantId);
-		return new ResponseEntity<MaterialReceiptResponse>(materialReceiptResponse, HttpStatus.OK);
+		return new ResponseEntity<>(materialReceiptResponse, HttpStatus.OK);
 	}
 
 }

@@ -39,24 +39,23 @@
  */
 package org.egov.assets.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import org.springframework.validation.annotation.Validated;
-
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import javax.validation.Valid;
+
+import org.egov.common.contract.request.RequestInfo;
+import org.springframework.validation.annotation.Validated;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Contract class for web request. Array of Store items are used in case of
  * create or update
  */
-@ApiModel(description = "Contract class for web request. Array of Store items  are used in case of create or update")
-@Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-10-28T13:21:55.964+05:30")
 
+@Validated
 public class StoreRequest {
 	@JsonProperty("RequestInfo")
 	private RequestInfo requestInfo = null;
@@ -65,8 +64,7 @@ public class StoreRequest {
 	@Valid
 	private List<Store> stores = null;
 
-	public StoreRequest requestInfo(
-			RequestInfo requestInfo) {
+	public StoreRequest requestInfo(RequestInfo requestInfo) {
 		this.requestInfo = requestInfo;
 		return this;
 	}
@@ -76,16 +74,13 @@ public class StoreRequest {
 	 *
 	 * @return requestInfo
 	 **/
-	@ApiModelProperty(value = "")
-
 	@Valid
 
 	public RequestInfo getRequestInfo() {
 		return requestInfo;
 	}
 
-	public void setRequestInfo(
-			RequestInfo requestInfo) {
+	public void setRequestInfo(RequestInfo requestInfo) {
 		this.requestInfo = requestInfo;
 	}
 
@@ -107,8 +102,6 @@ public class StoreRequest {
 	 *
 	 * @return stores
 	 **/
-	@ApiModelProperty(value = "Used for search result and create only")
-
 	@Valid
 
 	public List<Store> getStores() {
@@ -142,8 +135,7 @@ public class StoreRequest {
 		StringBuilder sb = new StringBuilder();
 		sb.append("class StoreRequest {\n");
 
-		sb.append("    requestInfo: ").append(toIndentedString(requestInfo))
-				.append("\n");
+		sb.append("    requestInfo: ").append(toIndentedString(requestInfo)).append("\n");
 		sb.append("    stores: ").append(toIndentedString(stores)).append("\n");
 		sb.append("}");
 		return sb.toString();

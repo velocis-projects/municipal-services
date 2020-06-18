@@ -6,16 +6,14 @@ import java.util.Objects;
 
 import javax.validation.Valid;
 
+import org.egov.common.contract.response.ResponseInfo;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
-@ApiModel(description = "Hold the Opening Balance Response information")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-11-13T06:33:50.051Z")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -31,7 +29,6 @@ public class OpeningBalanceResponse {
 		return this;
 	}
 
-	@ApiModelProperty(value = "")
 	@Valid
 	public ResponseInfo getResponseInfo() {
 		return responseInfo;
@@ -54,7 +51,7 @@ public class OpeningBalanceResponse {
 		return this;
 	}
 
-	@ApiModelProperty(value = "")
+	
 	@Valid
 	public List<MaterialReceipt> getMaterialReceipt() {
 		return materialReceipt;

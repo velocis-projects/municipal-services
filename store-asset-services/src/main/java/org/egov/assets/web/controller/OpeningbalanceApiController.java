@@ -14,6 +14,7 @@ import org.egov.assets.model.OpeningBalanceRequest;
 import org.egov.assets.model.OpeningBalanceResponse;
 import org.egov.assets.service.OpeningBalanceService;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.response.ResponseInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class OpeningbalanceApiController {
 			@RequestBody OpeningBalanceRequest openingBalance) {
 		List<MaterialReceipt> openbal = openingBalanceService.create(openingBalance, tenantId);
 		OpeningBalanceResponse materialResponse = buildOpenBalanceResponse(openbal, openingBalance.getRequestInfo());
-		return new ResponseEntity<OpeningBalanceResponse>(materialResponse, HttpStatus.OK);
+		return new ResponseEntity<>(materialResponse, HttpStatus.OK);
 	}
 
 	@PostMapping(value = "/_update", produces = { "application/json" }, consumes = { "application/json" })
@@ -49,7 +50,7 @@ public class OpeningbalanceApiController {
 			@RequestBody OpeningBalanceRequest openingBalanace) {
 		List<MaterialReceipt> openbal = openingBalanceService.update(openingBalanace, tenantId);
 		OpeningBalanceResponse materialResponse = buildOpenBalanceResponse(openbal, openingBalanace.getRequestInfo());
-		return new ResponseEntity<OpeningBalanceResponse>(materialResponse, HttpStatus.OK);
+		return new ResponseEntity<>(materialResponse, HttpStatus.OK);
 
 	}
 
@@ -77,13 +78,13 @@ public class OpeningbalanceApiController {
 	}
 
 	private OpeningBalanceResponse buildOpenBalanceResponse(List<MaterialReceipt> material,
-			org.egov.assets.model.RequestInfo requestInfo) {
+			RequestInfo requestInfo) {
 		return OpeningBalanceResponse.builder().responseInfo(getResponseInfo(requestInfo)).materialReceipt(material)
 				.build();
 	}
 
-	private org.egov.assets.model.ResponseInfo getResponseInfo(org.egov.assets.model.RequestInfo requestInfo) {
-		return org.egov.assets.model.ResponseInfo.builder().apiId(requestInfo.getApiId()).ver(requestInfo.getVer())
+	private ResponseInfo getResponseInfo(RequestInfo requestInfo) {
+		return ResponseInfo.builder().apiId(requestInfo.getApiId()).ver(requestInfo.getVer())
 				.resMsgId(requestInfo.getMsgId()).resMsgId("placeholder").build();
 	}
 }

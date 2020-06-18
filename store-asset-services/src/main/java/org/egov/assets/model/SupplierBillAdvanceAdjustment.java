@@ -1,20 +1,17 @@
 package org.egov.assets.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import java.math.BigDecimal;
+import java.util.Objects;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.math.BigDecimal;
-import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Asset information for the Contractor Bill
  */
-@ApiModel(description = "Asset information for the Contractor Bill")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-01-02T08:20:46.403Z")
 
 public class SupplierBillAdvanceAdjustment {
     @JsonProperty("id")
@@ -42,10 +39,7 @@ public class SupplierBillAdvanceAdjustment {
      *
      * @return id
      **/
-    @ApiModelProperty(value = "Unique Identifier of the Supplier Bill")
-
-
-    public String getId() {
+        public String getId() {
         return id;
     }
 
@@ -63,7 +57,7 @@ public class SupplierBillAdvanceAdjustment {
      *
      * @return tenantId
      **/
-    @ApiModelProperty(required = true, value = "Tenant id of the Supplier Bill")
+    
     @NotNull
 
     @Size(min = 2, max = 128)
@@ -85,7 +79,7 @@ public class SupplierBillAdvanceAdjustment {
      *
      * @return supplierBill
      **/
-    @ApiModelProperty(required = true, value = "supplier bill number id as reference")
+    
     @NotNull
 
 
@@ -107,10 +101,7 @@ public class SupplierBillAdvanceAdjustment {
      *
      * @return supplierAdvanceRequisition
      **/
-    @ApiModelProperty(value = "SupplierAdvanceRequisition  reference")
-
-    @Valid
-
+     @Valid
     public SupplierAdvanceRequisition getSupplierAdvanceRequisition() {
         return supplierAdvanceRequisition;
     }
@@ -129,11 +120,9 @@ public class SupplierBillAdvanceAdjustment {
      *
      * @return advanceAdjustedAmount
      **/
-    @ApiModelProperty(required = true, value = "advance adjested amount in each advance requisition object. ")
+    
     @NotNull
-
     @Valid
-
     public BigDecimal getAdvanceAdjustedAmount() {
         return advanceAdjustedAmount;
     }

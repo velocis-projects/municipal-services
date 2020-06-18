@@ -1,8 +1,6 @@
 package org.egov.assets.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -11,153 +9,140 @@ import java.util.Objects;
 /**
  *
  */
-@ApiModel(description = "")
+
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-12-28T09:20:06.607Z")
 
 public class AccountDetailKey {
-    @JsonProperty("id")
-    private String id = null;
+	@JsonProperty("id")
+	private String id = null;
 
-    @JsonProperty("key")
-    private String key = null;
+	@JsonProperty("key")
+	private String key = null;
 
-    @JsonProperty("accountDetailType")
-    private AccountDetailType accountDetailType = null;
+	@JsonProperty("accountDetailType")
+	private AccountDetailType accountDetailType = null;
 
-    @JsonProperty("auditDetails")
-    private Auditable auditDetails = null;
+	@JsonProperty("auditDetails")
+	private Auditable auditDetails = null;
 
-    public AccountDetailKey id(String id) {
-        this.id = id;
-        return this;
-    }
+	public AccountDetailKey id(String id) {
+		this.id = id;
+		return this;
+	}
 
-    /**
-     * Unique Identifier of the AccountDetailKey
-     *
-     * @return id
-     **/
-    @ApiModelProperty(value = "Unique Identifier of the AccountDetailKey ")
+	/**
+	 * Unique Identifier of the AccountDetailKey
+	 *
+	 * @return id
+	 **/
+	public String getId() {
+		return id;
+	}
 
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public String getId() {
-        return id;
-    }
+	public AccountDetailKey key(String key) {
+		this.key = key;
+		return this;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	/**
+	 * key of the AccountDetailKey
+	 *
+	 * @return key
+	 **/
 
-    public AccountDetailKey key(String key) {
-        this.key = key;
-        return this;
-    }
+	@NotNull
+	public String getKey() {
+		return key;
+	}
 
-    /**
-     * key of the AccountDetailKey
-     *
-     * @return key
-     **/
-    @ApiModelProperty(required = true, value = "key of the AccountDetailKey ")
-    @NotNull
+	public void setKey(String key) {
+		this.key = key;
+	}
 
+	public AccountDetailKey accountDetailType(AccountDetailType accountDetailType) {
+		this.accountDetailType = accountDetailType;
+		return this;
+	}
 
-    public String getKey() {
-        return key;
-    }
+	/**
+	 * account detail type of the AccountDetailKey
+	 *
+	 * @return accountDetailType
+	 **/
 
-    public void setKey(String key) {
-        this.key = key;
-    }
+	@NotNull
+	@Valid
+	public AccountDetailType getAccountDetailType() {
+		return accountDetailType;
+	}
 
-    public AccountDetailKey accountDetailType(AccountDetailType accountDetailType) {
-        this.accountDetailType = accountDetailType;
-        return this;
-    }
+	public void setAccountDetailType(AccountDetailType accountDetailType) {
+		this.accountDetailType = accountDetailType;
+	}
 
-    /**
-     * account detail type of the AccountDetailKey
-     *
-     * @return accountDetailType
-     **/
-    @ApiModelProperty(required = true, value = "account detail type of the AccountDetailKey ")
-    @NotNull
+	public AccountDetailKey auditDetails(Auditable auditDetails) {
+		this.auditDetails = auditDetails;
+		return this;
+	}
 
-    @Valid
+	/**
+	 * Get auditDetails
+	 *
+	 * @return auditDetails
+	 **/
+	@Valid
+	public Auditable getAuditDetails() {
+		return auditDetails;
+	}
 
-    public AccountDetailType getAccountDetailType() {
-        return accountDetailType;
-    }
+	public void setAuditDetails(Auditable auditDetails) {
+		this.auditDetails = auditDetails;
+	}
 
-    public void setAccountDetailType(AccountDetailType accountDetailType) {
-        this.accountDetailType = accountDetailType;
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		AccountDetailKey accountDetailKey = (AccountDetailKey) o;
+		return Objects.equals(this.id, accountDetailKey.id) && Objects.equals(this.key, accountDetailKey.key)
+				&& Objects.equals(this.accountDetailType, accountDetailKey.accountDetailType)
+				&& Objects.equals(this.auditDetails, accountDetailKey.auditDetails);
+	}
 
-    public AccountDetailKey auditDetails(Auditable auditDetails) {
-        this.auditDetails = auditDetails;
-        return this;
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, key, accountDetailType, auditDetails);
+	}
 
-    /**
-     * Get auditDetails
-     *
-     * @return auditDetails
-     **/
-    @ApiModelProperty(value = "")
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("class AccountDetailKey {\n");
 
-    @Valid
+		sb.append("    id: ").append(toIndentedString(id)).append("\n");
+		sb.append("    key: ").append(toIndentedString(key)).append("\n");
+		sb.append("    accountDetailType: ").append(toIndentedString(accountDetailType)).append("\n");
+		sb.append("    auditDetails: ").append(toIndentedString(auditDetails)).append("\n");
+		sb.append("}");
+		return sb.toString();
+	}
 
-    public Auditable getAuditDetails() {
-        return auditDetails;
-    }
-
-    public void setAuditDetails(Auditable auditDetails) {
-        this.auditDetails = auditDetails;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        AccountDetailKey accountDetailKey = (AccountDetailKey) o;
-        return Objects.equals(this.id, accountDetailKey.id) &&
-                Objects.equals(this.key, accountDetailKey.key) &&
-                Objects.equals(this.accountDetailType, accountDetailKey.accountDetailType) &&
-                Objects.equals(this.auditDetails, accountDetailKey.auditDetails);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, key, accountDetailType, auditDetails);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class AccountDetailKey {\n");
-
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    key: ").append(toIndentedString(key)).append("\n");
-        sb.append("    accountDetailType: ").append(toIndentedString(accountDetailType)).append("\n");
-        sb.append("    auditDetails: ").append(toIndentedString(auditDetails)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
-    }
+	/**
+	 * Convert the given object to string with each line indented by 4 spaces
+	 * (except the first line).
+	 */
+	private String toIndentedString(Object o) {
+		if (o == null) {
+			return "null";
+		}
+		return o.toString().replace("\n", "\n    ");
+	}
 }
-

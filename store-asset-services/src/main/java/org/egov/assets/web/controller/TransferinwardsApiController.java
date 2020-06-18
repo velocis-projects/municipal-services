@@ -32,7 +32,7 @@ public class TransferinwardsApiController {
 	public ResponseEntity<TransferInwardResponse> transferinwardsCreatePost(
 			@NotNull @RequestParam(value = "tenantId", required = true) String tenantId,
 			@Valid @RequestBody TransferInwardRequest transferInwardRequest) {
-		return new ResponseEntity<TransferInwardResponse>(
+		return new ResponseEntity<>(
 				transferinwardsService.create(transferInwardRequest, tenantId), HttpStatus.OK);
 	}
 

@@ -1,19 +1,19 @@
 package org.egov.assets.model;
 
 import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+
 import javax.validation.Valid;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * This object holds the Supplier information.
  */
-@ApiModel(description = "This object holds the Supplier information. ")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-11-06T10:16:53.961Z")
 
 public class Supplier {
 	@JsonProperty("id")
@@ -184,7 +184,7 @@ public class Supplier {
 	 * 
 	 * @return id
 	 **/
-	@ApiModelProperty(value = "Unique Identifier of the Supplier ")
+	
 
 	public String getId() {
 		return id;
@@ -199,7 +199,7 @@ public class Supplier {
 		return this;
 	}
 
-	@ApiModelProperty(value = "Active Status of the Supplier ")
+	
 
 	public Boolean getActive() {
 		return active;
@@ -219,9 +219,9 @@ public class Supplier {
 	 * 
 	 * @return tenantId
 	 **/
-	@ApiModelProperty(value = "Tenant id of the Supplier")
+	
 	@NotNull
-	@Size(min = 4, max = 128)
+	@Size(min = 2, max = 128)
 	public String getTenantId() {
 		return tenantId;
 	}
@@ -240,7 +240,7 @@ public class Supplier {
 	 * 
 	 * @return type
 	 **/
-	@ApiModelProperty(required = true, value = "type of the Supplier")
+	
 	@NotNull
 
 	public TypeEnum getType() {
@@ -261,7 +261,7 @@ public class Supplier {
 	 * 
 	 * @return code
 	 **/
-	@ApiModelProperty(required = true, value = "code of the Supplier ")
+	
 	@NotNull
 
 	@Pattern(regexp = "^[a-zA-Z0-9]*$")
@@ -284,7 +284,7 @@ public class Supplier {
 	 * 
 	 * @return name
 	 **/
-	@ApiModelProperty(required = true, value = "name of the Material ")
+	
 	@NotNull
 
 	@Pattern(regexp = "^[a-zA-Z ]*$")
@@ -307,7 +307,7 @@ public class Supplier {
 	 * 
 	 * @return address
 	 **/
-	@ApiModelProperty(required = true, value = "address of the Supplier   ")
+	
 	@NotNull
 
 	@Size(max = 1000)
@@ -330,7 +330,7 @@ public class Supplier {
 	 * 
 	 * @return status
 	 **/
-	@ApiModelProperty(value = "status of the Supplier")
+	
 
 	public StatusEnum getStatus() {
 		return status;
@@ -350,7 +350,7 @@ public class Supplier {
 	 * 
 	 * @return inActiveDate
 	 **/
-	@ApiModelProperty(value = "inactive date of the Supplier ")
+	
 
 	public Long getInActiveDate() {
 		return inActiveDate;
@@ -370,7 +370,7 @@ public class Supplier {
 	 * 
 	 * @return contactNo
 	 **/
-	@ApiModelProperty(required = true, value = "contact no of the Supplier    ")
+	
 	@NotNull
 
 	@Pattern(regexp = "^[0-9]*$")
@@ -393,7 +393,7 @@ public class Supplier {
 	 * 
 	 * @return faxNo
 	 **/
-	@ApiModelProperty(value = "fax number of Supplier  ")
+	
 	@Size(max = 15)
 	@Pattern(regexp = "^[0-9]*$")
 	public String getFaxNo() {
@@ -414,7 +414,7 @@ public class Supplier {
 	 * 
 	 * @return website
 	 **/
-	@ApiModelProperty(value = "website of the Supplier ")
+	
 	@Size(max = 500)
 	@Pattern(regexp = "^(http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}(:[0-9]{1,5})?(\\/.*)?$")
 	public String getWebsite() {
@@ -435,7 +435,7 @@ public class Supplier {
 	 * 
 	 * @return email
 	 **/
-	@ApiModelProperty(value = "email of the Supplier ")
+	
 
 	@Pattern(regexp = "^$|([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$")
 	@Size(max = 100)
@@ -457,9 +457,7 @@ public class Supplier {
 	 * 
 	 * @return description
 	 **/
-	@ApiModelProperty(value = "description of the Supplier ")
-
-	@Pattern(regexp = "^[,.a-zA-Z 0-9]*$")
+		@Pattern(regexp = "^[,.a-zA-Z 0-9]*$")
 	@Size(max = 1000)
 	public String getDescription() {
 		return description;
@@ -479,7 +477,7 @@ public class Supplier {
 	 * 
 	 * @return panNo
 	 **/
-	@ApiModelProperty(value = "pan number of supplier ")
+	
     @Pattern(regexp ="[A-Z]{5}[0-9]{4}[A-Z]{1}")
 	@Size(max = 10,min = 10)
 	public String getPanNo() {
@@ -500,9 +498,7 @@ public class Supplier {
 	 * 
 	 * @return tinNo
 	 **/
-	@ApiModelProperty(value = "tin number of supplier    ")
-
-	@Size(max = 11, min = 11)
+		@Size(max = 11, min = 11)
 	@Pattern(regexp = "[0-9]{2}[A-Za-z0-9-!@#$%&*.?=]{9}")
 	public String getTinNo() {
 		return tinNo;
@@ -522,7 +518,7 @@ public class Supplier {
 	 * 
 	 * @return cstNo
 	 **/
-	@ApiModelProperty(value = "cst number of supplier   ")
+	
 	@Size(max = 11, min = 11)
 	@Pattern(regexp = "[0-9]{2}[A-Za-z0-9-!@#$%&*.?=]{8}[C]{1}")
 
@@ -544,7 +540,7 @@ public class Supplier {
 	 * 
 	 * @return vatNo
 	 **/
-	@ApiModelProperty(value = "vat number of supplier   ")
+	
 	@Size(max = 11, min = 11)
 	@Pattern(regexp = "[0-9]{2}[A-Za-z0-9-!@#$%&*.?=]{8}[V]{1}")
 	public String getVatNo() {
@@ -565,7 +561,7 @@ public class Supplier {
 	 * 
 	 * @return gstNo
 	 **/
-	@ApiModelProperty(value = "gst number of supplier  ")
+	
 	@Size(min = 15,max = 15)
 	@Pattern(regexp ="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9A-Za-z]{1}[Z]{1}[0-9]{1}")
 	public String getGstNo() {
@@ -586,9 +582,7 @@ public class Supplier {
 	 * 
 	 * @return contactPerson
 	 **/
-	@ApiModelProperty(value = "name of the contact person    ")
-
-	@Pattern(regexp = "^[a-zA-Z ]*$")
+		@Pattern(regexp = "^[a-zA-Z ]*$")
 	@Size(max = 50)
 	public String getContactPerson() {
 		return contactPerson;
@@ -608,8 +602,7 @@ public class Supplier {
 	 * 
 	 * @return contactPersonNo
 	 **/
-	@ApiModelProperty(value = "contact number of the contact person   ")
-
+	
 	@Pattern(regexp = "^[0-9]*$")
 	@Size(max = 10)
 	public String getContactPersonNo() {
@@ -630,7 +623,7 @@ public class Supplier {
 	 * 
 	 * @return bankCode
 	 **/
-	@ApiModelProperty(required = true, value = "code of the bank  ")
+	
 	@NotNull
 	@Size(max = 50)
 	public String getBankCode() {
@@ -651,7 +644,7 @@ public class Supplier {
 	 * 
 	 * @return bankName
 	 **/
-	@ApiModelProperty(value = "name of the bank ")
+	
 	@Size(max = 100)
 	@Pattern(regexp = "^[a-zA-Z ]*$")
 	public String getBankName() {
@@ -672,7 +665,7 @@ public class Supplier {
 	 * 
 	 * @return bankBranch
 	 **/
-	@ApiModelProperty(value = "name of the bank branch ")
+	
 	@Size(max = 100)
 	public String getBankBranch() {
 		return bankBranch;
@@ -692,7 +685,7 @@ public class Supplier {
 	 * 
 	 * @return acctNo
 	 **/
-	@ApiModelProperty(required = true, value = "account number in the bank  ")
+	
 	@NotNull
 	@Size(max = 16)
 	@Pattern(regexp = "^[0-9]*$")
@@ -714,7 +707,7 @@ public class Supplier {
 	 * 
 	 * @return ifsc
 	 **/
-	@ApiModelProperty(required = true, value = "ifsc of the bank ")
+	
 	@NotNull
 	@Size(max = 10)
 	@Pattern(regexp = "^[a-zA-Z0-9]*$")
@@ -736,7 +729,7 @@ public class Supplier {
 	 * 
 	 * @return micr
 	 **/
-	@ApiModelProperty(value = "micr of the bank                ")
+	
 	@Size(max = 10)
 	@Pattern(regexp = "^[a-zA-Z0-9]*$")
 	public String getMicr() {
@@ -757,7 +750,7 @@ public class Supplier {
 	 * 
 	 * @return auditDetails
 	 **/
-	@ApiModelProperty(value = "")
+	
 
 	@Valid
 

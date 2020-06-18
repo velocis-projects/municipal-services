@@ -2,6 +2,8 @@ package org.egov.assets.model;
 
 
 
+import org.egov.common.contract.request.RequestInfo;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;

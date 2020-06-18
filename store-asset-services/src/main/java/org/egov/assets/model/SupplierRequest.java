@@ -39,22 +39,22 @@
  */
 package org.egov.assets.model;
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.validation.annotation.Validated;
+import java.util.Objects;
+
 import javax.validation.Valid;
+
+import org.egov.common.contract.request.RequestInfo;
+import org.springframework.validation.annotation.Validated;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Contract class for web request. Array of Supplier items are used in case of
  * create or update
  */
-@ApiModel(description = "Contract class for web request. Array of Supplier items  are used in case of create or update")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-11-02T13:59:35.200+05:30")
 
 public class SupplierRequest {
 	@JsonProperty("RequestInfo")
@@ -74,10 +74,7 @@ public class SupplierRequest {
 	 * 
 	 * @return requestInfo
 	 **/
-	@ApiModelProperty(value = "")
-
 	@Valid
-
 	public RequestInfo getRequestInfo() {
 		return requestInfo;
 	}
@@ -104,10 +101,7 @@ public class SupplierRequest {
 	 * 
 	 * @return suppliers
 	 **/
-	@ApiModelProperty(value = "Used for search result and create only")
-
 	@Valid
-
 	public List<Supplier> getSuppliers() {
 		return suppliers;
 	}

@@ -13,6 +13,8 @@ import org.egov.assets.model.ScrapRequest;
 import org.egov.assets.model.ScrapResponse;
 import org.egov.assets.model.ScrapSearch;
 import org.egov.assets.service.ScrapService;
+import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.response.ResponseInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -71,12 +73,12 @@ public class ScrapsApiController {
 		return new ResponseEntity<ScrapResponse>(scrapResponse, HttpStatus.OK);
 	}
 
-	private ScrapResponse buildScrapResponse(List<Scrap> scrap, org.egov.assets.model.RequestInfo requestInfo) {
+	private ScrapResponse buildScrapResponse(List<Scrap> scrap, RequestInfo requestInfo) {
 		return ScrapResponse.builder().responseInfo(getResponseInfo(requestInfo)).scraps(scrap).build();
 	}
 
-	private org.egov.assets.model.ResponseInfo getResponseInfo(org.egov.assets.model.RequestInfo requestInfo) {
-		return org.egov.assets.model.ResponseInfo.builder().apiId(requestInfo.getApiId()).ver(requestInfo.getVer())
+	private ResponseInfo getResponseInfo(RequestInfo requestInfo) {
+		return ResponseInfo.builder().apiId(requestInfo.getApiId()).ver(requestInfo.getVer())
 				.resMsgId(requestInfo.getMsgId()).resMsgId("placeholder").build();
 	}
 }

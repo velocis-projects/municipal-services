@@ -2,11 +2,11 @@ package org.egov.assets.web.controller;
 
 import javax.validation.constraints.NotNull;
 
-import org.egov.assets.model.RequestInfo;
 import org.egov.assets.model.SupplierAdvanceRequisitionRequest;
 import org.egov.assets.model.SupplierAdvanceRequisitionResponse;
 import org.egov.assets.model.SupplierAdvanceRequisitionSearch;
 import org.egov.assets.service.SupplierAdvanceRequisitionService;
+import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +42,7 @@ public class SupplieradvancerequisitionsApiController {
 			@RequestParam(value = "purchaseOrderDate", required = false) Long purchaseOrderDate) {
 		SupplierAdvanceRequisitionSearch sars = SupplierAdvanceRequisitionSearch.builder().supplier(supplier)
 				.purchaseOrder(purchaseOrder).sarStatus(sarStatus).stateId(stateId).build();
-		SupplierAdvanceRequisitionResponse response = supplierAdvanceRequisitionService.search(sars, new RequestInfo());
+		SupplierAdvanceRequisitionResponse response = supplierAdvanceRequisitionService.search(sars, requestInfo);
 		return new ResponseEntity(response, HttpStatus.OK);
 	}
 

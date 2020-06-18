@@ -1,6 +1,5 @@
 package org.egov.assets.repository.entity;
 
-
 import org.egov.assets.model.AuditDetails;
 import org.egov.assets.model.Supplier;
 import org.egov.assets.model.Supplier.StatusEnum;
@@ -34,7 +33,7 @@ public class SupplierEntity {
 	private String address = null;
 
 	private String status = null;
-	
+
 	private Boolean active = null;
 
 	private Long inactivedate = null;
@@ -56,7 +55,7 @@ public class SupplierEntity {
 	private String cstNo = null;
 
 	private String vatNo = null;
-	
+
 	private String gstNo = null;
 
 	private String contactPerson = null;
@@ -64,7 +63,7 @@ public class SupplierEntity {
 	private String contactPersonNo = null;
 
 	private String bankCode = null;
-	
+
 	private String bankBranch = null;
 
 	private String bankAcctNo = null;
@@ -84,49 +83,49 @@ public class SupplierEntity {
 	private String tenantId;
 
 	public Object toEntity(Supplier supplier) {
-		if(supplier.getId() !=null)
-		this.id = supplier.getId();
+		if (supplier.getId() != null)
+			this.id = supplier.getId();
 		this.name = supplier.getName();
 		this.code = supplier.getCode();
-		if(supplier.getType() != null)
-		this.type = supplier.getType().toString();
+		if (supplier.getType() != null)
+			this.type = supplier.getType().toString();
 		this.address = supplier.getAddress();
-		if(supplier.getStatus() != null)
-		this.status = supplier.getStatus().toString();
-		if(supplier.getInActiveDate() != null)
-		this.inactivedate = supplier.getInActiveDate();
+		if (supplier.getStatus() != null)
+			this.status = supplier.getStatus().toString();
+		if (supplier.getInActiveDate() != null)
+			this.inactivedate = supplier.getInActiveDate();
 		this.contactno = supplier.getContactNo();
-		if(supplier.getFaxNo() != null)
-		this.faxNo = supplier.getFaxNo();
-		if(supplier.getWebsite() != null)
-		this.website = supplier.getWebsite();
-		if(supplier.getActive() !=null)
-		this.active = supplier.getActive();
-		if(supplier.getEmail() !=null)
-		this.email = supplier.getEmail();
-		if(supplier.getDescription() != null)
-		this.description = supplier.getDescription();
-		if(supplier.getPanNo() != null)
-		this.panNo = supplier.getPanNo();
-		if(supplier.getTinNo() != null)
-		this.tinNo = supplier.getTinNo();
-		if(supplier.getCstNo() != null)
-		this.cstNo = supplier.getCstNo();
-		if(supplier.getVatNo() != null)
-		this.vatNo = supplier.getVatNo();
-		if(supplier.getGstNo() != null)
-		this.gstNo = supplier.getGstNo();
-		if(supplier.getContactPerson() != null)
-		this.contactPerson = supplier.getContactPerson();
-		if(supplier.getContactPersonNo() != null)
-		this.contactPersonNo = supplier.getContactPersonNo();
+		if (supplier.getFaxNo() != null)
+			this.faxNo = supplier.getFaxNo();
+		if (supplier.getWebsite() != null)
+			this.website = supplier.getWebsite();
+		if (supplier.getActive() != null)
+			this.active = supplier.getActive();
+		if (supplier.getEmail() != null)
+			this.email = supplier.getEmail();
+		if (supplier.getDescription() != null)
+			this.description = supplier.getDescription();
+		if (supplier.getPanNo() != null)
+			this.panNo = supplier.getPanNo();
+		if (supplier.getTinNo() != null)
+			this.tinNo = supplier.getTinNo();
+		if (supplier.getCstNo() != null)
+			this.cstNo = supplier.getCstNo();
+		if (supplier.getVatNo() != null)
+			this.vatNo = supplier.getVatNo();
+		if (supplier.getGstNo() != null)
+			this.gstNo = supplier.getGstNo();
+		if (supplier.getContactPerson() != null)
+			this.contactPerson = supplier.getContactPerson();
+		if (supplier.getContactPersonNo() != null)
+			this.contactPersonNo = supplier.getContactPersonNo();
 		this.bankCode = supplier.getBankCode();
-		if(supplier.getBankBranch() != null)
-		this.bankBranch = supplier.getBankBranch();
+		if (supplier.getBankBranch() != null)
+			this.bankBranch = supplier.getBankBranch();
 		this.bankAcctNo = supplier.getAcctNo();
 		this.bankIfsc = supplier.getIfsc();
-		if(supplier.getMicr() != null)
-		this.bankMicr = supplier.getMicr();
+		if (supplier.getMicr() != null)
+			this.bankMicr = supplier.getMicr();
 		this.tenantId = supplier.getTenantId();
 
 		return this;
@@ -137,19 +136,19 @@ public class SupplierEntity {
 		supplier.setId(id);
 		supplier.setCode(code);
 		supplier.setName(name);
-		if(type != null)
-		supplier.setType(TypeEnum.valueOf(type));
+		if (type != null)
+			supplier.setType(TypeEnum.valueOf(type));
 		supplier.setAddress(address);
 		supplier.setTenantId(tenantId);
 		supplier.setActive(active);
-		if(status != null)
-		supplier.setStatus(StatusEnum.valueOf(status));
+		if (status != null)
+			supplier.setStatus(StatusEnum.valueOf(status));
 		supplier.setInActiveDate(inactivedate);
-	    supplier.setContactNo(contactno);
-    	supplier.setFaxNo(faxNo);
+		supplier.setContactNo(contactno);
+		supplier.setFaxNo(faxNo);
 		supplier.setWebsite(website);
 		supplier.setEmail(email);
-	    supplier.setDescription(description);
+		supplier.setDescription(description);
 		supplier.setPanNo(panNo);
 		supplier.setTinNo(tinNo);
 		supplier.setVatNo(vatNo);
@@ -157,13 +156,13 @@ public class SupplierEntity {
 		supplier.setCstNo(cstNo);
 		supplier.setContactPerson(contactPerson);
 		supplier.setContactPersonNo(contactPersonNo);
-	    supplier.setBankCode(bankCode);
-	    supplier.setBankBranch(bankBranch);
-	    supplier.setAcctNo(bankAcctNo);
-	    supplier.setIfsc(bankIfsc);
-	    supplier.setMicr(bankMicr);
-	    supplier.setTenantId(tenantId);
-    	AuditDetails auditDetails = new AuditDetails();
+		supplier.setBankCode(bankCode);
+		supplier.setBankBranch(bankBranch);
+		supplier.setAcctNo(bankAcctNo);
+		supplier.setIfsc(bankIfsc);
+		supplier.setMicr(bankMicr);
+		supplier.setTenantId(tenantId);
+		AuditDetails auditDetails = new AuditDetails();
 		auditDetails.setCreatedBy(createdBy);
 		auditDetails.setCreatedTime(createdTime);
 		auditDetails.setLastModifiedBy(lastmodifiedBy);

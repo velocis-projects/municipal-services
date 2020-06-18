@@ -1,29 +1,24 @@
 package org.egov.assets.model;
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import java.util.Objects;
 
-import org.egov.assets.model.DisposalDetail;
-import org.egov.assets.model.Store;
-import org.egov.assets.model.WorkFlowDetails;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 /**
  * This object holds the disposal information.
  */
-@ApiModel(description = "This object holds the disposal information.   ")
-@javax.annotation.Generated(value = "org.egov.inv.codegen.languages.SpringCodegen", date = "2017-11-08T13:51:07.770Z")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Disposal {
@@ -117,7 +112,6 @@ public class Disposal {
 	 * 
 	 * @return id
 	 **/
-	@ApiModelProperty(value = "Unique Identifier of the Disposal ")
 
 	public String getId() {
 		return id;
@@ -137,7 +131,7 @@ public class Disposal {
 	 * 
 	 * @return tenantId
 	 **/
-	@ApiModelProperty(required = true, value = "Tenant id of the Disposal")
+
 	@NotNull
 
 	@Size(min = 4, max = 128)
@@ -159,7 +153,7 @@ public class Disposal {
 	 * 
 	 * @return store
 	 **/
-	@ApiModelProperty(required = true, value = "")
+
 	@NotNull
 	public Store getStore() {
 		return store;
@@ -179,7 +173,7 @@ public class Disposal {
 	 * 
 	 * @return disposalNumber
 	 **/
-	@ApiModelProperty(required = true, readOnly = true, value = "Auto generated number, read only ")
+
 	@Size(max = 100)
 	public String getDisposalNumber() {
 		return disposalNumber;
@@ -199,7 +193,7 @@ public class Disposal {
 	 * 
 	 * @return scrapNumbers
 	 **/
-	@ApiModelProperty(required = true, readOnly = true, value = "Array of scrap numbers ")
+
 	@Size(max = 100)
 	public List<String> getScrapNumbers() {
 		return scrapNumbers;
@@ -219,7 +213,7 @@ public class Disposal {
 	 * 
 	 * @return disposalDate
 	 **/
-	@ApiModelProperty(required = true, value = "disposal date of the Disposal ")
+
 	@NotNull
 
 	public Long getDisposalDate() {
@@ -240,7 +234,6 @@ public class Disposal {
 	 * 
 	 * @return handOverTo
 	 **/
-	@ApiModelProperty(value = "hand over to of the Disposal ")
 
 	@Size(max = 250)
 	public String getHandOverTo() {
@@ -261,7 +254,6 @@ public class Disposal {
 	 * 
 	 * @return auctionNumber
 	 **/
-	@ApiModelProperty(value = "auction number of the Disposal ")
 
 	@Size(max = 100)
 	public String getAuctionNumber() {
@@ -282,7 +274,6 @@ public class Disposal {
 	 * 
 	 * @return description
 	 **/
-	@ApiModelProperty(value = "description of the Disposal ")
 
 	@Size(max = 1000)
 	public String getDescription() {
@@ -307,12 +298,11 @@ public class Disposal {
 	}
 
 	/**
-	 * This object contains the list of materials marked as scraped in the
-	 * selected store and are to be disposed.
+	 * This object contains the list of materials marked as scraped in the selected
+	 * store and are to be disposed.
 	 * 
 	 * @return disposalDetails
 	 **/
-	@ApiModelProperty(value = "This object contains the list of materials marked as scraped in the selected store and are to be disposed. ")
 
 	@Valid
 
@@ -334,7 +324,7 @@ public class Disposal {
 	 * 
 	 * @return disposalStatus
 	 **/
-	@ApiModelProperty(required = true, value = "disposal status of the Disposal ")
+
 	@NotNull
 
 	public DisposalStatusEnum getDisposalStatus() {
@@ -355,7 +345,6 @@ public class Disposal {
 	 * 
 	 * @return workFlowDetails
 	 **/
-	@ApiModelProperty(value = "")
 
 	@Valid
 
@@ -377,7 +366,6 @@ public class Disposal {
 	 * 
 	 * @return stateId
 	 **/
-	@ApiModelProperty(value = "state id of the Disposal ")
 
 	public Long getStateId() {
 		return stateId;
@@ -397,7 +385,6 @@ public class Disposal {
 	 * 
 	 * @return totalDisposalValue
 	 **/
-	@ApiModelProperty(value = "totalDisposalValue  denormalized value from Disposal Details ")
 
 	public BigDecimal getTotalDisposalValue() {
 		return totalDisposalValue;
@@ -417,7 +404,6 @@ public class Disposal {
 	 * 
 	 * @return auditDetails
 	 **/
-	@ApiModelProperty(value = "")
 
 	@Valid
 

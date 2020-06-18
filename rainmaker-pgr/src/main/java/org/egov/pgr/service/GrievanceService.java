@@ -236,7 +236,8 @@ public class GrievanceService {
 			if(!CollectionUtils.isEmpty(serivceDefs))
 				servReq.setCategory(String.valueOf(serivceDefs.get(0)));
 				if((Integer)serivceDefs.get(3) > 0) {
-					servReq.setSlaEndTime(auditDetails.getCreatedTime()+ Long.parseLong(serivceDefs.get(3).toString())*24*60*60*1000); // convert sla day ur to millisecond
+					long slaEndTime = pGRUtils.getLastDayTime(auditDetails.getCreatedTime() + Long.parseLong(serivceDefs.get(3).toString())*24*60*60*1000);// convert sla day ur to millisecond
+					servReq.setSlaEndTime(slaEndTime); 
 				}
 		}
 		serviceRequest.setActionInfo(actionInfos);

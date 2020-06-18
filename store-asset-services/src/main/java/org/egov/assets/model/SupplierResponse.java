@@ -39,26 +39,26 @@
  */
 package org.egov.assets.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+
+import javax.validation.Valid;
+
+import org.egov.common.contract.response.ResponseInfo;
+import org.springframework.validation.annotation.Validated;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
 
 /**
  * Contract class for web response. Array of Supplier items are used in case of
  * search ,create or update request.
  */
-@ApiModel(description = "Contract class for web response. Array of Supplier items  are used in case of search ,create or update request.")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-11-02T13:59:35.200+05:30")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -84,10 +84,7 @@ public class SupplierResponse {
 	 * 
 	 * @return responseInfo
 	 **/
-	@ApiModelProperty(value = "")
-
 	@Valid
-
 	public ResponseInfo getResponseInfo() {
 		return responseInfo;
 	}
@@ -114,10 +111,7 @@ public class SupplierResponse {
 	 * 
 	 * @return suppliers
 	 **/
-	@ApiModelProperty(value = "Used for search result and create only")
-
 	@Valid
-
 	public List<Supplier> getSuppliers() {
 		return suppliers;
 	}
@@ -136,10 +130,7 @@ public class SupplierResponse {
 	 * 
 	 * @return page
 	 **/
-	@ApiModelProperty(value = "")
-
 	@Valid
-
 	public Page getPage() {
 		return page;
 	}

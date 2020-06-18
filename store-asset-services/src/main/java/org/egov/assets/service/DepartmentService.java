@@ -2,7 +2,7 @@ package org.egov.assets.service;
 
 import org.egov.assets.common.MdmsRepository;
 import org.egov.assets.model.Department;
-import org.egov.assets.model.RequestInfo;
+import org.egov.common.contract.request.RequestInfo;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

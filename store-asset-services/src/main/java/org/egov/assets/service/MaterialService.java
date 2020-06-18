@@ -1,7 +1,10 @@
 package org.egov.assets.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import net.minidev.json.JSONArray;
+import static org.springframework.util.StringUtils.isEmpty;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.egov.assets.common.Constants;
 import org.egov.assets.common.DomainService;
@@ -10,19 +13,25 @@ import org.egov.assets.common.Pagination;
 import org.egov.assets.common.exception.CustomBindException;
 import org.egov.assets.common.exception.ErrorCode;
 import org.egov.assets.common.exception.InvalidDataException;
-import org.egov.assets.model.*;
+import org.egov.assets.model.Material;
+import org.egov.assets.model.MaterialRequest;
+import org.egov.assets.model.MaterialResponse;
+import org.egov.assets.model.MaterialSearchRequest;
+import org.egov.assets.model.MaterialStoreMapping;
+import org.egov.assets.model.MaterialStoreMappingRequest;
+import org.egov.assets.model.MaterialStoreMappingSearch;
+import org.egov.assets.model.StoreMapping;
 import org.egov.assets.repository.MaterialJdbcRepository;
+import org.egov.common.contract.request.RequestInfo;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.springframework.util.StringUtils.isEmpty;
+import net.minidev.json.JSONArray;
 
 @Service
 public class MaterialService extends DomainService {
@@ -55,7 +64,7 @@ public class MaterialService extends DomainService {
 		try {
 			List<MaterialStoreMapping> materialStoreMappings = new ArrayList<>();
 
-			validate(materialRequest.getMaterials(), Constants.ACTION_CREATE);
+			validate(materialRequest.getMaterials(), Constants.ACTION_CREATE, materialRequest.getRequestInfo());
 
 			List<String> materialIdList = materialJdbcRepository.getSequence(Material.class.getSimpleName(),
 					materialRequest.getMaterials().size());
@@ -76,20 +85,18 @@ public class MaterialService extends DomainService {
 			materialStoreMappingService.create(
 					buildMaterialStoreRequest(materialRequest.getRequestInfo(), materialStoreMappings), tenantId);
 
-			MaterialResponse response = MaterialResponse.builder().materials(materialRequest.getMaterials())
+			return MaterialResponse.builder().materials(materialRequest.getMaterials())
 					.responseInfo(getResponseInfo(materialRequest.getRequestInfo())).build();
 
-			return response;
 		} catch (CustomBindException e) {
-			throw e;
+			throw new CustomException("MATERIAL_MASTER_EXCEPTION", e.getMessage());
 		}
 	}
 
 	public MaterialResponse update(MaterialRequest materialRequest, String tenantId) {
 		try {
 			List<MaterialStoreMapping> materialStoreMappings = new ArrayList<>();
-
-			validate(materialRequest.getMaterials(), Constants.ACTION_UPDATE);
+			validate(materialRequest.getMaterials(), Constants.ACTION_UPDATE, materialRequest.getRequestInfo());
 			for (Material material : materialRequest.getMaterials()) {
 				if (isEmpty(material.getTenantId())) {
 					material.setTenantId(tenantId);
@@ -109,28 +116,27 @@ public class MaterialService extends DomainService {
 			return response;
 
 		} catch (CustomBindException e) {
-			throw e;
+			throw new CustomException("MATERIAL_MASTER_EXCEPTION", e.getMessage());
 		}
 	}
 
-	public MaterialResponse search(MaterialSearchRequest materialSearchRequest,
-			org.egov.common.contract.request.RequestInfo requestInfo) {
+	public MaterialResponse search(MaterialSearchRequest materialSearchRequest, RequestInfo requestInfo) {
 
 		MaterialResponse response = new MaterialResponse();
 
 		List<Material> materials = new ArrayList<Material>();
 
 		List<Material> materialFromMdms = getMaterialFromMdms(materialSearchRequest.getTenantId(),
-				materialSearchRequest.getCode());
+				materialSearchRequest.getCode(), requestInfo);
 
-		if (materialFromMdms.size() > 0) {
+		if (!materialFromMdms.isEmpty()) {
 			for (Material material : materialFromMdms) {
 				MaterialSearchRequest request = MaterialSearchRequest.builder().code(material.getCode())
 						.tenantId(material.getTenantId()).build();
 
 				Pagination<Material> materialFromDb = materialJdbcRepository.search(request);
 
-				if (materialFromDb.getPagedData().size() > 0) {
+				if (!materialFromDb.getPagedData().isEmpty()) {
 
 					for (Material materialDb : materialFromDb.getPagedData()) {
 
@@ -179,7 +185,7 @@ public class MaterialService extends DomainService {
 
 	}
 
-	private void validate(List<Material> materials, String method) {
+	private void validate(List<Material> materials, String method, RequestInfo requestInfo) {
 
 		try {
 			switch (method) {
@@ -190,7 +196,7 @@ public class MaterialService extends DomainService {
 				} else {
 					materials.forEach(material -> {
 						minmaxvalidate(material);
-						// validateMaterial(material.getCode(),material.getTenantId());
+						validateMaterial(material.getCode(), material.getTenantId(), requestInfo);
 					});
 				}
 			}
@@ -246,15 +252,16 @@ public class MaterialService extends DomainService {
 		}
 	}
 
-	private List<Material> getMaterialFromMdms(String tenantId, String code) {
+	private List<Material> getMaterialFromMdms(String tenantId, String code, RequestInfo requestInfo) {
 
 		List<Object> objectList;
 
 		if (!StringUtils.isEmpty(code)) {
-			objectList = mdmsRepository.fetchObjectList(tenantId, "inventory", "Material", "code", code,
-					Material.class);
+			objectList = mdmsRepository.fetchObjectList(tenantId, "store-asset", "Material", "code", code,
+					Material.class, requestInfo);
 		} else {
-			objectList = mdmsRepository.fetchObjectList(tenantId, "inventory", "Material", null, null, Material.class);
+			objectList = mdmsRepository.fetchObjectList(tenantId, "store-asset", "Material", null, null, Material.class,
+					requestInfo);
 		}
 
 		List<Material> materials = new ArrayList<>();
@@ -282,13 +289,13 @@ public class MaterialService extends DomainService {
 				.termsOfDelivery(mdmsMaterial.getTermsOfDelivery()).tenantId(mdmsMaterial.getTenantId());
 	}
 
-	/*
-	 * private void validateMaterial(String code, String tenantId) { Material
-	 * material = (Material) mdmsRepository.fetchObject(tenantId, "inventory",
-	 * "Material", "code", code, Material.class); if (null == material) { throw new
-	 * CustomException("inv.0014", "Material not found with Code" + code);
-	 * 
-	 * } }
-	 */
+	private void validateMaterial(String code, String tenantId, RequestInfo requestInfo) {
+		Material material = (Material) mdmsRepository.fetchObject(tenantId, "store-asset", "Material", "code", code,
+				Material.class, requestInfo);
+		if (null == material) {
+			throw new CustomException("inv.0014", "Material not found with Code" + code);
+
+		}
+	}
 
 }

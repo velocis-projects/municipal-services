@@ -2,6 +2,8 @@ package org.egov.assets.model;
 
 import java.math.BigDecimal;
 
+import org.egov.common.contract.response.ResponseInfo;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;

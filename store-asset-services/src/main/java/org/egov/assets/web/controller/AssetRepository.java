@@ -3,7 +3,7 @@ package org.egov.assets.web.controller;
 import org.egov.assets.common.RequestInfoWrapper;
 import org.egov.assets.model.Asset;
 import org.egov.assets.model.AssetResponse;
-import org.egov.assets.model.RequestInfo;
+import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -17,15 +17,14 @@ public class AssetRepository {
 
 	private String searchUrl;
 
-
-
-	public AssetRepository(@Value("${egov.service.host.url}") String hostUrl, @Value("${egov.serices.asset.searh.url}") String searchUrl, RestTemplate restTemplate) {
+	public AssetRepository(@Value("${egov.service.host.url}") String hostUrl,
+			@Value("${egov.serices.asset.searh.url}") String searchUrl, RestTemplate restTemplate) {
 		this.restTemplate = restTemplate;
 		this.hostUrl = hostUrl;
-		this.searchUrl=searchUrl;
+		this.searchUrl = searchUrl;
 	}
 
-	public Asset findByCode(Asset asset,RequestInfo info) {
+	public Asset findByCode(Asset asset, RequestInfo info) {
 
 		try {
 			String url = String.format("%s%s", hostUrl, searchUrl);
@@ -37,7 +36,7 @@ public class AssetRepository {
 			if (asset.getTenantId() != null) {
 				content.append("&tenantId=" + asset.getTenantId());
 			}
-			RequestInfoWrapper req=new RequestInfoWrapper();
+			RequestInfoWrapper req = new RequestInfoWrapper();
 			req.setRequestInfo(getRequestInfo(info));
 			url = url + content.toString();
 			AssetResponse result = restTemplate.postForObject(url, req, AssetResponse.class);
@@ -54,18 +53,13 @@ public class AssetRepository {
 	}
 
 	private org.egov.common.contract.request.RequestInfo getRequestInfo(RequestInfo requestInfo) {
-		org.egov.common.contract.request.RequestInfo info=new org.egov.common.contract.request.RequestInfo();
-		 return  info.builder().action(requestInfo.getAction())
-		   .apiId(requestInfo.getApiId())
-		   .authToken(requestInfo.getAuthToken())
-		   .correlationId(requestInfo.getCorrelationId())
-		   .did(requestInfo.getDid())
-		   .key(requestInfo.getKey())
-		   .msgId(requestInfo.getMsgId())
-		   .ts(requestInfo.getTs())
-		   //.userInfo(requestInfo.getUserInfo())
-		   .ver(requestInfo.getVer()).build();
+		org.egov.common.contract.request.RequestInfo info = new org.egov.common.contract.request.RequestInfo();
+		return info.builder().action(requestInfo.getAction()).apiId(requestInfo.getApiId())
+				.authToken(requestInfo.getAuthToken()).correlationId(requestInfo.getCorrelationId())
+				.did(requestInfo.getDid()).key(requestInfo.getKey()).msgId(requestInfo.getMsgId())
+				.ts(requestInfo.getTs())
+				// .userInfo(requestInfo.getUserInfo())
+				.ver(requestInfo.getVer()).build();
 	}
-	
-	
+
 }

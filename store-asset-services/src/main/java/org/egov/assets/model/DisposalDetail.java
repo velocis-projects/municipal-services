@@ -1,20 +1,18 @@
 package org.egov.assets.model;
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-
 import java.math.BigDecimal;
+import java.util.Objects;
+
 import javax.validation.Valid;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * This object contains the list of materials marked as scraped in the selected
  * store and are to be disposed.
  */
-@ApiModel(description = "This object contains the list of materials marked as scraped in the selected store and are to be disposed.   ")
-@javax.annotation.Generated(value = "org.egov.inv.codegen.languages.SpringCodegen", date = "2017-11-08T13:51:07.770Z")
 
 public class DisposalDetail {
 	@JsonProperty("id")
@@ -34,10 +32,10 @@ public class DisposalDetail {
 
 	@JsonProperty("disposalQuantity")
 	private BigDecimal disposalQuantity = null;
-	
+
 	@JsonProperty("userDisposalQuantity")
 	private BigDecimal userDisposalQuantity = null;
-	
+
 	@JsonProperty("pendingScrapQuantity")
 	private BigDecimal pendingScrapQuantity = null;
 
@@ -54,7 +52,6 @@ public class DisposalDetail {
 	 * 
 	 * @return id
 	 **/
-	@ApiModelProperty(value = "Unique Identifier of the Disposal Details ")
 
 	public String getId() {
 		return id;
@@ -74,7 +71,7 @@ public class DisposalDetail {
 	 * 
 	 * @return tenantId
 	 **/
-	@ApiModelProperty(required = true, value = "Tenant id of the Material Issue")
+
 	@NotNull
 
 	@Size(min = 4, max = 128)
@@ -96,7 +93,7 @@ public class DisposalDetail {
 	 * 
 	 * @return material
 	 **/
-	@ApiModelProperty(required = true, value = "")
+
 	@Valid
 
 	public Material getMaterial() {
@@ -117,7 +114,6 @@ public class DisposalDetail {
 	 * 
 	 * @return uom
 	 **/
-	@ApiModelProperty(value = "Auto populate unit of material from scrap")
 
 	@Valid
 
@@ -139,7 +135,7 @@ public class DisposalDetail {
 	 * 
 	 * @return scrapDetails
 	 **/
-	@ApiModelProperty(required = true, value = "")
+
 	@NotNull
 
 	public ScrapDetail getScrapDetails() {
@@ -160,8 +156,6 @@ public class DisposalDetail {
 	 * 
 	 * @return disposalQuantity
 	 **/
-	@ApiModelProperty(required = true, value = "disposal quantity of the DisposalDetails ")
-
 	@Valid
 
 	public BigDecimal getDisposalQuantity() {
@@ -171,7 +165,7 @@ public class DisposalDetail {
 	public void setDisposalQuantity(BigDecimal disposalQuantity) {
 		this.disposalQuantity = disposalQuantity;
 	}
-	
+
 	public DisposalDetail userDisposalQuantity(BigDecimal userDisposalQuantity) {
 		this.userDisposalQuantity = userDisposalQuantity;
 		return this;
@@ -182,7 +176,7 @@ public class DisposalDetail {
 	 * 
 	 * @return disposalQuantity
 	 **/
-	@ApiModelProperty(required = true, value = "user disposal quantity of the DisposalDetails ")
+
 	@NotNull
 
 	@Valid
@@ -194,7 +188,7 @@ public class DisposalDetail {
 	public void setUserDisposalQuantity(BigDecimal userDisposalQuantity) {
 		this.userDisposalQuantity = userDisposalQuantity;
 	}
-	
+
 	public DisposalDetail pendingScrapQuantity(BigDecimal pendingScrapQuantity) {
 		this.pendingScrapQuantity = pendingScrapQuantity;
 		return this;
@@ -205,8 +199,6 @@ public class DisposalDetail {
 	 * 
 	 * @return pendingScrapQuantity
 	 **/
-	@ApiModelProperty(required = true, value = "pending ScrapQuantity of the DisposalDetails ")
-
 
 	public BigDecimal getPendingScrapQuantity() {
 		return pendingScrapQuantity;
@@ -226,7 +218,7 @@ public class DisposalDetail {
 	 * 
 	 * @return disposalValue
 	 **/
-	@ApiModelProperty(required = true, value = "disposal value of the DisposalDetails ")
+
 	@NotNull
 
 	public BigDecimal getDisposalValue() {

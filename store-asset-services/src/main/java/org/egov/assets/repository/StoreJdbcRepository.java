@@ -219,7 +219,6 @@ public class StoreJdbcRepository extends JdbcRepository {
                 .query(searchQuery.toString(), paramValues, row);
 
         for (StoreEntity storesEntity : storesEntities) {
-
             storesList.add(storesEntity.toDomain());
         }
 

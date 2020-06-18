@@ -10,9 +10,9 @@ import javax.validation.constraints.NotNull;
 import org.egov.assets.model.PriceListRequest;
 import org.egov.assets.model.PriceListResponse;
 import org.egov.assets.model.PriceListSearchRequest;
-import org.egov.assets.model.RequestInfo;
 import org.egov.assets.repository.PurchaseOrderJdbcRepository;
 import org.egov.assets.service.PriceListService;
+import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,14 +52,14 @@ public class PricelistsApiController {
 
 	@PostMapping(value = "/_gettenderusedquantity", produces = { "application/json" }, consumes = {
 			"application/json" })
-	public ResponseEntity<PriceListResponse> pricelistsGettenderusedquantityPost(
+	public ResponseEntity<PriceListResponse> pricelistsGettenderusedquantityPost(@RequestBody RequestInfo requestInfo,
 			@RequestParam(value = "material", required = false) String material,
 			@RequestParam(value = "priceListId", required = false) String priceListId,
 			@RequestParam(value = "uom", required = false) String uom,
 			@RequestParam(value = "tenantId", required = false) String tenantId) {
 		// do some magic!
-		return new ResponseEntity<>(priceListService.getTenderUsedQty(material, priceListId, uom, tenantId),
-				HttpStatus.OK);
+		return new ResponseEntity<>(
+				priceListService.getTenderUsedQty(material, priceListId, uom, tenantId, requestInfo), HttpStatus.OK);
 	}
 
 	@PostMapping(value = "/_search", produces = { "application/json" }, consumes = { "application/json" })

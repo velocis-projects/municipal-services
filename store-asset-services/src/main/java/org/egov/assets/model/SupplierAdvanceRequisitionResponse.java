@@ -1,21 +1,18 @@
 package org.egov.assets.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import javax.validation.Valid;
 
+import org.egov.common.contract.response.ResponseInfo;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Contract class for web response. Array of SupplierAdvanceRequisition forms responses which are used in create, update, search.
  */
-@ApiModel(description = "Contract class for web response. Array of SupplierAdvanceRequisition forms responses which are used in create, update, search.")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-01-03T10:57:16.070Z")
 
 public class SupplierAdvanceRequisitionResponse   {
   @JsonProperty("ResponseInfo")
@@ -36,9 +33,7 @@ public class SupplierAdvanceRequisitionResponse   {
    * Get responseInfo
    * @return responseInfo
   **/
-  @ApiModelProperty(value = "")
-
-  @Valid
+    @Valid
 
   public ResponseInfo getResponseInfo() {
     return responseInfo;
@@ -65,9 +60,7 @@ public class SupplierAdvanceRequisitionResponse   {
    * Used for search result and create only
    * @return supplierAdvanceRequisitions
   **/
-  @ApiModelProperty(value = "Used for search result and create only")
-
-  @Valid
+    @Valid
 
   public List<SupplierAdvanceRequisition> getSupplierAdvanceRequisitions() {
     return supplierAdvanceRequisitions;
@@ -86,9 +79,7 @@ public class SupplierAdvanceRequisitionResponse   {
    * Get page
    * @return page
   **/
-  @ApiModelProperty(value = "")
-
-  @Valid
+    @Valid
 
   public Page getPage() {
     return page;

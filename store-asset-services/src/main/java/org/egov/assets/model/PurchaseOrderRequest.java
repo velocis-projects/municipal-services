@@ -1,7 +1,5 @@
 package org.egov.assets.model;
 
-import io.swagger.annotations.ApiModelProperty;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -9,12 +7,13 @@ import java.util.Objects;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.egov.common.contract.request.RequestInfo;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * PurchaseOrderRequest
  */
-@javax.annotation.Generated(value = "org.egov.inv.codegen.languages.SpringCodegen", date = "2017-11-08T13:51:07.770Z")
 
 public class PurchaseOrderRequest   {
   @JsonProperty("RequestInfo")
@@ -32,7 +31,7 @@ public class PurchaseOrderRequest   {
    * Get requestInfo
    * @return requestInfo
   **/
-  @ApiModelProperty(required = true, value = "")
+  
   @NotNull
 
   @Valid
@@ -59,7 +58,7 @@ public class PurchaseOrderRequest   {
    * Used for search result and create only
    * @return purchaseOrders
   **/
-  @ApiModelProperty(required = true, value = "Used for search result and create only")
+  
   @NotNull
 
   @Valid

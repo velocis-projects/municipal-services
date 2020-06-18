@@ -24,26 +24,25 @@ import org.egov.assets.model.FifoRequest;
 import org.egov.assets.model.FifoResponse;
 import org.egov.assets.model.Material;
 import org.egov.assets.model.MaterialIssue;
+import org.egov.assets.model.MaterialIssue.IssuePurposeEnum;
+import org.egov.assets.model.MaterialIssue.IssueTypeEnum;
+import org.egov.assets.model.MaterialIssue.MaterialIssueStatusEnum;
 import org.egov.assets.model.MaterialIssueDetail;
 import org.egov.assets.model.MaterialIssueRequest;
 import org.egov.assets.model.MaterialIssueResponse;
 import org.egov.assets.model.MaterialIssueSearchContract;
 import org.egov.assets.model.MaterialIssuedFromReceipt;
 import org.egov.assets.model.MaterialReceiptDetail;
-import org.egov.assets.model.RequestInfo;
 import org.egov.assets.model.Store;
 import org.egov.assets.model.StoreGetRequest;
 import org.egov.assets.model.Uom;
-import org.egov.assets.model.MaterialIssue.IssuePurposeEnum;
-import org.egov.assets.model.MaterialIssue.IssueTypeEnum;
-import org.egov.assets.model.MaterialIssue.MaterialIssueStatusEnum;
 import org.egov.assets.repository.MaterialIssueDetailJdbcRepository;
 import org.egov.assets.repository.MaterialIssueJdbcRepository;
 import org.egov.assets.repository.MaterialIssuedFromReceiptJdbcRepository;
 import org.egov.assets.repository.entity.FifoEntity;
-import org.egov.assets.repository.entity.IndentDetailEntity;
 import org.egov.assets.repository.entity.MaterialIssueEntity;
 import org.egov.assets.util.InventoryUtilities;
+import org.egov.common.contract.request.RequestInfo;
 import org.egov.tracer.kafka.LogAwareKafkaTemplate;
 import org.egov.tracer.model.CustomException;
 import org.slf4j.Logger;
@@ -160,13 +159,10 @@ public class NonIndentMaterialIssueService extends DomainService {
 			materialIssuedFromReceipt.setStatus(true);
 			materialIssuedFromReceipt.setMaterialReceiptId(fifoEntity.getReceiptId());
 			if (quantityIssued.compareTo(BigDecimal.valueOf(fifoEntity.getBalance())) >= 0) {
-				materialIssuedFromReceipt.setQuantity(
-						BigDecimal.valueOf(fifoEntity.getBalance()));
-				unitRate =  BigDecimal.valueOf(fifoEntity.getUnitRate())
-								.multiply(BigDecimal.valueOf(fifoEntity.getBalance()))
-								.add(unitRate);
-				quantityIssued = quantityIssued.subtract(
-					 BigDecimal.valueOf(fifoEntity.getBalance()));
+				materialIssuedFromReceipt.setQuantity(BigDecimal.valueOf(fifoEntity.getBalance()));
+				unitRate = BigDecimal.valueOf(fifoEntity.getUnitRate())
+						.multiply(BigDecimal.valueOf(fifoEntity.getBalance())).add(unitRate);
+				quantityIssued = quantityIssued.subtract(BigDecimal.valueOf(fifoEntity.getBalance()));
 			} else {
 				materialIssuedFromReceipt.setQuantity(quantityIssued);
 				unitRate = quantityIssued.multiply(BigDecimal.valueOf(fifoEntity.getUnitRate())).add(unitRate);
@@ -255,8 +251,9 @@ public class NonIndentMaterialIssueService extends DomainService {
 					if (!materialIssue.getMaterialIssueDetails().isEmpty()) {
 						int i = 0;
 						for (MaterialIssueDetail materialIssueDetail : materialIssue.getMaterialIssueDetails()) {
-							materialIssueDetail.setQuantityIssued(InventoryUtilities.getQuantityInBaseUom(
-									materialIssueDetail.getUserQuantityIssued(),materialIssueDetail.getUom().getConversionFactor()));
+							materialIssueDetail.setQuantityIssued(
+									InventoryUtilities.getQuantityInBaseUom(materialIssueDetail.getUserQuantityIssued(),
+											materialIssueDetail.getUom().getConversionFactor()));
 							if (materialIssue.getIssuePurpose().equals(IssuePurposeEnum.RETURNTOSUPPLIER)) {
 								if (StringUtils.isBlank(materialIssueDetail.getMrnNumber()))
 									errors.addDataError(ErrorCode.FIELD_MANDATORY_IN_CASE.getCode(), "mrnNumber",
@@ -264,7 +261,11 @@ public class NonIndentMaterialIssueService extends DomainService {
 							}
 							if (materialIssueDetail.getQuantityIssued().compareTo(BigDecimal.ZERO) <= 0)
 								errors.addDataError(ErrorCode.QUANTITY_GT_ZERO.getCode(), "quantityIssued",
-										String.valueOf(i), InventoryUtilities.getQuantityInSelectedUom(materialIssueDetail.getQuantityIssued(), materialIssueDetail.getUom().getConversionFactor()).toString());
+										String.valueOf(i),
+										InventoryUtilities
+												.getQuantityInSelectedUom(materialIssueDetail.getQuantityIssued(),
+														materialIssueDetail.getUom().getConversionFactor())
+												.toString());
 							FifoRequest fifoRequest = new FifoRequest();
 							Fifo fifo = new Fifo();
 							fifo.setStore(materialIssue.getFromStore());
@@ -272,22 +273,33 @@ public class NonIndentMaterialIssueService extends DomainService {
 							fifo.setIssueDate(materialIssue.getIssueDate());
 							fifo.setTenantId(materialIssue.getTenantId());
 							fifoRequest.setFifo(fifo);
-						  FifoResponse fifoResponse = materialIssueReceiptFifoLogic.getTotalStockAsPerMaterial(fifoRequest);
-						  BigDecimal balanceQuantity = BigDecimal.ZERO;
-						if(fifoResponse != null)
-							  balanceQuantity  =fifoResponse.getStock();
+							FifoResponse fifoResponse = materialIssueReceiptFifoLogic
+									.getTotalStockAsPerMaterial(fifoRequest);
+							BigDecimal balanceQuantity = BigDecimal.ZERO;
+							if (fifoResponse != null)
+								balanceQuantity = fifoResponse.getStock();
 							if (StringUtils.isNotBlank(balanceQuantity.toString())) {
 								if (balanceQuantity.compareTo(BigDecimal.ZERO) <= 0)
 									errors.addDataError(ErrorCode.QUANTITY_GT_ZERO.getCode(), "balanceQuantity",
-											String.valueOf(i), InventoryUtilities.getQuantityInSelectedUom(balanceQuantity, materialIssueDetail.getUom().getConversionFactor()).toString());
-									if (materialIssueDetail.getQuantityIssued()
-											.compareTo(balanceQuantity) > 0) {
-										errors.addDataError(ErrorCode.QUANTITY1_LTE_QUANTITY2.getCode(),
-												"quantityIssued", "balanceQuantity",
-												InventoryUtilities.getQuantityInSelectedUom(materialIssueDetail.getQuantityIssued(), materialIssueDetail.getUom().getConversionFactor()).toString(),
-												InventoryUtilities.getQuantityInSelectedUom(balanceQuantity, materialIssueDetail.getUom().getConversionFactor()).toString(), String.valueOf(i));
-									}
+											String.valueOf(i),
+											InventoryUtilities
+													.getQuantityInSelectedUom(balanceQuantity,
+															materialIssueDetail.getUom().getConversionFactor())
+													.toString());
+								if (materialIssueDetail.getQuantityIssued().compareTo(balanceQuantity) > 0) {
+									errors.addDataError(ErrorCode.QUANTITY1_LTE_QUANTITY2.getCode(), "quantityIssued",
+											"balanceQuantity",
+											InventoryUtilities
+													.getQuantityInSelectedUom(materialIssueDetail.getQuantityIssued(),
+															materialIssueDetail.getUom().getConversionFactor())
+													.toString(),
+											InventoryUtilities
+													.getQuantityInSelectedUom(balanceQuantity,
+															materialIssueDetail.getUom().getConversionFactor())
+													.toString(),
+											String.valueOf(i));
 								}
+							}
 							if (materialIssue.getIssuePurpose() != null)
 								if (materialIssue.getIssuePurpose().equals(IssuePurposeEnum.WRITEOFFORSCRAP)) {
 									if (materialIssueDetail.getMaterial() != null
@@ -312,46 +324,52 @@ public class NonIndentMaterialIssueService extends DomainService {
 						String date = convertEpochtoDate(materialIssue.getIssueDate());
 						errors.addDataError(ErrorCode.DATE_LE_CURRENTDATE.getCode(), "issueDate", date);
 					}
-						if (materialIssue.getIssueNumber() != null) {
-							MaterialIssueEntity materialIssueEntity = new MaterialIssueEntity();
-							materialIssueEntity.setIssueNumber(materialIssue.getIssueNumber());
-							materialIssueEntity.setTenantId(materialIssue.getTenantId());
-							Object issueEntity = materialIssueJdbcRepository.findById(materialIssueEntity,
-									"MaterialIssueEntity");
-							MaterialIssueEntity issueEntityfromDb = (MaterialIssueEntity) issueEntity;
-							if (issueEntityfromDb != null) {
-								if (materialIssue.getIssueType() != null) {
-									if (!issueEntityfromDb.getIssueType().equals(materialIssue.getIssueType().name()))
-										errors.addDataError(ErrorCode.NOT_ALLOWED_TO_UPDATE.getCode(), "issueType",
-												"MaterialIssue");
-								}
-								if (materialIssue.getSupplier() != null && materialIssue.getSupplier().getCode() != null) {
-									if (!issueEntityfromDb.getSupplier().equals(materialIssue.getSupplier().getCode()))
-										errors.addDataError(ErrorCode.NOT_ALLOWED_TO_UPDATE.getCode(), "supplier",
-												"MaterialIssue");
-								}
-							}
-							if (materialIssue.getIssueDate() != null) {
-								if (!issueEntityfromDb.getIssueDate().equals(materialIssue.getIssueDate()))
-									errors.addDataError(ErrorCode.NOT_ALLOWED_TO_UPDATE.getCode(), "issueDate",
+					if (materialIssue.getIssueNumber() != null) {
+						MaterialIssueEntity materialIssueEntity = new MaterialIssueEntity();
+						materialIssueEntity.setIssueNumber(materialIssue.getIssueNumber());
+						materialIssueEntity.setTenantId(materialIssue.getTenantId());
+						Object issueEntity = materialIssueJdbcRepository.findById(materialIssueEntity,
+								"MaterialIssueEntity");
+						MaterialIssueEntity issueEntityfromDb = (MaterialIssueEntity) issueEntity;
+						if (issueEntityfromDb != null) {
+							if (materialIssue.getIssueType() != null) {
+								if (!issueEntityfromDb.getIssueType().equals(materialIssue.getIssueType().name()))
+									errors.addDataError(ErrorCode.NOT_ALLOWED_TO_UPDATE.getCode(), "issueType",
 											"MaterialIssue");
 							}
-							if (materialIssue.getIssuePurpose() != null) {
-								if (!issueEntityfromDb.getIssuePurpose().toString().equals(materialIssue.getIssuePurpose().toString()))
-									errors.addDataError(ErrorCode.NOT_ALLOWED_TO_UPDATE.getCode(), "issuePurpose",
+							if (materialIssue.getSupplier() != null && materialIssue.getSupplier().getCode() != null) {
+								if (!issueEntityfromDb.getSupplier().equals(materialIssue.getSupplier().getCode()))
+									errors.addDataError(ErrorCode.NOT_ALLOWED_TO_UPDATE.getCode(), "supplier",
 											"MaterialIssue");
 							}
-				
 						}
-					
+						if (materialIssue.getIssueDate() != null) {
+							if (!issueEntityfromDb.getIssueDate().equals(materialIssue.getIssueDate()))
+								errors.addDataError(ErrorCode.NOT_ALLOWED_TO_UPDATE.getCode(), "issueDate",
+										"MaterialIssue");
+						}
+						if (materialIssue.getIssuePurpose() != null) {
+							if (!issueEntityfromDb.getIssuePurpose().toString()
+									.equals(materialIssue.getIssuePurpose().toString()))
+								errors.addDataError(ErrorCode.NOT_ALLOWED_TO_UPDATE.getCode(), "issuePurpose",
+										"MaterialIssue");
+						}
+
+					}
+
 					if (!materialIssue.getMaterialIssueDetails().isEmpty()) {
 						int i = 0;
 						for (MaterialIssueDetail materialIssueDetail : materialIssue.getMaterialIssueDetails()) {
-							materialIssueDetail.setQuantityIssued(InventoryUtilities.getQuantityInBaseUom(
-									materialIssueDetail.getUserQuantityIssued(),materialIssueDetail.getUom().getConversionFactor()));
+							materialIssueDetail.setQuantityIssued(
+									InventoryUtilities.getQuantityInBaseUom(materialIssueDetail.getUserQuantityIssued(),
+											materialIssueDetail.getUom().getConversionFactor()));
 							if (materialIssueDetail.getQuantityIssued().compareTo(BigDecimal.ZERO) <= 0)
 								errors.addDataError(ErrorCode.QUANTITY_GT_ZERO.getCode(), "quantityIssued",
-										String.valueOf(i), InventoryUtilities.getQuantityInSelectedUom(materialIssueDetail.getQuantityIssued(), materialIssueDetail.getUom().getConversionFactor()).toString());
+										String.valueOf(i),
+										InventoryUtilities
+												.getQuantityInSelectedUom(materialIssueDetail.getQuantityIssued(),
+														materialIssueDetail.getUom().getConversionFactor())
+												.toString());
 							FifoRequest fifoRequest = new FifoRequest();
 							Fifo fifo = new Fifo();
 							fifo.setStore(materialIssue.getFromStore());
@@ -359,39 +377,50 @@ public class NonIndentMaterialIssueService extends DomainService {
 							fifo.setIssueDate(materialIssue.getIssueDate());
 							fifo.setTenantId(materialIssue.getTenantId());
 							fifoRequest.setFifo(fifo);
-						MaterialIssueSearchContract searchContract = new MaterialIssueSearchContract();
-						searchContract.setIssueNoteNumber(materialIssue.getIssueNumber());
-						searchContract.setTenantId(materialIssue.getTenantId());
-						Pagination<MaterialIssueDetail> listOfPagedMaterialIssueDetails =	 materialIssueDetailsJdbcRepository.search(materialIssue.getIssueNumber(), materialIssue.getTenantId(), null);
-						List<MaterialIssueDetail> listOfMaterialIssueDetails = new ArrayList<>();
-						BigDecimal quantityIssued = BigDecimal.ZERO;
-						if(listOfPagedMaterialIssueDetails != null)
-						 listOfMaterialIssueDetails = listOfPagedMaterialIssueDetails.getPagedData();
-						for(MaterialIssueDetail materialIssDetail :listOfMaterialIssueDetails)
-						{
-							if(materialIssDetail.getId().equals(materialIssueDetail.getId())){
-								quantityIssued = materialIssDetail.getQuantityIssued();
-							break;
-							}
-						}
-						FifoResponse fifoResponse = materialIssueReceiptFifoLogic.getTotalStockAsPerMaterial(fifoRequest);
-						BigDecimal balQuantity =  BigDecimal.ZERO;
-						if(fifoResponse != null)
-							balQuantity  = fifoResponse.getStock();
-						BigDecimal balanceQuantity = balQuantity.add(quantityIssued);
-							
-								if (StringUtils.isNotBlank(balanceQuantity.toString())) {
-									if (balanceQuantity.compareTo(BigDecimal.ZERO) <= 0)
-										errors.addDataError(ErrorCode.QUANTITY_GT_ZERO.getCode(), "balanceQuantity",
-												String.valueOf(i), InventoryUtilities.getQuantityInSelectedUom(balanceQuantity, materialIssueDetail.getUom().getConversionFactor()).toString());
-									if (materialIssueDetail.getQuantityIssued()
-											.compareTo(balanceQuantity) > 0) {
-										errors.addDataError(ErrorCode.QUANTITY1_LTE_QUANTITY2.getCode(),
-												"quantityIssued", "balanceQuantity",
-												InventoryUtilities.getQuantityInSelectedUom(materialIssueDetail.getQuantityIssued(), materialIssueDetail.getUom().getConversionFactor()).toString().toString(),
-												InventoryUtilities.getQuantityInSelectedUom(balanceQuantity, materialIssueDetail.getUom().getConversionFactor()).toString(), String.valueOf(i));
-									}
+							MaterialIssueSearchContract searchContract = new MaterialIssueSearchContract();
+							searchContract.setIssueNoteNumber(materialIssue.getIssueNumber());
+							searchContract.setTenantId(materialIssue.getTenantId());
+							Pagination<MaterialIssueDetail> listOfPagedMaterialIssueDetails = materialIssueDetailsJdbcRepository
+									.search(materialIssue.getIssueNumber(), materialIssue.getTenantId(), null);
+							List<MaterialIssueDetail> listOfMaterialIssueDetails = new ArrayList<>();
+							BigDecimal quantityIssued = BigDecimal.ZERO;
+							if (listOfPagedMaterialIssueDetails != null)
+								listOfMaterialIssueDetails = listOfPagedMaterialIssueDetails.getPagedData();
+							for (MaterialIssueDetail materialIssDetail : listOfMaterialIssueDetails) {
+								if (materialIssDetail.getId().equals(materialIssueDetail.getId())) {
+									quantityIssued = materialIssDetail.getQuantityIssued();
+									break;
 								}
+							}
+							FifoResponse fifoResponse = materialIssueReceiptFifoLogic
+									.getTotalStockAsPerMaterial(fifoRequest);
+							BigDecimal balQuantity = BigDecimal.ZERO;
+							if (fifoResponse != null)
+								balQuantity = fifoResponse.getStock();
+							BigDecimal balanceQuantity = balQuantity.add(quantityIssued);
+
+							if (StringUtils.isNotBlank(balanceQuantity.toString())) {
+								if (balanceQuantity.compareTo(BigDecimal.ZERO) <= 0)
+									errors.addDataError(ErrorCode.QUANTITY_GT_ZERO.getCode(), "balanceQuantity",
+											String.valueOf(i),
+											InventoryUtilities
+													.getQuantityInSelectedUom(balanceQuantity,
+															materialIssueDetail.getUom().getConversionFactor())
+													.toString());
+								if (materialIssueDetail.getQuantityIssued().compareTo(balanceQuantity) > 0) {
+									errors.addDataError(ErrorCode.QUANTITY1_LTE_QUANTITY2.getCode(), "quantityIssued",
+											"balanceQuantity",
+											InventoryUtilities
+													.getQuantityInSelectedUom(materialIssueDetail.getQuantityIssued(),
+															materialIssueDetail.getUom().getConversionFactor())
+													.toString().toString(),
+											InventoryUtilities
+													.getQuantityInSelectedUom(balanceQuantity,
+															materialIssueDetail.getUom().getConversionFactor())
+													.toString(),
+											String.valueOf(i));
+								}
+							}
 							if (materialIssue.getIssuePurpose() != null)
 								if (materialIssue.getIssuePurpose().equals(IssuePurposeEnum.WRITEOFFORSCRAP)) {
 									if (materialIssueDetail.getMaterial() != null
@@ -429,7 +458,7 @@ public class NonIndentMaterialIssueService extends DomainService {
 		fetchRelated(materialIssueRequest);
 		validate(materialIssueRequest.getMaterialIssues(), Constants.ACTION_UPDATE);
 		List<MaterialIssue> materialIssues = materialIssueRequest.getMaterialIssues();
-		int i=0;
+		int i = 0;
 		for (MaterialIssue materialIssue : materialIssues) {
 			if (StringUtils.isEmpty(materialIssue.getTenantId()))
 				materialIssue.setTenantId(tenantId);
@@ -458,7 +487,7 @@ public class NonIndentMaterialIssueService extends DomainService {
 						.equals(MaterialIssueStatusEnum.CANCELED.toString())) {
 					issueResponse.getMaterialIssues().get(0).setMaterialIssueStatus(MaterialIssueStatusEnum.CANCELED);
 					updateStatusAsCancelled(tenantId, materialIssue);
-					materialIssues.set(i,issueResponse.getMaterialIssues().get(0));
+					materialIssues.set(i, issueResponse.getMaterialIssues().get(0));
 					i++;
 					continue;
 				}
@@ -511,15 +540,19 @@ public class NonIndentMaterialIssueService extends DomainService {
 						IssueTypeEnum.NONINDENTISSUE.toString());
 				if (materialIssueDetails.getPagedData().size() > 0) {
 					for (MaterialIssueDetail materialIssueDetail : materialIssueDetails.getPagedData()) {
-						if(searchContract.getSearchPurpose() != null ){
-							if(searchContract.getSearchPurpose().equals("update")){
-						materialIssueDetail.setBalanceQuantity(InventoryUtilities.getQuantityInSelectedUom(getBalanceQuantityByStoreByMaterialAndIssueDate(materialIssue.getFromStore(),materialIssueDetail.getMaterial(),
-									materialIssue.getIssueDate(), materialIssue.getTenantId()).add(materialIssueDetail.getQuantityIssued()),uoms.get(materialIssueDetail.getUom().getCode()).getConversionFactor()));
-						}
+						if (searchContract.getSearchPurpose() != null) {
+							if (searchContract.getSearchPurpose().equals("update")) {
+								materialIssueDetail.setBalanceQuantity(InventoryUtilities.getQuantityInSelectedUom(
+										getBalanceQuantityByStoreByMaterialAndIssueDate(materialIssue.getFromStore(),
+												materialIssueDetail.getMaterial(), materialIssue.getIssueDate(),
+												materialIssue.getTenantId())
+														.add(materialIssueDetail.getQuantityIssued()),
+										uoms.get(materialIssueDetail.getUom().getCode()).getConversionFactor()));
+							}
 						}
 						Pagination<MaterialIssuedFromReceipt> materialIssuedFromReceipts = materialIssuedFromReceiptsJdbcRepository
 								.search(materialIssueDetail.getId(), materialIssueDetail.getTenantId());
-											if (materialIssueDetail.getUom() != null && materialIssueDetail.getUom().getCode() != null) {
+						if (materialIssueDetail.getUom() != null && materialIssueDetail.getUom().getCode() != null) {
 							for (MaterialIssuedFromReceipt mifr : materialIssuedFromReceipts.getPagedData()) {
 								BigDecimal quantity = getSearchConvertedQuantity(mifr.getQuantity(),
 										uoms.get(materialIssueDetail.getUom().getCode()).getConversionFactor());
@@ -566,11 +599,11 @@ public class NonIndentMaterialIssueService extends DomainService {
 		}
 		return materialMap;
 	}
-	
-	private BigDecimal getBalanceQuantityByStoreByMaterialAndIssueDate(Store store,Material material,
-			 Long issueDate, String tenantId) {
+
+	private BigDecimal getBalanceQuantityByStoreByMaterialAndIssueDate(Store store, Material material, Long issueDate,
+			String tenantId) {
 		BigDecimal balanceQuantity = BigDecimal.ZERO;
-       LOG.info("store :" + store + "material :" + material + "issueDate :" + issueDate + "tenantId :" + tenantId);
+		LOG.info("store :" + store + "material :" + material + "issueDate :" + issueDate + "tenantId :" + tenantId);
 		FifoRequest fifoRequest = new FifoRequest();
 		Fifo fifo = new Fifo();
 		fifo.setStore(store);

@@ -2,7 +2,6 @@ package org.egov.assets.service;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import org.egov.assets.common.DomainService;
@@ -16,6 +15,7 @@ import org.egov.assets.model.MaterialTypeStoreMapping;
 import org.egov.assets.model.MaterialTypeStoreMappingSearch;
 import org.egov.assets.model.MaterialTypeStoreRequest;
 import org.egov.assets.model.StoreMapping;
+import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -61,15 +61,14 @@ public class MaterialTypeService extends DomainService {
 		}
 	}
 
-	public MaterialTypeResponse search(MaterialTypeSearch materialTypeSearch,
-			org.egov.common.contract.request.RequestInfo requestInfo) {
+	public MaterialTypeResponse search(MaterialTypeSearch materialTypeSearch, RequestInfo requestInfo) {
 
 		MaterialTypeResponse response = new MaterialTypeResponse();
 
 		List<MaterialType> materialTypes = new ArrayList<>();
 
 		List<MaterialType> materialTypeMap = getMaterialTypeFromMdms(materialTypeSearch.getTenantId(),
-				materialTypeSearch.getCode());
+				materialTypeSearch.getCode(), requestInfo);
 
 		for (MaterialType materialType : materialTypeMap) {
 
@@ -132,16 +131,16 @@ public class MaterialTypeService extends DomainService {
 				.materialTypeStores(buildMaterialStoreMapping(materialTypeRequest.getMaterialTypes()));
 	}
 
-	private List<MaterialType> getMaterialTypeFromMdms(String tenantId, String code) {
+	private List<MaterialType> getMaterialTypeFromMdms(String tenantId, String code, RequestInfo requestInfo) {
 
 		List<Object> objectList = new ArrayList<>();
 
 		if (!StringUtils.isEmpty(code)) {
 			objectList = mdmsRepository.fetchObjectList(tenantId, "inventory", "MaterialType", "code", code,
-					MaterialType.class);
+					MaterialType.class, requestInfo);
 		} else {
 			objectList = mdmsRepository.fetchObjectList(tenantId, "inventory", "MaterialType", null, null,
-					MaterialType.class);
+					MaterialType.class, requestInfo);
 		}
 
 		List<MaterialType> hashMap = new ArrayList<>();

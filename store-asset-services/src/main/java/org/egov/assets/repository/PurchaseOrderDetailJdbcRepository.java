@@ -8,9 +8,9 @@ import java.util.Map;
 import org.egov.assets.common.Pagination;
 import org.egov.assets.model.PurchaseOrderDetail;
 import org.egov.assets.model.PurchaseOrderDetailSearch;
-import org.egov.assets.model.RequestInfo;
 import org.egov.assets.repository.entity.PurchaseOrderDetailEntity;
 import org.egov.assets.service.UomService;
+import org.egov.common.contract.request.RequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,170 +20,174 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PurchaseOrderDetailJdbcRepository extends org.egov.assets.common.JdbcRepository {
-	
-    @Autowired
-    private UomService uomService;
-	
-    private static final Logger LOG = LoggerFactory.getLogger(PurchaseOrderDetailJdbcRepository.class);
 
-    static {
-        LOG.debug("init purchase order detail");
-        init(PurchaseOrderDetailEntity.class);
-        LOG.debug("end init purchase order detail");
-    }
+	@Autowired
+	private UomService uomService;
 
-    public PurchaseOrderDetailJdbcRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
-        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
-    }
+	private static final Logger LOG = LoggerFactory.getLogger(PurchaseOrderDetailJdbcRepository.class);
 
-    public PurchaseOrderDetailEntity create(PurchaseOrderDetailEntity entity) {
-        super.create(entity);
-        return entity;
-    }
+	static {
+		LOG.debug("init purchase order detail");
+		init(PurchaseOrderDetailEntity.class);
+		LOG.debug("end init purchase order detail");
+	}
 
-    public PurchaseOrderDetailEntity update(PurchaseOrderDetailEntity entity) {
-        super.update(entity);
-        return entity;
+	public PurchaseOrderDetailJdbcRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+		this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+	}
 
-    }
+	public PurchaseOrderDetailEntity create(PurchaseOrderDetailEntity entity) {
+		super.create(entity);
+		return entity;
+	}
 
-    public boolean delete(PurchaseOrderDetailEntity entity, String reason) {
-        super.delete(entity, reason);
-        return true;
+	public PurchaseOrderDetailEntity update(PurchaseOrderDetailEntity entity) {
+		super.update(entity);
+		return entity;
 
-    }
+	}
 
-    public PurchaseOrderDetailEntity findById(PurchaseOrderDetailEntity entity) {
-        List<String> list = allIdentitiferFields.get(entity.getClass().getSimpleName());
+	public boolean delete(PurchaseOrderDetailEntity entity, String reason) {
+		super.delete(entity, reason);
+		return true;
 
-        Map<String, Object> paramValues = new HashMap<>();
+	}
 
-        for (String s : list) {
-            paramValues.put(s, getValue(getField(entity, s), entity));
-        }
+	public PurchaseOrderDetailEntity findById(PurchaseOrderDetailEntity entity) {
+		List<String> list = allIdentitiferFields.get(entity.getClass().getSimpleName());
 
-        List<PurchaseOrderDetailEntity> poDetails = namedParameterJdbcTemplate.query(
-                getByIdQuery.get(entity.getClass().getSimpleName()).toString(), paramValues,
-                new BeanPropertyRowMapper(PurchaseOrderDetailEntity.class));
-        if (poDetails.isEmpty()) {
-            return null;
-        } else {
-            return poDetails.get(0);
-        }
+		Map<String, Object> paramValues = new HashMap<>();
 
-    }
+		for (String s : list) {
+			paramValues.put(s, getValue(getField(entity, s), entity));
+		}
 
-    public Pagination<PurchaseOrderDetail> search(PurchaseOrderDetailSearch purchaseOrderDetailSearch) {
+		List<PurchaseOrderDetailEntity> poDetails = namedParameterJdbcTemplate.query(
+				getByIdQuery.get(entity.getClass().getSimpleName()).toString(), paramValues,
+				new BeanPropertyRowMapper(PurchaseOrderDetailEntity.class));
+		if (poDetails.isEmpty()) {
+			return null;
+		} else {
+			return poDetails.get(0);
+		}
 
-        String searchQuery = "select :selectfields from :tablename :condition  :orderby   ";
+	}
 
-        Map<String, Object> paramValues = new HashMap<>();
-        StringBuffer params = new StringBuffer();
+	public Pagination<PurchaseOrderDetail> search(PurchaseOrderDetailSearch purchaseOrderDetailSearch) {
 
-        if (purchaseOrderDetailSearch.getSortBy() != null && !purchaseOrderDetailSearch.getSortBy().isEmpty()) {
-            validateSortByOrder(purchaseOrderDetailSearch.getSortBy());
-            validateEntityFieldName(purchaseOrderDetailSearch.getSortBy(), PurchaseOrderDetailEntity.class);
-        }
+		String searchQuery = "select :selectfields from :tablename :condition  :orderby   ";
 
-        String orderBy = "order by purchaseorder ";
-        if (purchaseOrderDetailSearch.getSortBy() != null && !purchaseOrderDetailSearch.getSortBy().isEmpty()) {
-            orderBy = "order by " + purchaseOrderDetailSearch.getSortBy();
-        }
+		Map<String, Object> paramValues = new HashMap<>();
+		StringBuffer params = new StringBuffer();
 
-        searchQuery = searchQuery.replace(":tablename", PurchaseOrderDetailEntity.TABLE_NAME);
+		if (purchaseOrderDetailSearch.getSortBy() != null && !purchaseOrderDetailSearch.getSortBy().isEmpty()) {
+			validateSortByOrder(purchaseOrderDetailSearch.getSortBy());
+			validateEntityFieldName(purchaseOrderDetailSearch.getSortBy(), PurchaseOrderDetailEntity.class);
+		}
 
-        searchQuery = searchQuery.replace(":selectfields", " * ");
+		String orderBy = "order by purchaseorder ";
+		if (purchaseOrderDetailSearch.getSortBy() != null && !purchaseOrderDetailSearch.getSortBy().isEmpty()) {
+			orderBy = "order by " + purchaseOrderDetailSearch.getSortBy();
+		}
 
+		searchQuery = searchQuery.replace(":tablename", PurchaseOrderDetailEntity.TABLE_NAME);
 
-        if (purchaseOrderDetailSearch.getIds() != null) {
-            if (params.length() > 0)
-                params.append(" and ");
-            params.append("id in (:ids)");
-            paramValues.put("ids", purchaseOrderDetailSearch.getIds());
-        }
+		searchQuery = searchQuery.replace(":selectfields", " * ");
 
-        if (purchaseOrderDetailSearch.getTenantId() != null) {
-            if (params.length() > 0)
-                params.append(" and ");
-            params.append("tenantId =:tenantId");
-            paramValues.put("tenantId", purchaseOrderDetailSearch.getTenantId());
-        }
+		if (purchaseOrderDetailSearch.getIds() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append("id in (:ids)");
+			paramValues.put("ids", purchaseOrderDetailSearch.getIds());
+		}
 
-        if (purchaseOrderDetailSearch.getOrdernumber() != null) {
-            if (params.length() > 0)
-                params.append(" and ");
-            params.append(" ordernumber =:orderNumber");
-            paramValues.put("orderNumber", purchaseOrderDetailSearch.getOrdernumber());
-        }
+		if (purchaseOrderDetailSearch.getTenantId() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append("tenantId =:tenantId");
+			paramValues.put("tenantId", purchaseOrderDetailSearch.getTenantId());
+		}
 
-        if (purchaseOrderDetailSearch.getPurchaseOrder() != null) {
-            if (params.length() > 0)
-                params.append(" and ");
-            params.append(" purchaseorder =:purchaseOrder");
-            paramValues.put("purchaseOrder", purchaseOrderDetailSearch.getPurchaseOrder());
-        }
+		if (purchaseOrderDetailSearch.getOrdernumber() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append(" ordernumber =:orderNumber");
+			paramValues.put("orderNumber", purchaseOrderDetailSearch.getOrdernumber());
+		}
 
-        if (purchaseOrderDetailSearch.getMaterial() != null) {
-            if (params.length() > 0)
-                params.append(" and ");
-            params.append("material =:material");
-            paramValues.put("material", purchaseOrderDetailSearch.getMaterial());
-        }
+		if (purchaseOrderDetailSearch.getPurchaseOrder() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append(" purchaseorder =:purchaseOrder");
+			paramValues.put("purchaseOrder", purchaseOrderDetailSearch.getPurchaseOrder());
+		}
 
-        Pagination<PurchaseOrderDetail> page = new Pagination<>();
-        if (purchaseOrderDetailSearch.getPageNumber() != null) {
-            page.setOffset(purchaseOrderDetailSearch.getPageNumber() - 1);
-        }
-        if (purchaseOrderDetailSearch.getPageSize() != null) {
-            page.setPageSize(purchaseOrderDetailSearch.getPageSize());
-        }
+		if (purchaseOrderDetailSearch.getMaterial() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append("material =:material");
+			paramValues.put("material", purchaseOrderDetailSearch.getMaterial());
+		}
 
-        if (params.length() > 0) {
+		Pagination<PurchaseOrderDetail> page = new Pagination<>();
+		if (purchaseOrderDetailSearch.getPageNumber() != null) {
+			page.setOffset(purchaseOrderDetailSearch.getPageNumber() - 1);
+		}
+		if (purchaseOrderDetailSearch.getPageSize() != null) {
+			page.setPageSize(purchaseOrderDetailSearch.getPageSize());
+		}
 
-            searchQuery = searchQuery.replace(":condition", " where deleted is not true and  " + params.toString());
+		if (params.length() > 0) {
 
-        } else
+			searchQuery = searchQuery.replace(":condition", " where deleted is not true and  " + params.toString());
 
-            searchQuery = searchQuery.replace(":condition", "");
+		} else
 
-        searchQuery = searchQuery.replace(":orderby", orderBy);// orderBy
-        System.out.println(searchQuery);
-        page = (Pagination<PurchaseOrderDetail>) getPagination(searchQuery, page, paramValues);
-        searchQuery = searchQuery + " :pagination";
+			searchQuery = searchQuery.replace(":condition", "");
 
-        searchQuery = searchQuery.replace(":pagination",
-                "limit " + page.getPageSize() + " offset " + page.getOffset() * page.getPageSize());
+		searchQuery = searchQuery.replace(":orderby", orderBy);// orderBy
+		System.out.println(searchQuery);
+		page = (Pagination<PurchaseOrderDetail>) getPagination(searchQuery, page, paramValues);
+		searchQuery = searchQuery + " :pagination";
 
-        BeanPropertyRowMapper row = new BeanPropertyRowMapper(PurchaseOrderDetailEntity.class);
+		searchQuery = searchQuery.replace(":pagination",
+				"limit " + page.getPageSize() + " offset " + page.getOffset() * page.getPageSize());
 
-        List<PurchaseOrderDetailEntity> purchaseOrderDetailEntities = namedParameterJdbcTemplate.query(searchQuery.toString(),
-                paramValues, row);
+		BeanPropertyRowMapper row = new BeanPropertyRowMapper(PurchaseOrderDetailEntity.class);
 
-        page.setTotalResults(purchaseOrderDetailEntities.size());
+		List<PurchaseOrderDetailEntity> purchaseOrderDetailEntities = namedParameterJdbcTemplate
+				.query(searchQuery.toString(), paramValues, row);
 
-        List<PurchaseOrderDetail> purchaseOrderDetails = new ArrayList<>();
-        for (PurchaseOrderDetailEntity poEntity : purchaseOrderDetailEntities) {
+		page.setTotalResults(purchaseOrderDetailEntities.size());
 
-            purchaseOrderDetails.add(poEntity.toDomain());
-        }
+		List<PurchaseOrderDetail> purchaseOrderDetails = new ArrayList<>();
+		for (PurchaseOrderDetailEntity poEntity : purchaseOrderDetailEntities) {
+
+			purchaseOrderDetails.add(poEntity.toDomain());
+		}
 		for (PurchaseOrderDetail eachPoDetail : purchaseOrderDetails) {
-			eachPoDetail.setUom(uomService.getUom(purchaseOrderDetailSearch.getTenantId(), eachPoDetail.getUom().getCode(),new RequestInfo()));
+			eachPoDetail.setUom(uomService.getUom(purchaseOrderDetailSearch.getTenantId(),
+					eachPoDetail.getUom().getCode(), new RequestInfo()));
 			if (eachPoDetail.getIndentQuantity() != null) {
-				eachPoDetail.setIndentQuantity(eachPoDetail.getIndentQuantity().divide(eachPoDetail.getUom().getConversionFactor()));
+				eachPoDetail.setIndentQuantity(
+						eachPoDetail.getIndentQuantity().divide(eachPoDetail.getUom().getConversionFactor()));
 			}
 			if (eachPoDetail.getTenderQuantity() != null) {
-				eachPoDetail.setTenderQuantity(eachPoDetail.getTenderQuantity().divide(eachPoDetail.getUom().getConversionFactor()));
+				eachPoDetail.setTenderQuantity(
+						eachPoDetail.getTenderQuantity().divide(eachPoDetail.getUom().getConversionFactor()));
 			}
 			if (eachPoDetail.getUsedQuantity() != null) {
-				eachPoDetail.setUsedQuantity(eachPoDetail.getUsedQuantity().divide(eachPoDetail.getUom().getConversionFactor()));
+				eachPoDetail.setUsedQuantity(
+						eachPoDetail.getUsedQuantity().divide(eachPoDetail.getUom().getConversionFactor()));
 			}
 			if (eachPoDetail.getUnitPrice() != null) {
-				eachPoDetail.setUnitPrice(eachPoDetail.getUnitPrice().multiply(eachPoDetail.getUom().getConversionFactor()));
+				eachPoDetail.setUnitPrice(
+						eachPoDetail.getUnitPrice().multiply(eachPoDetail.getUom().getConversionFactor()));
 			}
 		}
-        page.setPagedData(purchaseOrderDetails);
+		page.setPagedData(purchaseOrderDetails);
 
-        return page;
-    }
+		return page;
+	}
 
 }

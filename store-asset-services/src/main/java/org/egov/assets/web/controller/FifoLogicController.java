@@ -1,7 +1,5 @@
 package org.egov.assets.web.controller;
 
-
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -18,38 +16,29 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.ApiParam;
-
 @RestController
 @RequestMapping(value = "/fifologic")
 public class FifoLogicController {
-	
-	
+
 	@Autowired
 	private MaterialIssueReceiptFifoLogic materialIssueReceiptFifoLogic;
-	
-    @PostMapping(value="/_stock")
-    @ResponseBody
+
+	@PostMapping(value = "/_stock")
+	@ResponseBody
 	public ResponseEntity<FifoResponse> getStockAvailableAsPerMaterial(
-			@NotNull @ApiParam(value = "Unique id for a tenant.", required = true) @Valid @RequestParam(value = "tenantId", required = true) String tenantId,
-			@ApiParam(value = "Create  new") @Valid @RequestBody FifoRequest fifoRequest) {
-    	FifoResponse fifoResponse = materialIssueReceiptFifoLogic.getTotalStockAsPerMaterial(fifoRequest);
+			@NotNull @Valid @RequestParam(value = "tenantId", required = true) String tenantId,
+			@Valid @RequestBody FifoRequest fifoRequest) {
+		FifoResponse fifoResponse = materialIssueReceiptFifoLogic.getTotalStockAsPerMaterial(fifoRequest);
 		return new ResponseEntity(fifoResponse, HttpStatus.OK);
 	}
-    
-    @PostMapping(value="/_unitrate")
-    @ResponseBody
+
+	@PostMapping(value = "/_unitrate")
+	@ResponseBody
 	public ResponseEntity<FifoResponse> getUnitPrice(
-			@NotNull @ApiParam(value = "Unique id for a tenant.", required = true) @Valid @RequestParam(value = "tenantId", required = true) String tenantId,
-			@ApiParam(value = "Create  new") @Valid @RequestBody FifoRequest fifoRequest) {
-    	FifoResponse fifoResponse = materialIssueReceiptFifoLogic.getUnitRate(fifoRequest);
+			@NotNull @Valid @RequestParam(value = "tenantId", required = true) String tenantId,
+			@Valid @RequestBody FifoRequest fifoRequest) {
+		FifoResponse fifoResponse = materialIssueReceiptFifoLogic.getUnitRate(fifoRequest);
 		return new ResponseEntity(fifoResponse, HttpStatus.OK);
 	}
-    
-
-  
-    
-    
-
 
 }

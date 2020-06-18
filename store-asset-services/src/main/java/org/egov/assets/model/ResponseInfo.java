@@ -1,4 +1,4 @@
-package org.egov.assets.model;
+/*package org.egov.assets.model;
 
 import java.util.Objects;
 
@@ -15,9 +15,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
-/**
+*//**
  * ResponseInfo should be used to carry metadata information about the response from the server. apiId, ver and msgId in ResponseInfo should always correspond to the same values in respective request&#39;s RequestInfo.
- */
+ *//*
 @ApiModel(description = "ResponseInfo should be used to carry metadata information about the response from the server. apiId, ver and msgId in ResponseInfo should always correspond to the same values in respective request's RequestInfo.")
 @javax.annotation.Generated(value = "org.egov.inv.codegen.languages.SpringCodegen", date = "2017-11-08T13:51:07.770Z")
 @Builder
@@ -39,9 +39,9 @@ public class ResponseInfo   {
   @JsonProperty("msgId")
   private String msgId = null;
 
-  /**
+  *//**
    * status of request processing - to be enhanced in futuer to include INPROGRESS
-   */
+   *//*
   public enum StatusEnum {
     SUCCESSFUL("SUCCESSFUL"),
     
@@ -78,10 +78,10 @@ public class ResponseInfo   {
     return this;
   }
 
-   /**
+   *//**
    * unique API ID
    * @return apiId
-  **/
+  **//*
   @ApiModelProperty(required = true, value = "unique API ID")
   @NotNull
 
@@ -99,10 +99,10 @@ public class ResponseInfo   {
     return this;
   }
 
-   /**
+   *//**
    * API version
    * @return ver
-  **/
+  **//*
   @ApiModelProperty(required = true, value = "API version")
   @NotNull
 
@@ -120,10 +120,10 @@ public class ResponseInfo   {
     return this;
   }
 
-   /**
+   *//**
    * response time in epoch
    * @return ts
-  **/
+  **//*
   @ApiModelProperty(required = true, value = "response time in epoch")
   @NotNull
 
@@ -141,11 +141,11 @@ public class ResponseInfo   {
     return this;
   }
 
-   /**
+   *//**
    * unique response message id (UUID) - will usually be the correlation id from the server
    * @return resMsgId
-  **/
-  @ApiModelProperty(value = "unique response message id (UUID) - will usually be the correlation id from the server")
+  **//*
+  
 
  @Size(max=256)
   public String getResMsgId() {
@@ -161,11 +161,11 @@ public class ResponseInfo   {
     return this;
   }
 
-   /**
+   *//**
    * message id of the request
    * @return msgId
-  **/
-  @ApiModelProperty(value = "message id of the request")
+  **//*
+  
 
  @Size(max=256)
   public String getMsgId() {
@@ -181,10 +181,10 @@ public class ResponseInfo   {
     return this;
   }
 
-   /**
+   *//**
    * status of request processing - to be enhanced in futuer to include INPROGRESS
    * @return status
-  **/
+  **//*
   @ApiModelProperty(required = true, value = "status of request processing - to be enhanced in futuer to include INPROGRESS")
   @NotNull
 
@@ -235,10 +235,10 @@ public class ResponseInfo   {
     return sb.toString();
   }
 
-  /**
+  *//**
    * Convert the given object to string with each line indented by 4 spaces
    * (except the first line).
-   */
+   *//*
   private String toIndentedString(java.lang.Object o) {
     if (o == null) {
       return "null";
@@ -247,3 +247,4 @@ public class ResponseInfo   {
   }
 }
 
+*/

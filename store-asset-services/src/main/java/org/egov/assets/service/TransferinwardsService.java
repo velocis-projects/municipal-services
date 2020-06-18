@@ -17,24 +17,24 @@ import org.egov.assets.common.exception.ErrorCode;
 import org.egov.assets.common.exception.InvalidDataException;
 import org.egov.assets.model.FinancialYear;
 import org.egov.assets.model.MaterialIssue;
+import org.egov.assets.model.MaterialIssue.MaterialIssueStatusEnum;
 import org.egov.assets.model.MaterialIssueDetail;
 import org.egov.assets.model.MaterialIssueSearchContract;
 import org.egov.assets.model.MaterialIssuedFromReceipt;
 import org.egov.assets.model.MaterialReceipt;
+import org.egov.assets.model.MaterialReceipt.ReceiptTypeEnum;
 import org.egov.assets.model.MaterialReceiptAddInfoSearch;
 import org.egov.assets.model.MaterialReceiptDetail;
 import org.egov.assets.model.MaterialReceiptDetailAddnlinfo;
 import org.egov.assets.model.MaterialReceiptSearch;
-import org.egov.assets.model.RequestInfo;
 import org.egov.assets.model.Tenant;
 import org.egov.assets.model.TransferInwardRequest;
 import org.egov.assets.model.TransferInwardResponse;
 import org.egov.assets.model.Uom;
-import org.egov.assets.model.MaterialIssue.MaterialIssueStatusEnum;
-import org.egov.assets.model.MaterialReceipt.ReceiptTypeEnum;
 import org.egov.assets.repository.MaterialIssueJdbcRepository;
 import org.egov.assets.repository.MaterialReceiptDetailAddInfoJdbcRepository;
 import org.egov.assets.repository.TransferInwardRepository;
+import org.egov.common.contract.request.RequestInfo;
 import org.egov.tracer.kafka.LogAwareKafkaTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,7 +59,7 @@ public class TransferinwardsService extends DomainService {
 
 	@Autowired
 	private MaterialReceiptService materialReceiptService;
-	
+
 	@Autowired
 	private NumberGenerator numberGenerator;
 
@@ -92,7 +92,8 @@ public class TransferinwardsService extends DomainService {
 			inwards.forEach(materialReceipt -> {
 				materialReceipt.setId(transferInwardRepository.getSequence("seq_materialreceipt"));
 				materialReceipt.setMrnStatus(MaterialReceipt.MrnStatusEnum.CREATED);
-				materialReceipt.setMrnNumber(getInwardNumber(materialReceipt, inwardRequest.getRequestInfo(),tenantId));
+				materialReceipt
+						.setMrnNumber(getInwardNumber(materialReceipt, inwardRequest.getRequestInfo(), tenantId));
 				materialReceipt.setReceiptType(ReceiptTypeEnum.INWARD_RECEIPT);
 				materialReceipt.setAuditDetails(getAuditDetails(inwardRequest.getRequestInfo(), tenantId));
 				if (StringUtils.isEmpty(materialReceipt.getTenantId())) {
@@ -132,12 +133,12 @@ public class TransferinwardsService extends DomainService {
 				if (StringUtils.isEmpty(materialReceipt.getTenantId())) {
 					materialReceipt.setTenantId(tenantId);
 				}
-				
+
 				materialReceipt.getReceiptDetails().forEach(materialReceiptDetail -> {
 					if (isEmpty(materialReceiptDetail.getTenantId())) {
 						materialReceiptDetail.setTenantId(tenantId);
 					}
-					
+
 					materialReceiptDetailIds.add(materialReceiptDetail.getId());
 					materialReceiptDetail.getReceiptDetailsAddnInfo().forEach(materialReceiptDetailAddnlInfo -> {
 						materialReceiptDetailAddlnInfoIds.add(materialReceiptDetailAddnlInfo.getId());
@@ -160,14 +161,16 @@ public class TransferinwardsService extends DomainService {
 			throw e;
 		}
 	}
-// search inward data
+
+	// search inward data
 	public TransferInwardResponse search(MaterialReceiptSearch transferinwardsSearch, String tenantId) {
 		Pagination<MaterialReceipt> materialReceiptPagination = materialReceiptService.search(transferinwardsSearch);
 		TransferInwardResponse response = new TransferInwardResponse();
-		return response.responseInfo(null).transferInwards(materialReceiptPagination.getPagedData().size() > 0
-				? materialReceiptPagination.getPagedData() : Collections.EMPTY_LIST);
+		return response.responseInfo(null).transferInwards(
+				materialReceiptPagination.getPagedData().size() > 0 ? materialReceiptPagination.getPagedData()
+						: Collections.EMPTY_LIST);
 	}
-	
+
 	// validating data inward data
 	private void validate(List<MaterialReceipt> materialReceipts, String tenantId, String method) {
 		InvalidDataException errors = new InvalidDataException();
@@ -202,13 +205,12 @@ public class TransferinwardsService extends DomainService {
 			throw errors;
 
 	}
-	
-	//generating inward number
-	private String getInwardNumber(MaterialReceipt receipt, RequestInfo info,String tenantId) {
+
+	// generating inward number
+	private String getInwardNumber(MaterialReceipt receipt, RequestInfo info, String tenantId) {
 		InvalidDataException errors = new InvalidDataException();
 		ObjectMapper mapper = new ObjectMapper();
-		JSONArray tenantStr = mdmsRepository.getByCriteria(tenantId, "tenant", "tenants", "code",
-				tenantId, info);
+		JSONArray tenantStr = mdmsRepository.getByCriteria(tenantId, "tenant", "tenants", "code", tenantId, info);
 
 		Tenant tenant = mapper.convertValue(tenantStr.get(0), Tenant.class);
 		if (tenant == null) {
@@ -218,7 +220,8 @@ public class TransferinwardsService extends DomainService {
 		JSONArray finYears = mdmsRepository.getByCriteria(tenantId, "egf-master", "FinancialYear", null, null, info);
 		outer: for (int i = 0; i < finYears.size(); i++) {
 			FinancialYear fin = mapper.convertValue(finYears.get(i), FinancialYear.class);
-			if (getCurrentDate() >= fin.getStartingDate().getTime()  && getCurrentDate() <= fin.getEndingDate().getTime()) {
+			if (getCurrentDate() >= fin.getStartingDate().getTime()
+					&& getCurrentDate() <= fin.getEndingDate().getTime()) {
 				finYearRange = fin.getFinYearRange();
 				break outer;
 			}
@@ -235,7 +238,7 @@ public class TransferinwardsService extends DomainService {
 	// fetching material issue and building with receipt data
 	private void fetchRelated(TransferInwardRequest request, String tenantId) {
 		InvalidDataException errors = new InvalidDataException();
-		
+
 		for (MaterialReceipt receipt : request.getTransferInwards()) {
 			if (receipt.getIssueNumber() != null && !StringUtils.isEmpty(receipt.getIssueNumber())) {
 				MaterialIssueSearchContract issue = new MaterialIssueSearchContract();
@@ -244,35 +247,35 @@ public class TransferinwardsService extends DomainService {
 				issue.setMaterialIssueStatus(MaterialIssueStatusEnum.APPROVED.toString());
 				// searching material issue on basis of issue note number
 				List<MaterialIssue> matIssues = materialIssuesService.search(issue, null).getMaterialIssues();
-				if (matIssues.isEmpty())
-				{
-					errors.addDataError(ErrorCode.NO_DATA_FOUND.getCode(), "issueNumber "+ receipt.getIssueNumber(), null);
-				}else{
-				Long issueDate = matIssues.get(0).getIssueDate();
-				BigDecimal issuedQuantity = matIssues.get(0).getMaterialIssueDetails().get(0).getQuantityIssued();
+				if (matIssues.isEmpty()) {
+					errors.addDataError(ErrorCode.NO_DATA_FOUND.getCode(), "issueNumber " + receipt.getIssueNumber(),
+							null);
+				} else {
+					Long issueDate = matIssues.get(0).getIssueDate();
+					BigDecimal issuedQuantity = matIssues.get(0).getMaterialIssueDetails().get(0).getQuantityIssued();
 					receipt.setIssueNumber(matIssues.get(0).getIssueNumber());
-				
-				for (MaterialReceiptDetail detail : receipt.getReceiptDetails()) {
-					detail.getMaterial().setCode(matIssues.get(0).getMaterialIssueDetails().get(0).getMaterial().getCode());
-					detail.getUom().setCode(matIssues.get(0).getMaterialIssueDetails().get(0).getUom().getCode());
-					// converting and validating userReceivedqty with issuedqty
-					if(setConvertedQuantity(tenantId,detail,issuedQuantity))
-					{
-						errors.addDataError(ErrorCode.QTY1_EQ_QTY2.getCode(), "Received Qty", "Issued Qty", null);
-					}else
-						// updating material issue table status
-						updateStatusAsReceipted(receipt.getIssueNumber(), tenantId);
 
-					for (MaterialReceiptDetailAddnlinfo info : detail.getReceiptDetailsAddnInfo()) {
-						if (info.getReceivedDate() <= issueDate) {
-							errors.addDataError(ErrorCode.DATE1_GT_DATE2.getCode(), "Receive Date", "Issue ", null);
+					for (MaterialReceiptDetail detail : receipt.getReceiptDetails()) {
+						detail.getMaterial()
+								.setCode(matIssues.get(0).getMaterialIssueDetails().get(0).getMaterial().getCode());
+						detail.getUom().setCode(matIssues.get(0).getMaterialIssueDetails().get(0).getUom().getCode());
+						// converting and validating userReceivedqty with issuedqty
+						if (setConvertedQuantity(tenantId, detail, issuedQuantity, request.getRequestInfo())) {
+							errors.addDataError(ErrorCode.QTY1_EQ_QTY2.getCode(), "Received Qty", "Issued Qty", null);
+						} else
+							// updating material issue table status
+							updateStatusAsReceipted(receipt.getIssueNumber(), tenantId);
+
+						for (MaterialReceiptDetailAddnlinfo info : detail.getReceiptDetailsAddnInfo()) {
+							if (info.getReceivedDate() <= issueDate) {
+								errors.addDataError(ErrorCode.DATE1_GT_DATE2.getCode(), "Receive Date", "Issue ", null);
+							}
+							info.setSerialNo(setDetailAddinfoFromIssueDetail(matIssues).getSerialNo());
+							info.setLotNo(setDetailAddinfoFromIssueDetail(matIssues).getLotNo());
 						}
-						info.setSerialNo(setDetailAddinfoFromIssueDetail(matIssues).getSerialNo());
-						info.setLotNo(setDetailAddinfoFromIssueDetail(matIssues).getLotNo());
 					}
 				}
-			} 
-			}else {
+			} else {
 				errors.addDataError(ErrorCode.MANDATORY_VALUE_MISSING.getCode(), "IssueNumber", null);
 			}
 		}
@@ -312,28 +315,30 @@ public class TransferinwardsService extends DomainService {
 	private void updateStatusAsReceipted(String issueNumber, String tenantId) {
 		materialIssueJdbcRepository.updateStatus(issueNumber, "RECEIPTED", tenantId);
 	}
-	
-	private Long getCurrentDate() {
-        return currentEpochWithoutTime() + (24 * 60 * 60) - 1;
-    }
-	
-	 // converting user received qty on basis of conversion factor and setting it into receipt received qty 
-	 private Boolean setConvertedQuantity(String tenantId, MaterialReceiptDetail detail,BigDecimal issuedQty) {
-			Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "Uom", "code", detail.getUom().getCode(), Uom.class);
-			detail.setUom(uom);
 
-			if (null != detail.getUserReceivedQty() && null != uom.getConversionFactor()) {
-				BigDecimal convertedUserQuantity = getSaveConvertedQuantity(detail.getUserReceivedQty(),
-						uom.getConversionFactor());
-				detail.setReceivedQty(convertedUserQuantity);
-				int res =convertedUserQuantity.compareTo(issuedQty);				
-				if(res != 0) {
-					return true;
-				}
+	private Long getCurrentDate() {
+		return currentEpochWithoutTime() + (24 * 60 * 60) - 1;
+	}
+
+	// converting user received qty on basis of conversion factor and setting it
+	// into receipt received qty
+	private Boolean setConvertedQuantity(String tenantId, MaterialReceiptDetail detail, BigDecimal issuedQty,
+			RequestInfo requestInfo) {
+		Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "Uom", "code", detail.getUom().getCode(),
+				Uom.class, requestInfo);
+		detail.setUom(uom);
+
+		if (null != detail.getUserReceivedQty() && null != uom.getConversionFactor()) {
+			BigDecimal convertedUserQuantity = getSaveConvertedQuantity(detail.getUserReceivedQty(),
+					uom.getConversionFactor());
+			detail.setReceivedQty(convertedUserQuantity);
+			int res = convertedUserQuantity.compareTo(issuedQty);
+			if (res != 0) {
+				return true;
 			}
-			return false;
-			
 		}
- 
+		return false;
+
+	}
 
 }
