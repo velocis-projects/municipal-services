@@ -329,7 +329,11 @@ public class TradeLicenseService {
         enrichmentService.postStatusEnrichment(tradeLicenseRequest,endStates);
         userService.createUser(tradeLicenseRequest, false);
         calculationService.addCalculation(tradeLicenseRequest);
-        switch (businessServicefromPath) {
+        String businessServiceFromRequest = tradeLicenseRequest.getLicenses().get(0).getBusinessService();
+        if (businessServiceFromRequest == null) {
+        	businessServiceFromRequest = businessService_TL;
+        }
+        switch (businessServiceFromRequest) {
             case businessService_TL:
                 editNotificationService.sendEditNotification(tradeLicenseRequest, diffMap);
                 break;

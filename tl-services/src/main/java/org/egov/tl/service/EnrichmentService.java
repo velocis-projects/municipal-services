@@ -702,7 +702,10 @@ public class EnrichmentService {
     
     private void setCTLLicenseValidity(TradeLicense license) {
             
-            if (license.getStatus() != null && !TLConstants.STATUS_APPROVED.equalsIgnoreCase(license.getStatus())) {
+            if (license.getStatus() != null 
+            		&& !TLConstants.STATUS_APPROVED.equalsIgnoreCase(license.getStatus())
+            		&& !TLConstants.STATUS_INITIATED.equalsIgnoreCase(license.getStatus())
+            		) {
             	return;
             }
             
