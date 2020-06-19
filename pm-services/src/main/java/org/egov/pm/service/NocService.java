@@ -72,6 +72,13 @@ public class NocService {
 	@Qualifier("validatorApproveRejectJSON")
 	private JSONObject jsonApproveRejectObject;
 
+	/**
+	 * Get the Application Data list for NOC
+	 * 
+	 * @param RequestData
+	 *            for applicationType,tenantId,applicationId,requestinfo
+	 * @return The data list based on role,applicationType and tenantId
+	 */
 	public ResponseEntity<NocResponse> searchNoc(RequestData requestInfo) {
 		JSONArray nocs = nocRepository.findNoc(requestInfo);
 		if (nocs == null || nocs.isEmpty()) {
@@ -87,14 +94,20 @@ public class NocService {
 		}
 	}
 
+	/**
+	 * Get the Application Data requested ID
+	 * 
+	 * @param RequestData
+	 *            for tenantId,applicationId,requestinfo
+	 * @return The data for requested application Id
+	 */
 	public ResponseEntity<NocResponse> viewNoc(RequestData requestInfo) {
 
 		JSONArray nocs = nocRepository.viewNoc(requestInfo);
 		if (nocs == null || nocs.isEmpty()) {
-			return new ResponseEntity<>(
-					NocResponse.builder().resposneInfo(ResponseInfo.builder().msgId(CommonConstants.INVALIDAPPID).build())
-							.nocApplicationDetail(nocs).build(),
-					HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(NocResponse.builder()
+					.resposneInfo(ResponseInfo.builder().msgId(CommonConstants.INVALIDAPPID).build())
+					.nocApplicationDetail(nocs).build(), HttpStatus.BAD_REQUEST);
 		} else {
 			return new ResponseEntity<>(
 					NocResponse.builder().resposneInfo(ResponseInfo.builder().status(CommonConstants.SUCCESS).build())
@@ -102,15 +115,22 @@ public class NocService {
 					HttpStatus.OK);
 		}
 	}
+
+	/**
+	 * Get the Application Data required to generate certificate for NOC
+	 * 
+	 * @param RequestData
+	 *            for applicationType,tenantId,applicationId,requestinfo
+	 * @return The certificate data for requested application Id
+	 */
 
 	public ResponseEntity<NocResponse> getCertificateData(RequestData requestInfo) {
 
 		JSONArray nocs = nocRepository.getCertificateData(requestInfo);
 		if (nocs == null || nocs.isEmpty()) {
-			return new ResponseEntity<>(
-					NocResponse.builder().resposneInfo(ResponseInfo.builder().msgId(CommonConstants.INVALIDAPPID).build())
-							.nocApplicationDetail(nocs).build(),
-					HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(NocResponse.builder()
+					.resposneInfo(ResponseInfo.builder().msgId(CommonConstants.INVALIDAPPID).build())
+					.nocApplicationDetail(nocs).build(), HttpStatus.BAD_REQUEST);
 		} else {
 			return new ResponseEntity<>(
 					NocResponse.builder().resposneInfo(ResponseInfo.builder().status(CommonConstants.SUCCESS).build())
@@ -118,7 +138,13 @@ public class NocService {
 					HttpStatus.OK);
 		}
 	}
-	//// add
+
+	/**
+	 * Adding a new Noc data
+	 * 
+	 * @param RequestData
+	 *            for applicationType,tenantId,applicationId,requestinfo
+	 */
 	public ResponseEntity<ResponseData> saveNoc(RequestData requestData) {
 
 		String responseValidate = "";
@@ -147,14 +173,18 @@ public class NocService {
 		}
 	}
 
+	/**
+	 * Getting RemarksData for application
+	 * 
+	 * @param RequestData,applicationType,tenantId,applicationId,requestinfo
+	 */
 	public ResponseEntity<NocResponse> getRemarksForNoc(RequestData requestInfo) {
 
 		JSONArray nocs = nocRepository.getRemarksForNoc(requestInfo.getTenantId(), requestInfo.getApplicationId());
 		if (nocs == null || nocs.isEmpty()) {
-			return new ResponseEntity<>(
-					NocResponse.builder().resposneInfo(ResponseInfo.builder().msgId(CommonConstants.INVALIDAPPID).build())
-							.nocApplicationDetail(nocs).build(),
-					HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(NocResponse.builder()
+					.resposneInfo(ResponseInfo.builder().msgId(CommonConstants.INVALIDAPPID).build())
+					.nocApplicationDetail(nocs).build(), HttpStatus.BAD_REQUEST);
 		} else {
 			return new ResponseEntity<>(
 					NocResponse.builder().resposneInfo(ResponseInfo.builder().status(CommonConstants.SUCCESS).build())
@@ -163,6 +193,11 @@ public class NocService {
 		}
 	}
 
+	/**
+	 * Updates data for application
+	 * 
+	 * @param RequestData,applicationType,tenantId,applicationId,requestinfo
+	 */
 	public ResponseEntity<ResponseData> updateNoc(RequestData requestData) {
 		String responseValidate = "";
 		try {
@@ -194,53 +229,16 @@ public class NocService {
 						.applicationId(requestData.getApplicationId()).build(), HttpStatus.BAD_REQUEST);
 			}
 		} catch (Exception e) {
-			log.info("update noc exception ",e.getMessage());
+			log.info("update noc exception ", e.getMessage());
 		}
 		return null;
 	}
 
-	public ResponseEntity<?> getColumnsRemarksForNoc(RequestData requestData) {
-		JSONArray response = new JSONArray();
-		try {
-
-			String roleCode = null;
-			List<Role> roleList = requestData.getRequestInfo().getUserInfo().getRoles();
-			if (roleList != null && !roleList.isEmpty()) {
-				Role roleObject = roleList.get(0);
-				roleCode = roleObject.getCode();
-				log.info("roleCode : " + roleCode);
-			}
-
-			if (roleCode != null && roleCode.isEmpty()) {
-				return new ResponseEntity<>(ResponseData.builder().responseInfo(
-						ResponseInfo.builder().msgId("Invalid Role or User").status(CommonConstants.FAIL).build())
-						.build(), HttpStatus.BAD_REQUEST);
-			}
-
-			JSONObject jsonColumnsValue = (JSONObject) new JSONParser().parse(jsonApproveRejectObject.toString());
-			jsonColumnsValue = (JSONObject) jsonColumnsValue.get(requestData.getApplicationType());
-			jsonColumnsValue = (JSONObject) jsonColumnsValue.get(roleCode);
-			jsonColumnsValue = (JSONObject) jsonColumnsValue.get(requestData.getApplicationStatus());
-
-			Set<String> keySets = jsonColumnsValue.keySet();
-
-			for (String keys : keySets) {
-				if (!keys.equals("applicationId")) {
-					JSONObject intern = (JSONObject) jsonColumnsValue.get(keys);
-					response.add(intern);
-				}
-			}
-		} catch (Exception e) {
-			log.info("Unable to read JSON file : Exception : " + e.getMessage());
-		}
-		if (!response.isEmpty())
-			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-		else
-			return new ResponseEntity<>(ResponseData.builder().responseInfo(
-					ResponseInfo.builder().msgId("Invalid Application Type").status(CommonConstants.FAIL).build())
-					.build(), HttpStatus.BAD_REQUEST);
-	}
-
+	/**
+	 * Validating Json data for all status validations
+	 * 
+	 * @param RequestData,applicationType,tenantId,applicationId,requestinfo
+	 */
 	private String validateJsonUpdateStatusData(RequestData requestData) throws ParseException {
 		String responseText = "";
 		if (requestData.getApplicationStatus() == null || requestData.getApplicationStatus().isEmpty()
@@ -257,13 +255,16 @@ public class NocService {
 				Role roleObject = roleList.get(0);
 				roleCode = roleObject.getCode();
 			}
-			if (roleCode != null && roleCode.isEmpty()) {
-				return "Invalid Role";
-			}
 
 			JSONObject jsonValidator = (JSONObject) jsonParser.parse(jsonApproveRejectObject.toJSONString());
 			jsonValidator = (JSONObject) jsonValidator.get(requestData.getApplicationType());
-			jsonValidator = (JSONObject) jsonValidator.get(roleCode);
+			for (Role role : roleList) {
+				if (role.getCode() != null && role.getCode().isEmpty()) {
+					return "Invalid Role";
+				}
+				if (jsonValidator.get(role.getCode()) != null)
+					jsonValidator = (JSONObject) jsonValidator.get(role.getCode());
+			}
 			jsonValidator = (JSONObject) jsonValidator.get(requestData.getApplicationStatus());
 			JSONObject jsonRequested = (JSONObject) jsonParser.parse(requestData.getDataPayload().toString());
 
@@ -278,6 +279,11 @@ public class NocService {
 		return responseText;
 	}
 
+	/**
+	 * Validating Json data for create and update validations
+	 * 
+	 * @param RequestData,applicationType,tenantId,applicationId,requestinfo
+	 */
 	private String validateJsonAddUpdateData(RequestData requestData, String calledfor) throws ParseException {
 		String responseText = "";
 		if (requestData.getApplicationStatus() == null || requestData.getApplicationStatus().isEmpty()
@@ -301,11 +307,16 @@ public class NocService {
 			responseText = commonValidation(jsonValidator, jsonRequested);
 
 		} catch (Exception e) {
-		throw new CustomException("NOC_SAVE_UPDATE", "Invalid Application Type or Role or datapayload data");
+			throw new CustomException("NOC_SAVE_UPDATE", "Invalid Application Type or Role or datapayload data");
 		}
 		return responseText;
 	}
 
+	/**
+	 * Common Validation Method
+	 * 
+	 * @param requested json and validator json
+	 */
 	private String commonValidation(JSONObject jsonValidator, JSONObject jsonRequested) {
 
 		Set<String> keyValidateList = jsonValidator.keySet();
@@ -352,6 +363,12 @@ public class NocService {
 		return responseText.toString();
 	}
 
+
+	/**
+	 * Update status of the application
+	 * 
+	 * @param RequestData,applicationType,tenantId,applicationId,requestinfo
+	 */
 	public ResponseEntity<ResponseData> updateNocApplicationStatus(RequestData requestData) {
 
 		String responseValidate = "";
@@ -362,7 +379,7 @@ public class NocService {
 			if (responseValidate.equals("")) {
 				reponseData = nocRepository.updateApplicationStatus(requestData);
 				if (reponseData.getResponseInfo().getStatus().equals(CommonConstants.SUCCESS)) {
-						return new ResponseEntity<>(ResponseData.builder()
+					return new ResponseEntity<>(ResponseData.builder()
 							.responseInfo(ResponseInfo.builder().status(CommonConstants.SUCCESS).build())
 							.applicationId(requestData.getApplicationId()).build(), HttpStatus.OK);
 				} else {
@@ -382,7 +399,12 @@ public class NocService {
 		}
 	}
 
-
+	/**
+	 * Getting pricebook data
+	 * 
+	 * @param required
+	 *            tenantId,applicationType
+	 */
 	public NocResponse viewPriceBook(RequestData requestInfo) {
 		Object nocs = nocRepository.viewPriceBook(requestInfo);
 		NocResponse res = new NocResponse();
@@ -391,6 +413,12 @@ public class NocService {
 		return res;
 	}
 
+	/**
+	 * Getting pricebook data for requested pricebook id
+	 * 
+	 * @param required
+	 *            pricebook id
+	 */
 	public NocResponse viewPriceBookById(RequestData requestInfo) {
 		Object nocs = nocRepository.viewPriceBookById(requestInfo);
 		NocResponse res = new NocResponse();
@@ -399,6 +427,13 @@ public class NocService {
 		return res;
 	}
 
+	/**
+	 * Updating pricebook data
+	 * 
+	 * @param required
+	 *            RequestInfo,datapayload and tenantId datapayload includes
+	 *            categoryid,sub category id,annual,perday,per month,fixed price
+	 */
 	public NocResponse updatepricebook(RequestData requestData) throws java.text.ParseException {
 		ResponseInfo res = new ResponseInfo();
 		NocResponse rs = null;
@@ -412,12 +447,13 @@ public class NocService {
 			rs = nocRepository.updatepricebookdate(requestData);
 		}
 		Map<String, EmailTemplateModel> map = null;
-		map = nocRepository.findTemplate(requestData.getApplicationStatus(),requestData.getTenantId(), requestData.getApplicationType());
+		map = nocRepository.findTemplate(requestData.getApplicationStatus(), requestData.getTenantId(),
+				requestData.getApplicationType());
 		if (map != null && !map.isEmpty()) {
 			for (String role : map.keySet()) {
 				JsonNode userInfo = userUtil.getUserByRole(requestData.getRequestInfo(), role,
 						requestData.getTenantId());
-				if (userInfo!=null) {
+				if (userInfo != null) {
 					for (JsonNode employee : userInfo.get("Employees")) {
 						JsonNode user = employee.get("user");
 						String emailTemplate = map.get(role).getTemplate();

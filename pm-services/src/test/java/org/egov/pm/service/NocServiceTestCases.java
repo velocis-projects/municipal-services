@@ -427,20 +427,6 @@ public class NocServiceTestCases {
 		Assert.assertEquals(res, nocService.updatepricebook(requestData));
 
 	}
-	@Test
-	public void getColumnsRemarksForNoc()
-	{
-		User userInfo=new User();
-		List<Role> roles=new ArrayList<>();
-		Role e=new Role();
-         e.setCode("vvv");
-		roles.add(e);
-		userInfo.setRoles(roles);
-		RequestData requestData = RequestData.builder().requestInfo(RequestInfo.builder().userInfo(userInfo).build())
-				.applicationId("PMS-82748264828482374").applicationType("SELLMEATNOC").tenantId("ch")
-				.applicationType("SELLMEATNOC").build();
-		nocService.getColumnsRemarksForNoc(requestData);
-	}
 	private String getFileContents(String fileName) throws IOException {
 		return IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream(fileName), "UTF-8");
 	}

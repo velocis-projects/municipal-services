@@ -51,6 +51,7 @@ public class EmailSmsNotificationListener {
 
 	@KafkaListener(topics = "${persister.update.transition.noc.status.topic}")
 	public void invitationsNew(ConsumerRecord<String, Object> data) throws IOException {
+		try {
 		log.info("Send Notofication Kafka Topic :{} " ,data);
 		NOCRequestData app1 = objectMapper.convertValue(data.value(), NOCRequestData.class);
 		if (app1 == null || app1.getNocApplication().isEmpty())
@@ -73,6 +74,9 @@ public class EmailSmsNotificationListener {
 			}
 		}
 
+		}catch(Exception e){
+			log.info("Exception In Sending Mail:{}",e.getMessage());
+		}
 	}
 
 	private void enrichEmployeeNotification(Map<String, EmailTemplateModel> map, String role,

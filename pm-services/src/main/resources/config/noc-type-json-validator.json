@@ -322,9 +322,9 @@
          "isbackendRequired":"true"
       },
       "space":{
-         "mandatory":"true",
+         "mandatory":"false",
          "validateRegularExp":"[0-9.]++$",
-         "isbackendRequired":"true"
+         "isbackendRequired":"false"
       },
       "exemptedCategory":{
          "mandatory":"true",

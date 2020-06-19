@@ -2,19 +2,21 @@ package org.egov.pm.service;
 
 import static java.util.Objects.isNull;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
+import org.egov.pm.model.Errors;
 import org.egov.pm.model.IdGenModel;
 import org.egov.pm.model.IdGenRequestModel;
 import org.egov.pm.wf.model.ProcessInstanceRequest;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -77,33 +79,26 @@ public class IDGenUtil {
 		return applicationId;
 	}
 
-	public ResponseInfo createWorkflowRequest(ProcessInstanceRequest workflowRequest) {
-
+	public ResponseInfo createWorkflowRequest(ProcessInstanceRequest workflowRequest) throws IOException {
 		String url = workflowHost + workflowPath;
+		ResponseInfo responseInfo = null;
+		ObjectMapper objectMapper=new ObjectMapper();
 		try {
-			JsonNode response = restTemplate.postForObject(url, workflowRequest, JsonNode.class)
-			/* .findValue("ProcessInstances") */;
+			JsonNode response = restTemplate.postForObject(url, workflowRequest, JsonNode.class);
 
 			if (!isNull(response)) {
-				ObjectMapper mapper = new ObjectMapper();
-				ResponseInfo responseInfo = mapper.convertValue(response.get("ResponseInfo"), ResponseInfo.class);
+				responseInfo = objectMapper.convertValue(response.get("ResponseInfo"), ResponseInfo.class);
 				log.info("Workflow Created Success : " + responseInfo.getMsgId());
-				return responseInfo;
 			} else {
 				log.info("Workflow Creation Failed : Reason " + response);
+				throw new CustomException("WORKFLOW_EXCEPTION", "Server Down");
 			}
-
-		} catch (Exception e) {
-			log.info("Workflow Exception while processing: ERROR " + e.getMessage());
-			log.info("Workflow Exception while processing: ERROR " + workflowRequest);
-			ResponseInfo responseInfo = new ResponseInfo();
-			responseInfo.setResMsgId(HttpStatus.BAD_REQUEST.toString());
-			responseInfo.setStatus("Fail");
-			responseInfo.setMsgId("Workflow Action Not Valid for Business Id:-"+workflowRequest.getProcessInstances().get(0).getBusinessId());
-			log.info("Workflow Request Failed : " + responseInfo.getMsgId());
-			return responseInfo;
-
+		} catch (HttpStatusCodeException e) {
+			log.debug(e.getResponseBodyAsString());
+			Errors errors = objectMapper.readValue(e.getResponseBodyAsString(), Errors.class);
+			throw new CustomException("WORKFLOW_EXCEPTION",
+					errors == null ? "Server Down" : errors.getErrorList().get(0).getMessage());
 		}
-		return null;
+		return responseInfo;
 	}
 }

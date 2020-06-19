@@ -78,7 +78,7 @@ public class DemandService {
 			// Collect required parameters for demand search
 			String tenantId = calculations.get(0).getTenantId();
 			Set<String> applicationNumbers = calculations.stream()
-					.map(calculation -> calculation.getPMDetail().getApplicationNumber()).collect(Collectors.toSet());
+					.map(calculation -> calculation.getOpmsDetail().getApplicationNumber()).collect(Collectors.toSet());
 			List<Demand> demands = searchDemand(tenantId, applicationNumbers, requestInfo);
 			Set<String> applicationNumbersFromDemands = new HashSet<>();
 			if (!CollectionUtils.isEmpty(demands))
@@ -87,7 +87,7 @@ public class DemandService {
 
 			// If demand already exists add it updateCalculations else createCalculations
 			for (Calculation calculation : calculations) {
-				if (!applicationNumbersFromDemands.contains(calculation.getPMDetail().getApplicationNumber()))
+				if (!applicationNumbersFromDemands.contains(calculation.getOpmsDetail().getApplicationNumber()))
 					createCalculations.add(calculation);
 				else
 					updateCalculations.add(calculation);
@@ -106,8 +106,8 @@ public class DemandService {
 		for (Calculation calculation : calculations) {
 			PMDetail pMDetail = null;
 
-			if (calculation.getPMDetail() != null)
-				pMDetail = calculation.getPMDetail();
+			if (calculation.getOpmsDetail() != null)
+				pMDetail = calculation.getOpmsDetail();
 			else
 				new CustomException("OPMS_DETAILS", "No OPMS details found");
 
@@ -117,7 +117,7 @@ public class DemandService {
 								+ " OPMS Noc with this number does not exist ");
 
 			String tenantId = calculation.getTenantId();
-			String consumerCode = calculation.getPMDetail().getApplicationNumber();
+			String consumerCode = calculation.getOpmsDetail().getApplicationNumber();
 
 			User owner = pMDetail.getOwners().get(0).toCommonUser();
 			List<DemandDetail> demandDetails = new LinkedList<>();
@@ -144,11 +144,11 @@ public class DemandService {
 		for (Calculation calculation : calculations) {
 
 			List<Demand> searchResult = searchDemand(calculation.getTenantId(),
-					Collections.singleton(calculation.getPMDetail().getApplicationNumber()), requestInfo);
+					Collections.singleton(calculation.getOpmsDetail().getApplicationNumber()), requestInfo);
 
 			if (CollectionUtils.isEmpty(searchResult))
 				throw new CustomException("INVALID UPDATE", "No demand exists for applicationNumber: "
-						+ calculation.getPMDetail().getApplicationNumber());
+						+ calculation.getOpmsDetail().getApplicationNumber());
 
 			Demand demand = searchResult.get(0);
 			List<DemandDetail> demandDetails = demand.getDemandDetails();
