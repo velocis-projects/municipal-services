@@ -50,7 +50,7 @@ public class IDGenUtil {
 	@Value("${egov.idgen.ack.name}")
 	private String idName;
 
-	public String generateApplicationId(String tenantId) {
+	/*public String generateApplicationId(String tenantId) {
 
 		String url = host + path;
 		ObjectMapper objectMapper = new ObjectMapper();
@@ -79,8 +79,16 @@ public class IDGenUtil {
 		}
 
 		return applicationId;
-	}
-
+	}*/
+	/**
+	 * Method to integrate with workflow
+	 *
+	 * takes the tender request as parameter constructs the work-flow request
+	 *
+	 * and sets the resultant status from wf-response back to tender object
+	 *
+	 * @param workflowRequest
+	 */
 	public ResponseInfo createWorkflowRequest(ProcessInstanceRequest workflowRequest) throws IOException {
 		String url = workflowHost + workflowPath;
 		ResponseInfo responseInfo = null;

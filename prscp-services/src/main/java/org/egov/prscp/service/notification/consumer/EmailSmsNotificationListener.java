@@ -38,6 +38,11 @@ public class EmailSmsNotificationListener {
 		this.resendEmailSmsEventInvitationService = resendEmailSmsEventInvitationService;
 	}
 
+	/**
+	 * Consumer for event,press note, tender notification 
+	 * @param notificationreceiver to send notification 
+	 * @return email and sms notification
+	 */
 	@KafkaListener(topics = "${persister.events.notification.send.topic}")
 	public void invitationsNew(ConsumerRecord<String, Object> data) throws InterruptedException {
 		Thread.sleep(4000);
@@ -47,6 +52,11 @@ public class EmailSmsNotificationListener {
 		emailSmsService.sendEmailAndSMS(notificationReceiver);
 	}
 
+	/**
+	 * Consumer for event,press note, tender re-send notification 
+	 * @param notificationreceiver to send notification 
+	 * @return email and sms notification
+	 */
 	@KafkaListener(topics = "${persister.events.notification.resend.topic}")
 	public void invitationsResend(ConsumerRecord<String, Object> data) throws InterruptedException {
 		Thread.sleep(4000);
@@ -56,11 +66,21 @@ public class EmailSmsNotificationListener {
 		resendEmailSmsEventInvitationService.sendEmailAndSMS(notificationReceiver);
 	}
 
+	/**
+	 * Scheduler for event remainder notification 
+	 * @param event
+	 * @return email and sms notification
+	 */
 	@Scheduled(cron = "0 0 6 * * ?")
 	public void invitationsEventReminder() {
 		emailSmsEventReminderInvitationService.reminderInvitation();
 	}
 
+	/**
+	 * Consumer for upload library notification 
+	 * @param library to send notification 
+	 * @return email and sms notification
+	 */
 	@KafkaListener(topics = "${persister.notification.upload.library.topic}")
 	public void sendLibraryUploadNotificaiton(ConsumerRecord<String, Object> data) throws InterruptedException {
 		Thread.sleep(4000);

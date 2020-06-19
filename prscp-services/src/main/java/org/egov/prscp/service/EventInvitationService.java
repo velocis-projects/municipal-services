@@ -3,14 +3,15 @@ package org.egov.prscp.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.prscp.repository.EventInvetationRepository;
 import org.egov.prscp.util.CommonConstants;
@@ -34,7 +35,10 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class EventInvitationService {
 
 	private final ObjectMapper objectMapper;
@@ -53,10 +57,16 @@ public class EventInvitationService {
 		this.fileStoreUtils = fileStoreUtils;
 		this.deviceSource = deviceSource;
 	}
-
+	/**
+	 * Upload external user for event
+	 * @param requestInfoWrapper to upload external user
+	 * @return Uploaded external user response
+	 */
 	public ResponseEntity<ResponseInfoWrapper> uplaodExternalGuest(RequestInfoWrapper requestInfoWrapper,
 			String requestHeader) throws IOException {
 		try {
+			log.debug("prscp-services logs :: Executing uplaodExternalGuest() = {}", requestInfoWrapper.toString());
+			log.info("prscp-services logs :: Executing uplaodExternalGuest() = {}", requestInfoWrapper.toString());
 			InviteGuest guests = objectMapper.convertValue(requestInfoWrapper.getRequestBody(), InviteGuest.class);
 			String sourceUuid = deviceSource.saveDeviceDetails(requestHeader, CommonConstants.DEVICE_EXTRENALGUEST,
 					guests.getTenantId(), guests.getModuleCode(), requestInfoWrapper.getAuditDetails());
@@ -64,57 +74,89 @@ public class EventInvitationService {
 			Files uploadfileId = Files.builder().fileStoreId(guests.getExternalFileStoreId()).build();
 			List<Files> attachments = new ArrayList<>();
 			attachments.add(uploadfileId);
-			String fileUrls = "";
+			String fileUrls = null;
 			List<Files> attachmentsUrls = fileStoreUtils.getFiles(guests.getTenantId(), attachments);
 			for (Files files : attachmentsUrls) {
 				fileUrls = files.getUrl();
 			}
-			UrlResource fileResource = new UrlResource(fileUrls);
+			log.debug("prscp-services logs :: Executing uplaodExternalGuest() = File Url Successuly Received, Url={}",
+					fileUrls);
+			log.info("prscp-services logs :: Executing uplaodExternalGuest() = File Url Successuly Received, Url={}",
+					fileUrls);
 
+			if (fileUrls == null || fileUrls.isEmpty())
+				throw new CustomException(CommonConstants.INVITATION_EXCEPTION_CODE,
+						"Failed to get file Url from File service");
+
+			UrlResource fileResource = new UrlResource(fileUrls);
 			List<InviteGuest> userList = new ArrayList<>();
 			HSSFWorkbook workbook = new HSSFWorkbook(fileResource.getInputStream());
 			HSSFSheet worksheet = workbook.getSheetAt(0);
+			Iterator<Row> rowIterator = worksheet.iterator();
+			rowIterator.next(); // skip the header row
 
-			if (worksheet.getPhysicalNumberOfRows() > 1) {
-				StringBuilder guestName = null;
-				StringBuilder guestEmail = null;
-				StringBuilder guestMobileNo = null;
-				for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
-					HSSFRow row = worksheet.getRow(i);
-					row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
-					row.getCell(1).setCellType(Cell.CELL_TYPE_STRING);
-					row.getCell(2).setCellType(Cell.CELL_TYPE_STRING);
+			log.debug("prscp-services logs :: Executing uplaodExternalGuest() = File Loading Successuly");
+			log.info("prscp-services logs :: Executing uplaodExternalGuest() = File Loading Successuly");
 
-					guestName = new StringBuilder(row.getCell(0).getStringCellValue());
-					guestEmail = new StringBuilder(row.getCell(1).getStringCellValue());
-					guestMobileNo = new StringBuilder(row.getCell(2).getStringCellValue());
+			while (rowIterator.hasNext()) {
+				Row nextRow = rowIterator.next();
+				Iterator<Cell> cellIterator = nextRow.cellIterator();
+				InviteGuest user = InviteGuest.builder().build();
 
-					InviteGuest user = InviteGuest.builder().guestName(guestName.toString())
-							.guestEmail(guestEmail.toString()).guestMobile(guestMobileNo.toString()).build();
-
-					final String guestEmails = guestEmail.toString();
-					final String guestMobileNos = guestMobileNo.toString();
-					List<InviteGuest> isExists = userList.stream()
-							.filter(obj -> (obj.getGuestEmail().equals(guestEmails)
-									&& obj.getGuestMobile().equals(guestMobileNos)))
-							.collect(Collectors.toList());
-					if (isExists.isEmpty()) {
-						String uuid = UUID.randomUUID().toString();
-						user.setEventGuestType(guests.getEventGuestType());
-						user.setEventDetailUuid(guests.getEventDetailUuid());
-						user.setEventGuestUuid(uuid);
-						user.setSentFlag(false);
-						user.setActive(true);
-						user.setCreatedBy(requestInfoWrapper.getAuditDetails().getCreatedBy());
-						user.setCreatedTime(requestInfoWrapper.getAuditDetails().getCreatedTime());
-						user.setLastModifiedBy(requestInfoWrapper.getAuditDetails().getLastModifiedBy());
-						user.setLastModifiedTime(requestInfoWrapper.getAuditDetails().getLastModifiedTime());
-						user.setTenantId(guests.getTenantId());
-						user.setModuleCode(guests.getModuleCode());
-						user.setSourceUuid(sourceUuid);
-						userList.add(user);
+				while (cellIterator.hasNext()) {
+					Cell nextCell = cellIterator.next();
+					int columnIndex = nextCell.getColumnIndex();
+					switch (columnIndex) {
+					case 0:
+						nextCell.setCellType(Cell.CELL_TYPE_STRING);
+						String name = nextCell.getStringCellValue();
+						user.setGuestName(name);
+						break;
+					case 1:
+						nextCell.setCellType(Cell.CELL_TYPE_STRING);
+						String email = nextCell.getStringCellValue();
+						user.setGuestEmail(email);
+						break;
+					case 2:
+						nextCell.setCellType(Cell.CELL_TYPE_STRING);
+						String mobile = nextCell.getStringCellValue();
+						user.setGuestMobile(mobile);
+						break;
+					default:
+						break;
 					}
+
 				}
+
+				List<InviteGuest> isExists = userList.stream()
+						.filter(obj -> (obj.getGuestEmail().equals(user.getGuestEmail())
+								&& obj.getGuestMobile().equals(user.getGuestMobile())))
+						.collect(Collectors.toList());
+
+				if (isExists.isEmpty()) {
+					String uuid = UUID.randomUUID().toString();
+					user.setEventGuestType(guests.getEventGuestType());
+					user.setEventDetailUuid(guests.getEventDetailUuid());
+					user.setEventGuestUuid(uuid);
+					user.setSentFlag(false);
+					user.setActive(true);
+					user.setCreatedBy(requestInfoWrapper.getAuditDetails().getCreatedBy());
+					user.setCreatedTime(requestInfoWrapper.getAuditDetails().getCreatedTime());
+					user.setLastModifiedBy(requestInfoWrapper.getAuditDetails().getLastModifiedBy());
+					user.setLastModifiedTime(requestInfoWrapper.getAuditDetails().getLastModifiedTime());
+					user.setTenantId(guests.getTenantId());
+					user.setModuleCode(guests.getModuleCode());
+					user.setSourceUuid(sourceUuid);
+					userList.add(user);
+				}
+			}
+			log.debug(
+					"prscp-services logs :: Executing uplaodExternalGuest() = File Reading Successuly, File Size = {}",
+					userList.size());
+			log.info("prscp-services logs :: Executing uplaodExternalGuest() = File Reading Successuly, File Size = {}",
+					userList.size());
+
+			if (!userList.isEmpty()) {
 				List<InviteGuest> userListFinal = repository.saveGuest(userList, guests.getTenantId(),
 						guests.getEventDetailUuid(), requestInfoWrapper.getAuditDetails().getCreatedBy(),
 						guests.getModuleCode());
@@ -124,11 +166,16 @@ public class EventInvitationService {
 			} else {
 				throw new CustomException(CommonConstants.INVITATION_EXCEPTION_CODE, CommonConstants.INVALID_FILE);
 			}
+
 		} catch (Exception exception) {
 			throw new CustomException(CommonConstants.INVITATION_EXCEPTION_CODE, exception.getMessage());
 		}
 	}
-
+	/**
+	 * Send invitation to guest for event
+	 * @param requestInfoWrapper to send invite to guest
+	 * @return Invitation response 
+	 */
 	public ResponseEntity<ResponseInfoWrapper> sendInvitations(RequestInfoWrapper requestInfoWrapper) {
 
 		try {
@@ -167,6 +214,11 @@ public class EventInvitationService {
 		}
 	}
 
+	/**
+	 * Add update event template
+	 * @param requestInfoWrapper to add update template
+	 * @return Template uuid
+	 */
 	public String validateTemplate(Template template, RequestInfoWrapper requestInfoWrapper) {
 		String uuid = null;
 		NotificationTemplate notitemplate = repository.getTemplate(template);
@@ -192,7 +244,11 @@ public class EventInvitationService {
 		}
 		return uuid;
 	}
-
+	/**
+	 * Add guests for event
+	 * @param requestInfoWrapper to add guests
+	 * @return Created guests response
+	 */
 	public ResponseEntity<ResponseInfoWrapper> addGuest(RequestInfoWrapper requestInfoWrapper, String requestHeader) {
 		try {
 			Guests guests = objectMapper.convertValue(requestInfoWrapper.getRequestBody(), Guests.class);
@@ -226,6 +282,11 @@ public class EventInvitationService {
 		}
 	}
 
+	/**
+	 * Delete guest for event
+	 * @param requestInfoWrapper to delete guest
+	 * @return Deleted Guest response
+	 */
 	public ResponseEntity<ResponseInfoWrapper> deleteGuest(RequestInfoWrapper requestInfoWrapper) {
 		try {
 			Guests guests = objectMapper.convertValue(requestInfoWrapper.getRequestBody(), Guests.class);
@@ -250,6 +311,11 @@ public class EventInvitationService {
 		}
 	}
 
+	/**
+	 * Get guest for event for given criteria
+	 * @param requestInfoWrapper to get guest
+	 * @return List of Guest response
+	 */
 	public ResponseEntity<ResponseInfoWrapper> getGuest(RequestInfoWrapper requestInfoWrapper) {
 		try {
 			InviteGuest inviteGuest = objectMapper.convertValue(requestInfoWrapper.getRequestBody(), InviteGuest.class);

@@ -77,7 +77,11 @@ public class ResendEmailSmsEventInvitationService {
 		this.fileStoreUtils = fileStoreUtils;
 		this.mdmsService = mdmsService;
 	}
-
+	/**
+	 * Re-send notification for event, press note tender notice
+	 * @param notificationreceiver to send notification 
+	 * @return email and sms notification
+	 */
 	public void sendEmailAndSMS(NotificationReceiver notificationReceiver) {
 
 		if (notificationReceiver.getReceiverType() != null && notificationReceiver.getModuleCode() != null
@@ -91,7 +95,11 @@ public class ResendEmailSmsEventInvitationService {
 			}
 		}
 	}
-
+	/**
+	 * Send notification for event invitation
+	 * @param notificationreceiver to send notification 
+	 * @return email and sms notification
+	 */
 	private void sendEventInvitation(NotificationReceiver notificationReceiver) {
 		log.info("Started : Send Notification sendEventInvitation(): " + notificationReceiver.toString());
 		try {
@@ -203,7 +211,11 @@ public class ResendEmailSmsEventInvitationService {
 			throw new CustomException(CommonConstants.NOTIFICATION_EVENT_RESEND_EXCEPTION_CODE, e.getMessage());
 		}
 	}
-
+	/**
+	 * Re Send notification for press note  
+	 * @param notificationreceiver to send notification 
+	 * @return email and sms notification
+	 */
 	private void sendPressNoteNotification(NotificationReceiver notificationReceiver) {
 		log.info("Started : Send Notification sendPressNoteNotification(): " + notificationReceiver.toString());
 		try {
@@ -288,6 +300,11 @@ public class ResendEmailSmsEventInvitationService {
 			throw new CustomException(CommonConstants.NOTIFICATION_PRESSNOTE_RESEND_EXCEPTION_CODE, e.getMessage());
 		}
 	}
+	/**
+	 * Re Send notification for tender notice  
+	 * @param notificationreceiver to send notification 
+	 * @return email and sms notification
+	 */
 
 	private void sendTenderNoticeNotification(NotificationReceiver notificationReceiver) {
 		log.info("Started : Send Notification sendTenderNoticeNotification(): " + notificationReceiver.toString());
@@ -386,7 +403,12 @@ public class ResendEmailSmsEventInvitationService {
 		RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(contactDetails).build();
 		producer.push(config.getPersistResendHistoryTopic(), infoWrapper);
 	}
-
+	
+	/**
+	 * Get email attachments 
+	 * @param filestore paths 
+	 * @return list of email attachments
+	 */
 	public List<EmailAttachment> attachmentsEmail(List<Files> attachmentsUrls) {
 		log.info("Started : Send Notification attachmentsEmail(): " + attachmentsUrls.toString());
 		List<EmailAttachment> attachedDocs = new ArrayList<>();

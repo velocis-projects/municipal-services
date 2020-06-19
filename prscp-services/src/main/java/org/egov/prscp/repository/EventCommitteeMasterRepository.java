@@ -24,7 +24,11 @@ public class EventCommitteeMasterRepository {
 		this.jdbcTemplate = jdbcTemplate;
 		this.rowMapper = rowMapper;
 	}
-
+	/**
+     * Searches committee for given committeeuuid in database
+     * @param committee object
+     * @return List of committee from search
+     */
 	public List<CommitteeDetail> getCommittee(CommitteeDetail committeeDetail) {
 		return jdbcTemplate.query(PrQueryBuilder.GET_COMMITTEE_DEATILS,
 				new Object[] { committeeDetail.getTenantId(), committeeDetail.getModuleCode(),
@@ -32,7 +36,11 @@ public class EventCommitteeMasterRepository {
 						committeeDetail.getCommitteeName(), committeeDetail.getCommitteeName() },
 				rowMapper);
 	}
-
+	/**
+     * Searches committee for given committeeName in database
+     * @param committee object
+     * @return List of committee from search
+     */
 	public List<CommitteeDetail> getCommitteeByName(CommitteeDetail committeeDetail) {
 		return jdbcTemplate.query(PrQueryBuilder.GET_COMMITTEE_DEATILS,
 				new Object[] { committeeDetail.getTenantId(), committeeDetail.getModuleCode(), "", "",

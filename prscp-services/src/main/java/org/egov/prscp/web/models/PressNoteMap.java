@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
+/**
+ * A Object holds the basic data for a Press Note and press master
+ */
 @Getter
 @Setter
 @Builder

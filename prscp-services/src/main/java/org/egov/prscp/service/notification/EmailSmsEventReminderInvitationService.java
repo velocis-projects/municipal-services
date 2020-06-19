@@ -55,7 +55,11 @@ public class EmailSmsEventReminderInvitationService {
 		this.config = config;
 		this.mDMSService = mDMSService;
 	}
-
+	/**
+	 * Send notification for event reminder  
+	 * @param list of events
+ 	 * @return email and sms notification
+	 */
 	public void reminderInvitation() {
 		log.info("Started : Send Notification reminderInvitation()");
 

@@ -21,12 +21,16 @@ public class ApplicationAspectLogs {
 		long startTime = System.currentTimeMillis();
 		log.info("prscp-services logs :: beforeController = Method::{}, Execution Time::{}", joinPoint.getSignature(),
 				startTime);
+		log.debug("prscp-services logs :: beforeController = Method::{}, Execution Time::{}", joinPoint.getSignature(),
+				startTime);
 	}
 
 	@After("execution(* org.egov.prscp.web.controllers.*.*(..))")
 	public void afterController(JoinPoint joinPoint) {
 		long startTime = System.currentTimeMillis();
 		log.info("prscp-services logs :: afterController = Method::{}, Execution Time::{}", joinPoint.getSignature(),
+				startTime);
+		log.debug("prscp-services logs :: afterController = Method::{}, Execution Time::{}", joinPoint.getSignature(),
 				startTime);
 	}
 
@@ -35,12 +39,16 @@ public class ApplicationAspectLogs {
 		long startTime = System.currentTimeMillis();
 		log.info("prscp-services logs :: afterReturningController = Method::{}, Execution Time::{}, Results::{}",
 				joinPoint.getSignature(), startTime, result);
+		log.debug("prscp-services logs :: afterReturningController = Method::{}, Execution Time::{}, Results::{}",
+				joinPoint.getSignature(), startTime, result);
 	}
 
 	@AfterThrowing(value = "execution(* org.egov.prscp.web.controllers.*.*(..))", throwing = "exception")
 	public void afterThrowingController(JoinPoint joinPoint, Throwable exception) {
 		long startTime = System.currentTimeMillis();
 		log.info("prscp-services logs :: afterThrowingController = Method::{}, Execution Time::{}, Exception::{}",
+				joinPoint.getSignature(), startTime, exception.getMessage());
+		log.debug("prscp-services logs :: afterThrowingController = Method::{}, Execution Time::{}, Exception::{}",
 				joinPoint.getSignature(), startTime, exception.getMessage());
 	}
 
@@ -50,12 +58,16 @@ public class ApplicationAspectLogs {
 		long startTime = System.currentTimeMillis();
 		log.info("prscp-services logs :: beforeService = Method::{}, Execution Time::{}", joinPoint.getSignature(),
 				startTime);
+		log.debug("prscp-services logs :: beforeService = Method::{}, Execution Time::{}", joinPoint.getSignature(),
+				startTime);
 	}
 
 	@After("execution(* org.egov.prscp.service.*.*(..))")
 	public void afterService(JoinPoint joinPoint) {
 		long startTime = System.currentTimeMillis();
 		log.info("prscp-services logs :: afterService = Method::{}, Execution Time::{}", joinPoint.getSignature(),
+				startTime);
+		log.debug("prscp-services logs :: afterService = Method::{}, Execution Time::{}", joinPoint.getSignature(),
 				startTime);
 	}
 
@@ -64,12 +76,16 @@ public class ApplicationAspectLogs {
 		long startTime = System.currentTimeMillis();
 		log.info("prscp-services logs :: afterReturningService = Method::{}, Execution Time::{}, Results::{}",
 				joinPoint.getSignature(), startTime, result);
+		log.debug("prscp-services logs :: afterReturningService = Method::{}, Execution Time::{}, Results::{}",
+				joinPoint.getSignature(), startTime, result);
 	}
 
 	@AfterThrowing(value = "execution(* org.egov.prscp.service.*.*(..))", throwing = "exception")
 	public void afterThrowingService(JoinPoint joinPoint, Throwable exception) {
 		long startTime = System.currentTimeMillis();
 		log.info("prscp-services logs :: afterThrowingService = Method::{}, Execution Time::{}, Exception::{}",
+				joinPoint.getSignature(), startTime, exception.getMessage());
+		log.debug("prscp-services logs :: afterThrowingService = Method::{}, Execution Time::{}, Exception::{}",
 				joinPoint.getSignature(), startTime, exception.getMessage());
 	}
 
@@ -79,12 +95,16 @@ public class ApplicationAspectLogs {
 		long startTime = System.currentTimeMillis();
 		log.info("prscp-services logs :: beforeRepository = Method::{}, Execution Time::{}", joinPoint.getSignature(),
 				startTime);
+		log.debug("prscp-services logs :: beforeRepository = Method::{}, Execution Time::{}", joinPoint.getSignature(),
+				startTime);
 	}
 
 	@After("execution(* org.egov.prscp.repository.*.*(..))")
 	public void afterRepository(JoinPoint joinPoint) {
 		long startTime = System.currentTimeMillis();
 		log.info("prscp-services logs :: afterRepository = Method::{}, Execution Time::{}", joinPoint.getSignature(),
+				startTime);
+		log.debug("prscp-services logs :: afterRepository = Method::{}, Execution Time::{}", joinPoint.getSignature(),
 				startTime);
 	}
 
@@ -93,6 +113,8 @@ public class ApplicationAspectLogs {
 		long startTime = System.currentTimeMillis();
 		log.info("prscp-services logs :: afterReturningRepository = Method::{}, Execution Time::{}, Results::{}",
 				joinPoint.getSignature(), startTime, result);
+		log.debug("prscp-services logs :: afterReturningRepository = Method::{}, Execution Time::{}, Results::{}",
+				joinPoint.getSignature(), startTime, result);
 	}
 
 	@AfterThrowing(value = "execution(* org.egov.prscp.repository.*.*(..))", throwing = "exception")
@@ -100,5 +122,8 @@ public class ApplicationAspectLogs {
 		long startTime = System.currentTimeMillis();
 		log.info("prscp-services logs :: afterThrowingRepository = Method::{}, Execution Time::{}, Exception::{}",
 				joinPoint.getSignature(), startTime, exception.getMessage());
+		log.debug("prscp-services logs :: afterThrowingRepository = Method::{}, Execution Time::{}, Exception::{}",
+				joinPoint.getSignature(), startTime, exception.getMessage());
 	}
+
 }
