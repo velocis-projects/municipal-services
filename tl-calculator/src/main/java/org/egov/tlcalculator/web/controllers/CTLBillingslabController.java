@@ -56,19 +56,9 @@ public class CTLBillingslabController {
 	 */
     @RequestMapping(value = {"/{servicename}/_search", "/_search"}, method = RequestMethod.POST)
     public ResponseEntity<CTLBillingSlabRes> billingslabSearchPost(@ModelAttribute @Valid CTLBillingSlabSearchCriteria ctlBillingSlabSearchCriteria,
-                                                                @Valid @RequestBody RequestInfo requestInfo,@PathVariable(required = false) String servicename) {
-		switch(servicename)
-		{
-			case businessService_REHRI_RC:
-			case businessService_REHRI_DL:
-			case businessService_DHOBI_GHAT:
-			case businessService_BOOK_SHOP:
-				CTLBillingSlabRes response = service.searchSlabs(ctlBillingSlabSearchCriteria, requestInfo);
-				return new ResponseEntity<CTLBillingSlabRes>(response, HttpStatus.OK);
-
-			default:
-				throw new CustomException("UNKNOWN_BUSINESSSERVICE", " Business Service not supported");
-		}
+                                                                @Valid @RequestBody RequestInfo requestInfo) {
+		CTLBillingSlabRes response = service.searchSlabs(ctlBillingSlabSearchCriteria, requestInfo);
+		return new ResponseEntity<CTLBillingSlabRes>(response, HttpStatus.OK);
     }
     
     /**

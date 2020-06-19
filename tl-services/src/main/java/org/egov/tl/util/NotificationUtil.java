@@ -57,7 +57,7 @@ public class NotificationUtil {
 		String ACTION_STATUS = license.getAction() + "_" + license.getStatus();
 		switch (ACTION_STATUS) {
 
-		/*case ACTION_STATUS_INITIATED:
+		case ACTION_STATUS_INITIATED:
 			messageTemplate = getMessageTemplate(TLConstants.NOTIFICATION_INITIATED, localizationMessage);
 			message = getInitiatedMsg(license, messageTemplate);
 			break;
@@ -65,7 +65,7 @@ public class NotificationUtil {
 		case ACTION_STATUS_APPLIED:
 			messageTemplate = getMessageTemplate(TLConstants.NOTIFICATION_APPLIED, localizationMessage);
 			message = getAppliedMsg(license, messageTemplate);
-			break;>/
+			break;
 
 		/*
 		 * case ACTION_STATUS_PAID : messageTemplate =
@@ -73,11 +73,11 @@ public class NotificationUtil {
 		 * message = getApprovalPendingMsg(license,messageTemplate); break;
 		 */
 
-		/*case ACTION_STATUS_APPROVED:
+		case ACTION_STATUS_APPROVED:
 			BigDecimal amountToBePaid = getAmountToBePaid(requestInfo, license);
 			messageTemplate = getMessageTemplate(TLConstants.NOTIFICATION_APPROVED, localizationMessage);
 			message = getApprovedMsg(license, amountToBePaid, messageTemplate);
-			break;*/
+			break;
 
 		case ACTION_STATUS_REJECTED:
 			messageTemplate = getMessageTemplate(TLConstants.NOTIFICATION_REJECTED, localizationMessage);
@@ -95,7 +95,7 @@ public class NotificationUtil {
 			break;
 
 		case ACTION_FORWARD_CITIZENACTIONREQUIRED:
-			messageTemplate = getMessageTemplate(TLConstants.NOTIFICATION_PAID, localizationMessage);
+			messageTemplate = getMessageTemplate(TLConstants.NOTIFICATION_FORWARD_CITIZEN, localizationMessage);
 			message = getCitizenForward(license, messageTemplate);
 			break;
 
@@ -103,32 +103,46 @@ public class NotificationUtil {
 			messageTemplate = getMessageTemplate(TLConstants.NOTIFICATION_CANCELLED, localizationMessage);
 			message = getCancelledMsg(license, messageTemplate);
 			break;
-			
-		case ACTION_FORWARD_CLERK:
-			messageTemplate = getMessageTemplate(TLConstants.NOTIFICATION_SUBMITTED, localizationMessage);
-			message = getSubittedMsg(license, messageTemplate, localizationMessage);
-			break;
-			
-		case ACTION_SENDBACKTOCITIZEN_CLERK:
-			messageTemplate = getMessageTemplate(TLConstants.NOTIFICATION_SENDBACK_CITIZEN, localizationMessage);
-			message = getSendBackToCitizen(license, messageTemplate, localizationMessage);
-			break;
-			
-		case ACTION_STATUS_REJECTED_CLERK:
-		case ACTION_STATUS_REJECTED_SA:
-		case ACTION_STATUS_REJECTED_SI:
-		case ACTION_STATUS_REJECTED_CO:
-			messageTemplate = getMessageTemplate(TLConstants.NOTIFICATION_REJECTED, localizationMessage);
-			message = getRejectedMsgForCitizen(license, messageTemplate, localizationMessage);
-			break;
-			
-		case ACTION_STATUS_APPROVED:
-			messageTemplate = getMessageTemplate(TLConstants.NOTIFICATION_APRROVED_AND_PAYMENT_PENDING, localizationMessage);
-			message = getApprovedAndPayementPendingMsg(license,messageTemplate, localizationMessage);
-			break;	
-			
 		}
 
+		return message;
+	}
+	
+	/**
+	 * Creates customized message based on tradelicense
+	 * 
+	 * @param license
+	 *            The tradeLicense for which message is to be sent
+	 * @param localizationMessage
+	 *            The messages from localization
+	 * @return customized message based on tradelicense
+	 */
+	public String getCustomizedCTLMessage(RequestInfo requestInfo, TradeLicense license, String localizationMessage) {
+		String message = null, messageTemplate;
+		String ACTION_STATUS = license.getAction() + "_" + license.getStatus();
+		switch (ACTION_STATUS) {
+		
+			case ACTION_FORWARD_CLERK:
+				messageTemplate = getMessageTemplate(TLConstants.NOTIFICATION_SUBMITTED, localizationMessage);
+				message = getSubittedMsg(license, messageTemplate, localizationMessage);
+				break;
+				
+			case ACTION_SENDBACKTOCITIZEN_CLERK:
+				messageTemplate = getMessageTemplate(TLConstants.NOTIFICATION_SENDBACK_CITIZEN, localizationMessage);
+				message = getSendBackToCitizen(license, messageTemplate, localizationMessage);
+				break;
+				
+			case ACTION_STATUS_REJECTED:
+				messageTemplate = getMessageTemplate(TLConstants.NOTIFICATION_REJECTED, localizationMessage);
+				message = getRejectedMsgForCitizen(license, messageTemplate, localizationMessage);
+				break;
+				
+			case ACTION_STATUS_APPROVED:
+				BigDecimal amountToBePaid = getAmountToBePaid(requestInfo, license);
+				messageTemplate = getMessageTemplate(TLConstants.NOTIFICATION_APRROVED_AND_PAYMENT_PENDING, localizationMessage);
+				message = getApprovedAndPaymentPendingMsg(license,messageTemplate, localizationMessage, amountToBePaid);
+				break;
+		}
 		return message;
 	}
 
@@ -269,10 +283,11 @@ public class NotificationUtil {
 	}
 	
 	
-	private String getApprovedAndPayementPendingMsg(TradeLicense license, String message, String localizationMessage) {
+	private String getApprovedAndPaymentPendingMsg(TradeLicense license, String message, String localizationMessage, BigDecimal amountToBePaid) {
 		//message = message.replace("<2>", license.getTradeName());
 		message = message.replace("<2>", getMessageTemplate(license.getBusinessService(), localizationMessage));
 		message = message.replace("<3>", license.getApplicationNumber());
+		message = message.replace("<4>", amountToBePaid.toString());
 		return message;
 	}
 	
@@ -521,7 +536,11 @@ public class NotificationUtil {
 		builder.append("&consumerCode=");
 		builder.append(license.getApplicationNumber());
 		builder.append("&businessService=");
-		builder.append(TRADE_LICENSE_MODULE_CODE);
+		String businessService = license.getBusinessService();
+		if (businessService == null) {
+			businessService = TRADE_LICENSE_MODULE_CODE;
+		}
+		builder.append(businessService);
 		return builder;
 	}
 
@@ -557,7 +576,12 @@ public class NotificationUtil {
 		List<EmailRequest> emailRequest = new LinkedList<>();
 		for (Map.Entry<String, String> entryset : emailIdToOwner.entrySet()) {
 			String customizedMsg = message.replace("<1>", entryset.getValue());
-//			emailRequest.add(new EmailRequest(entryset.getKey(), TLConstants.EMAIL_SUBJECT,customizedMsg, false));
+			emailRequest.add(EmailRequest.builder()
+					.email(entryset.getKey())
+					.subject(TLConstants.EMAIL_SUBJECT)
+					.body(customizedMsg)
+					.isHTML(false)
+					.build());
 		}
 		return emailRequest;
 	}
