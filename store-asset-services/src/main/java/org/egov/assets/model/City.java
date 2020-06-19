@@ -22,7 +22,9 @@ public class City {
     private String localName;
     private String districtCode;
     private String districtName;
+    private String regionCode;
     private String regionName;
+    private String municipalityName;
     private Double longitude;
     private Double latitude;
     private String tenantCode;
