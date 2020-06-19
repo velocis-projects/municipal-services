@@ -30,7 +30,11 @@ public class EventPressMasterService {
 		this.objectMapper = objectMapper;
 		this.repository = repository;
 	}
-
+	/**
+	 * Creates press master for the given criteria
+	 * @param requestInfoWrapper to create press master 
+	 * @return press master Response
+	 */
 	public ResponseEntity<ResponseInfoWrapper> createPress(RequestInfoWrapper requestInfoWrapper) {
 		try {
 			PressMaster pressMaster = objectMapper.convertValue(requestInfoWrapper.getRequestBody(), PressMaster.class);
@@ -53,6 +57,11 @@ public class EventPressMasterService {
 		}
 	}
 
+	/**
+	 * update press master for the given criteria
+	 * @param requestInfoWrapper to update press master 
+	 * @return press master Response
+	 */
 	public ResponseEntity<ResponseInfoWrapper> updatePress(RequestInfoWrapper requestInfoWrapper) {
 		try {
 			PressMaster pressMaster = objectMapper.convertValue(requestInfoWrapper.getRequestBody(), PressMaster.class);
@@ -71,6 +80,11 @@ public class EventPressMasterService {
 		}
 	}
 
+	/**
+	 * Get press master for the given criteria
+	 * @param requestInfoWrapper to get press master 
+	 * @return press master Response
+	 */
 	public ResponseEntity<ResponseInfoWrapper> getPress(RequestInfoWrapper requestInfoWrapper) {
 		try {
 			PressMaster pressMaster = objectMapper.convertValue(requestInfoWrapper.getRequestBody(), PressMaster.class);
@@ -83,7 +97,11 @@ public class EventPressMasterService {
 			throw new CustomException(CommonConstants.PRESS_MASTER_EXCEPTION_CODE, e.getMessage());
 		}
 	}
-
+	/**
+	 * Delete press master for the given criteria
+	 * @param requestInfoWrapper to Delete press master 
+	 * @return press master Response
+	 */
 	public ResponseEntity<ResponseInfoWrapper> deletePress(RequestInfoWrapper requestInfoWrapper) {
 		try {
 			PressMaster pressMaster = objectMapper.convertValue(requestInfoWrapper.getRequestBody(), PressMaster.class);

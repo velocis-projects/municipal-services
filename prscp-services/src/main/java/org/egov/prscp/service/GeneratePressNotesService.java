@@ -41,6 +41,12 @@ public class GeneratePressNotesService {
 		this.repository = repository;
 	}
 
+	 /**
+     * Generates press note for the given for the given request
+     * @param requestInfoWrapper to generate press note
+     * @return The object of generated press note
+     */
+	
 	public ResponseEntity<ResponseInfoWrapper> createPressNote(RequestInfoWrapper requestInfoWrapper,
 			String requestHeader) {
 		try {
@@ -109,6 +115,11 @@ public class GeneratePressNotesService {
 		}
 	}
 
+	/**
+	 * Get press note for the given criteria
+	 * @param requestInfoWrapper to get single or all press notes
+	 * @return list of Press notes
+	 */
 	public ResponseEntity<ResponseInfoWrapper> getPressNote(RequestInfoWrapper requestInfoWrapper) {
 		try {
 			PressNote pressNote = objectMapper.convertValue(requestInfoWrapper.getRequestBody(), PressNote.class);
@@ -123,6 +134,11 @@ public class GeneratePressNotesService {
 		}
 	}
 
+	/**
+	 * Update press note for the given criteria
+	 * @param requestInfoWrapper to update press note
+	 * @return object of Press note 
+	 */
 	public ResponseEntity<ResponseInfoWrapper> updatePressNote(RequestInfoWrapper requestInfoWrapper) {
 		try {
 			PressNote pressNote = objectMapper.convertValue(requestInfoWrapper.getRequestBody(), PressNote.class);

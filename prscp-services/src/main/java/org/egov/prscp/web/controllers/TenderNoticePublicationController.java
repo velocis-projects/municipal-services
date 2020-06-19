@@ -24,7 +24,11 @@ public class TenderNoticePublicationController {
 	public TenderNoticePublicationController(TenderNoticePublicationService tenderNoticePublicationService) {
 		this.tenderNoticePublicationService = tenderNoticePublicationService;
 	}
-
+	/**
+	 * Creates Tender for the given criteria
+	 * @param requestInfoWrapper to create tender 
+	 * @return Tender Response
+	 */
 	@PostMapping(value = "/_create")
 	public ResponseEntity<ResponseInfoWrapper> createTender(
 			@RequestBody @Valid @Validated RequestInfoWrapper requestInfoWrapper,
@@ -32,16 +36,32 @@ public class TenderNoticePublicationController {
 		return tenderNoticePublicationService.createTender(requestInfoWrapper, request);
 	}
 
+	
+	/**
+	 * Update Tender for the given criteria
+	 * @param requestInfoWrapper to update tender 
+	 * @return Tender Response
+	 */
 	@PostMapping(value = "/_update")
 	public ResponseEntity<ResponseInfoWrapper> updateTender(@Valid @RequestBody RequestInfoWrapper requestInfoWrapper) {
 		return tenderNoticePublicationService.updateTender(requestInfoWrapper);
 	}
-
+	
+	/**
+	 * Get Tender for the given criteria
+	 * @param requestInfoWrapper to get tender 
+	 * @return Tender Response
+	 */
 	@PostMapping(value = "/_get")
 	public ResponseEntity<ResponseInfoWrapper> getTender(@Valid @RequestBody RequestInfoWrapper requestInfoWrapper) {
 		return tenderNoticePublicationService.getTender(requestInfoWrapper);
 	}
 
+	/**
+	 * Publish Tender for the given criteria
+	 * @param requestInfoWrapper to publish tender 
+	 * @return Tender Response
+	 */
 	@PostMapping(value = "/_publish")
 	public ResponseEntity<ResponseInfoWrapper> publish(@Valid @RequestBody RequestInfoWrapper requestInfoWrapper) {
 		return tenderNoticePublicationService.publish(requestInfoWrapper);

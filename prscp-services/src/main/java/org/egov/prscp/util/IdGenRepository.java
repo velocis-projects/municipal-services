@@ -41,7 +41,7 @@ public class IdGenRepository {
      * @param name Name of the foramt
      * @param format Format of the ids
      * @param count Total Number of idGen ids required
-     * @return
+     * @return id
      */
     public IdGenerationResponse getId(RequestInfo requestInfo, String tenantId, String name, String format, int count) {
 

@@ -47,6 +47,11 @@ public class GeneratePressNotesRepository {
 		this.config = config;
 	}
 
+	/**
+     * Searches press note for given press note date ,file number in database
+     * @param pressNote object
+     * @return List of press note from search
+     */
 	public List<PressNote> getPressNote(PressNote pressNote) {
 		LocalDate today = LocalDate.now();
 		LocalDate periodDate = today.minusDays(Integer.parseInt(config.getPeriodPressNote()));
@@ -58,19 +63,33 @@ public class GeneratePressNotesRepository {
 						pressNote.getFromDate(), pressNote.getToDate(), pressNote.getToDate(), periodDays, periodDays },
 				pressnoterowMapper);
 	}
-
+	/**
+     * Searches press note  in database
+     * @param pressNote object
+     * @return List of press master from search
+     */
 	public List<PressMaster> getPressNoteePressList(PressNote pressNote) {
 		return jdbcTemplate.query(PrQueryBuilder.GET_PRESSNOTE_PRESS,
 				new Object[] { pressNote.getTenantId(), pressNote.getModuleCode(), pressNote.getPressNoteUuid() },
 				pressMasterRowMapper);
 	}
+	
+	/**
+     * Pushes the request on save topic
+     *
+     * @param JSONObject to generate press note
+     */
 
 	public void uploadPressNote(JSONObject data) {
 		RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(data).build();
 		producer.push(config.getPressNoteSaveTopic(), infoWrapper);
 	}
 	
-	
+
+    /**
+     * Searches press note for given press note date ,file number in database
+     * @param pressNote object
+     */
 	public void checkPressNote(PressNote pressNote) {
 		Map<String, String> errorMap = new HashMap<>();
 		int i= jdbcTemplate.queryForObject(PrQueryBuilder.GET_PRESS_NOTE_EXIST_QUERY,
@@ -83,16 +102,28 @@ public class GeneratePressNotesRepository {
 			throw new CustomException(errorMap);
 		}
 	}
-	
+	/**
+     * Pushes the request on send invitation topic
+     *
+     * @param notificationReceiver to send press note notification
+     */
 	public void sendInvitation(NotificationReceiver notificationReceiver) {
 		producer.push(config.getInvitationSendTopic(), notificationReceiver);
 	}
-
+	/**
+     * Pushes the request on update topic
+     *
+     * @param JSONObject to update press note 
+     */
 	public void updatePressNote(JSONObject data) {
 		RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(data).build();
 		producer.push(config.getPressNoteUpdateTopic(), infoWrapper);
 	}
 
+	/**
+     * Searches press note in database for particular press note uuid
+     * @param pressNote object
+     */
 	public Integer checkpressNote(PressNote pressNote) {
 		return jdbcTemplate.queryForObject(PrQueryBuilder.GET_PRESS_NOTE_UUID_QUERY,
 				new Object[] { pressNote.getTenantId(), pressNote.getModuleCode(), pressNote.getPressNoteUuid() },

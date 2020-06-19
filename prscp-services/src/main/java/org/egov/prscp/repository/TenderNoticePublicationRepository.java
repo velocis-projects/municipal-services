@@ -53,10 +53,21 @@ public class TenderNoticePublicationRepository {
 		this.pressMasterRowMapper = pressMasterRowMapper;
 	}
 
+	/**
+     * Pushes the request on save topic
+     *
+     * @param JSONObject to create tender notice
+     */
 	public void createTender(TenderNotice tenderNotice) {
 		RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(tenderNotice).build();
 		producer.push(config.getCreateTender(), infoWrapper);
 	}
+	
+
+    /**
+     * Searches tender for given tender date ,file number in database
+     * @param tenderNotice object
+     */
 	public void checkTenderExist(TenderNotice tenderNotice) {
 		Map<String, String> errorMap = new HashMap<>();
 		int i= jdbcTemplate.queryForObject(PrQueryBuilder.GET_TENDER_NOTICE_EXIST_QUERY,
@@ -69,7 +80,10 @@ public class TenderNoticePublicationRepository {
 			throw new CustomException(errorMap);
 		}
 	}
-
+	/**
+     * Searches tender for given tender uuid
+     * @param tenderNotice object
+     */
 	public void isValidTenderUuid(TenderNotice tenderNotice) {
 		Integer isAvail = jdbcTemplate.queryForObject(PrQueryBuilder.GET_TENDER_AVAILABLE, new Object[] {
 				tenderNotice.getModuleCode(), tenderNotice.getTenantId(), tenderNotice.getTenderNoticeUuid() },
@@ -77,12 +91,22 @@ public class TenderNoticePublicationRepository {
 		if (isAvail == null || isAvail == 0)
 			throw new CustomException("TENDERNOTICE_EXCEPTION", "Invalid Tender Notice Id");
 	}
-
+	/**
+     * Pushes the request on update topic
+     *
+     * @param JSONObject to update tender notice
+     */
 	public void updateTender(TenderNotice tenderNotice) {
 		RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(tenderNotice).build();
 		producer.push(config.getUpdateTender(), infoWrapper);
 	}
 
+	
+	/**
+     * Searches tender for given tender uuid
+     * @param tenderNotice object
+     * @return TenderNotice List
+     */
 	public List<TenderNotice> getTender(TenderNotice tenderNotice) {
 
 		LocalDate today = LocalDate.now();
@@ -99,7 +123,11 @@ public class TenderNoticePublicationRepository {
 						tenderNotice.getToDate(), tenderNotice.getToDate(), periodDays, periodDays },
 				rowMapper);
 	}
-
+	/**
+     * Searches tender for given tender uuid
+     * @param tenderNotice object
+     * @return TenderNotice List
+     */
 	public List<TenderNotice> getTenderDetails(TenderNotice tenderNotice) {
 		LocalDate today = LocalDate.now();
 		LocalDate periodDate = today.minusDays(Integer.parseInt(config.getPeriodTenderNotice()));
@@ -113,11 +141,21 @@ public class TenderNoticePublicationRepository {
 				rowMapper);
 	}
 
+
+	/**
+	 * Searches tender notice  in database
+	 * @param tenderNotice object
+	 * @return List of press master from search
+	 */
 	public List<PressMaster> getTenderPress(TenderNotice tenderNotice) {
 		return jdbcTemplate.query(PrQueryBuilder.GET_TENDER_PRESS, new Object[] { tenderNotice.getTenantId(),
 				tenderNotice.getModuleCode(), tenderNotice.getTenderNoticeUuid() }, pressMasterRowMapper);
 	}
-
+	/**
+     * Pushes the request on update topic
+     * updates workflow status to PUBLISHED
+     * @param JSONObject to update tender notice
+     */
 	public void publish(TenderNotice tenderNotice, NotificationTemplate template,
 			NotificationReceiver notificationReceiver) {
 

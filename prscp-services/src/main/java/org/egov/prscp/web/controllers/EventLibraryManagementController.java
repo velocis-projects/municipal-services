@@ -24,18 +24,32 @@ public class EventLibraryManagementController {
 		this.eventLibraryManagementService = eventLibraryManagementService;
 	}
 
+	/**
+	 * Upload Library for the given criteria
+	 * @param requestInfoWrapper to upload Library
+	 * @return Library Response
+	 */
 	@PostMapping(value = "/_upload")
 	public ResponseEntity<ResponseInfoWrapper> uploadLibrary(@RequestBody RequestInfoWrapper requestInfoWrapper,
 			@RequestHeader("User-Agent") String request) {
 		return eventLibraryManagementService.uploadLibrary(requestInfoWrapper, request);
 	}
 
+	/**
+	 * Get Library for the given criteria
+	 * @param requestInfoWrapper to get Library
+	 * @return Library Response
+	 */
 	@PostMapping(value = "/_get")
 	public ResponseEntity<ResponseInfoWrapper> getLibrary(@RequestBody RequestInfoWrapper requestInfoWrapper) {
 		return eventLibraryManagementService.getLibrary(requestInfoWrapper);
 
 	}
-
+	/**
+	 * Delete Library for the given criteria
+	 * @param requestInfoWrapper to Delete Library
+	 * @return Library Response
+	 */
 	@PostMapping(value = "/_delete")
 	public ResponseEntity<ResponseInfoWrapper> deletePress(@Valid @RequestBody RequestInfoWrapper requestInfoWrapper) {
 		return eventLibraryManagementService.deleteLibrary(requestInfoWrapper);

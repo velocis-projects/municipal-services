@@ -1,5 +1,7 @@
 package org.egov.prscp.web.models;
-
+/**
+ * A Object holds the basic data for a Idgen
+ */
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

@@ -22,22 +22,39 @@ public class EventPressMasterController {
 	public EventPressMasterController(EventPressMasterService eventPressMasterService) {
 		this.eventPressMasterService = eventPressMasterService;
 	}
-
+	/**
+	 * Creates press master for the given criteria
+	 * @param requestInfoWrapper to create press master 
+	 * @return press master Response
+	 */
 	@PostMapping(value = "/_create")
 	public ResponseEntity<ResponseInfoWrapper> createPress(@Valid @RequestBody RequestInfoWrapper requestInfoWrapper) {
 		return eventPressMasterService.createPress(requestInfoWrapper);
 	}
-
+   
+	/**
+	 * update press master for the given criteria
+	 * @param requestInfoWrapper to update press master 
+	 * @return press master Response
+	 */
 	@PostMapping(value = "/_update")
 	public ResponseEntity<ResponseInfoWrapper> updatePress(@Valid @RequestBody RequestInfoWrapper requestInfoWrapper) {
 		return eventPressMasterService.updatePress(requestInfoWrapper);
 	}
-
+	/**
+	 * Get press master for the given criteria
+	 * @param requestInfoWrapper to get press master 
+	 * @return press master Response
+	 */
 	@PostMapping(value = "/_get")
 	public ResponseEntity<ResponseInfoWrapper> getPress(@Valid @RequestBody RequestInfoWrapper requestInfoWrapper) {
 		return eventPressMasterService.getPress(requestInfoWrapper);
 	}
-
+	/**
+	 * Delete press master for the given criteria
+	 * @param requestInfoWrapper to Delete press master 
+	 * @return press master Response
+	 */
 	@PostMapping(value = "/_delete")
 	public ResponseEntity<ResponseInfoWrapper> deletePress(@Valid @RequestBody RequestInfoWrapper requestInfoWrapper) {
 		return eventPressMasterService.deletePress(requestInfoWrapper);

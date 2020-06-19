@@ -11,13 +11,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
 /**
  * <h1>IdGenerationRequest</h1>
- * 
- * @author VISHAL_GENIUS
- *
+
  */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

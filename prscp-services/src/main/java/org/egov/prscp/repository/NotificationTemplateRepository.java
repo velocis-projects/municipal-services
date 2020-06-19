@@ -55,7 +55,12 @@ public class NotificationTemplateRepository {
 		this.producer = producer;
 		this.config = config;
 	}
-
+	
+	/**
+	 * Get Template for the given criteria
+	 * @param requestInfoWrapper to get single or all templates
+	 * @return list of Template
+	 */
 	public NotificationTemplate getTemplate(Template template) {
 		return jdbcTemplate
 				.query(PrQueryBuilder.GET_TEMPLATE,
@@ -64,6 +69,11 @@ public class NotificationTemplateRepository {
 						notificationTemplateRowMapper);
 	}
 
+	/**
+     * Re-send event invitation
+     * @param Guest contact details
+     * @return Guest contact details 
+     */
 	public GuestsResend resendEvent(GuestsResend guestsResend, AuditDetails auditDetails) {
 		List<ContactDetails> contactDetails = new ArrayList<>();
 		NotificationReceiver notificationReceiver = NotificationReceiver.builder().tenantId(guestsResend.getTenantId())
@@ -105,7 +115,11 @@ public class NotificationTemplateRepository {
 		reSendInvitation(notificationReceiver);
 		return guestsResend;
 	}
-
+	/**
+     * Re-send tender invitation
+     * @param Guest contact details
+     * @return Guest contact details 
+     */
 	public GuestsResend resendTender(GuestsResend guestsResend, AuditDetails auditDetails) {
 		List<ContactDetails> contactDetails = new ArrayList<>();
 		NotificationReceiver notificationReceiver = NotificationReceiver.builder().tenantId(guestsResend.getTenantId())
@@ -151,7 +165,11 @@ public class NotificationTemplateRepository {
 		reSendInvitation(notificationReceiver);
 		return guestsResend;
 	}
-
+	/**
+     * Re-send press note  invitation
+     * @param Guest contact details
+     * @return Guest contact details 
+     */
 	public GuestsResend resendPressNote(GuestsResend guestsResend, AuditDetails auditDetails) {
 		List<ContactDetails> contactDetails = new ArrayList<>();
 
@@ -196,7 +214,11 @@ public class NotificationTemplateRepository {
 		reSendInvitation(notificationReceiver);
 		return guestsResend;
 	}
-
+	/**
+     * Push Data to re-send invitation
+     * @param NotificationReceiver details
+     * @return Email and sms notification 
+     */
 	public void reSendInvitation(NotificationReceiver notificationReceiver) {
 		producer.push(config.getInvitationResendTopic(), notificationReceiver);
 	}
