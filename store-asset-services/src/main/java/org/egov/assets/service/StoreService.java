@@ -103,9 +103,6 @@ public class StoreService extends DomainService {
 	@Value("${inv.store.update.key}")
 	private String updateKey;
 
-	@Value("${es.enabled}")
-	private Boolean isESEnabled;
-
 	@Autowired
 	private LogAwareKafkaTemplate<String, Object> kafkaTemplate;
 

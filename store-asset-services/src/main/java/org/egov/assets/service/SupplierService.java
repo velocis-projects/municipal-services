@@ -82,9 +82,6 @@ public class SupplierService extends DomainService {
 	@Value("${inv.supplier.update.key}")
 	private String updateKey;
 
-	@Value("${es.enabled}")
-	private Boolean isESEnabled;
-
 	@Autowired
 	private BankContractRepository bankContractRepository;
 
