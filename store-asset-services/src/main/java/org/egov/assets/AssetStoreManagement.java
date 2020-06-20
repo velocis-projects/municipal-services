@@ -33,14 +33,14 @@ public class AssetStoreManagement implements CommandLineRunner {
     @Value("${app.timezone}")
     private String timeZone;
 
-    @Value("${es.host}")
-    private String elasticSearchHost;
-
-    @Value("${es.transport.port}")
-    private Integer elasticSearchTransportPort;
-
-    @Value("${es.cluster.name}")
-    private String elasticSearchClusterName;
+//    @Value("${es.host}")
+//    private String elasticSearchHost;
+//
+//    @Value("${es.transport.port}")
+//    private Integer elasticSearchTransportPort;
+//
+//    @Value("${es.cluster.name}")
+//    private String elasticSearchClusterName;
 
     private TransportClient client;
 
@@ -51,15 +51,15 @@ public class AssetStoreManagement implements CommandLineRunner {
         }
     }
 
-    @PostConstruct
-    public void init() throws UnknownHostException {
-        TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
-        Settings settings = Settings.builder().put(CLUSTER_NAME, elasticSearchClusterName).build();
-        final InetAddress esAddress = InetAddress.getByName(elasticSearchHost);
-        final InetSocketTransportAddress transportAddress = new InetSocketTransportAddress(esAddress,
-                elasticSearchTransportPort);
-        client = new PreBuiltTransportClient(settings).addTransportAddress(transportAddress);
-    }
+//    @PostConstruct
+//    public void init() throws UnknownHostException {
+//        TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
+//        Settings settings = Settings.builder().put(CLUSTER_NAME, elasticSearchClusterName).build();
+//        final InetAddress esAddress = InetAddress.getByName(elasticSearchHost);
+//        final InetSocketTransportAddress transportAddress = new InetSocketTransportAddress(esAddress,
+//                elasticSearchTransportPort);
+//        client = new PreBuiltTransportClient(settings).addTransportAddress(transportAddress);
+//    }
 
     public static void main(String[] args) throws Exception {
         new SpringApplication(AssetStoreManagement.class).run(args);
