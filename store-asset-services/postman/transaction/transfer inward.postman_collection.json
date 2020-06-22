@@ -24,7 +24,7 @@
 					"enabled": true
 				}
 			],
-			"url": "http://localhost:8080/inventory-services/transferinwards/_create?tenantId=default",
+			"url": "http://localhost:8078/inventory-services/transferinwards/_create?tenantId=default",
 			"queryParams": [
 				{
 					"key": "tenantId",
@@ -61,7 +61,7 @@
 					"enabled": true
 				}
 			],
-			"url": "localhost:8080/inventory-services/transferinwards/_update?tenantId=default",
+			"url": "localhost:8078/inventory-services/transferinwards/_update?tenantId=default",
 			"queryParams": [
 				{
 					"key": "tenantId",
@@ -99,7 +99,7 @@
 					"enabled": true
 				}
 			],
-			"url": "localhost:8080/inventory-services/transferinwards/_search?tenantId=default&status=RECEIPTED",
+			"url": "localhost:8078/inventory-services/transferinwards/_search?tenantId=default&status=RECEIPTED",
 			"queryParams": [
 				{
 					"key": "tenantId",

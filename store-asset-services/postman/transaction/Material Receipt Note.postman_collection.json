@@ -11,11 +11,11 @@
 			"name": "Create Material Receipt Note",
 			"request": {
 				"url": {
-					"raw": "{{host}}:8080/inventory-services/receiptnotes/_create?tenantId=default",
+					"raw": "{{host}}:8078/inventory-services/receiptnotes/_create?tenantId=default",
 					"host": [
 						"{{host}}"
 					],
-					"port": "8080",
+					"port": "8078",
 					"path": [
 						"inventory-services",
 						"receiptnotes",
@@ -51,11 +51,11 @@
 			"name": "Update Material Receipt Note",
 			"request": {
 				"url": {
-					"raw": "{{host}}:8080/inventory-services/receiptnotes/_update?tenantId=default",
+					"raw": "{{host}}:8078/inventory-services/receiptnotes/_update?tenantId=default",
 					"host": [
 						"{{host}}"
 					],
-					"port": "8080",
+					"port": "8078",
 					"path": [
 						"inventory-services",
 						"receiptnotes",
@@ -91,11 +91,11 @@
 			"name": "Create Material Receipt Note Bulk",
 			"request": {
 				"url": {
-					"raw": "{{host}}:8080/inventory-services/receiptnotes/_create?tenantId=default",
+					"raw": "{{host}}:8078/inventory-services/receiptnotes/_create?tenantId=default",
 					"host": [
 						"{{host}}"
 					],
-					"port": "8080",
+					"port": "8078",
 					"path": [
 						"inventory-services",
 						"receiptnotes",
@@ -131,11 +131,11 @@
 			"name": "Update Material Receipt Note Bulk",
 			"request": {
 				"url": {
-					"raw": "{{host}}:8080/inventory-services/receiptnotes/_update?tenantId=default",
+					"raw": "{{host}}:8078/inventory-services/receiptnotes/_update?tenantId=default",
 					"host": [
 						"{{host}}"
 					],
-					"port": "8080",
+					"port": "8078",
 					"path": [
 						"inventory-services",
 						"receiptnotes",
@@ -171,11 +171,11 @@
 			"name": "Search Receipt Note",
 			"request": {
 				"url": {
-					"raw": "{{host}}:8080/inventory-services/receiptnotes/_search?tenantId=default",
+					"raw": "{{host}}:8078/inventory-services/receiptnotes/_search?tenantId=default",
 					"host": [
 						"{{host}}"
 					],
-					"port": "8080",
+					"port": "8078",
 					"path": [
 						"inventory-services",
 						"receiptnotes",

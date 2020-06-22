@@ -11,11 +11,11 @@
 			"name": "Create Material",
 			"request": {
 				"url": {
-					"raw": "{{host}}:8080/inventory-services/materials/_create?tenantId=default",
+					"raw": "{{host}}:8078/inventory-services/materials/_create?tenantId=default",
 					"host": [
 						"{{host}}"
 					],
-					"port": "8080",
+					"port": "8078",
 					"path": [
 						"inventory-services",
 						"materials",
@@ -51,11 +51,11 @@
 			"name": "Search Material",
 			"request": {
 				"url": {
-					"raw": "{{host}}:8080/inventory-services/materials/_search?tenantId=default",
+					"raw": "{{host}}:8078/inventory-services/materials/_search?tenantId=default",
 					"host": [
 						"{{host}}"
 					],
-					"port": "8080",
+					"port": "8078",
 					"path": [
 						"inventory-services",
 						"materials",
@@ -91,11 +91,11 @@
 			"name": "Update Material",
 			"request": {
 				"url": {
-					"raw": "{{host}}:8080/inventory-services/materials/_update?tenantId=default",
+					"raw": "{{host}}:8078/inventory-services/materials/_update?tenantId=default",
 					"host": [
 						"{{host}}"
 					],
-					"port": "8080",
+					"port": "8078",
 					"path": [
 						"inventory-services",
 						"materials",

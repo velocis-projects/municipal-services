@@ -76,7 +76,7 @@
 					"enabled": true
 				}
 			],
-			"url": "http://localhost:8080/inventory-services/openingbalance/_create?tenantId=default",
+			"url": "http://localhost:8078/inventory-services/openingbalance/_create?tenantId=default",
 			"queryParams": [
 				{
 					"key": "tenantId",
@@ -114,7 +114,7 @@
 					"enabled": true
 				}
 			],
-			"url": "http://localhost:8080/inventory-services/openingbalance/_update?tenantId=default",
+			"url": "http://localhost:8078/inventory-services/openingbalance/_update?tenantId=default",
 			"queryParams": [
 				{
 					"key": "tenantId",
