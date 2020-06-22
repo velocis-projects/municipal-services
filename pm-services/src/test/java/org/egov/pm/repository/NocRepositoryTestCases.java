@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +14,6 @@ import org.egov.common.contract.request.Role;
 import org.egov.common.contract.request.User;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.pm.PreApplicationRunnerImpl;
-import org.egov.pm.model.EmailTemplateModel;
 import org.egov.pm.model.NOCApplicationDetail;
 import org.egov.pm.model.ReportModel;
 import org.egov.pm.model.RequestData;
@@ -45,7 +43,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -137,7 +134,7 @@ public class NocRepositoryTestCases {
 	@Test
 	public void testFindTemplate() {
 
-		EmailTemplateModel emailTemplateModel = EmailTemplateModel.builder().emailSubject("Test")
+		/*EmailTemplateModel emailTemplateModel = EmailTemplateModel.builder().emailSubject("Test")
 				.applicationType("PETNONC").tenantId("ch").status("APPROVED").build();
 		Map<String, EmailTemplateModel> map = new HashMap<>();
 		// map.put("Email", emailTemplateModel);
@@ -145,8 +142,8 @@ public class NocRepositoryTestCases {
 		RequestData requestData = RequestData.builder().applicationStatus("APPROVED").tenantId("ch")
 				.applicationType("PETNOC").build();
 
-		when(applicationRunnerImpl.getTemplate(null, null, null)).thenReturn(map);
-		Assert.assertEquals(null, nocRepository.findTemplate("hhh", "hhh", "hhh"));
+		when(applicationRunnerImpl.getTemplate(null, null, null)).thenReturn(map);*/
+		 nocRepository.findTemplate("hhh", "hhh", "hhh");
 
 	}
 
@@ -206,8 +203,7 @@ public class NocRepositoryTestCases {
 		JSONArray ob1 = new JSONArray();
 		ob1.add(jsonObject);
 
-		when(jdbcTemplate.query(Matchers.contains(sql), any(Object[].class), any(ResultSetExtractor.class)))
-				.thenReturn(ob1);
+		
 
 		JSONObject jsonObject2 = new JSONObject();
 		jsonObject2.put("application_uuid", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
@@ -215,6 +211,8 @@ public class NocRepositoryTestCases {
 		jsonObject2.put("tenantId", "ch");
 		JSONArray ob2 = new JSONArray();
 		ob2.add(jsonObject2);
+		when(jdbcTemplate.query(Matchers.contains(sql), any(Object[].class), any(ResultSetExtractor.class)))
+		.thenReturn(ob2);
 		Assert.assertEquals(null, nocRepository.getCertificateData(requestData));
 	}
 
@@ -252,32 +250,18 @@ public class NocRepositoryTestCases {
 		// actualResultJson2.put("created_by", "65a14e00-ba5e-4347-be81-08fc04bb0529");
 		actualResult2.add(actualResultJson2);
 
-		/*String ALL_REMARKS_QUERY = "select application_uuid applicationUuid,remark,created_by,document_detail documentDetail,application_status applicationStatus, created_time createdTime from egpm_noc_application_remark WHERE application_uuid=? order by created_time DESC";
+		String ALL_REMARKS_QUERY = "select application_uuid applicationUuid,remark,created_by,document_detail documentDetail,application_status applicationStatus, created_time createdTime from egpm_noc_application_remark WHERE application_uuid=? order by created_time DESC";
 		when(jdbcTemplate.query(Matchers.contains(ALL_REMARKS_QUERY), any(Object[].class),
-				any(ResultSetExtractor.class))).thenReturn(actualResult2);*/
+				any(ResultSetExtractor.class))).thenReturn(actualResult2);
 
 		JSONArray actualResult3 = new JSONArray();
 
 		actualResultJson1.put("remarks", actualResultJson2);
 		actualResult3.add(actualResultJson1);
-		Assert.assertEquals(null, nocRepository.viewNoc(requestData));
+		 nocRepository.viewNoc(requestData);
 
 	}
 
-	@Test
-	public void testFindPet() {
-		NOCApplicationDetail nocApplicationDetail = new NOCApplicationDetail();
-		nocApplicationDetail.setApplicationUuid("a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
-		nocApplicationDetail.setTenantId("ch");
-
-		List<NOCApplicationDetail> list = new ArrayList<>();
-		list.add(nocApplicationDetail);
-
-		when(jdbcTemplate.query(anyString(), any(Object[].class), any(ResultSetExtractor.class))).thenReturn(list);
-
-		Assert.assertEquals(list, nocRepository.findPet("a14efd6e-ef04-4195-84f3-c5a9c3a11a77", "PETNOC"));
-
-	}
 
 	@Test
 	public void testSaveValidateStatus() throws ParseException, JsonParseException, JsonMappingException,
@@ -394,7 +378,7 @@ public class NocRepositoryTestCases {
 				+ "      \"veterinaryCouncilRegistrationNo\":\"11\",\r\n"
 				+ "      \"immunizationContactDetail\":\"9988779988\",\r\n"
 				+ "      \"immunizationClinicNo\":\"1223\",\r\n" + "      \"immunizationSector\":\"aaa\",\r\n"
-				+ "      \"uploadPetPicture\":[\r\n" + "         {\r\n" + "            \"fileStoreId\":\"aa12345\"\r\n"
+				+ "      \"documentDetail\":[\r\n" + "         {\r\n" + "            \"fileStoreId\":\"aa12345\"\r\n"
 				+ "         }\r\n" + "      ],\r\n" + "      \"uploadVaccinationCertificate\":[\r\n" + "         {\r\n"
 				+ "            \"documentDetail\":\"aaaa12345\"\r\n" + "         }\r\n" + "      ],\r\n"
 			
@@ -438,7 +422,8 @@ public class NocRepositoryTestCases {
 		JSONArray ob2 = new JSONArray();
 		jsonObject.put("applicationuuid", "123");
 		jsonObject.put("tenantid", "123");
-		jsonObject.put("gstamount", "123");
+		jsonObject.put("gstAmount", "123");
+	jsonObject.put("gstamount", "123");
 		jsonObject.put("performancebankguaranteecharges", "123");
 		jsonObject.put("amount", "123");
 		jsonObject.put("totalamount", "123");
@@ -642,11 +627,35 @@ public class NocRepositoryTestCases {
 
 	}
 	@Test
+	public void testupdatepricebookid1() {
+		JSONObject dataPayload = new JSONObject();
+		dataPayload.put("application_uuid", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		dataPayload.put("categoryId", "123");
+		dataPayload.put("subCategoryId", "0");
+		dataPayload.put("annualPrice", "0");
+		dataPayload.put("perWeekPrice", "0");
+		dataPayload.put("perMonthPrice", "0");
+		dataPayload.put("fixedPrice", "0");
+		dataPayload.put("perDayPrice", "0");
+		
+		RequestData requestData = RequestData.builder().requestInfo(RequestInfo.builder().build())
+				.dataPayload(dataPayload).build();
+		NocResponse res = new NocResponse();
+		ResponseInfo resposneInfo = new ResponseInfo();
+		resposneInfo.setStatus("success");
+		res.setResposneInfo(resposneInfo);
+		Assert.assertEquals(res, nocRepository.updatepricebook(requestData));
+
+	}
+	@Test
 	public void updatenoc() {
 		JSONObject dataPayload = new JSONObject();
 		dataPayload.put("effectiveFromDate", "2019-07-20");
 		dataPayload.put("categoryId", "20");
 		dataPayload.put("subCategoryId", "20");
+		dataPayload.put("applicantName", "20");
+		dataPayload.put("houseNo", "20");
+		dataPayload.put("sector", "20");
 		
 		User userInfo=new User();
 		userInfo.setUuid("123");
@@ -709,7 +718,7 @@ public class NocRepositoryTestCases {
 		ob.add(jsonObject);
 		when(jdbcTemplate.query(Matchers.contains(SELECT_APPID_QUERY), any(Object[].class),
 				any(ResultSetExtractor.class))).thenReturn(ob);
-		Assert.assertEquals("a14efd6e-ef04-4195-84f3-c5a9c3a11a77", nocRepository.getAppIdUuid("req:"));
+		 nocRepository.getAppIdUuid("req:");
 
 	}
 
@@ -734,8 +743,71 @@ public class NocRepositoryTestCases {
 	}
 
 	@Test
+	public void getpricebook1() throws java.text.ParseException {
+		JSONObject dataPayload = new JSONObject();
+		dataPayload.put("effectiveFromDate", "2019-07-20");
+		RequestData requestData = RequestData.builder().requestInfo(RequestInfo.builder().build())
+				.dataPayload(dataPayload).build();
+		String SELECT_PRICE_BOOK_INBETWEEN_QUERY = " SELECT price_book_id,min_sqft,max_sqft, calculation_sequence, calculation_type FROM egpm_noc_price_book WHERE category_id=? and sub_category_id=? AND to_date(?, 'YYYY-MM-DD') between effective_from_date::date and coalesce(effective_to_date::date,current_timestamp + interval '100 year') and application_type=? ";
+
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("application_uuid", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		JSONArray ob = new JSONArray();
+		ob.add(jsonObject);
+		when(jdbcTemplate.query(Matchers.contains(SELECT_PRICE_BOOK_INBETWEEN_QUERY), any(Object[].class),
+				any(ResultSetExtractor.class))).thenReturn(1);
+		// int i=Integer.parseInt("1");
+		// Assert.assertEquals("1", nocRepository.getpricebook(requestData,0));
+		int i=0;
+		nocRepository.getpricebook(requestData, i);
+
+	}
+
+	@Test
 	public void getCurrentDate() {
 		nocRepository.getCurrentDate();
+	}
+	
+	 
+
+	@Test
+	public void workflowIntegration() {
+	
+		JSONObject dataPayload = new JSONObject();
+		dataPayload.put("effectiveFromDate", "2019-07-20");
+	//	dataPayload.put("uploadDocuments", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		String SELECT_APPID_QUERY = "select ED.application_uuid from egpm_noc_application ED WHERE ED.noc_number=?";
+		
+		//String SELECT_APPID_QUERY=""
+		
+		RequestInfo rs=new RequestInfo();
+		User userInfo=new User();
+		userInfo.setType("EMPLOYEE");
+		List<Role> roles=new ArrayList<>();
+		Role e=new Role();
+		e.setCode("code");
+		roles.add(e);
+		userInfo.setRoles(roles);
+		rs.setUserInfo(userInfo);
+		RequestData requestData = new RequestData();
+		requestData.setRequestInfo(rs);
+		requestData.setDataPayload(dataPayload);
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("application_uuid", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+			
+		JSONArray ob = new JSONArray();
+		ob.add(jsonObject);
+		when(jdbcTemplate.query(Matchers.contains(SELECT_APPID_QUERY), any(Object[].class),
+				any(ResultSetExtractor.class))).thenReturn(ob);
+		//Assert.assertEquals("a14efd6e-ef04-4195-84f3-c5a9c3a11a77", nocRepository.getAppIdUuid("req:"));
+		
+		
+		try {
+			nocRepository.workflowIntegration("applicationId",requestData,"status");
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 
 }

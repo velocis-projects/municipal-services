@@ -36,7 +36,7 @@ public class Calculation {
 	private String applicationNumber = null;
 
 	@JsonProperty("opmsDetail")
-	private PMDetail pMDetail = null;
+	private PMDetail opmsDetail = null;
 
 	@NotNull
 	@JsonProperty("tenantId")

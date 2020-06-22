@@ -34,7 +34,7 @@ import lombok.ToString;
 public class CalulationCriteria {
 	@JsonProperty("opmsDetail")
 	@Valid
-	private PMDetail pMDetail = null;
+	private PMDetail opmsDetail = null;
 
 	@JsonProperty("applicationNumber")
 	@Size(min = 2, max = 64)

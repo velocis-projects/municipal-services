@@ -69,8 +69,6 @@ public class CalculationService {
 				calculationReq.getCalulationCriteria(), mdmsData);
 
 		demandService.generateDemand(calculationReq.getRequestInfo(), calculations, mdmsData);
-
-		CalculationRes calculationRes = CalculationRes.builder().calculations(calculations).build();
 		return calculations;
 
 	}
@@ -81,12 +79,12 @@ public class CalculationService {
 		List<Calculation> calculations = new LinkedList<>();
 		for (CalulationCriteria criteria : criterias) {
 			PMDetail opms;
-			if (criteria.getPMDetail() != null && criteria.getApplicationNumber() != null) {
+			if (criteria.getOpmsDetail() != null && criteria.getApplicationNumber() != null) {
 				// opms = utils.getOmpsDetail(requestInfo, criteria.getApplicationNumber(),
 				// criteria.getTenantId());
 
-				opms = criteria.getPMDetail();
-				criteria.setPMDetail(opms);
+				opms = criteria.getOpmsDetail();
+				criteria.setOpmsDetail(opms);
 			} else {
 				new CustomException("MS_DETAILS", "No PM details found");
 			}
@@ -96,7 +94,7 @@ public class CalculationService {
 
 			Calculation calculation = new Calculation();
 			calculation.setApplicationNumber(criteria.getApplicationNumber());
-			calculation.setPMDetail(criteria.getPMDetail());
+			calculation.setOpmsDetail(criteria.getOpmsDetail());
 			calculation.setTenantId(criteria.getTenantId());
 			calculation.setTaxHeadEstimates(taxHeadEstimates);
 			calculations.add(calculation);
@@ -116,12 +114,12 @@ public class CalculationService {
 		TaxHeadEstimate estimate = new TaxHeadEstimate();
 		estimate.setCategory(Category.FEE);
 
-		if (calulationCriteria.getPMDetail().getApplicationType().equals("ADVERTISEMENTNOC")) {
-			if (calulationCriteria.getPMDetail().getIsExamptedAdvertisement() != null
-					&& !calulationCriteria.getPMDetail().getIsExamptedAdvertisement().isEmpty()) {
+		if (calulationCriteria.getOpmsDetail().getApplicationType().equals("ADVERTISEMENTNOC")) {
+			if (calulationCriteria.getOpmsDetail().getIsExamptedAdvertisement() != null
+					&& !calulationCriteria.getOpmsDetail().getIsExamptedAdvertisement().isEmpty()) {
 
-				if (!calulationCriteria.getPMDetail().getIsExamptedAdvertisement().equals("1")) {
-					BigDecimal amount = getNocFee(calulationCriteria.getPMDetail());
+				if (!calulationCriteria.getOpmsDetail().getIsExamptedAdvertisement().equals("1")) {
+					BigDecimal amount = getNocFee(calulationCriteria.getOpmsDetail());
 					estimate.setTaxHeadCode(config.getBaseAdvertisementFeeHead());
 					estimate.setEstimateAmount(amount);
 
@@ -143,21 +141,21 @@ public class CalculationService {
 				throw new CustomException("BILLING ERROR", "No Exempted Category found");
 			}
 
-		} else if (calulationCriteria.getPMDetail().getApplicationType().equals("ROADCUTNOC")) {
+		} else if (calulationCriteria.getOpmsDetail().getApplicationType().equals("ROADCUTNOC")) {
 			estimate.setTaxHeadCode(config.getBaseRoadCutFeeHead());
-			estimate.setEstimateAmount(new BigDecimal(calulationCriteria.getPMDetail().getAmountRoadCut()).setScale(0,
+			estimate.setEstimateAmount(new BigDecimal(calulationCriteria.getOpmsDetail().getAmountRoadCut()).setScale(0,
 					BigDecimal.ROUND_UP));
 
 			TaxHeadEstimate estimate2 = new TaxHeadEstimate();
 			estimate2.setCategory(Category.BANKPERFORMANCE);
 			estimate2.setTaxHeadCode(config.getBaseRoadCutFeeBankHead());
-			estimate2.setEstimateAmount(new BigDecimal(calulationCriteria.getPMDetail().getBankPerformanceRoadCut())
+			estimate2.setEstimateAmount(new BigDecimal(calulationCriteria.getOpmsDetail().getBankPerformanceRoadCut())
 					.setScale(0, BigDecimal.ROUND_UP));
 			taxHeadEstimates.add(estimate2);
 			taxHeadEstimates.addAll(tax);
 
-		} else if (calulationCriteria.getPMDetail().getApplicationType().equals("PETNOC")) {
-			BigDecimal amount = getNocFee(calulationCriteria.getPMDetail());
+		} else if (calulationCriteria.getOpmsDetail().getApplicationType().equals("PETNOC")) {
+			BigDecimal amount = getNocFee(calulationCriteria.getOpmsDetail());
 			estimate.setTaxHeadCode(config.getBasePetFeeHead());
 			estimate.setEstimateAmount(amount.setScale(0, BigDecimal.ROUND_UP));
 
@@ -186,17 +184,17 @@ public class CalculationService {
 		TaxHeadEstimate estimate = new TaxHeadEstimate();
 
 		// Need add MDM Tax data
-		BigDecimal totalTax = mdmsService.getTaxAmount(requestInfo, calulationCriteria.getPMDetail(), mdmsData);
+		BigDecimal totalTax = mdmsService.getTaxAmount(requestInfo, calulationCriteria.getOpmsDetail(), mdmsData);
 
 		// add type wise tax head
-		if (calulationCriteria.getPMDetail().getApplicationType().equals("ADVERTISEMENTNOC")) {
+		if (calulationCriteria.getOpmsDetail().getApplicationType().equals("ADVERTISEMENTNOC")) {
 			estimate.setTaxHeadCode(config.getBaseAdvertisementTaxHead());
 			estimate.setEstimateAmount(totalTax);
-		} else if (calulationCriteria.getPMDetail().getApplicationType().equals("ROADCUTNOC")) {
+		} else if (calulationCriteria.getOpmsDetail().getApplicationType().equals("ROADCUTNOC")) {
 			estimate.setTaxHeadCode(config.getBaseRoadCutTaxHead());
-			estimate.setEstimateAmount(
-					new BigDecimal(calulationCriteria.getPMDetail().getGstRoadCut()).setScale(0, BigDecimal.ROUND_UP));
-		} else if (calulationCriteria.getPMDetail().getApplicationType().equals("PETNOC")) {
+			estimate.setEstimateAmount(new BigDecimal(calulationCriteria.getOpmsDetail().getGstRoadCut()).setScale(0,
+					BigDecimal.ROUND_UP));
+		} else if (calulationCriteria.getOpmsDetail().getApplicationType().equals("PETNOC")) {
 			estimate.setTaxHeadCode(config.getBasePetTaxHead());
 			estimate.setEstimateAmount(totalTax);
 		}
@@ -222,8 +220,9 @@ public class CalculationService {
 			if (calData != null && !calData.isEmpty()) {
 				try {
 
-					String squareFeet = (pMDetail.getSquareFeetAdvertisement() == null ? ""
-							: pMDetail.getSquareFeetAdvertisement());
+					String squareFeet = (pMDetail.getSquareFeetAdvertisement() == null
+							|| pMDetail.getSquareFeetAdvertisement().isEmpty() ? "0"
+									: pMDetail.getSquareFeetAdvertisement());
 					String calculateByPer = (pMDetail.getDurationAdvertisement() == null ? ""
 							: pMDetail.getDurationAdvertisement());
 
@@ -355,8 +354,7 @@ public class CalculationService {
 						}
 					}
 				} catch (Exception e) {
-					throw new CustomException("BILLINGSLAB ERROR",
-							"No Found BillingSlabs for the given application type or category");
+					throw new CustomException("BILLINGSLAB ERROR", e.getMessage());
 				}
 			} else {
 				throw new CustomException("BILLINGSLAB ERROR",
