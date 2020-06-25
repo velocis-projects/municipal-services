@@ -735,13 +735,16 @@ public class PGRUtils {
 	}
 	
 	public long getLastDayTime(long time) {
+		log.info("Before sla end time set to midnight:"+time);
 		Calendar calendar = Calendar.getInstance();
+		log.info("Calender time:"+calendar.getTimeInMillis());
+		log.info("Util Datetime:"+new Date().getTime());
 		calendar.setTimeInMillis(time);
 		calendar.set(Calendar.HOUR_OF_DAY, 23);
 		calendar.set(Calendar.MINUTE, 59);
 		calendar.set(Calendar.SECOND, 59);
 		calendar.set(Calendar.MILLISECOND, 999);
-		
+		log.info("After sla end time set to midnight:"+calendar.getTimeInMillis());
 		return calendar.getTimeInMillis();
 	}
 }
