@@ -102,7 +102,6 @@ public class Location {
 	 * 
 	 * @return name
 	 **/
-	@Pattern(regexp = "^[a-zA-Z ]*$")
 	public String getName() {
 		return name;
 	}

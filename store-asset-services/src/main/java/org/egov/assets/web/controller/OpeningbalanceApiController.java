@@ -12,6 +12,7 @@ import org.egov.assets.model.MaterialReceipt;
 import org.egov.assets.model.MaterialReceiptSearch;
 import org.egov.assets.model.OpeningBalanceRequest;
 import org.egov.assets.model.OpeningBalanceResponse;
+import org.egov.assets.model.StatusNums.StatusEnum;
 import org.egov.assets.service.OpeningBalanceService;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
@@ -85,6 +86,6 @@ public class OpeningbalanceApiController {
 
 	private ResponseInfo getResponseInfo(RequestInfo requestInfo) {
 		return ResponseInfo.builder().apiId(requestInfo.getApiId()).ver(requestInfo.getVer())
-				.resMsgId(requestInfo.getMsgId()).resMsgId("placeholder").build();
+				.resMsgId(requestInfo.getMsgId()).resMsgId("placeholder").status(StatusEnum.SUCCESSFUL.toString()).build();
 	}
 }

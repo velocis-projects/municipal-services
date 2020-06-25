@@ -12,14 +12,14 @@
 			"description": "",
 			"item": [
 				{
-					"name": "localhost:8080/inventory-services/disposals/_create?tenantId=default",
+					"name": "localhost:8078/inventory-services/disposals/_create?tenantId=default",
 					"request": {
 						"url": {
-							"raw": "localhost:8080/inventory-services/disposals/_create?tenantId=default",
+							"raw": "localhost:8078/inventory-services/disposals/_create?tenantId=default",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8078",
 							"path": [
 								"inventory-services",
 								"disposals",
@@ -61,11 +61,11 @@
 					"name": "localhost:9900/inventory-service/stores/_update?tenantId=default",
 					"request": {
 						"url": {
-							"raw": "localhost:8080/inventory-services/disposals/_search?tenantId=default",
+							"raw": "localhost:8078/inventory-services/disposals/_search?tenantId=default",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8078",
 							"path": [
 								"inventory-services",
 								"disposals",
@@ -104,14 +104,14 @@
 			"description": "",
 			"item": [
 				{
-					"name": "localhost:8080/inventory-services/disposals/_update?tenantId=default",
+					"name": "localhost:8078/inventory-services/disposals/_update?tenantId=default",
 					"request": {
 						"url": {
-							"raw": "localhost:8080/inventory-services/disposals/_update?tenantId=default",
+							"raw": "localhost:8078/inventory-services/disposals/_update?tenantId=default",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8078",
 							"path": [
 								"inventory-services",
 								"disposals",

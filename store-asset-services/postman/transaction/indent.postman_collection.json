@@ -8,15 +8,15 @@
 	},
 	"item": [
 		{
-			"name": "http://localhost:8080/inventory-services/indents/_create?tenantId=default",
+			"name": "http://localhost:8078/inventory-services/indents/_create?tenantId=default",
 			"request": {
 				"url": {
-					"raw": "http://localhost:8080/inventory-services/indents/_create?tenantId=default",
+					"raw": "http://localhost:8078/inventory-services/indents/_create?tenantId=default",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8078",
 					"path": [
 						"inventory-services",
 						"indents",

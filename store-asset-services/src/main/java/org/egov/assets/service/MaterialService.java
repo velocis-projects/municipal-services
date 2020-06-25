@@ -176,7 +176,7 @@ public class MaterialService extends DomainService {
 		JSONArray responseJSONArray;
 		final ObjectMapper mapper = new ObjectMapper();
 
-		responseJSONArray = mdmsRepository.getByCriteria(tenantId, "inventory", "Material", "code", code, requestInfo);
+		responseJSONArray = mdmsRepository.getByCriteria(tenantId, "store-asset", "Material", "code", code, requestInfo);
 
 		if (responseJSONArray != null && responseJSONArray.size() > 0)
 			return mapper.convertValue(responseJSONArray.get(0), Material.class);

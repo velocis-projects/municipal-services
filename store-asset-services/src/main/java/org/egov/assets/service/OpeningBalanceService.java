@@ -231,6 +231,7 @@ public class OpeningBalanceService extends DomainService {
 			case Constants.ACTION_CREATE: {
 				if (receipt == null) {
 					errors.addDataError(ErrorCode.NOT_NULL.getCode(), "materialReceipt", null);
+					
 				}
 			}
 				break;
@@ -322,6 +323,13 @@ public class OpeningBalanceService extends DomainService {
 						if (null != detail.getReceiptDetailsAddnInfo()) {
 							for (MaterialReceiptDetailAddnlinfo addInfo : detail.getReceiptDetailsAddnInfo()) {
 
+								// This line has to be removed Added by prakash temp
+								material.setLotControl(
+										material.getLotControl() == null ? false : material.getLotControl());
+								material.setShelfLifeControl(
+										material.getShelfLifeControl() == null ? false : material.getShelfLifeControl());
+								// Code end here
+								
 								if (null != material && material.getLotControl() == true
 										&& isEmpty(addInfo.getLotNo())) {
 									errors.addDataError(ErrorCode.LOT_NO_NOT_EXIST.getCode(),
@@ -379,7 +387,7 @@ public class OpeningBalanceService extends DomainService {
 	}
 
 	private void setQuantity(String tenantId, MaterialReceiptDetail detail, RequestInfo requestInfo) {
-		Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "Uom", "code", detail.getUom().getCode(),
+		Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "UOM", "code", detail.getUom().getCode(),
 				Uom.class, requestInfo);
 		detail.setUom(uom);
 
@@ -396,7 +404,7 @@ public class OpeningBalanceService extends DomainService {
 				new org.egov.common.contract.request.RequestInfo());
 		String uomCategory = material.getBaseUom().getUomCategory();
 		List<String> uomList = new ArrayList<>();
-		List<Object> objectList = mdmsRepository.fetchObjectList(tenantId, "common-masters", "Uom", "uomCategory",
+		List<Object> objectList = mdmsRepository.fetchObjectList(tenantId, "common-masters", "UOM", "uomCategory",
 				uomCategory, Uom.class, requestInfo);
 		for (Object o : objectList) {
 			Uom uom = (Uom) o;
@@ -417,7 +425,7 @@ public class OpeningBalanceService extends DomainService {
 	}
 
 	private void convertRate(String tenantId, MaterialReceiptDetail detail, RequestInfo requestInfo) {
-		Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "Uom", "code", detail.getUom().getCode(),
+		Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "UOM", "code", detail.getUom().getCode(),
 				Uom.class, requestInfo);
 		detail.setUom(uom);
 

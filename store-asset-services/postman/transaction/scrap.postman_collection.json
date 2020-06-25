@@ -24,7 +24,7 @@
 					"enabled": true
 				}
 			],
-			"url": "http://localhost:8080/inventory-services/scraps/_create?tenantId=default",
+			"url": "http://localhost:8078/inventory-services/scraps/_create?tenantId=default",
 			"queryParams": [
 				{
 					"key": "tenantId",
@@ -62,7 +62,7 @@
 					"enabled": true
 				}
 			],
-			"url": "http://localhost:8080/inventory-services/scraps/_search?tenantId=default&scrapNumber=SCRP/00035/2018",
+			"url": "http://localhost:8078/inventory-services/scraps/_search?tenantId=default&scrapNumber=SCRP/00035/2018",
 			"queryParams": [
 				{
 					"key": "tenantId",
@@ -106,7 +106,7 @@
 					"enabled": true
 				}
 			],
-			"url": "http://localhost:8080/inventory-services/scraps/_update?tenantId=default",
+			"url": "http://localhost:8078/inventory-services/scraps/_update?tenantId=default",
 			"queryParams": [
 				{
 					"key": "tenantId",

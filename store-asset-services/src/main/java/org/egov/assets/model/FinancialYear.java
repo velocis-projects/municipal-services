@@ -45,6 +45,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -74,6 +76,7 @@ import lombok.Setter;
  * financial year.
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FinancialYear extends Auditable {
 
 	/**

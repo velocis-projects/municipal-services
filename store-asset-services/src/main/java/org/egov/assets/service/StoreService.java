@@ -103,9 +103,6 @@ public class StoreService extends DomainService {
 	@Value("${inv.store.update.key}")
 	private String updateKey;
 
-	@Value("${es.enabled}")
-	private Boolean isESEnabled;
-
 	@Autowired
 	private LogAwareKafkaTemplate<String, Object> kafkaTemplate;
 
@@ -274,7 +271,7 @@ public class StoreService extends DomainService {
 		for (Store store : stores) {
 			// fetch and set department
 			if (null != store && !isEmpty(store.getDepartment().getCode())) {
-				Object object = mdmsRepository.fetchObject(tenantId, "common-masters", "Department", "code",
+				Object object = mdmsRepository.fetchObject(tenantId, "store-asset", "Department", "code",
 						store.getDepartment().getCode(), Department.class, storeRequest.getRequestInfo());
 				store.setDepartment((Department) object);
 			}

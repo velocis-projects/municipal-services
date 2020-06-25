@@ -12,14 +12,14 @@
 			"description": "",
 			"item": [
 				{
-					"name": "localhost:8080/inventory-services/materialissues/_create?tenantId=default",
+					"name": "localhost:8078/inventory-services/materialissues/_create?tenantId=default",
 					"request": {
 						"url": {
-							"raw": "localhost:8080/inventory-services/materialissues/_create?tenantId=default",
+							"raw": "localhost:8078/inventory-services/materialissues/_create?tenantId=default",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8078",
 							"path": [
 								"inventory-services",
 								"materialissues",
@@ -58,14 +58,14 @@
 			"description": "",
 			"item": [
 				{
-					"name": "localhost:8080/inventory-services/materialissues/_search?tenantId=default",
+					"name": "localhost:8078/inventory-services/materialissues/_search?tenantId=default",
 					"request": {
 						"url": {
-							"raw": "localhost:8080/inventory-services/materialissues/_search?tenantId=default",
+							"raw": "localhost:8078/inventory-services/materialissues/_search?tenantId=default",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8078",
 							"path": [
 								"inventory-services",
 								"materialissues",
@@ -104,14 +104,14 @@
 			"description": "",
 			"item": [
 				{
-					"name": "localhost:8080/inventory-services/materialissues/_update?tenantId=default",
+					"name": "localhost:8078/inventory-services/materialissues/_update?tenantId=default",
 					"request": {
 						"url": {
-							"raw": "localhost:8080/inventory-services/materialissues/_update?tenantId=default",
+							"raw": "localhost:8078/inventory-services/materialissues/_update?tenantId=default",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8078",
 							"path": [
 								"inventory-services",
 								"materialissues",
@@ -150,14 +150,14 @@
 			"description": "",
 			"item": [
 				{
-					"name": "localhost:8080/inventory-services/materialissues-ni/_create?tenantId=default",
+					"name": "localhost:8078/inventory-services/materialissues-ni/_create?tenantId=default",
 					"request": {
 						"url": {
-							"raw": "localhost:8080/inventory-services/materialissues-ni/_create?tenantId=default",
+							"raw": "localhost:8078/inventory-services/materialissues-ni/_create?tenantId=default",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8078",
 							"path": [
 								"inventory-services",
 								"materialissues-ni",
@@ -196,14 +196,14 @@
 			"description": "",
 			"item": [
 				{
-					"name": "localhost:8080/inventory-services/materialissues-ni/_search?tenantId=default",
+					"name": "localhost:8078/inventory-services/materialissues-ni/_search?tenantId=default",
 					"request": {
 						"url": {
-							"raw": "localhost:8080/inventory-services/materialissues-ni/_search?tenantId=default",
+							"raw": "localhost:8078/inventory-services/materialissues-ni/_search?tenantId=default",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8078",
 							"path": [
 								"inventory-services",
 								"materialissues-ni",
@@ -242,14 +242,14 @@
 			"description": "",
 			"item": [
 				{
-					"name": "localhost:8080/inventory-services/materialissues-ni/_create?tenantId=default",
+					"name": "localhost:8078/inventory-services/materialissues-ni/_create?tenantId=default",
 					"request": {
 						"url": {
-							"raw": "localhost:8080/inventory-services/materialissues-ni/_update?tenantId=default",
+							"raw": "localhost:8078/inventory-services/materialissues-ni/_update?tenantId=default",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8078",
 							"path": [
 								"inventory-services",
 								"materialissues-ni",
@@ -288,14 +288,14 @@
 			"description": "",
 			"item": [
 				{
-					"name": "localhost:8080/inventory-services/materialissues-to/_create?tenantId=default",
+					"name": "localhost:8078/inventory-services/materialissues-to/_create?tenantId=default",
 					"request": {
 						"url": {
-							"raw": "localhost:8080/inventory-services/materialissues-to/_create?tenantId=default",
+							"raw": "localhost:8078/inventory-services/materialissues-to/_create?tenantId=default",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8078",
 							"path": [
 								"inventory-services",
 								"materialissues-to",
@@ -334,14 +334,14 @@
 			"description": "",
 			"item": [
 				{
-					"name": "localhost:8080/inventory-services/materialissues-to/_search?tenantId=default",
+					"name": "localhost:8078/inventory-services/materialissues-to/_search?tenantId=default",
 					"request": {
 						"url": {
-							"raw": "localhost:8080/inventory-services/materialissues-to/_search?tenantId=default",
+							"raw": "localhost:8078/inventory-services/materialissues-to/_search?tenantId=default",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8078",
 							"path": [
 								"inventory-services",
 								"materialissues-to",
@@ -380,14 +380,14 @@
 			"description": "",
 			"item": [
 				{
-					"name": "localhost:8080/inventory-services/materialissues-to/_update?tenantId=default",
+					"name": "localhost:8078/inventory-services/materialissues-to/_update?tenantId=default",
 					"request": {
 						"url": {
-							"raw": "localhost:8080/inventory-services/materialissues-to/_update?tenantId=default",
+							"raw": "localhost:8078/inventory-services/materialissues-to/_update?tenantId=default",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8078",
 							"path": [
 								"inventory-services",
 								"materialissues-to",
