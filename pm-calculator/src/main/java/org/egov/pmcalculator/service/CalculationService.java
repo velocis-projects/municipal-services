@@ -86,7 +86,7 @@ public class CalculationService {
 				opms = criteria.getOpmsDetail();
 				criteria.setOpmsDetail(opms);
 			} else {
-				new CustomException("MS_DETAILS", "No PM details found");
+				new CustomException("PM_DETAILS_EXCEPTION", "No PM details found");
 			}
 
 			EstimatesAndSlabs estimatesAndSlabs = getTaxHeadEstimates(criteria, requestInfo, mdmsData);
