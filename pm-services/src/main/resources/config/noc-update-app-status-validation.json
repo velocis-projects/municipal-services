@@ -33,7 +33,7 @@
             "badgeNumber":{
                "fieldName":"badgeNumber",
                "mandatory":"false",
-               "validateRegularExp":"^[a-zA-Z0-9 ]+$",
+               "validateRegularExp":"^[a-zA-Z0-9- ]+$",
                "displayName":"Badge Number",
                "inputType":"textbox",
                "value":""
@@ -62,7 +62,7 @@
             "badgeNumber":{
                "fieldName":"badgeNumber",
                "mandatory":"false",
-               "validateRegularExp":"^[a-zA-Z0-9 ]+$",
+               "validateRegularExp":"^[a-zA-Z0-9- ]+$",
                "displayName":"Badge Number",
                "inputType":"textbox",
                "value":""
