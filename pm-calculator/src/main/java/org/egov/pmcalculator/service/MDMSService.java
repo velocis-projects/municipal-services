@@ -44,8 +44,8 @@ public class MDMSService {
 
 		final String filterCodeForUom = "$.[?(@.active==true)]";
 
-		fyMasterDetails.add(MasterDetail.builder().name(PMCalculatorConstants.MDMS_FINANCIALYEAR)
-				.filter(filterCodeForUom).build());
+		fyMasterDetails.add(
+				MasterDetail.builder().name(PMCalculatorConstants.MDMS_FINANCIALYEAR).filter(filterCodeForUom).build());
 
 		ModuleDetail fyModuleDtls = ModuleDetail.builder().masterDetails(fyMasterDetails)
 				.moduleName(PMCalculatorConstants.MDMS_EGF_MASTER).build();
@@ -67,8 +67,7 @@ public class MDMSService {
 	public Map<String, Long> getTaxPeriods(RequestInfo requestInfo, PMDetail pMDetail, Object mdmsData) {
 		Map<String, Long> taxPeriods = new HashMap<>();
 		try {
-			String jsonPath = PMCalculatorConstants.MDMS_FINACIALYEAR_PATH.replace("{}",
-					pMDetail.getFinancialYear());
+			String jsonPath = PMCalculatorConstants.MDMS_FINACIALYEAR_PATH.replace("{}", pMDetail.getFinancialYear());
 
 			List<Map<String, Object>> jsonOutput = JsonPath.read(mdmsData, jsonPath);
 			for (Map<String, Object> financialYearProperties : jsonOutput) {
@@ -90,7 +89,6 @@ public class MDMSService {
 	}
 
 	public BigDecimal getTaxAmount(RequestInfo requestInfo, PMDetail pMDetail, Object mdmsData) {
-		HashMap<String, Object> calculationType = new HashMap<>();
 		BigDecimal taxAmount = BigDecimal.ZERO;
 		try {
 
@@ -103,10 +101,13 @@ public class MDMSService {
 			for (Object entry : jsonOutput) {
 				HashMap<String, Object> map = (HashMap<String, Object>) entry;
 
-				String name = ((String) map.get("name"));
-				if (name != null && name.equalsIgnoreCase(pMDetail.getApplicationType())) {
-					taxAmount = new BigDecimal(map.get("taxAmount").toString());
-					break;
+				String type = ((String) map.get("service")).split("\\.")[0];
+				if (type.equals("OPMS")) {
+					type = ((String) map.get("service")).split("\\.")[1];
+					if (type != null && type.equalsIgnoreCase(pMDetail.getApplicationType())) {
+						taxAmount = new BigDecimal(map.get("taxAmount").toString());
+						break;
+					}
 				}
 			}
 

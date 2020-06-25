@@ -79,7 +79,11 @@ public class DemandService {
 			String tenantId = calculations.get(0).getTenantId();
 			Set<String> applicationNumbers = calculations.stream()
 					.map(calculation -> calculation.getOpmsDetail().getApplicationNumber()).collect(Collectors.toSet());
-			List<Demand> demands = searchDemand(tenantId, applicationNumbers, requestInfo);
+
+			String applicationType = calculations.stream()
+					.map(calculation -> calculation.getOpmsDetail().getApplicationType()).findAny().orElse("");
+
+			List<Demand> demands = searchDemand(tenantId, applicationNumbers, requestInfo, applicationType);
 			Set<String> applicationNumbersFromDemands = new HashSet<>();
 			if (!CollectionUtils.isEmpty(demands))
 				applicationNumbersFromDemands = demands.stream().map(Demand::getConsumerCode)
@@ -109,10 +113,10 @@ public class DemandService {
 			if (calculation.getOpmsDetail() != null)
 				pMDetail = calculation.getOpmsDetail();
 			else
-				new CustomException("OPMS_DETAILS", "No OPMS details found");
+				new CustomException("PM_DETAILS_EXCEPTION", "No OPMS details found");
 
 			if (pMDetail == null)
-				throw new CustomException("INVALID APPLICATIONNUMBER",
+				throw new CustomException("INVALID_APPLICATIONNUMBER_EXCEPTION",
 						"Demand cannot be generated for applicationNumber " + calculation.getApplicationNumber()
 								+ " OPMS Noc with this number does not exist ");
 
@@ -129,12 +133,15 @@ public class DemandService {
 
 			Map<String, Long> taxPeriods = mdmsService.getTaxPeriods(requestInfo, pMDetail, mdmsData);
 
+			StringBuilder businessService = new StringBuilder();
+			businessService.append(config.getBusinessService()).append(".")
+					.append(calculation.getOpmsDetail().getApplicationType());
+
 			demands.add(Demand.builder().consumerCode(consumerCode).demandDetails(demandDetails).payer(owner)
 					.minimumAmountPayable(config.getMinimumPayableAmount()).tenantId(tenantId)
 					.taxPeriodFrom(taxPeriods.get(PMCalculatorConstants.MDMS_STARTDATE))
 					.taxPeriodTo(taxPeriods.get(PMCalculatorConstants.MDMS_ENDDATE))
-					.consumerType(pMDetail.getApplicationType()).businessService(config.getBusinessService())
-					.build());
+					.consumerType(pMDetail.getApplicationType()).businessService(businessService.toString()).build());
 		}
 		return demandRepository.saveDemand(requestInfo, demands);
 	}
@@ -144,7 +151,8 @@ public class DemandService {
 		for (Calculation calculation : calculations) {
 
 			List<Demand> searchResult = searchDemand(calculation.getTenantId(),
-					Collections.singleton(calculation.getOpmsDetail().getApplicationNumber()), requestInfo);
+					Collections.singleton(calculation.getOpmsDetail().getApplicationNumber()), requestInfo,
+					calculation.getOpmsDetail().getApplicationType());
 
 			if (CollectionUtils.isEmpty(searchResult))
 				throw new CustomException("INVALID UPDATE", "No demand exists for applicationNumber: "
@@ -159,10 +167,14 @@ public class DemandService {
 		return demandRepository.updateDemand(requestInfo, demands);
 	}
 
-	private List<Demand> searchDemand(String tenantId, Set<String> consumerCodes, RequestInfo requestInfo) {
+	private List<Demand> searchDemand(String tenantId, Set<String> consumerCodes, RequestInfo requestInfo,
+			String applicationType) {
+		StringBuilder businessService = new StringBuilder();
+		businessService.append(config.getBusinessService()).append(".").append(applicationType);
+
 		String uri = utils.getDemandSearchURL();
 		uri = uri.replace("{1}", tenantId);
-		uri = uri.replace("{2}", config.getBusinessService());
+		uri = uri.replace("{2}", businessService);
 		uri = uri.replace("{3}", StringUtils.join(consumerCodes, ','));
 
 		Object result = serviceRequestRepository.fetchResult(new StringBuilder(uri),

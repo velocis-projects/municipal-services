@@ -2,12 +2,12 @@
    "PETNOC":{
       "applicantName":{
          "mandatory":"true",
-         "validateRegularExp":"^[a-zA-Z ]{1,250}$",
+         "validateRegularExp":"^[a-zA-Z ]{1,50}$",
          "isbackendRequired":"true"
       },
       "houseNo":{
          "mandatory":"true",
-         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]{1,50}$",
          "isbackendRequired":"true"
       },
       "sector":{
@@ -17,7 +17,7 @@
       },
       "nameOfPetDog":{
          "mandatory":"true",
-         "validateRegularExp":"^[a-zA-Z ]{1,100}$",
+         "validateRegularExp":"^[a-zA-Z ]{1,50}$",
          "isbackendRequired":"true"
       },
       "age":{
@@ -42,7 +42,7 @@
       },
       "identificationMark":{
          "mandatory":"false",
-         "validateRegularExp":"^[a-zA-Z0-9 ]+$",
+         "validateRegularExp":"^[a-zA-Z0-9 ]{1,100}$",
          "isbackendRequired":"false"
       },
       "uploadPetPicture":{
@@ -57,7 +57,7 @@
       },
       "immunizationNameVeterinaryDoctor":{
          "mandatory":"false",
-         "validateRegularExp":"^[a-zA-Z. ]{1,250}$",
+         "validateRegularExp":"^[a-zA-Z. ]{1,50}$",
          "isbackendRequired":"false"
       },
       "veterinaryCouncilRegistrationNo":{
@@ -72,7 +72,7 @@
       },
       "immunizationClinicNo":{
          "mandatory":"false",
-         "validateRegularExp":"^[a-zA-Z0-9-\/, ]*$",
+         "validateRegularExp":"^[a-zA-Z0-9-\/, ]{1,100}$",
          "isbackendRequired":"false"
       },
       "immunizationSector":{
@@ -99,17 +99,17 @@
       },
       "applicantName":{
          "mandatory":"true",
-         "validateRegularExp":"^[a-zA-Z ]{1,250}$",
+         "validateRegularExp":"^[a-zA-Z ]{1,50}$",
          "isbackendRequired":"true"
       },
       "division":{
          "mandatory":"true",
-         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]{1,25}$",
          "isbackendRequired":"true"
       },
       "ward":{
          "mandatory":"true",
-         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]{1,25}$",
          "isbackendRequired":"true"
       },
       "sector":{
@@ -119,12 +119,12 @@
       },
       "requestedLocation":{
          "mandatory":"false",
-         "validateRegularExp":"^[a-zA-Z0-9!@#$&()\\-`.+,/\" ]*$",
+         "validateRegularExp":"^[a-zA-Z0-9!@#$&()\\-`.+,/\" ]{1,100}$",
          "isbackendRequired":"true"
       },
       "landmark":{
          "mandatory":"true",
-         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]{1,100}$",
          "isbackendRequired":"true"
       },
       "length":{
@@ -151,17 +151,17 @@
    "SELLMEATNOC":{
       "applicantName":{
          "mandatory":"true",
-         "validateRegularExp":"[a-zA-Z ]++$",
+         "validateRegularExp":"[a-zA-Z ]{1,50}$",
          "isbackendRequired":"true"
       },
       "fatherHusbandName":{
          "mandatory":"true",
-         "validateRegularExp":"[a-zA-Z ]++$",
+         "validateRegularExp":"[a-zA-Z ]{1,50}$",
          "isbackendRequired":"true"
       },
       "houseNo":{
          "mandatory":"true",
-         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]{1,100}$",
          "isbackendRequired":"true"
       },
       "shopNumber":{
@@ -208,7 +208,7 @@
       },
       "applicantName":{
          "mandatory":"true",
-         "validateRegularExp":"^[a-zA-Z ]{1,250}$",
+         "validateRegularExp":"^[a-zA-Z ]{1,50}$",
          "isbackendRequired":"true"
       },
       "tan":{
@@ -233,22 +233,22 @@
       },
       "applicantAddress":{
          "mandatory":"false",
-         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]{1,100}$",
          "isbackendRequired":"true"
       },
       "applicantLandmark":{
          "mandatory":"false",
-         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]{1,100}$",
          "isbackendRequired":"true"
       },
       "applicantDivision":{
          "mandatory":"false",
-         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]{1,100}$",
          "isbackendRequired":"true"
       },
       "applicantWard":{
          "mandatory":"false",
-         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]{1,100}$",
          "isbackendRequired":"true"
       },
       "sector":{
@@ -258,7 +258,7 @@
       },
       "applicantVillageSuSector":{
          "mandatory":"true",
-         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]{1,100}$",
          "isbackendRequired":"true"
       },
       "mobileNo":{
@@ -298,12 +298,12 @@
       },
       "locationOfAdvertisement":{
          "mandatory":"false",
-         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]{1,100}$",
          "isbackendRequired":"true"
       },
       "advertisementLandmark":{
          "mandatory":"false",
-         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]{1,100}$",
          "isbackendRequired":"true"
       },
       "advertisementSector":{
@@ -313,12 +313,12 @@
       },
       "advertisementVillageSubSector":{
          "mandatory":"false",
-         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]{1,100}$",
          "isbackendRequired":"true"
       },
       "advertisementMatterDescription":{
          "mandatory":"false",
-         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]*$",
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]{1,100}$",
          "isbackendRequired":"true"
       },
       "space":{

@@ -47,4 +47,9 @@ INSERT INTO public.egpm_noc_price_book(price_book_id, application_type, fixed_pr
 	created_by, created_time)
 	VALUES 
 	('a2995499-b97f-4960-8169-bcbc87c79253', 'PETNOC', '200','2019-04-01 12:00:00', null, 'ch', True, '93', '1582538442');
+
+	INSERT INTO public.egpm_noc_price_book
+(price_book_id, application_type, category_id, sub_category_id, min_sqft, max_sqft, perday_price, perweek_price, permonth_price, annual_price, effective_from_date, effective_to_date, tenant_id, is_active,created_by, created_time, calculation_sequence,calculation_type)
+VALUES
+('a2995499-b97f-4960-8169-bcbc87c79255','ADVERTISEMENTNOC','10010','20042','0','0',200,800,null,null,'2019-04-01 12:00:00',null,'ch.chandigarh','TRUE','93','1582538442','1','units');
 	
