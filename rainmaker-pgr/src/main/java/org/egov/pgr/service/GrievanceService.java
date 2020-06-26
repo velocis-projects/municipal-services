@@ -236,11 +236,10 @@ public class GrievanceService {
 			if(!CollectionUtils.isEmpty(serivceDefs))
 				servReq.setCategory(String.valueOf(serivceDefs.get(0)));
 				if((Integer)serivceDefs.get(3) > 0) {
-					long slaEndTime = pGRUtils.getLastDayTime(auditDetails.getCreatedTime() + Long.parseLong(serivceDefs.get(3).toString())*24*60*60*1000);// add sla time to create time
+					long slaEndTime = pGRUtils.getLastDayTime(Integer.parseInt(serivceDefs.get(3).toString()));
 					log.info("sla end time set to midnight:"+slaEndTime);
-					pGRUtils.getLastDayTime(Integer.parseInt(serivceDefs.get(3).toString()));
-					
-					servReq.setSlaEndTime(auditDetails.getCreatedTime() + Long.parseLong(serivceDefs.get(3).toString())*24*60*60*1000); 
+					//servReq.setSlaEndTime(auditDetails.getCreatedTime() + Long.parseLong(serivceDefs.get(3).toString())*24*60*60*1000);
+					servReq.setSlaEndTime(slaEndTime);
 				}
 		}
 		serviceRequest.setActionInfo(actionInfos);
