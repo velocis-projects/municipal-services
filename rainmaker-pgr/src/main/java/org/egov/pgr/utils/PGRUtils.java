@@ -756,7 +756,7 @@ public class PGRUtils {
 		LocalDate today = LocalDate.now(ZoneId.of("Asia/Kolkata"));
 		LocalDateTime todayMidnight = today.atTime(LocalTime.MAX);
 		LocalDateTime slaendMidnight = todayMidnight.plusDays(slaDays);
-		log.info("SLA end Date Midnight in IST="+todayMidnight);
+		log.info("SLA end Date Midnight in IST="+slaendMidnight);
 		return slaendMidnight.atZone(ZoneId.of("Asia/Kolkata")).toInstant().toEpochMilli();
 	}
 }
