@@ -1,6 +1,6 @@
 package org.egov.hc.repository.builder;
 
-import java.math.BigInteger;
+
 import java.util.List;
 
 import org.egov.hc.model.RequestData;
@@ -8,23 +8,14 @@ import org.egov.hc.producer.HCConfiguration;
 import org.egov.hc.utils.HCConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Component
 public class HCQueryBuilder {
 
 	@Autowired
-	private HCConfiguration config;
-	
-//	@Autowired
-//	private HCConstants hcConstants;
-
-	@Autowired
 	public HCQueryBuilder(HCConfiguration config) {
-		this.config = config;
+		
 	}
 
 	private static final String QUERY = "select service_request_id,service_type,owner_name,service_request_status,current_assignee,to_char(to_timestamp(cast(createdtime/1000 as bigint))::date ,'DD-MM-YYYY')as createdtime from eg_hc_service_request hc ";
@@ -43,8 +34,6 @@ public class HCQueryBuilder {
 
 	public String getHCSearchQuery(RequestData criteria, List<Object> preparedStmtList) {
 
-		Long id = criteria.getRequestInfo().getUserInfo().getId();
-		String requestId = id.toString();
 
 		StringBuilder builder = new StringBuilder(QUERY);
 

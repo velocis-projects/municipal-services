@@ -104,11 +104,11 @@ public class RequestData {
 	    
 	    
 	    
-	    public boolean isEmpty() {
-	        return (this.tenantId == null && this.serviceRequestStatus == null && this.dataPayload == null && this.serviceType == null
-	                && this.service_request_id == null && this.actions == null && this.ownerContactNumber == null &&
-	                this.fromDate == null && this.toDate == null && this.auditDetails == null
-	        );
-	    }
+//	    public boolean isEmpty() {
+//	        return (this.tenantId == null && this.serviceRequestStatus == null && this.dataPayload == null && this.serviceType == null
+//	                && this.service_request_id == null && this.actions == null && this.ownerContactNumber == null &&
+//	                this.fromDate == null && this.toDate == null && this.auditDetails == null
+//	        );
+	  //  }
 
 }
