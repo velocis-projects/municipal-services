@@ -76,7 +76,7 @@ public class ServiceController {
 
 	@PostMapping("_get")
 	@ResponseBody
-	public ResponseEntity<?> get(@Valid @RequestBody RequestInfoWrapper requestInfoWrapper,
+	public ResponseEntity<?> get( @RequestBody RequestInfoWrapper requestInfoWrapper,
 			@Valid @RequestBody RequestData requestData) {
 
 		log.debug(String.format("STARTED Get Details SERVICE REQUEST : %1s", requestData.toString()));

@@ -16,6 +16,7 @@ public class WorkFlowConfigs {
 	public static final String ACTION_ASSIGN = "ASSIGN";
 	public static final String ACTION_CLOSE = "close";
 	public static final String ACTION_APPROVE = "";
+	public static final String APPROVE = "APPROVE";
 	public static final String ACTION_RESOLVE = "resolve";
 	public static final String ACTION_REOPEN = "reopen";
 	public static final String ACTION_REASSIGN = "reassign";

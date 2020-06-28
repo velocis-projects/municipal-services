@@ -3,7 +3,7 @@ package org.egov.hc.workflow;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -32,8 +32,6 @@ import net.minidev.json.JSONObject;
 public class WorkflowIntegrator {
 
 	private static final String TENANTIDKEY = "tenantId";
-	
-	private static final String STATUS_KEY = "success";
 
 	private static final String BUSINESSSERVICEKEY = "businessService";
 
@@ -49,11 +47,7 @@ public class WorkflowIntegrator {
 
 	private static final String ASSIGNEEKEY = "assignes";
 
-	private static final String UUIDKEY = "uuid";
-
 	private static final String TLMODULENAMEVALUE = "HORTICULTURE";
-
-	private static final String BPAMODULENAMEVALUE = "BPAREG";
 
 	private static final String WORKFLOWREQUESTARRAYKEY = "ProcessInstances";
 
@@ -96,14 +90,13 @@ public class WorkflowIntegrator {
 		{
 
 			String wfTenantId = HCConstants.TENANT_ID;
-		String businessServiceFromMDMS = request.getServices().isEmpty()?null:request.getServices().get(0).getServiceType().toUpperCase();
+		//String businessServiceFromMDMS = request.getServices().isEmpty()?null:request.getServices().get(0).getServiceType().toUpperCase();
 		JSONArray array = new JSONArray();
 		for (ServiceRequestData servicerequestdata : request.getServices()) {
 				JSONObject obj = new JSONObject();
-				List<Map<String, String>> uuidmaps = new LinkedList<>();
 
 				List<Document> wfDocument = new ArrayList<>();
-				List<String> documentList = new ArrayList<>();
+				
 		
 				
 				if(servicerequestdata.getAction().equals(HCConstants.INITIATE)  ) 
@@ -193,7 +186,7 @@ public class WorkflowIntegrator {
 				response = rest.postForObject(config.getWfHost().concat(config.getWfTransitionPath()), workFlowRequest, String.class);
 			} catch (HttpClientErrorException e) {
 				
-//				org.json.JSONObject obj = new org.json.JSONObject(response);
+
 
 				/*
 				 * extracting message from client error exception
@@ -216,7 +209,7 @@ public class WorkflowIntegrator {
 			}
 
 			/*
-			 * on success result from work-flow read the data and set the status back to TL
+			 * on success result from work-flow read the data and set the status back to HC
 			 * object
 			 */
 			DocumentContext responseContext = JsonPath.parse(response);
@@ -234,18 +227,6 @@ public class WorkflowIntegrator {
 			request.getServices()
 					.forEach(hcObj -> hcObj.setService_request_status(idStatusMap.get(hcObj.getService_request_id())));
 
-			try {
-				org.json.JSONObject obj = new org.json.JSONObject(response);
-
-				org.json.JSONObject requestInfoObj = obj.getJSONObject("ResponseInfo");
-				 status = true;// requestInfoObj.getString("status");
-			}
-
-			catch (Exception ex) {
-
-			}
-
-			
 
 		}
 	}
