@@ -5,31 +5,25 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.DateFormat;
+
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Set;
+
+
 import java.util.UUID;
-import java.util.function.Function;
+
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tomcat.jni.Time;
+
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.Role;
 import org.egov.common.contract.request.User;
@@ -44,7 +38,7 @@ import org.egov.hc.contract.ServiceRequest;
 import org.egov.hc.contract.ServiceResponse;
 import org.egov.hc.model.ActionHistory;
 import org.egov.hc.model.ActionInfo;
-import org.egov.hc.model.AddressDetail;
+
 
 import org.egov.hc.model.ServiceRequestData;
 import org.egov.hc.model.auditDetails;
@@ -68,7 +62,6 @@ import org.egov.hc.utils.HCUtils;
 import org.egov.hc.utils.ResponseInfoFactory;
 import org.egov.hc.utils.WorkFlowConfigs;
 
-import org.egov.mdms.model.MdmsCriteriaReq;
 import org.egov.hc.web.models.Idgen.IdGenerationResponse;
 import org.egov.hc.workflow.Document;
 import org.egov.hc.workflow.WorkflowIntegrator;
@@ -76,19 +69,16 @@ import org.egov.tracer.model.CustomException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.JsonPath;
+
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -112,16 +102,10 @@ public class ServiceRequestService {
 	private ServiceRepository serviceRepository;
 
 	@Autowired
-	private ObjectMapper objectMapper;
-
-	@Autowired
 	private HCNotificationConsumer notificationConsumer;
 
 	@Autowired
 	private WorkflowIntegrator wfIntegrator;
-
-	@Autowired
-	private HCConstants hcConstants;
 
 	@Autowired
 	private IdGenRepository idgenrepository;
@@ -137,11 +121,10 @@ public class ServiceRequestService {
 			WorkflowIntegrator wfIntegrator, ObjectMapper objectMapper, IdGenRepository idgenrepository,
 			ServiceRepository serviceRepository, HCNotificationConsumer notificationConsumer, HCConstants hcConstants) {
 
-		this.objectMapper = objectMapper;
+		
 		this.hcConfiguration = hcConfiguration;
 		this.idgenrepository = idgenrepository;
 		this.notificationConsumer = notificationConsumer;
-		this.hcConstants = hcConstants;
 		this.wfIntegrator = wfIntegrator;
 
 	}
@@ -165,7 +148,7 @@ public class ServiceRequestService {
 		enrichserviceRequestForcreate(request, service_request_id);
 
 		// call workflow service if it's enable else uses internal workflow process
-		//
+		
 		if (hcConfiguration.getIsExternalWorkFlowEnabled()) {
 			wfIntegrator.callWorkFlow(request, service_request_id);
 		}
@@ -174,7 +157,7 @@ public class ServiceRequestService {
 		String status = HCConstants.INITIATED_STATUS;
 		String history_service_request_id = null;
 
-		ResponseEntity<ServiceRequest> responseBody = serviceRequest(request, service_request_id, requestHeader, role,
+		serviceRequest(request, service_request_id, requestHeader, role,
 				status, history_service_request_id);
 
 		return getServiceResponse(request);
@@ -307,7 +290,6 @@ public class ServiceRequestService {
 		overRideCitizenAccountId(serviceRequest);
 		validateAndCreateUser(serviceRequest);
 
-		List<String> servReqIdList = new ArrayList<>();
 
 		auditDetails auditDetails = hCUtils.getAuditDetails(String.valueOf(requestInfo.getUserInfo().getId()), true);
 		String by = auditDetails.getCreatedBy() + ":" + requestInfo.getUserInfo().getRoles().get(0).getName();
@@ -439,7 +421,7 @@ public class ServiceRequestService {
 	 * @param request
 	 */
 	private void enrichServiceRequestForUpdate(ServiceRequest request, String requestHeader) {
-		Map<String, String> actionStatusMap = WorkFlowConfigs.getActionStatusMap();
+		
 		Map<String, List<String>> errorMap = new HashMap<>();
 		RequestInfo requestInfo = request.getRequestInfo();
 		List<ServiceRequestData> serviceReqs = request.getServices();
@@ -518,8 +500,6 @@ public class ServiceRequestService {
 				documentlist.add(request.getServices().get(0).getWfDocuments().get(fileCnt).getFileStoreId());
 			}
 
-			List<String> newlist = new ArrayList<>();
-
 			JSONObject documentDetailsJson = new JSONObject();
 			JSONArray jsonArray = new JSONArray();
 
@@ -567,6 +547,7 @@ public class ServiceRequestService {
 			// notification to user when reject or completed request
 
 			action = request.getServices().get(servReqCount).getAction().replace(" ", "");
+			request.getServices().get(servReqCount).setAction(action);
 			if (request.getServices().get(servReqCount).getAction().equals(WorkFlowConfigs.ACTION_REJECT)
 					|| (request.getServices().get(servReqCount).getAction().equals(WorkFlowConfigs.ACTION_COMPLETE)))
 
@@ -608,7 +589,7 @@ public class ServiceRequestService {
 					String role = request.getServices().get(0).getRole();
 					
 					//notificationConsumer.getRolewiseUserList(request, role, messageMap);
-					List<String> roleListnew = notificationConsumer.getRolewiseUserList(request, role, messageMap);
+					notificationConsumer.getRolewiseUserList(request, role, messageMap);
 				}
 				else
 				{
@@ -706,7 +687,7 @@ public class ServiceRequestService {
 			
 				String service_request_uuid = UUID.randomUUID().toString();
 
-				String sourceUuid = deviceSource.saveDeviceDetails(requestHeader, HCConstants.DEVICE_HORTICULTURE,
+				deviceSource.saveDeviceDetails(requestHeader, HCConstants.DEVICE_HORTICULTURE,
 						request.getServices().get(0).getTenantId(), HCConstants.MODULE_CODE, request.getAuditDetails(),
 						service_request_uuid);
 
@@ -942,7 +923,6 @@ public class ServiceRequestService {
 		status = serviceRequestGet.getService_request_status();
 		service_request_uuid = serviceRequestGet.getService_request_uuid();
 		documentList = new ArrayList<>();
-		JSONArray media = new JSONArray();
 		for (int docCnt = 0; docCnt < serviceRequestGet.getMediaList().size(); docCnt++) {
 
 			documentList.add(serviceRequestGet.getMediaList().get(docCnt).toString());
@@ -957,7 +937,8 @@ public class ServiceRequestService {
 		serviceRequest.getAuditDetails().setCreatedBy(serviceRequestGet.getCreatedBy());
 
 		// add data in device source detail
-		String sourceUuid = deviceSource.saveDeviceDetails(requestHeader, HCConstants.DEVICE_HORTICULTURE,
+		
+		deviceSource.saveDeviceDetails(requestHeader, HCConstants.DEVICE_HORTICULTURE,
 				HCConstants.TENANT_ID_CITIZEN, HCConstants.MODULE_CODE, serviceRequest.getAuditDetails(),
 				service_request_id);
 
@@ -999,7 +980,7 @@ public class ServiceRequestService {
 					service_request_id); // here we use simple query is possible
 
 			// service request id (old) this service request status update(mark as Rejected)
-			String updateServiceRequestStatus = updateStatus(procesinstancedata, service_request_id_new,
+			updateStatus(procesinstancedata, service_request_id_new,
 					service_request_id);
 
 			// workflow call for with old service request id
@@ -1037,11 +1018,7 @@ public class ServiceRequestService {
 		try {
 
 			if (null != request.getServices() && !request.getServices().isEmpty()) {
-
-				String sourceUuid = deviceSource.saveDeviceDetails(requestHeader, HCConstants.DEVICE_HORTICULTURE,
-						request.getServices().get(0).getTenantId(), HCConstants.MODULE_CODE, request.getAuditDetails(),
-						service_request_uuid);
-
+				
 				List<String> documentList = new ArrayList<>();
 				documentList.addAll(request.getServices().get(0).getMediaList());
 
@@ -1116,27 +1093,18 @@ public class ServiceRequestService {
 	private ServiceRequest getProcesinstanceData(ServiceRequest serviceRequestGetData, String service_request_id_new,
 			String service_request_id) {
 
-		List<String> businessServiceState = new ArrayList<>();
+		
 		String procesinstanceData = null;
-		String actualState = null;
 		String tenentId = null;
 		String businessService = null;
-		String businessId = null;
 		String action = null;
-		String moduleName = null;
-		String comment = null;
-		String assignee = null;
-		String stateSla = null;
-		String businesssServiceSla = null;
+		String comment=null;
+//
+//		RequestInfo preservRequestInfo = new RequestInfo();
+//
+//		ServiceRequestData service = new ServiceRequestData();
 
-		User citizenUser = new User();
-		RequestInfo preservRequestInfo = new RequestInfo();
-
-		ServiceRequest serviceRequest = new ServiceRequest();
-
-		ServiceRequestData service = new ServiceRequestData();
-
-		preservRequestInfo = serviceRequestGetData.getRequestInfo();
+	//	RequestInfo preservRequestInfo = serviceRequestGetData.getRequestInfo();
 		User userData = new User();
 		String tenantId = serviceRequestGetData.getRequestInfo().getUserInfo().getTenantId();
 		String name = serviceRequestGetData.getRequestInfo().getUserInfo().getName();
@@ -1157,6 +1125,7 @@ public class ServiceRequestService {
 		userData.setMobileNumber(userMobileNumer);
 		userData.setUserName(userName);
 		userData.setTenantId(tenantId);
+		
 
 		try {
 			procesinstanceData = rest.postForObject(
@@ -1268,7 +1237,6 @@ public class ServiceRequestService {
 						action = "";
 
 					businessService = serviceRequestData.getServices().get(0).getServiceType();
-					businessId = service_request_id;
 
 					if (!ProcessInstancesDetails.isNull("comment"))
 						comment = ProcessInstancesDetails.getString("comment");
@@ -1286,14 +1254,9 @@ public class ServiceRequestService {
 					serviceRequestData.getRequestInfo().setUserInfo(wfUser);
 
 					if (hcConfiguration.getIsExternalWorkFlowEnabled()) {
+						System.out.println("Process instance call"+i);
+						
 						 wfIntegrator.callWorkFlow(serviceRequestData, service_request_id_new);
-//						if(response)
-//						{
-//							i--;
-//							response=false;
-//						
-//						}
-				//Time.sleep(1);
 						Thread.sleep(20000);
 					}
 

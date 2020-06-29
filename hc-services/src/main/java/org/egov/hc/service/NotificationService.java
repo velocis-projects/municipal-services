@@ -1,30 +1,21 @@
 package org.egov.hc.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.hc.contract.RequestInfoWrapper;
 
-import org.egov.hc.contract.ServiceResponse;
-import org.egov.hc.model.ActionInfo;
-import org.egov.hc.model.ServiceRequestData;
-import org.egov.hc.model.user.UserResponse;
 import org.egov.hc.producer.HCConfiguration;
 import org.egov.hc.repository.ServiceRepository;
 import org.egov.hc.utils.HCConstants;
 import org.egov.hc.utils.HCUtils;
-import org.egov.mdms.model.MdmsCriteriaReq;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.jayway.jsonpath.JsonPath;
 
 import lombok.extern.slf4j.Slf4j;
@@ -69,9 +60,7 @@ public class NotificationService {
 			employeeDetails.put("name", JsonPath.read(response, HCConstants.EMPLOYEE_NAME_JSONPATH));
 			employeeDetails.put("phone", JsonPath.read(response, HCConstants.EMPLOYEE_PHNO_JSONPATH));
 			employeeDetails.put("email", JsonPath.read(response, HCConstants.EMPLOYEE_EMAILID_JSONPATH));
-//			employeeDetails.put("department", ((List<String>) JsonPath.read(response, HCConstants.EMPLOYEE_DEPTCODE_JSONPATH)).get(0));
-//			employeeDetails.put("designation", ((List<String>)JsonPath.read(response, HCConstants.EMPLOYEE_DESGCODE_JSONPATH)).get(0));
-		} catch (Exception e) {
+       } catch (Exception e) {
 			log.error("Exception: ", e);
 		}
 		return employeeDetails;
@@ -123,11 +112,8 @@ public class NotificationService {
 	public String getMobileAndIdForNotificationService(RequestInfo requestInfo,  String tenantId, String assignee, String role) {
 		String phoneNumber = null;
 		String employeeName=null;
-		Object response = null;
 		String employeeEmail = null;
-		ObjectMapper mapper = hCUtils.getObjectMapper();
-		StringBuilder uri = new StringBuilder();
-		Object request = new HashMap<>();
+
 		if(role.equals(HCConstants.ROLE_CITIZEN)) {
 		
 			return phoneNumber;

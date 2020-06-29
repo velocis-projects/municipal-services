@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.hc.model.ActionInfo;
+import org.egov.hc.model.RequestData;
 import org.egov.hc.model.ServiceRequestData;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -33,6 +34,9 @@ public class RequestInfoWrapper {
 	
 	@JsonProperty("RequestBody")
 	private Object requestBody;
+	
+	@JsonProperty("RequestData")
+	private RequestData requestData;	
 	
 	
 	@JsonProperty("AuditDetails")

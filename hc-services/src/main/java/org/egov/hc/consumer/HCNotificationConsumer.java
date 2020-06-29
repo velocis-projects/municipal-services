@@ -9,13 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
-import org.egov.hc.contract.Action;
-import org.egov.hc.contract.ActionItem;
+
 import org.egov.hc.contract.EmailRequest;
 import org.egov.hc.contract.Event;
 import org.egov.hc.contract.EventRequest;
@@ -23,20 +21,19 @@ import org.egov.hc.contract.Recepient;
 import org.egov.hc.contract.RequestInfoWrapper;
 import org.egov.hc.contract.SMSRequest;
 import org.egov.hc.contract.ServiceRequest;
-import org.egov.hc.contract.ServiceResponse;
+
 import org.egov.hc.model.ActionInfo;
 import org.egov.hc.model.ServiceRequestData;
 import org.egov.hc.model.Source;
 import org.egov.hc.producer.HCConfiguration;
 import org.egov.hc.producer.HCProducer;
 import org.egov.hc.service.NotificationService;
-import org.egov.hc.service.ServiceRequestService;
+
 import org.egov.hc.utils.HCConstants;
-import org.egov.hc.utils.HCUtils;
+
 import org.egov.hc.utils.WorkFlowConfigs;
-import org.egov.mdms.model.ModuleDetail;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -104,7 +101,7 @@ public class HCNotificationConsumer {
 			if (serviceReqRequest.getActionInfo().get(0).getAction().equals(WorkFlowConfigs.ACTION_OPEN)) {
 				String role = HCConstants.EXECUTIVE_ENGINEER;
 
-				List<String> roleList = getRolewiseUserList(serviceReqRequest, role, messageMap);
+				getRolewiseUserList(serviceReqRequest, role, messageMap);
 
 			}
 
@@ -112,18 +109,16 @@ public class HCNotificationConsumer {
 
 	}
 
-	public List getRolewiseUserList(ServiceRequest serviceReqRequest, String role, Map<String, String> messageMap) {
+	public void getRolewiseUserList(ServiceRequest serviceReqRequest, String role, Map<String, String> messageMap) {
 
-		List requestInfoList = new ArrayList();
+		
 		String mobileNumber = null;
 		String uuid = null;
-	//	String emailId = null;
+	
 		String userName = null;
 
 		String allRoles = null;
 
-		//List<ModuleDetail> moduleDetail = new ArrayList<ModuleDetail>();
-		//RequestInfo requestInfo = new RequestInfo();
 
 		try {
 
@@ -133,12 +128,11 @@ public class HCNotificationConsumer {
 			try {
 				org.json.JSONObject obj = new org.json.JSONObject(allRoles);
 
-				org.json.JSONObject rreq = obj.getJSONObject("ResponseInfo");
+				
 
 				org.json.JSONArray employeesList = obj.getJSONArray("Employees");
 
-				// action inforlist
-				List<String> employee = new ArrayList<>();
+				
 				ServiceRequestData serviceRequest = new ServiceRequestData();
 
 				for (int i = 0; i < employeesList.length(); i++) {
@@ -164,7 +158,6 @@ public class HCNotificationConsumer {
 						serviceRequest.setEmail("");
 
 					serviceRequest.setOwnerName(userName);
-					//serviceRequest.setEmail(emailId);
 					serviceRequest.setContactNumber(mobileNumber);
 					serviceRequest.setService_request_uuid(uuid);
 					serviceRequest.setService_request_id(serviceReqRequest.getServices().get(0).getService_request_id());
@@ -173,9 +166,11 @@ public class HCNotificationConsumer {
 
 					ActionInfo newActionInfo = ActionInfo.builder().uuid(UUID.randomUUID().toString())
 							.businessKey(serviceReqRequest.getServices().get(0).getBusinessService())
-							.action(HCConstants.VERIFYANDFORWARD).assignee(uuid).by(by)
+							.action(serviceReqRequest.getServices().get(0).getAction())
+							.assignee(uuid).by(by)
 							.when(serviceRequest.getCreatedTime())
-							.tenantId(serviceReqRequest.getServices().get(0).getTenantId()).status("VERIFYANDFORWARD")
+							.tenantId(serviceReqRequest.getServices().get(0).getTenantId())
+							.status(serviceReqRequest.getServices().get(0).getAction())
 							.build();
 					Actioninfolist.add(newActionInfo);
 
@@ -207,7 +202,6 @@ public class HCNotificationConsumer {
 		}
 		System.out.println(allRoles);
 
-		return requestInfoList;
 	}
 
 	public void sendNotification(ServiceRequest serviceReqRequest, Map<String, String> messageMap,
@@ -269,8 +263,6 @@ public class HCNotificationConsumer {
 	public EventRequest preparePushNotificationRequest(ServiceRequestData serviceReq, ActionInfo actionInfo,
 			RequestInfo requestInfo, Map<String, String> messageMap, String service_request_id_new) {
 
-		String emailIdRetrived = null;
-		String employeeDetailsRetrived = null;
 		String employeeNameRetrived = null;
 		String message = null;
 		List<Event> events = new ArrayList<>();
@@ -281,12 +273,14 @@ public class HCNotificationConsumer {
 			message = getMessage(WorkFlowConfigs.ACTION_OPEN, serviceReq, requestInfo, messageMap, null,
 					HCConstants.PUSH, service_request_id_new);
 			
-		} else if (actionInfo.getAction().equals(WorkFlowConfigs.ACTION_APPROVE)
+		} else if (actionInfo.getAction().equals(WorkFlowConfigs.APPROVE)
 				|| actionInfo.getAction().equals(WorkFlowConfigs.ACTION_ASSIGN)
+				|| actionInfo.getAction().equals(WorkFlowConfigs.ACTION_INITIATE)
 				|| actionInfo.getAction().equals(WorkFlowConfigs.ACTION_REQUEST_FOR_REASSIGN)
 				||actionInfo.getAction().equals(WorkFlowConfigs.VERIFY_AND_FORWARD_TO_SDO)
 				||actionInfo.getAction().equals(WorkFlowConfigs.FORWARDFORINSPECTION)
 				||actionInfo.getAction().equals(WorkFlowConfigs.REQUESTCLARIFICATION)
+				||actionInfo.getAction().equals(WorkFlowConfigs.INSPECT)
 				||actionInfo.getAction().equals(WorkFlowConfigs.VERIFYANDFORWARD)) {
 
 			employeeNameRetrived = serviceReq.getOwnerName();
@@ -332,13 +326,11 @@ public class HCNotificationConsumer {
 	public EmailRequest prepareEmailRequest(ServiceRequestData serviceReq, ActionInfo actionInfo,
 			RequestInfo requestInfo, Map<String, String> messageMap, String service_request_id_new) {
 
-		List<Event> events = new ArrayList<>();
 		String emailIdRetrived = null;
-		String employeeDetailsRetrived = null;
 		String employeeNameRetrived = null;
 		String message = null;
 		String subject = null;
-		String phoneNumberRetrived=null;
+
 		
 		if (actionInfo.getAction().equals(WorkFlowConfigs.ACTION_OPEN)) {
 			emailIdRetrived = serviceReq.getEmail();
@@ -347,11 +339,13 @@ public class HCNotificationConsumer {
 			subject = getSubject(actionInfo.getAction(), serviceReq, requestInfo, messageMap, null, HCConstants.EMAIL,
 					service_request_id_new);
 			
-		} else if (actionInfo.getAction().equals(WorkFlowConfigs.ACTION_APPROVE)
+		} else if (actionInfo.getAction().equals(WorkFlowConfigs.APPROVE)
 				|| actionInfo.getAction().equals(WorkFlowConfigs.ACTION_ASSIGN)
+				|| actionInfo.getAction().equals(WorkFlowConfigs.ACTION_INITIATE)
 				|| actionInfo.getAction().equals(WorkFlowConfigs.VERIFY_AND_FORWARD_TO_SDO)
 				|| actionInfo.getAction().equals(WorkFlowConfigs.FORWARDFORINSPECTION)
 				|| actionInfo.getAction().equals(WorkFlowConfigs.REQUESTCLARIFICATION)
+				||actionInfo.getAction().equals(WorkFlowConfigs.INSPECT)
 				|| actionInfo.getAction().equals(WorkFlowConfigs.VERIFYANDFORWARD)) {
 
 			emailIdRetrived = serviceReq.getEmail();
@@ -362,13 +356,7 @@ public class HCNotificationConsumer {
 					service_request_id_new);
 
 		} 
-//		 else if (actionInfo.getAction().equals(WorkFlowConfigs.ACTION_INITIATE)) {
-//			emailIdRetrived = serviceReq.getEmail();
-//			message = getMessage(WorkFlowConfigs.ACTION_INITIATE, serviceReq, requestInfo, messageMap, null,
-//					HCConstants.EMAIL, service_request_id_new);
-//			subject = getSubject(actionInfo.getAction(), serviceReq, requestInfo, messageMap, null, HCConstants.EMAIL,
-//					service_request_id_new);
-//		}
+
 
 		else
 
@@ -389,17 +377,14 @@ public class HCNotificationConsumer {
 			Map<String, String> messageMap, String employeeName, String email, String service_request_id_new) {
 
 		String text = null;
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Date dateobj = new Date();
-		String genratedDate = df.format(dateobj);
-
+		
 		switch (action) {
 
 		case WorkFlowConfigs.ACTION_OPEN:
 			text = messageMap.get(HCConstants.HC_CITIZEN_REQUEST_EMAIL_SUBJECT_ACTION_OPEN);
 			break;
 			
-		case WorkFlowConfigs.ACTION_APPROVE:
+		case WorkFlowConfigs.APPROVE:
 			text = messageMap.get(HCConstants.HC_EMPLOYEE_ACTION_ASSIGN_EMAIL_SUBJECT);
 			break;
 			
@@ -420,11 +405,15 @@ public class HCNotificationConsumer {
 			break;
 			
 		case WorkFlowConfigs.VERIFYANDFORWARD:
-			text = messageMap.get(HCConstants.HC_EMPLOYEE_REQUEST_EMAIL_SUBJECT);
+			text = messageMap.get(HCConstants.HC_EMPLOYEE_FORWARDREQUEST_EMAIL_SUBJECT);
 			break;
 			
 		case WorkFlowConfigs.ACTION_INITIATE:
 			text = messageMap.get(HCConstants.HC_CITIZEN_REQUEST_EMAIL_SUBJECT_ACTION_ASSIGN);
+			break;
+			
+		case WorkFlowConfigs.INSPECT:
+			text = messageMap.get(HCConstants.HC_EMPLOYEE_INSPECT_EMAIL_SUBJECT_NOTIFICATION);
 			break;
 			
 		case WorkFlowConfigs.ACTION_UPDATE:
@@ -476,11 +465,13 @@ public class HCNotificationConsumer {
 
 		} 
 		
-		else if (actionInfo.getAction().equals(WorkFlowConfigs.ACTION_APPROVE)
+		else if (actionInfo.getAction().equals(WorkFlowConfigs.APPROVE)
 				|| actionInfo.getAction().equals(WorkFlowConfigs.ACTION_ASSIGN)
 				||actionInfo.getAction().equals(WorkFlowConfigs.VERIFY_AND_FORWARD_TO_SDO)
 				||actionInfo.getAction().equals(WorkFlowConfigs.FORWARDFORINSPECTION)
 				||actionInfo.getAction().equals(WorkFlowConfigs.REQUESTCLARIFICATION)
+				|| actionInfo.getAction().equals(WorkFlowConfigs.ACTION_INITIATE)
+				||actionInfo.getAction().equals(WorkFlowConfigs.INSPECT)
 				|| actionInfo.getAction().equals(WorkFlowConfigs.VERIFYANDFORWARD)) {
 			
 			
@@ -522,8 +513,7 @@ public class HCNotificationConsumer {
 	}
 
 	public Map<String, String> getLocalizationMessage(String tenantId, RequestInfo requestInfo) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat(hcConfiguration.getNotificationDateFormat());
-		String date = dateFormat.format(new Date());
+		
 		String locale = null;
 		String tenant_id = null;
 		try {
@@ -564,13 +554,13 @@ public class HCNotificationConsumer {
 		
 		case WorkFlowConfigs.ACTION_OPEN:
 			if (notifcationType.equals(HCConstants.SMS)) {
-				text = messageMap.get(HCConstants.HC_CITIZEN_REQUEST_SMS_NOTIFICATION);
+				text = messageMap.get(HCConstants.HC_CITIZEN_SUBMITREQUEST_SMS_NOTIFICATION);
 			} else if (notifcationType.equals(HCConstants.EMAIL)) {
 
-				text = messageMap.get(HCConstants.HC_CITIZEN_REQUEST_EMAIL_NOTIFICATION); 
+				text = messageMap.get(HCConstants.HC_CITIZEN_SUBMITREQUEST_EMAIL_NOTIFICATION); 
 																						
 			} else if (notifcationType.equals(HCConstants.PUSH)) {
-				text = messageMap.get(HCConstants.HC_CITIZEN_REQUEST_PUSH_NOTIFICATION);
+				text = messageMap.get(HCConstants.HC_CITIZEN_SUBMITREQUEST_PUSH_NOTIFICATION);
 			}
 
 			if(text != null)
@@ -582,7 +572,7 @@ public class HCNotificationConsumer {
 			}
 			break;
 			
-		case WorkFlowConfigs.ACTION_APPROVE:
+		case WorkFlowConfigs.APPROVE:
 
 			if (notifcationType.equals(HCConstants.SMS)) {
 				text = messageMap.get(HCConstants.HC_EMPLOYEE_ACTION_APPROVE_SMS_NOTIFICATION);
@@ -639,6 +629,23 @@ public class HCNotificationConsumer {
 					.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_DATE_KEY, genratedDate);
 			}
 			break;
+		case WorkFlowConfigs.INSPECT:
+
+			if (notifcationType.equals(HCConstants.SMS)) {
+				text = messageMap.get(HCConstants.HC_EMPLOYEE_INSPECT_SMS_NOTIFICATION);
+			} else if (notifcationType.equals(HCConstants.EMAIL)) {
+
+				text = messageMap.get(HCConstants.HC_EMPLOYEE_INSPECT_EMAIL_NOTIFICATION);
+			} else if (notifcationType.equals(HCConstants.PUSH)) {
+				text = messageMap.get(HCConstants.HC_EMPLOYEE_INSPECT_PUSH_NOTIFICATION);
+			}
+			if(text != null)
+			{
+			text = text.replace(HCConstants.SMS_NOTIFICATION_EMP_NAME_KEY, serviceReq.getOwnerName())
+					.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_ID, serviceReq.getService_request_id())
+					.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_DATE_KEY, genratedDate);
+			}
+			break;
 			
 		case WorkFlowConfigs.FORWARDFORINSPECTION:
 
@@ -648,6 +655,24 @@ public class HCNotificationConsumer {
 				text = messageMap.get(HCConstants.HC_EMPLOYEE_INSPECTION_EMAIL_NOTIFICATION);
 			} else if (notifcationType.equals(HCConstants.PUSH)) {
 				text = messageMap.get(HCConstants.HC_EMPLOYEE_INSPECTION_PUSH_NOTIFICATION);
+			}
+			if(text != null)
+			{
+			text = text.replace(HCConstants.SMS_NOTIFICATION_EMP_NAME_KEY, serviceReq.getOwnerName())
+					.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_ID, serviceReq.getService_request_id())
+					.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_DATE_KEY, genratedDate);
+			}
+			break;
+			
+		case WorkFlowConfigs.VERIFYANDFORWARD:
+
+			if (notifcationType.equals(HCConstants.SMS)) {
+				text = messageMap.get(HCConstants.HC_EMPLOYEE_CLARIFICATION_SMS_NOTIFICATION);
+			} else if (notifcationType.equals(HCConstants.EMAIL)) {
+
+				text = messageMap.get(HCConstants.HC_EMPLOYEE_CLARIFICATION_EMAIL_NOTIFICATION);
+			} else if (notifcationType.equals(HCConstants.PUSH)) {
+				text = messageMap.get(HCConstants.HC_EMPLOYEE_CLARIFICATION_PUSH_NOTIFICATION);
 			}
 			if(text != null)
 			{
@@ -677,7 +702,7 @@ public class HCNotificationConsumer {
 			
 			
 			
-		case WorkFlowConfigs.VERIFYANDFORWARD:
+		case WorkFlowConfigs.ACTION_INITIATE:
 
 			if (notifcationType.equals(HCConstants.SMS)) {
 				text = messageMap.get(HCConstants.HC_EMPLOYEE_REQUEST_SMS_NOTIFICATION);
@@ -734,26 +759,6 @@ public class HCNotificationConsumer {
 			}
 			break;
 			
-//
-//		case WorkFlowConfigs.ACTION_INITIATE:
-//
-//			if (notifcationType.equals(HCConstants.SMS)) {
-//				text = messageMap.get(HCConstants.HC_CITIZEN_REQUEST_INITIATE_SMS_NOTIFICATION);
-//			} else if (notifcationType.equals(HCConstants.EMAIL)) {
-//
-//				text = messageMap.get(HCConstants.HC_CITIZEN_REQUEST_INITIATE_EMAIL_NOTIFICATION);
-//			} else if (notifcationType.equals(HCConstants.PUSH)) {
-//				text = messageMap.get(HCConstants.HC_CITIZEN_REQUEST_INITIATE_PUSH_NOTIFICATION);
-//			}
-//			if(text != null)
-//			{
-//			text = text.replace(HCConstants.SMS_NOTIFICATION_EMP_NAME_KEY, employeeName)
-//					.replace(HCConstants.SMS_NOTIFICATION_USER_NAME_KEY, serviceReq.getOwnerName())
-//					.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_ID, serviceReq.getService_request_id())
-//					.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_TYPE, serviceReq.getServiceType())
-//					.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_DATE_KEY, genratedDate);
-//			}
-//			break;
 		case WorkFlowConfigs.ACTION_UPDATE:
 
 			if (notifcationType.equals(HCConstants.SMS)) {
@@ -789,16 +794,13 @@ public class HCNotificationConsumer {
 	}
 
 	public void sendNotificationToEmployee(ServiceRequest serviceReqRequest, String role, Map<String, String> messageMap,String assigneeUuid) {
-		List requestInfoList = new ArrayList();
+		
 		String mobileNumber = null;
 		String uuid = null;
-		String emailId = null;
+		
 		String userName = null;
 
 		String allRoles = null;
-
-		List<ModuleDetail> moduleDetail = new ArrayList<ModuleDetail>();
-		RequestInfo requestInfo = new RequestInfo();
 
 		try {
 
@@ -808,12 +810,8 @@ public class HCNotificationConsumer {
 			try {
 				org.json.JSONObject obj = new org.json.JSONObject(allRoles);
 
-				org.json.JSONObject rreq = obj.getJSONObject("ResponseInfo");
-
 				org.json.JSONArray employeesList = obj.getJSONArray("Employees");
 
-				// action inforlist
-				List<String> employee = new ArrayList<>();
 				ServiceRequestData serviceRequest = new ServiceRequestData();
 
 				for (int i = 0; i < employeesList.length(); i++) {
