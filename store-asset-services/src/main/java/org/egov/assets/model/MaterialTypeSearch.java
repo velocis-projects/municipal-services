@@ -13,20 +13,22 @@ import java.util.List;
 @Getter
 public class MaterialTypeSearch {
 
-    private String tenantId;
+	private String tenantId;
 
-    private List<String> ids;
+	private List<String> ids;
 
-    private String code;
+	private String code;
 
-    private String name;
+	private String name;
 
-    private String store;
+	private String store;
 
-    private Integer pageSize;
+	private Boolean active = null;
 
-    private Integer offSet;
+	private Integer pageSize;
 
-    private String sortBy;
+	private Integer offSet;
+
+	private String sortBy;
 
 }

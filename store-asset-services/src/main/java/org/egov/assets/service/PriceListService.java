@@ -317,7 +317,7 @@ public class PriceListService extends DomainService {
 					Material material = materialService.fetchMaterial(tenantId, pld.getMaterial().getCode(),
 							priceListRequest.getRequestInfo());
 
-					Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "Uom", "code",
+					Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "UOM", "code",
 							pld.getUom().getCode(), Uom.class, priceListRequest.getRequestInfo());
 
 					if (isEmpty(material.getCode())) {
@@ -452,7 +452,7 @@ public class PriceListService extends DomainService {
 	public PriceListResponse getTenderUsedQty(String material, String priceListId, String uom, String tenantId,
 			RequestInfo requestInfo) {
 		PriceListResponse plr = new PriceListResponse();
-		Uom uomFetch = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "Uom", "code", uom, Uom.class,
+		Uom uomFetch = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "UOM", "code", uom, Uom.class,
 				requestInfo);
 		plr.setPriceLists(Arrays.asList(PriceList.builder()
 				.priceListDetails(Arrays.asList(PriceListDetails

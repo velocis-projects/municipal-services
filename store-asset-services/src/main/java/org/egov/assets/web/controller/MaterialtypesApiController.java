@@ -21,8 +21,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 @RequestMapping(value = "/materialtypes")
 public class MaterialtypesApiController {
 
@@ -45,12 +46,13 @@ public class MaterialtypesApiController {
 			@RequestParam(value = "code", required = false) String code,
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "store", required = false) String store,
+			@RequestParam(value = "active", required = false, defaultValue = "true") Boolean active,
 			@Min(0) @Max(100) @RequestParam(value = "pageSize", required = false, defaultValue = "20") Integer pageSize,
 			@RequestParam(value = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
 			@RequestParam(value = "sortBy", required = false, defaultValue = "id") String sortBy) {
 
 		MaterialTypeSearch materialTypeSearch = MaterialTypeSearch.builder().code(code).ids(ids).name(name).store(store)
-				.tenantId(tenantId).build();
+				.active(active).tenantId(tenantId).build();
 		return new ResponseEntity<>(materialTypeService.search(materialTypeSearch, requestInfo), HttpStatus.OK);
 	}
 

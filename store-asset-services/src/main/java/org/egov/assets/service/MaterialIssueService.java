@@ -391,6 +391,9 @@ public class MaterialIssueService extends DomainService {
 							balanceQuantity = getBalanceQuantityByStoreByMaterialAndIssueDate(
 									materialIssue.getFromStore(), materialIssueDetail.getMaterial(),
 									materialIssue.getIssueDate(), materialIssue.getTenantId());
+							
+							// balanceQuantity = new BigDecimal(1); Added By Prakash for Testing
+							
 							if (StringUtils.isNotBlank(balanceQuantity.toString())) {
 								if (balanceQuantity.compareTo(BigDecimal.ZERO) <= 0)
 									errors.addDataError(ErrorCode.QUANTITY_GT_ZERO.getCode(), "balanceQuantity",
@@ -412,6 +415,7 @@ public class MaterialIssueService extends DomainService {
 							if (materialIssueDetail.getIndentDetail() != null) {
 								if (materialIssueDetail.getIndentDetail().getIndentQuantity() != null
 										&& materialIssueDetail.getIndentDetail().getIndentIssuedQuantity() != null)
+									
 									materialIssueDetail.setPendingIndentQuantity(
 											materialIssueDetail.getIndentDetail().getIndentQuantity().subtract(
 													materialIssueDetail.getIndentDetail().getIndentIssuedQuantity()));
@@ -971,7 +975,7 @@ public class MaterialIssueService extends DomainService {
 	}
 
 	private Map<String, Uom> getUoms(String tenantId, final ObjectMapper mapper, RequestInfo requestInfo) {
-		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "common-masters", "Uom", null, null,
+		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "common-masters", "UOM", null, null,
 				requestInfo);
 		Map<String, Uom> uomMap = new HashMap<>();
 
@@ -986,7 +990,7 @@ public class MaterialIssueService extends DomainService {
 	}
 
 	private Map<String, Material> getMaterials(String tenantId, final ObjectMapper mapper, RequestInfo requestInfo) {
-		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "inventory", "Material", null, null,
+		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "store-asset", "Material", null, null,
 				requestInfo);
 		Map<String, Material> materialMap = new HashMap<>();
 
