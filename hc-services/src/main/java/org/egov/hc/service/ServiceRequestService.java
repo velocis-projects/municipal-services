@@ -165,9 +165,8 @@ public class ServiceRequestService {
 
 	private String generateServiceRequestId(ServiceRequest request) {
 
-		ServiceRequestData serviceRequest = new ServiceRequestData();
 		String service_request_id = "";
-		IdGenerationResponse id = idgenrepository.getId(request.getRequestInfo(), serviceRequest.getTenantId(),
+		IdGenerationResponse id = idgenrepository.getId(request.getRequestInfo(), request.getServices().get(0).getTenantId(),
 				hcConfiguration.getApplicationNumberIdgenName(), hcConfiguration.getApplicationNumberIdgenFormat(), 1);
 		if (id.getIdResponses() != null && id.getIdResponses().get(0) != null) {
 			// serviceRequest.setService_request_id(id.getIdResponses().get(0).getId());
