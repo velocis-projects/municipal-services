@@ -139,5 +139,9 @@ public class StoresApiController {
 		transactionUsedResponse.responseInfo(null).transactionUsed(usedInTransaction);
 		return new ResponseEntity<>(transactionUsedResponse, HttpStatus.OK);
 	}
-
+	
+	@PostMapping(value = "/_geturls", produces = { "application/json" }, consumes = {"application/json" })
+	public void getActionUrls(@NotNull @Valid @RequestParam(value = "tenantId", required = true) String tenantId) {
+		storesService.fetchRoleActionData(tenantId);
+	}
 }

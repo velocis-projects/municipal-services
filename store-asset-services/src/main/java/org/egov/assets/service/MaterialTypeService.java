@@ -153,24 +153,4 @@ public class MaterialTypeService extends DomainService {
 		}
 		return hashMap;
 	}
-
-	/*
-	 * private HashMap<String, MaterialType> getMaterialTypeFromMdms(String
-	 * tenantId, String code) {
-	 * 
-	 * List<Object> objectList = new ArrayList<>();
-	 * 
-	 * if(!StringUtils.isEmpty(code)){ objectList =
-	 * mdmsRepository.fetchObjectList(tenantId, "inventory", "MaterialType", "code",
-	 * code, MaterialType.class); }else{ objectList =
-	 * mdmsRepository.fetchObjectList(tenantId, "inventory", "MaterialType", null,
-	 * null, MaterialType.class); }
-	 * 
-	 * HashMap<String, MaterialType> hashMap = new HashMap<>(); ObjectMapper mapper
-	 * = new ObjectMapper(); if (objectList != null && objectList.size() > 0) { for
-	 * (Object object : objectList) { MaterialType materialType =
-	 * mapper.convertValue(object, MaterialType.class);
-	 * hashMap.put(materialType.getCode(), materialType); } } return hashMap; }
-	 */
-
 }

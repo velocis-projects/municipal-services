@@ -39,13 +39,16 @@
  */
 package org.egov.assets.service;
 
+import static java.util.Objects.isNull;
 import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.egov.assets.common.Constants;
 import org.egov.assets.common.DomainService;
@@ -54,6 +57,7 @@ import org.egov.assets.common.Pagination;
 import org.egov.assets.common.exception.CustomBindException;
 import org.egov.assets.common.exception.ErrorCode;
 import org.egov.assets.common.exception.InvalidDataException;
+import org.egov.assets.model.Action;
 import org.egov.assets.model.Department;
 import org.egov.assets.model.Indent;
 import org.egov.assets.model.IndentSearch;
@@ -64,6 +68,7 @@ import org.egov.assets.model.MaterialReceipt;
 import org.egov.assets.model.MaterialReceiptSearch;
 import org.egov.assets.model.PurchaseOrder;
 import org.egov.assets.model.PurchaseOrderSearch;
+import org.egov.assets.model.RoleAction;
 import org.egov.assets.model.Store;
 import org.egov.assets.model.StoreGetRequest;
 import org.egov.assets.model.StoreRequest;
@@ -75,11 +80,16 @@ import org.egov.assets.repository.PurchaseOrderJdbcRepository;
 import org.egov.assets.repository.StoreJdbcRepository;
 import org.egov.assets.repository.entity.StoreEntity;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.mdms.model.MasterDetail;
+import org.egov.mdms.model.MdmsCriteria;
+import org.egov.mdms.model.MdmsCriteriaReq;
+import org.egov.mdms.model.ModuleDetail;
 import org.egov.tracer.kafka.LogAwareKafkaTemplate;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -87,6 +97,12 @@ import net.minidev.json.JSONArray;
 
 @Service
 public class StoreService extends DomainService {
+	
+	@Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
 	@Autowired
 	private StoreJdbcRepository storeJdbcRepository;
@@ -383,5 +399,45 @@ public class StoreService extends DomainService {
 		}
 		return locationMap;
 	}
+	
+	public void fetchRoleActionData(String tenantId){
+        List<ModuleDetail> moduleDetail = new ArrayList<ModuleDetail>();
+        RequestInfo requestInfo = new RequestInfo();
 
+        MasterDetail actionsMasterDetail =
+                MasterDetail.builder().name("actions-test").filter("[*]['id','url']").build();
+        moduleDetail.add(ModuleDetail.builder().moduleName("ACCESSCONTROL-ACTIONS-TEST").masterDetails(Collections.singletonList(
+                actionsMasterDetail)).build());
+
+        MasterDetail roleActionsMasterDetail = MasterDetail.builder().name("roleactions").build();
+        moduleDetail.add(ModuleDetail.builder().moduleName("ACCESSCONTROL-ROLEACTIONS").masterDetails(Collections.singletonList(
+                roleActionsMasterDetail)).build());
+
+
+        MdmsCriteria mc = new MdmsCriteria();
+        mc.setTenantId(tenantId);
+        mc.setModuleDetails(moduleDetail);
+
+        MdmsCriteriaReq mcq = new MdmsCriteriaReq();
+        mcq.setRequestInfo(requestInfo);
+        mcq.setMdmsCriteria(mc);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Map<String, List>> response = (Map<String, Map<String, List>>) restTemplate.postForObject("https://egov-dev.chandigarhsmartcity.in/egov-mdms-service/v1/_search", mcq, Map.class).get("MdmsRes");
+
+        transformMdmsResponse(response);
+	}
+	
+	private void transformMdmsResponse(Map<String, Map<String, List>> rawResponse){
+        RoleAction[] roleActions = objectMapper.convertValue(rawResponse.get("ACCESSCONTROL-ROLEACTIONS").get("roleactions"), RoleAction[].class);
+        Action[] actions = objectMapper.convertValue(rawResponse.get("ACCESSCONTROL-ACTIONS-TEST").get("actions-test"), Action[].class);
+        Map<Long,List<Action>> actionMap = Arrays.stream(actions).collect(Collectors.groupingBy(Action::getId));
+
+        for(RoleAction roleAction : roleActions){
+            if(actionMap.containsKey(roleAction.getActionId())){
+            	String actionUrl = actionMap.get(roleAction.getActionId()).get(0).getUrl();
+            	System.out.println(actionUrl);
+            }
+        }
+	}
 }
