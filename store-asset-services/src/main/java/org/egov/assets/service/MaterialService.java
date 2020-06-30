@@ -132,7 +132,7 @@ public class MaterialService extends DomainService {
 		if (!materialFromMdms.isEmpty()) {
 			for (Material material : materialFromMdms) {
 				MaterialSearchRequest request = MaterialSearchRequest.builder().code(material.getCode())
-						.tenantId(material.getTenantId()).build();
+						.tenantId(materialSearchRequest.getTenantId()).build();
 
 				Pagination<Material> materialFromDb = materialJdbcRepository.search(request);
 
@@ -145,7 +145,7 @@ public class MaterialService extends DomainService {
 						List<StoreMapping> storeMappings = new ArrayList<>();
 
 						MaterialStoreMappingSearch materialStoreMappingSearch = MaterialStoreMappingSearch.builder()
-								.material(material.getCode()).tenantId(material.getTenantId()).build();
+								.material(material.getCode()).tenantId(materialSearchRequest.getTenantId()).build();
 
 						List<MaterialStoreMapping> materialStoreMappings = materialStoreMappingService
 								.search(materialStoreMappingSearch, requestInfo).getMaterialStoreMappings();

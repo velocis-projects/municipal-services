@@ -80,6 +80,7 @@ import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -87,6 +88,12 @@ import net.minidev.json.JSONArray;
 
 @Service
 public class StoreService extends DomainService {
+	
+	@Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
 	@Autowired
 	private StoreJdbcRepository storeJdbcRepository;
@@ -383,5 +390,5 @@ public class StoreService extends DomainService {
 		}
 		return locationMap;
 	}
-
+	
 }

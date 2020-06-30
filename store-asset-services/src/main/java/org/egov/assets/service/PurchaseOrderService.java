@@ -277,7 +277,7 @@ public class PurchaseOrderService extends DomainService {
 					}
 					// Logic to split PODetail order quantity across multiple indentdetails ends
 
-					Object uom = mdmsRepository.fetchObject(tenantId, "common-masters", "Uom", "code",
+					Object uom = mdmsRepository.fetchObject(tenantId, "common-masters", "UOM", "code",
 							purchaseOrderDetail.getUom().getCode(), Uom.class, purchaseOrderRequest.getRequestInfo());
 					purchaseOrderDetail.setUom((Uom) uom);
 					// purchaseOrderDetail.setUom(uomService.getUom(purchaseOrderDetail.getTenantId(),
@@ -404,7 +404,7 @@ public class PurchaseOrderService extends DomainService {
 						// populating the below Uom to get the conversion factor for populating the line
 						// level details
 						/*
-						 * Object uom = mdmsRepository.fetchObject(tenantId, "common-masters", "Uom",
+						 * Object uom = mdmsRepository.fetchObject(tenantId, "common-masters", "UOM",
 						 * "code", eachPurchaseOrderDetail.getUom().getCode(), Uom.class);
 						 * eachPurchaseOrderDetail.setUom((Uom) uom);
 						 */

@@ -48,18 +48,16 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.minidev.json.JSONArray;
+
 /**
  * 
- * @author mani
- * In search for PO show only records which 
- *   1. If appconfig is to consider whole indentquantiy return podetails where qty-(poordered+issued) >0
- *   2. If not return podetails qty-poordered
- *   3. Maintain seperate field for ui quantity
- *   4. all qty in base uom
- *   5. give api for status change
- *   6. give api for force close 
- *   7. Consider the status closed for not to show in issue or po
- *    
+ * @author mani In search for PO show only records which 1. If appconfig is to
+ *         consider whole indentquantiy return podetails where
+ *         qty-(poordered+issued) >0 2. If not return podetails qty-poordered 3.
+ *         Maintain seperate field for ui quantity 4. all qty in base uom 5.
+ *         give api for status change 6. give api for force close 7. Consider
+ *         the status closed for not to show in issue or po
+ * 
  */
 @Service
 @Transactional(readOnly = true)
@@ -71,7 +69,7 @@ public class IndentService extends DomainService {
 	 */
 
 	@Autowired
-	  private RestTemplate restTemplate;
+	private RestTemplate restTemplate;
 	@Autowired
 	private IndentJdbcRepository indentRepository;
 
@@ -169,7 +167,8 @@ public class IndentService extends DomainService {
 			errors.addDataError(ErrorCode.CITY_CODE_NOT_AVAILABLE.getCode(), b.getTenantId());
 		}
 		String finYearRange = "";
-		JSONArray finYears = mdmsRepository.getByCriteria(b.getTenantId(), "egf-master", "FinancialYear", null, null, info);
+		JSONArray finYears = mdmsRepository.getByCriteria(b.getTenantId(), "egf-master", "FinancialYear", null, null,
+				info);
 		outer: for (int i = 0; i < finYears.size(); i++) {
 			FinancialYear fin = mapper.convertValue(finYears.get(i), FinancialYear.class);
 			LOG.info("Indentdate" + b.getIndentDate());
@@ -200,7 +199,7 @@ public class IndentService extends DomainService {
 			indentRequest = fetchRelated(indentRequest);
 
 			String indentNumber = "";
-			List<String> ids = new ArrayList<String>();
+			List<String> ids = new ArrayList<>();
 			validate(indentRequest.getIndents(), Constants.ACTION_CREATE);
 			for (Indent b : indentRequest.getIndents()) {
 				b.setIndentType(IndentTypeEnum.INDENTNOTE);
@@ -252,27 +251,32 @@ public class IndentService extends DomainService {
 				indentNumbers.add(indent.getIndentNumber());
 			}
 
-			List<IndentDetailEntity> indentDetails = indentDetailJdbcRepository.find(indentNumbers, is.getTenantId(),is.getSearchPurpose());
+			List<IndentDetailEntity> indentDetails = indentDetailJdbcRepository.find(indentNumbers, is.getTenantId(),
+					is.getSearchPurpose());
 
-			if(indentDetails!=null )
-			{
-			IndentDetail detail = null;
-			for (Indent indent : search.getPagedData()) {
-				for (IndentDetailEntity detailEntity : indentDetails) {
-					if (indent.getIndentNumber().equalsIgnoreCase(detailEntity.getIndentNumber())) {
-						detail = detailEntity.toDomain();
+			if (indentDetails != null) {
+				IndentDetail detail = null;
+				for (Indent indent : search.getPagedData()) {
+					for (IndentDetailEntity detailEntity : indentDetails) {
+						if (indent.getIndentNumber().equalsIgnoreCase(detailEntity.getIndentNumber())) {
+							detail = detailEntity.toDomain();
 							Material material = (materialMap.get(detail.getMaterial().getCode()));
-						/*	LOG.debug(material.getCode());
-							LOG.debug(material.getPurchaseUom().getCode());
-							LOG.debug(uomMap.get(material.getPurchaseUom().getCode()).getCode());*/
-							material.setPurchaseUom(uomMap.get(material.getPurchaseUom().getCode()));
-							material.setStockingUom(uomMap.get(material.getStockingUom().getCode()));
-							material.setBaseUom(uomMap.get(material.getBaseUom().getCode()));
+							/*
+							 * LOG.debug(material.getCode());
+							 * LOG.debug(material.getPurchaseUom().getCode());
+							 * LOG.debug(uomMap.get(material.getPurchaseUom().getCode()).getCode());
+							 */
+							material.setPurchaseUom(uomMap.get(
+									(material.getPurchaseUom() != null ? material.getPurchaseUom().getCode() : "")));
+							material.setStockingUom(uomMap.get(
+									(material.getStockingUom() != null ? material.getStockingUom().getCode() : "")));
+							material.setBaseUom(
+									uomMap.get((material.getBaseUom() != null ? material.getBaseUom().getCode() : "")));
 							detail.setMaterial(material);
-						indent.addIndentDetailsItem(detail);
+							indent.addIndentDetailsItem(detail);
+						}
 					}
 				}
-			}
 			}
 		}
 		response.setIndents(search.getPagedData());
@@ -333,7 +337,7 @@ public class IndentService extends DomainService {
 					}
 
 				}
-				if(errors.getValidationErrors().size()>0)
+				if (errors.getValidationErrors().size() > 0)
 					break;
 
 			}
@@ -353,28 +357,23 @@ public class IndentService extends DomainService {
 
 					if (indent.getIndentDate().compareTo(currentDate) >= 0) {
 						String indentDate = convertEpochtoDate(indent.getIndentDate());
-						errors.addDataError(ErrorCode.DATE_LE_CURRENTDATE.getCode(), "indentDate",indentDate);
+						errors.addDataError(ErrorCode.DATE_LE_CURRENTDATE.getCode(), "indentDate", indentDate);
 					}
-					
+
 					if (indent.getIndentType().equals(IndentTypeEnum.TRANSFERINDENT)) {
-						
-						
+
 						if (indent.getIndentStore() == null || indent.getIndentStore().getCode() == null)
 							errors.addDataError(ErrorCode.MANDATORY_BASED_ON.getCode(), "Indenting Store",
 									"indentType=Transfer Indent", "");
-						else
-						if (indent.getIndentStore().getCode().equalsIgnoreCase(indent.getIssueStore().getCode()))
+						else if (indent.getIndentStore().getCode().equalsIgnoreCase(indent.getIssueStore().getCode()))
 							errors.addDataError(ErrorCode.SHOULD_BE_DIFFERENT.getCode(), "Indenting Store",
 									"Issuing store");
 					}
 					// commeneted as of now to support the past dated entries
 					/*
-					 * if(indent.getExpectedDeliveryDate().compareTo(
-					 * currentDate) < 0) {
-					 * errors.addDataError(ErrorCode.DATE_GE_CURRENTDATE.getCode
-					 * (),
-					 * "expectedDeliveryDate",indent.getExpectedDeliveryDate().
-					 * toString()); }
+					 * if(indent.getExpectedDeliveryDate().compareTo( currentDate) < 0) {
+					 * errors.addDataError(ErrorCode.DATE_GE_CURRENTDATE.getCode (),
+					 * "expectedDeliveryDate",indent.getExpectedDeliveryDate(). toString()); }
 					 */
 					if (indent.getExpectedDeliveryDate() != null
 							&& indent.getIndentDate().compareTo(indent.getExpectedDeliveryDate()) > 0) {
@@ -444,49 +443,47 @@ public class IndentService extends DomainService {
 
 			// fetch related items
 
-			
-//			  if (indent.getIssueStore() != null) {
-//			 indent.getIssueStore().setTenantId(tenantId); Store issueStore =
-//			 (Store)
-//			   storeJdbcRepository.findById(indent.getIssueStore(),"StoreEntity"
-//			 ); if (issueStore == null) { throw new
-//			   InvalidDataException("issueStore", "issueStore.invalid",
-//			  " Invalid issueStore"); } indent.setIssueStore(issueStore); } if
-//			  (indent.getIndentStore() != null) {
-//			  indent.getIndentStore().setTenantId(tenantId); Store indentStore
-//			  = (Store) storeJdbcRepository.findById(indent.getIndentStore(),
-//			  "StoreEntity"); if (indentStore == null) { throw new
-//			  InvalidDataException("indentStore", "indentStore.invalid",
-//			  " Invalid indentStore"); } indent.setIndentStore(indentStore); }
-//			 
+			// if (indent.getIssueStore() != null) {
+			// indent.getIssueStore().setTenantId(tenantId); Store issueStore =
+			// (Store)
+			// storeJdbcRepository.findById(indent.getIssueStore(),"StoreEntity"
+			// ); if (issueStore == null) { throw new
+			// InvalidDataException("issueStore", "issueStore.invalid",
+			// " Invalid issueStore"); } indent.setIssueStore(issueStore); } if
+			// (indent.getIndentStore() != null) {
+			// indent.getIndentStore().setTenantId(tenantId); Store indentStore
+			// = (Store) storeJdbcRepository.findById(indent.getIndentStore(),
+			// "StoreEntity"); if (indentStore == null) { throw new
+			// InvalidDataException("indentStore", "indentStore.invalid",
+			// " Invalid indentStore"); } indent.setIndentStore(indentStore); }
+			//
 			for (IndentDetail detail : indent.getIndentDetails()) {
 				detail.setUom(uomMap.get(detail.getUom().getCode()));
 				detail.setMaterial(materialMap.get(detail.getMaterial().getCode()));
-				
-				/*if(detail.getAsset().getCode()!=null)
-				{
-					Asset a=assetRepository.findByCode(detail.getAsset(),indentRequest.getRequestInfo());
-					detail.setAsset(a);
-				}*/
-				
-				
+
+				/*
+				 * if(detail.getAsset().getCode()!=null) { Asset
+				 * a=assetRepository.findByCode(detail.getAsset(),indentRequest.getRequestInfo()
+				 * ); detail.setAsset(a); }
+				 */
+
 			}
 
-			/*if (indent.getDepartment() != null) {
-				Department department = restTemplate.postForEntity("", indentRequest.getRequestInfo(), Department.class);
-				if (department == null) {
-					throw new InvalidDataException("department", "department.invalid", " Invalid department");
-				}
-				indent.setDepartment(department);
-			}*/
+			/*
+			 * if (indent.getDepartment() != null) { Department department =
+			 * restTemplate.postForEntity("", indentRequest.getRequestInfo(),
+			 * Department.class); if (department == null) { throw new
+			 * InvalidDataException("department", "department.invalid",
+			 * " Invalid department"); } indent.setDepartment(department); }
+			 */
 
 		}
 
 		return indentRequest;
 	}
-	
+
 	private Map<String, Material> getMaterial(String tenantId, final ObjectMapper mapper, RequestInfo requestInfo) {
-		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "inventory", "Material", null, null,
+		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "store-asset", "Material", null, null,
 				requestInfo);
 		Map<String, Material> materialMap = new HashMap<>();
 
@@ -501,7 +498,7 @@ public class IndentService extends DomainService {
 	}
 
 	private Map<String, Uom> getUoms(String tenantId, final ObjectMapper mapper, RequestInfo requestInfo) {
-		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "common-masters", "Uom", null, null,
+		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "common-masters", "UOM", null, null,
 				requestInfo);
 		Map<String, Uom> uomMap = new HashMap<>();
 
@@ -514,11 +511,11 @@ public class IndentService extends DomainService {
 		}
 		return uomMap;
 	}
-	 private String convertEpochtoDate(Long date)
-	 {
-		 Date epoch = new Date(date);
-		 SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-		 String s2 = format.format(epoch);
-		 return s2;
-	 }
+
+	private String convertEpochtoDate(Long date) {
+		Date epoch = new Date(date);
+		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+		String s2 = format.format(epoch);
+		return s2;
+	}
 }

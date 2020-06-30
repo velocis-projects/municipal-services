@@ -12,22 +12,22 @@ import java.util.List;
 @Builder
 public class MaterialTypeStoreMappingSearch {
 
-    private List<String> ids;
+	private List<String> ids = null;
 
-    private String materialType;
+	private String materialType = null;
 
-    private String store;
+	private String store = null;
 
-    private Boolean active;
+	private Boolean active = null;
 
-    private String glCode;
+	private String glCode = null;
 
-    private String sortBy;
+	private String sortBy = null;
 
-    private Integer pageSize;
+	private Integer pageSize;
 
-    private Integer offset;
+	private Integer offset;
 
-    @NotNull
-    private String tenantId;
+	@NotNull
+	private String tenantId;
 }
