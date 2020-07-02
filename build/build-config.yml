@@ -16,7 +16,7 @@ config:
       - work-dir: "egov-user-event/src/main/resources/db"
         image-name: "egov-user-event-db"
   
-   - name: "builds/municipal-services/prscp-services"
+  - name: "builds/municipal-services/prscp-services"
     build:
       - work-dir: "prscp-services"
         image-name: "prscp-services"
