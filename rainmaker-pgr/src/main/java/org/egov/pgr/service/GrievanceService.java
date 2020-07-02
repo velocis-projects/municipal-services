@@ -541,10 +541,10 @@ public class GrievanceService {
 							List obj1 = (List)map1.get("services");
 							
 							finalObj.addAll(obj1);
+							map1.put("services", finalObj);
+						}else {
+							response = assignedResponse;
 						}
-						
-						map1.put("services", finalObj);
-						
 					}
 				}
 			} catch (CustomException e) {
