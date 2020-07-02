@@ -532,15 +532,19 @@ public class GrievanceService {
 					if(!CollectionUtils.isEmpty(assignedServiceList)) {
 						LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>)assignedResponse;
 						List obj = (List)map.get("services");
-						LinkedHashMap<String, Object> map1 = (LinkedHashMap<String, Object>)response;
-						List obj1 = (List)map1.get("services");
 						
 						List<Object> finalObj = new ArrayList<Object>();
 						finalObj.addAll(obj);
-						finalObj.addAll(obj1);
 						
-						map1.put("services", finalObj);
-						
+						LinkedHashMap<String, Object> map1 = (LinkedHashMap<String, Object>)response;
+						if(null != map1) {
+							List obj1 = (List)map1.get("services");
+							
+							finalObj.addAll(obj1);
+							map1.put("services", finalObj);
+						}else {
+							response = assignedResponse;
+						}
 					}
 				}
 			} catch (CustomException e) {
