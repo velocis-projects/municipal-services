@@ -96,7 +96,8 @@ public class SupplierService extends DomainService {
 
 	public SupplierResponse create(SupplierRequest supplierRequest, String tenantId) {
 		try {
-			SupplierRequest fetchRelated = fetchRelated(supplierRequest, tenantId);
+			// Code committed by Prakash for egf-master data issue 
+			SupplierRequest fetchRelated = supplierRequest; // fetchRelated(supplierRequest, tenantId);
 			validate(fetchRelated.getSuppliers(), Constants.ACTION_CREATE, tenantId);
 			List<String> sequenceNos = supplierJdbcRepository.getSequence(Supplier.class.getSimpleName(),
 					supplierRequest.getSuppliers().size());
@@ -124,7 +125,8 @@ public class SupplierService extends DomainService {
 	public SupplierResponse update(SupplierRequest supplierRequest, String tenantId) {
 
 		try {
-			SupplierRequest fetchRelated = fetchRelated(supplierRequest, tenantId);
+			// Code committed by Prakash for egf-master data issue 
+			SupplierRequest fetchRelated = supplierRequest;// fetchRelated(supplierRequest, tenantId);
 			validate(fetchRelated.getSuppliers(), Constants.ACTION_UPDATE, tenantId);
 
 			List<Supplier> supplierList = new ArrayList<>();
