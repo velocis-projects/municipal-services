@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@Controller
+@RestController
 @RequestMapping(value = "/materials")
 public class MaterialsApiController {
 	private final ObjectMapper objectMapper;

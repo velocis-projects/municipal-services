@@ -322,7 +322,7 @@ public class ScrapService extends DomainService {
 
 	private void setConvertedScrapRate(String tenantId, ScrapDetail detail, MaterialIssueDetail issueDetail,
 			RequestInfo requestInfo) {
-		Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "Uom", "code",
+		Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "UOM", "code",
 				issueDetail.getUom().getCode(), Uom.class, requestInfo);
 		issueDetail.setUom(uom);
 
@@ -336,7 +336,7 @@ public class ScrapService extends DomainService {
 	private void setConvertedScrapQuantity(String tenantId, ScrapDetail detail, MaterialIssueDetail issueDetail,
 			RequestInfo requestInfo) {
 		InvalidDataException errors = new InvalidDataException();
-		Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "Uom", "code",
+		Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "UOM", "code",
 				issueDetail.getUom().getCode(), Uom.class, requestInfo);
 		issueDetail.setUom(uom);
 

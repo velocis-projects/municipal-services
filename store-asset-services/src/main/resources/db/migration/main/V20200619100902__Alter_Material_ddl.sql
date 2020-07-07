@@ -18,3 +18,4 @@ ALTER TABLE public.material ADD COLUMN model character varying(100);
 ALTER TABLE public.material ADD COLUMN manufacturepartno character varying(255);
 ALTER TABLE public.material ADD COLUMN techincalspecs character varying(255);
 ALTER TABLE public.material ADD COLUMN termsofdelivery character varying(255);
+ALTER TABLE public.material ADD COLUMN "name" character varying(100);

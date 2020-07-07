@@ -324,7 +324,7 @@ public class TransferinwardsService extends DomainService {
 	// into receipt received qty
 	private Boolean setConvertedQuantity(String tenantId, MaterialReceiptDetail detail, BigDecimal issuedQty,
 			RequestInfo requestInfo) {
-		Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "Uom", "code", detail.getUom().getCode(),
+		Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "UOM", "code", detail.getUom().getCode(),
 				Uom.class, requestInfo);
 		detail.setUom(uom);
 

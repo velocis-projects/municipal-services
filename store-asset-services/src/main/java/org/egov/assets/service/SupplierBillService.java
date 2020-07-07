@@ -476,7 +476,7 @@ public class SupplierBillService extends DomainService {
 
 	private HashMap<String, Material> getMaterialFromMdms(String tenantId, RequestInfo requestInfo) {
 
-		List<Object> objectList = mdmsRepository.fetchObjectList(tenantId, "inventory", "Material", null, null,
+		List<Object> objectList = mdmsRepository.fetchObjectList(tenantId, "store-asset", "Material", null, null,
 				Material.class, requestInfo);
 
 		HashMap<String, Material> materialHashMap = new HashMap<>();

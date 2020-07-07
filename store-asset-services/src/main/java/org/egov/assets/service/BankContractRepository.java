@@ -63,15 +63,6 @@ public class BankContractRepository {
 			content.append("&tenantId=" + bankContract.getTenantId());
 		}
 
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			String asa = mapper.writeValueAsString(requestInfo);
-			System.out.println(asa);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
 		url = url + content.toString();
 		BankResponse result = restTemplate.postForObject(url, requestInfo, BankResponse.class);
 
@@ -81,19 +72,5 @@ public class BankContractRepository {
 			throw new CustomException("Bank", "Bank Code " + bankContract.getCode() + " doesnt exist");
 		}
 
-	}
-
-	public RequestInfo getRequestInfo(RequestInfo requestInfo) {
-		final ObjectMapper mapper = new ObjectMapper();
-
-		// UserInfo userInfo = requestInfo.getUserInfo();
-		//// User user = mapper.convertValue(userInfo, User.class);
-		// User user = User.builder().name(userInfo.getUserName()).
-
-		RequestInfo info = new RequestInfo();
-		return info.builder().action(requestInfo.getAction()).apiId(requestInfo.getApiId())
-				.authToken(requestInfo.getAuthToken()).correlationId(requestInfo.getCorrelationId())
-				.did(requestInfo.getDid()).key(requestInfo.getKey()).msgId(requestInfo.getMsgId())
-				.ts(requestInfo.getTs())/* .userInfo(user) */.ver(requestInfo.getVer()).build();
 	}
 }

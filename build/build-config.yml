@@ -15,6 +15,14 @@ config:
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "egov-user-event/src/main/resources/db"
         image-name: "egov-user-event-db"
+  
+  - name: "builds/municipal-services/prscp-services"
+    build:
+      - work-dir: "prscp-services"
+        image-name: "prscp-services"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "prscp-services/src/main/resources/db"
+        image-name: "prscp-services-db"
 
   - name: "builds/municipal-services/pt-calculator-v2"
     build:
