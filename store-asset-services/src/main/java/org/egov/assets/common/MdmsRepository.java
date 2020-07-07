@@ -90,8 +90,8 @@ public class MdmsRepository {
 			masterDetails.get(0).setFilter("[?(@." + filterFieldName + " == '" + filterFieldValue + "')]");
 		moduleDetails.add(ModuleDetail.builder().moduleName(moduleName).masterDetails(masterDetails).build());
 
-		request = MdmsCriteriaReq.builder()
-				.mdmsCriteria(MdmsCriteria.builder().moduleDetails(moduleDetails).tenantId(getTenantId(tenantId, moduleName)).build())
+		request = MdmsCriteriaReq.builder().mdmsCriteria(
+				MdmsCriteria.builder().moduleDetails(moduleDetails).tenantId(getTenantId(tenantId, moduleName)).build())
 				.requestInfo(info).build();
 		response = restTemplate.postForObject(mdmsBySearchCriteriaUrl, request, MdmsResponse.class);
 		if (response == null || response.getMdmsRes() == null || !response.getMdmsRes().containsKey(moduleName)
@@ -104,10 +104,7 @@ public class MdmsRepository {
 	}
 
 	private String getTenantId(String tenantId, String moduleName) {
-		if (!moduleName.equalsIgnoreCase("common-masters")) {
-			tenantId = tenantId.split("\\.")[0];
-		}
-		return tenantId;
+		return tenantId.split("\\.")[0];
 	}
 
 	public Object fetchObject(String tenantId, String moduleName, String masterName, String filterField,

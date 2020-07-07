@@ -73,8 +73,10 @@ public class MaterialTypeService extends DomainService {
 		for (MaterialType materialType : materialTypeMap) {
 
 			List<StoreMapping> storeMappings = new ArrayList<>();
+
 			
 			MaterialTypeStoreMappingSearch materialTypeStoreMappingSearch = MaterialTypeStoreMappingSearch.builder()
+					.materialType(materialType.getCode()).tenantId(materialTypeSearch.getTenantId()).build();
 					.materialType(materialType.getCode()).active(materialTypeSearch.getActive())
 					.store(materialTypeSearch.getStore()).ids(materialTypeSearch.getIds())
 					.tenantId(materialTypeSearch.getTenantId()).build();
@@ -82,6 +84,7 @@ public class MaterialTypeService extends DomainService {
 			List<MaterialTypeStoreMapping> materialTypeStoreMappings = materialTypeStoreMappingService
 					.search(materialTypeStoreMappingSearch).getMaterialTypeStores();
 
+			if (materialTypeStoreMappings.size() > 0) {
 			if (!materialTypeStoreMappings.isEmpty()) {
 				for (MaterialTypeStoreMapping materialStoreMapping : materialTypeStoreMappings) {
 					StoreMapping storeMapping = StoreMapping.builder().id(materialStoreMapping.getId())
@@ -112,6 +115,9 @@ public class MaterialTypeService extends DomainService {
 				MaterialTypeStoreMapping materialTypeStoreMapping = new MaterialTypeStoreMapping();
 
 				materialTypeStoreMapping.id(storeMapping.getId()).store(storeMapping.getStore())
+						.materialType(buildMaterialType(materialType.getCode())).active(storeMapping.getActive())
+						.chartofAccount(storeMapping.getChartofAccount()).auditDetails(storeMapping.getAuditDetails())
+						.delete(storeMapping.getDelete());
 						.active(storeMapping.getActive()).chartofAccount(storeMapping.getChartofAccount())
 						.auditDetails(storeMapping.getAuditDetails()).delete(storeMapping.getDelete())
 						.materialType(materialType);
@@ -122,6 +128,10 @@ public class MaterialTypeService extends DomainService {
 		return materialTypeStoreMappings;
 	}
 
+	private MaterialType buildMaterialType(String materialTypeCode) {
+		MaterialType materialType = new MaterialType();
+		return materialType.code(materialTypeCode);
+	}
 //	private MaterialType buildMaterialType(String materialTypeCode) {
 //		MaterialType materialType = new MaterialType();
 //		return materialType.code(materialTypeCode);
@@ -138,9 +148,11 @@ public class MaterialTypeService extends DomainService {
 		List<Object> objectList = new ArrayList<>();
 
 		if (!StringUtils.isEmpty(code)) {
+			objectList = mdmsRepository.fetchObjectList(tenantId, "inventory", "MaterialType", "code", code,
 			objectList = mdmsRepository.fetchObjectList(tenantId, "store-asset", "MaterialType", "code", code,
 					MaterialType.class, requestInfo);
 		} else {
+			objectList = mdmsRepository.fetchObjectList(tenantId, "inventory", "MaterialType", null, null,
 			objectList = mdmsRepository.fetchObjectList(tenantId, "store-asset", "MaterialType", null, null,
 					MaterialType.class, requestInfo);
 		}
@@ -155,4 +167,23 @@ public class MaterialTypeService extends DomainService {
 		}
 		return hashMap;
 	}
+
+	/*
+	 * private HashMap<String, MaterialType> getMaterialTypeFromMdms(String
+	 * tenantId, String code) {
+	 * 
+	 * List<Object> objectList = new ArrayList<>();
+	 * 
+	 * if(!StringUtils.isEmpty(code)){ objectList =
+	 * mdmsRepository.fetchObjectList(tenantId, "inventory", "MaterialType", "code",
+	 * code, MaterialType.class); }else{ objectList =
+	 * mdmsRepository.fetchObjectList(tenantId, "inventory", "MaterialType", null,
+	 * null, MaterialType.class); }
+	 * 
+	 * HashMap<String, MaterialType> hashMap = new HashMap<>(); ObjectMapper mapper
+	 * = new ObjectMapper(); if (objectList != null && objectList.size() > 0) { for
+	 * (Object object : objectList) { MaterialType materialType =
+	 * mapper.convertValue(object, MaterialType.class);
+	 * hashMap.put(materialType.getCode(), materialType); } } return hashMap; }
+	 */
 }
