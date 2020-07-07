@@ -74,36 +74,33 @@ public class MaterialTypeService extends DomainService {
 
 			List<StoreMapping> storeMappings = new ArrayList<>();
 
-			
 			MaterialTypeStoreMappingSearch materialTypeStoreMappingSearch = MaterialTypeStoreMappingSearch.builder()
-					.materialType(materialType.getCode()).tenantId(materialTypeSearch.getTenantId()).build();
-					.materialType(materialType.getCode()).active(materialTypeSearch.getActive())
-					.store(materialTypeSearch.getStore()).ids(materialTypeSearch.getIds())
-					.tenantId(materialTypeSearch.getTenantId()).build();
+					.materialType(materialType.getCode()).tenantId(materialTypeSearch.getTenantId())
+					.active(materialTypeSearch.getActive()).store(materialTypeSearch.getStore())
+					.ids(materialTypeSearch.getIds()).build();
 
 			List<MaterialTypeStoreMapping> materialTypeStoreMappings = materialTypeStoreMappingService
 					.search(materialTypeStoreMappingSearch).getMaterialTypeStores();
 
 			if (materialTypeStoreMappings.size() > 0) {
-			if (!materialTypeStoreMappings.isEmpty()) {
-				for (MaterialTypeStoreMapping materialStoreMapping : materialTypeStoreMappings) {
-					StoreMapping storeMapping = StoreMapping.builder().id(materialStoreMapping.getId())
-							.chartofAccount(materialStoreMapping.getChartofAccount())
-							.active(materialStoreMapping.getActive()).store(materialStoreMapping.getStore())
-							.auditDetails(materialStoreMapping.getAuditDetails()).build();
-					storeMappings.add(storeMapping);
+				if (!materialTypeStoreMappings.isEmpty()) {
+					for (MaterialTypeStoreMapping materialStoreMapping : materialTypeStoreMappings) {
+						StoreMapping storeMapping = StoreMapping.builder().id(materialStoreMapping.getId())
+								.chartofAccount(materialStoreMapping.getChartofAccount())
+								.active(materialStoreMapping.getActive()).store(materialStoreMapping.getStore())
+								.auditDetails(materialStoreMapping.getAuditDetails()).build();
+						storeMappings.add(storeMapping);
 
+					}
+					materialType.setStoreMapping(storeMappings);
+					materialTypes.add(materialType);
+				} else {
+					materialType.setStoreMapping(Collections.EMPTY_LIST);
+					materialTypes.add(materialType);
 				}
-				materialType.setStoreMapping(storeMappings);
-				materialTypes.add(materialType);
-			} else {
-				materialType.setStoreMapping(Collections.EMPTY_LIST);
-				materialTypes.add(materialType);
 			}
 		}
-
 		response.materialTypes(materialTypes).responseInfo(null);
-
 		return response;
 	}
 
@@ -117,10 +114,7 @@ public class MaterialTypeService extends DomainService {
 				materialTypeStoreMapping.id(storeMapping.getId()).store(storeMapping.getStore())
 						.materialType(buildMaterialType(materialType.getCode())).active(storeMapping.getActive())
 						.chartofAccount(storeMapping.getChartofAccount()).auditDetails(storeMapping.getAuditDetails())
-						.delete(storeMapping.getDelete());
-						.active(storeMapping.getActive()).chartofAccount(storeMapping.getChartofAccount())
-						.auditDetails(storeMapping.getAuditDetails()).delete(storeMapping.getDelete())
-						.materialType(materialType);
+						.delete(storeMapping.getDelete()).materialType(materialType);
 
 				materialTypeStoreMappings.add(materialTypeStoreMapping);
 			}
@@ -132,10 +126,10 @@ public class MaterialTypeService extends DomainService {
 		MaterialType materialType = new MaterialType();
 		return materialType.code(materialTypeCode);
 	}
-//	private MaterialType buildMaterialType(String materialTypeCode) {
-//		MaterialType materialType = new MaterialType();
-//		return materialType.code(materialTypeCode);
-//	}
+	// private MaterialType buildMaterialType(String materialTypeCode) {
+	// MaterialType materialType = new MaterialType();
+	// return materialType.code(materialTypeCode);
+	// }
 
 	private MaterialTypeStoreRequest buildMaterialTypeStoreRequest(MaterialTypeRequest materialTypeRequest) {
 		MaterialTypeStoreRequest materialTypeStoreRequest = new MaterialTypeStoreRequest();
@@ -148,11 +142,9 @@ public class MaterialTypeService extends DomainService {
 		List<Object> objectList = new ArrayList<>();
 
 		if (!StringUtils.isEmpty(code)) {
-			objectList = mdmsRepository.fetchObjectList(tenantId, "inventory", "MaterialType", "code", code,
 			objectList = mdmsRepository.fetchObjectList(tenantId, "store-asset", "MaterialType", "code", code,
 					MaterialType.class, requestInfo);
 		} else {
-			objectList = mdmsRepository.fetchObjectList(tenantId, "inventory", "MaterialType", null, null,
 			objectList = mdmsRepository.fetchObjectList(tenantId, "store-asset", "MaterialType", null, null,
 					MaterialType.class, requestInfo);
 		}
