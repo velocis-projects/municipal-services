@@ -23,6 +23,22 @@ config:
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "prscp-services/src/main/resources/db"
         image-name: "prscp-services-db"
+        
+  - name: "builds/municipal-services/hc-services"
+    build:
+      - work-dir: "hc-services"
+        image-name: "hc-services"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "hc-services/src/main/resources/db"
+        image-name: "hc-services-db"    
+        
+  - name: "builds/municipal-services/pm-services"
+    build:
+      - work-dir: "pm-services"
+        image-name: "pm-services"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "pm-services/src/main/resources/db"
+        image-name: "pm-services-db"          
 
   - name: "builds/municipal-services/pt-calculator-v2"
     build:

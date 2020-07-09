@@ -465,16 +465,19 @@ public class ReceiptNoteService extends DomainService {
 					new RequestInfo());
 
 			for (MaterialReceiptDetailAddnlinfo addnlinfo : receiptDetail.getReceiptDetailsAddnInfo()) {
-				if (true == material.getLotControl() && isEmpty(addnlinfo.getLotNo())) {
+				if (true == (material.getLotControl() == null ? false : material.getLotControl())
+						&& isEmpty(addnlinfo.getLotNo())) {
 					errors.addDataError(ErrorCode.LOT_NO_NOT_EXIST.getCode(),
 							addnlinfo.getLotNo() + " at serial no." + i);
 				}
 
-				if (true == material.getShelfLifeControl() && (isEmpty(addnlinfo.getExpiryDate())
-						|| (!isEmpty(addnlinfo.getExpiryDate()) && !(addnlinfo.getExpiryDate().doubleValue() > 0)))) {
+				if (true == (material.getShelfLifeControl() == null ? false : material.getShelfLifeControl())
+						&& (isEmpty(addnlinfo.getExpiryDate()) || (!isEmpty(addnlinfo.getExpiryDate())
+								&& !(addnlinfo.getExpiryDate().doubleValue() > 0)))) {
 					errors.addDataError(ErrorCode.EXP_DATE_NOT_EXIST.getCode(),
 							addnlinfo.getExpiryDate() + " at serial no." + i);
-					if (true == material.getSerialNumber() && isEmpty(addnlinfo.getSerialNo())) {
+					if (true == (material.getSerialNumber() == null ? false : material.getSerialNumber())
+							&& isEmpty(addnlinfo.getSerialNo())) {
 						errors.addDataError(ErrorCode.MANDATORY_VALUE_MISSINGROW.getCode(), "Serial number ",
 								String.valueOf(i));
 					}
