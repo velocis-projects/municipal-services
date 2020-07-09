@@ -9,7 +9,7 @@
 		<version>1.5.22.RELEASE</version>
 	</parent>
 	<groupId>org.egov</groupId>
-	<artifactId>pm-calculator</artifactId>
+	<artifactId>ec-calculator</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>ec-calculator</name>
 	<properties>
