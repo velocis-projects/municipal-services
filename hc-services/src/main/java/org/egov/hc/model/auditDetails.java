@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class auditDetails   {
+public class AuditDetails   {
   @JsonProperty("createdBy")
   private String createdBy = null;
 
@@ -31,7 +31,7 @@ public class auditDetails   {
   @JsonProperty("lastModifiedTime")
   private Long lastModifiedTime = null;
 
-  public auditDetails createdBy(String createdBy) {
+  public AuditDetails createdBy(String createdBy) {
     this.createdBy = createdBy;
     return this;
   }
@@ -50,7 +50,7 @@ public class auditDetails   {
     this.createdBy = createdBy;
   }
 
-  public auditDetails lastModifiedBy(String lastModifiedBy) {
+  public AuditDetails lastModifiedBy(String lastModifiedBy) {
     this.lastModifiedBy = lastModifiedBy;
     return this;
   }
@@ -69,7 +69,7 @@ public class auditDetails   {
     this.lastModifiedBy = lastModifiedBy;
   }
 
-  public auditDetails createdTime(Long createdTime) {
+  public AuditDetails createdTime(Long createdTime) {
     this.createdTime = createdTime;
     return this;
   }
@@ -88,7 +88,7 @@ public class auditDetails   {
     this.createdTime = createdTime;
   }
 
-  public auditDetails lastModifiedTime(Long lastModifiedTime) {
+  public AuditDetails lastModifiedTime(Long lastModifiedTime) {
     this.lastModifiedTime = lastModifiedTime;
     return this;
   }
@@ -116,7 +116,7 @@ public class auditDetails   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    auditDetails auditDetails = (auditDetails) o;
+    AuditDetails auditDetails = (AuditDetails) o;
     return Objects.equals(this.createdBy, auditDetails.createdBy) &&
         Objects.equals(this.lastModifiedBy, auditDetails.lastModifiedBy) &&
         Objects.equals(this.createdTime, auditDetails.createdTime) &&

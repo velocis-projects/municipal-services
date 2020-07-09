@@ -30,7 +30,7 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class auditDetails   {
+public class AuditDetails   {
 
         @Size(max=64)
         @JsonProperty("createdBy")

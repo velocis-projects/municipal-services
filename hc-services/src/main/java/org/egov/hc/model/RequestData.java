@@ -94,7 +94,7 @@ public class RequestData {
 	private JSONObject dataPayload;
 
 	@JsonProperty("auditDetails")
-	private auditDetails auditDetails;
+	private AuditDetails auditDetails;
 	
 	 @JsonProperty("offset")
 	    private Integer offset;

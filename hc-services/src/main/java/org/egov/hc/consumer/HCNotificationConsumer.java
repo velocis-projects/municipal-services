@@ -83,8 +83,9 @@ public class HCNotificationConsumer {
 	public void process(ServiceRequest serviceReqRequest) {
 
 		// get all the messages from localization table
-		Map<String, String> messageMap = getLocalizationMessage(HCConstants.TENANT_ID,
+		Map<String, String> messageMap = getLocalizationMessage(serviceReqRequest.getRequestInfo().getUserInfo().getTenantId(),
 				serviceReqRequest.getRequestInfo());
+		log.info("Get localization Message Succesfully");
 
 		if (!CollectionUtils.isEmpty(serviceReqRequest.getActionInfo())) {
 
@@ -95,7 +96,7 @@ public class HCNotificationConsumer {
 			String msgId = serviceReqRequest.getRequestInfo().getMsgId().split("[|]")[0];
 			serviceReqRequest.getRequestInfo().setMsgId(msgId+"|"+hcConfiguration.getFallbackLocale());
 			
-			 messageMap = getLocalizationMessage(HCConstants.TENANT_ID,
+			 messageMap = getLocalizationMessage(serviceReqRequest.getServices().get(0).getTenantId(),
 					serviceReqRequest.getRequestInfo());
 			
 			if (serviceReqRequest.getActionInfo().get(0).getAction().equals(WorkFlowConfigs.ACTION_OPEN)) {
@@ -119,16 +120,17 @@ public class HCNotificationConsumer {
 
 		String allRoles = null;
 
+		log.info("Get Employee data using  : "+ role + " role" );
 
 		try {
 
 			allRoles = rest.postForObject(hcConfiguration.getEgovHRMShost().concat(hcConfiguration.getEgovHRMSSearchEndpoint()).concat("?")
-					.concat("roles=" + role + "&tenantId=" + HCConstants.TENANT_ID), serviceReqRequest, String.class);
+					.concat("roles=" + role + "&tenantId=" + serviceReqRequest.getServices().get(0).getCity()), serviceReqRequest, String.class);
 
 			try {
 				org.json.JSONObject obj = new org.json.JSONObject(allRoles);
 
-				
+				log.info(" All "+role+ " details are " + obj);
 
 				org.json.JSONArray employeesList = obj.getJSONArray("Employees");
 
@@ -137,12 +139,13 @@ public class HCNotificationConsumer {
 
 				for (int i = 0; i < employeesList.length(); i++) {
 
-					List Actioninfolist = new ArrayList();
+					log.info("Feaching all Employee details ");
+					
+					
 					RequestInfoWrapper infoWrapper = null;
 					org.json.JSONObject empDetails = new org.json.JSONObject(employeesList.get(i).toString());
 
 					org.json.JSONObject user = empDetails.getJSONObject("user");
-
 					
 					if (!user.isNull("mobileNumber"))
 						mobileNumber = user.getString("mobileNumber");
@@ -163,7 +166,9 @@ public class HCNotificationConsumer {
 					serviceRequest.setService_request_id(serviceReqRequest.getServices().get(0).getService_request_id());
 					serviceRequest.setIsRoleSpecific(true);
 					String by = serviceRequest.getCreatedBy();
-
+					
+					List Actioninfolist = new ArrayList();
+					
 					ActionInfo newActionInfo = ActionInfo.builder().uuid(UUID.randomUUID().toString())
 							.businessKey(serviceReqRequest.getServices().get(0).getBusinessService())
 							.action(serviceReqRequest.getServices().get(0).getAction())
@@ -187,6 +192,9 @@ public class HCNotificationConsumer {
 					serviceRequestobj.setServices(serviceRequestList);
 					serviceRequestobj.setActionInfo(Actioninfolist);
 					serviceRequestobj.setRequestInfo(requestInfoset);
+					
+					log.info(" Sending notification to "+ userName);
+					
 					sendNotification(serviceRequestobj, messageMap, null);
 
 				}
@@ -223,7 +231,9 @@ public class HCNotificationConsumer {
 					if (hcConfiguration.getIsEmailNotificationEnabled() && (null != service.getEmail() && !service.getEmail().isEmpty())) {
 						EmailRequest emailRequests = prepareEmailRequest(service, actionInfo, serviceReqRequest.getRequestInfo(),messageMap,service_request_id_new);
 						if(null != emailRequests)
+						{   log.info("Sending Email");
 							hCProducer.push(hcConfiguration.getEmailNotifTopic(), emailRequests);
+						}
 						else
 							log.info("email body is empty in this case");
 					}
@@ -232,7 +242,10 @@ public class HCNotificationConsumer {
 						EventRequest request = preparePushNotificationRequest(service, actionInfo,
 								serviceReqRequest.getRequestInfo(), messageMap, service_request_id_new);
 						if(null != request)
+							{
+							log.info(" Sending user event");
 							hCProducer.push(hcConfiguration.getSaveUserEventsTopic(), request);
+							}
 						else
 							log.info("PUSH body is empty in this case");
 					}
@@ -299,17 +312,19 @@ public class HCNotificationConsumer {
 					service_request_id_new);
 		}
 
+		log.info("Bell icon message  : "+ message);
 		List<String> toUsers = new ArrayList<>();
 		toUsers.add(requestInfo.getUserInfo().getUuid());
 
 		List<String> toRole = new ArrayList<>();
 		toRole.add("All");
 		Recepient recepient = Recepient.builder().toUsers(toUsers).toRoles(toRole).build();
-
 		
 
 		Event event = Event.builder()
-				.tenantId(HCConstants.TENANT_ID).description(message).eventType(HCConstants.USREVENTS_EVENT_TYPE)
+				
+				.tenantId(requestInfo.getUserInfo().getTenantId())
+				.description(message).eventType(HCConstants.USREVENTS_EVENT_TYPE)
 				.name(HCConstants.USREVENTS_EVENT_NAME).postedBy(HCConstants.USREVENTS_EVENT_POSTEDBY)
 				.source(Source.WEBAPP).recepient(recepient).referenceId(serviceReq.getService_request_id())
 
@@ -319,6 +334,7 @@ public class HCNotificationConsumer {
 
 		events.add(event);
 
+		log.info("generated user event is : " + events);
 		return EventRequest.builder().requestInfo(requestInfo).events(events).build();
 
 	}
@@ -368,8 +384,14 @@ public class HCNotificationConsumer {
 					service_request_id_new);
 		}
 
-		if (emailIdRetrived == null || message == null)
+		if (emailIdRetrived == null || message == null) {
+			log.info("Sending Email message is eampty");
 			return null;
+			}
+		
+		log.info("get massage from localization and Email Id from userInfo");
+		
+		log.info("Sending the Email : Email Id : " +emailIdRetrived + "And  Massage :" + message + "And  subject :" + subject );
 		return EmailRequest.builder().email(emailIdRetrived).subject(subject).body(message).isHTML(true).build();
 	}
 
@@ -478,7 +500,7 @@ public class HCNotificationConsumer {
 			if (!serviceReq.getIsRoleSpecific())
 			{
 				employeeDetailsRetrived = notificationService.getMobileAndIdForNotificationService(requestInfo,
-						HCConstants.TENANT_ID, actionInfo.getAssignee(), HCConstants.ROLE_EMPLOYEE);
+						serviceReq.getCity(), actionInfo.getAssignee(), HCConstants.ROLE_EMPLOYEE);
 				data = employeeDetailsRetrived.replace("|", "#");
 				phoneNumberRetrived = data.split("#")[0];
 				employeeNameRetrived = data.split("#")[1];
@@ -508,7 +530,14 @@ public class HCNotificationConsumer {
 					service_request_id_new);
 		}
 		if (phoneNumberRetrived == null || message == null)
+			{
+			log.info("Sending sms message is eampty");
 			return null;
+			}
+			
+		log.info("get massage from localization and contact Number from userInfo");
+		
+		log.info("Sending the sms : Contact number : " +phoneNumberRetrived + "And  Massage :" + message );
 		return SMSRequest.builder().mobileNumber(phoneNumberRetrived).message(message).build();
 	}
 
@@ -772,8 +801,8 @@ public class HCNotificationConsumer {
 			if(text != null)
 			{
 			text = text.replace(HCConstants.SMS_NOTIFICATION_EMP_NAME_KEY,  serviceReq.getOwnerName())
-					.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_ID, serviceReq.getService_request_id())
-					.replace(HCConstants.NOTIFICATION_SERVICEREQUEST_ID_NEW, service_request_id_new)
+					.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_ID, serviceReq.getService_request_id_old())
+					.replace(HCConstants.NOTIFICATION_SERVICEREQUEST_ID_NEW, serviceReq.getService_request_id())
 					.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_DATE_KEY, genratedDate);
 			}
 			break;
@@ -805,7 +834,7 @@ public class HCNotificationConsumer {
 		try {
 
 			allRoles = rest.postForObject(hcConfiguration.getEgovHRMShost().concat(hcConfiguration.getEgovHRMSSearchEndpoint()).concat("?")
-					.concat("roles=" + role + "&tenantId=" + HCConstants.TENANT_ID), serviceReqRequest, String.class);
+					.concat("roles=" + role + "&tenantId=" + serviceReqRequest.getServices().get(0).getCity()), serviceReqRequest, String.class);
 
 			try {
 				org.json.JSONObject obj = new org.json.JSONObject(allRoles);
@@ -882,4 +911,232 @@ public class HCNotificationConsumer {
 		System.out.println(allRoles);
 		
 	}
+	
+	public void sendSchedulerNotification(ServiceRequest serviceReqRequest,String action,String serviceRequestDate,String tenantId,int days)
+    {
+		//geting massage from localization
+		
+		Map<String, String> messageMap = getLocalizationMessage(tenantId, serviceReqRequest.getRequestInfo());
+		
+		log.info("Get data from localization");
+		
+    	 for (ActionInfo actionInfo : serviceReqRequest.getActionInfo()) {
+             if (null != actionInfo && (!StringUtils.isEmpty(actionInfo.getStatus()))) {
+                 ServiceRequestData service = serviceReqRequest.getServices().get(0);            
+             
+                	{ 	
+                     if (hcConfiguration.getIsSMSNotificationEnabled()) {
+                     	SMSRequest smsRequest = prepareSMSRequest(service, actionInfo, serviceReqRequest.getRequestInfo(),messageMap,action,serviceRequestDate,days);
+                     	
+                     	log.info(" Sending sms : " + smsRequest);
+                     	hCProducer.push(hcConfiguration.getSmsNotifTopic(), smsRequest);
+ 
+                     }
+                     
+                     
+                     if (hcConfiguration.getIsEmailNotificationEnabled()
+                             && (null != service.getEmail() && !service.getEmail().isEmpty())) {
+                     	
+                     	EmailRequest emailRequests = prepareEmailRequest(service, actionInfo, serviceReqRequest.getRequestInfo(),messageMap,action,serviceRequestDate,days);
+                     	log.info(" Sending mail : "+ emailRequests);
+                     	hCProducer.push(hcConfiguration.getEmailNotifTopic(), emailRequests);
+                         
+                     }
+//                     
+//
+                     if (hcConfiguration.getIsUsrEventNotificationEnabled()) {
+                         EventRequest request = preparePushNotificationRequest(service, actionInfo, serviceReqRequest.getRequestInfo(),messageMap,action,serviceRequestDate,tenantId,days);
+                         log.info("Sending event notification : "+ request);
+                         hCProducer.push(hcConfiguration.getSaveUserEventsTopic(), request);
+                     }
+
+                 }
+             } else {
+                 continue;
+             }}
+         }
+	public SMSRequest prepareSMSRequest(ServiceRequestData serviceReq, ActionInfo actionInfo, RequestInfo requestInfo,Map<String, String> messageMap,String action,String serviceRequestDate, int days) {
+    	
+    	String phoneNumberRetrived = null;
+    	String message=null;
+        if ((action.equals(HCConstants.REMINDER))) {    
+        	   phoneNumberRetrived = serviceReq.getContactNumber();
+               message =  getMessage( HCConstants.REMINDER, serviceReq, requestInfo,  messageMap, null,HCConstants.SMS,serviceRequestDate,days );
+         
+        	}
+       
+     	  
+     	else if (action.equals(HCConstants.OVERDAYS)) { 
+     	   phoneNumberRetrived = serviceReq.getContactNumber();
+           message =  getMessage( HCConstants.OVERDAYS, serviceReq, requestInfo,  messageMap, null,HCConstants.SMS,serviceRequestDate,days );
+       
+     	}
+       
+        if(phoneNumberRetrived==null ||message== null)
+    	   return null;
+        return SMSRequest.builder().mobileNumber(phoneNumberRetrived).message(message).build();
+    }
+	
+	public String getMessage(String action, ServiceRequestData serviceReq,RequestInfo requestInfo,  Map<String, String> messageMap, String employeeName,String  notifcationType,String serviceRequestDate,int days )
+	 {
+	 	String text=null;
+	 	
+			//epoc date to date convert
+
+			String employee=serviceReq.getOwnerName();
+			
+			switch(action)
+			{
+			
+			case HCConstants.OVERDAYS :
+				
+				if(notifcationType.equals(HCConstants.SMS))
+				{
+					text = messageMap.get(HCConstants.HC_EMPLOYEE_OVERDAYS_SMS_NOTIFICATION);
+				}
+				else if (notifcationType.equals(HCConstants.EMAIL))
+				{
+					
+					text = messageMap.get(HCConstants.HC_EMPLOYEE_OVERDAYS_EMAIL_NOTIFICATION);
+				}
+				else  if (notifcationType.equals(HCConstants.PUSH))
+					text = messageMap.get(HCConstants.HC_EMPLOYEE_OVERDAYS_PUSH_NOTIFICATION);
+				
+				if(text != null)
+				{
+				text = text.replace(HCConstants.SMS_NOTIFICATION_EMP_NAME_KEY, employee)  
+						.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_TYPE, serviceReq.getServiceType())
+						.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_ID, serviceReq.getService_request_id())
+	                  .replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_DATE_KEY, serviceRequestDate)
+	                  .replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_DAYS_KEY, days+"");
+				}
+				break;
+				
+				
+			case HCConstants.REMINDER :
+				if(notifcationType.equals(HCConstants.SMS))
+				{
+					text = messageMap.get(HCConstants.HC_EMPLOYEE_REMAINDER_SMS_NOTIFICATION);
+				}
+				else if (notifcationType.equals(HCConstants.EMAIL))
+				{
+					
+					text = messageMap.get(HCConstants.HC_EMPLOYEE_REMAINDER_EMAIL_NOTIFICATION);
+				}
+				else  if (notifcationType.equals(HCConstants.PUSH))
+					text = messageMap.get(HCConstants.HC_EMPLOYEE_REMAINDER_PUSH_NOTIFICATION);
+					
+		          if(text != null)
+		          {
+				text = text.replace(HCConstants.SMS_NOTIFICATION_EMP_NAME_KEY, employee) 
+						.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_TYPE, serviceReq.getServiceType())
+						.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_ID, serviceReq.getService_request_id())
+	                  .replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_DATE_KEY, serviceRequestDate);
+	                 // .replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_DAYS_KEY, days+"");	
+		          }
+				break;			
+				
+			
+			
+			}
+	 	
+	 	return text;
+	 }private String getSubject(String action, ServiceRequestData serviceReq, RequestInfo requestInfo,
+				Map<String, String> messageMap, String employeeName, String email) {
+			
+			String text=null;
+
+			switch(action)
+			{
+			
+			case HCConstants.REMINDER :
+				
+				text = messageMap.get(HCConstants.HC_EMPLOYEE_REMAINDER_EMAIL_SUBJECT);
+
+				break;
+
+			case HCConstants.OVERDAYS:
+				
+				text = messageMap.get(HCConstants.HC_EMPLOYEE_OVERDAYS_EMAIL_SUBJECT);
+				break;
+			
+			}
+			if(text != null)
+			{
+			text = text.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_ID, serviceReq.getService_request_id());
+			}
+
+			return text;
+		}
+	 
+	 public EventRequest preparePushNotificationRequest(ServiceRequestData serviceReq, ActionInfo actionInfo, RequestInfo requestInfo,Map<String, String> messageMap,String action,String serviceRequestDate,String tenantId,int days) {
+	 	
+	 	String message=null;
+	 	
+	 	List<Event> events = new ArrayList<>();
+	    
+	 	if (action.equals(HCConstants.REMINDER)) {    
+	 	   
+	        message =  getMessage( HCConstants.REMINDER, serviceReq, requestInfo,  messageMap, null,HCConstants.PUSH,serviceRequestDate,days );
+	  
+	 	}
+
+		 else if (action.equals(HCConstants.OVERDAYS)) {    
+			   message =  getMessage( HCConstants.OVERDAYS, serviceReq, requestInfo,  messageMap, null,HCConstants.PUSH,serviceRequestDate,days );
+
+		}
+	     
+	     List<String> toUsers = new ArrayList<>();
+	     toUsers.add(requestInfo.getUserInfo().getUuid());
+	     
+	     List<String> toRole= new ArrayList<>();
+	     toRole.add("All");
+	     Recepient recepient = Recepient.builder()
+	             .toUsers(toUsers).toRoles(toRole).build();
+
+	     Event event = Event.builder()
+	             .tenantId(tenantId)
+	             .description(message)
+	             .eventType(HCConstants.USREVENTS_EVENT_TYPE)
+	             .name(HCConstants.USREVENTS_EVENT_NAME)
+	             .postedBy(HCConstants.USREVENTS_EVENT_POSTEDBY)
+	             .recepient(recepient)
+	             .referenceId(serviceReq.getService_request_id())
+
+	             .eventDetails(null).build();
+	     		 events.add(event);
+
+	 return EventRequest.builder().requestInfo(requestInfo).events(events).build();
+	    
+	     
+	 }
+	 
+	 public EmailRequest prepareEmailRequest(ServiceRequestData serviceReq, ActionInfo actionInfo, RequestInfo requestInfo,Map<String, String> messageMap,String action,String serviceRequestDate,int days) {
+		 	
+		
+	 	String emailIdRetrived = null;
+	 	String message=null;
+	 	String subject = null;
+	   
+	     if (action.equals(HCConstants.REMINDER)) {    
+	     	    emailIdRetrived = serviceReq.getEmail();
+	            message = getMessage( HCConstants.REMINDER, serviceReq, requestInfo,  messageMap, null,HCConstants.EMAIL,serviceRequestDate,days );           	
+	            subject = getSubject( HCConstants.REMINDER, serviceReq, requestInfo,  messageMap, null ,HCConstants.EMAIL);
+	     	}
+	    
+	     else if (action.equals(HCConstants.OVERDAYS))
+	     
+	     {
+	     	emailIdRetrived=serviceReq.getEmail();
+	     	message=  getMessage(HCConstants.OVERDAYS, serviceReq, requestInfo,  messageMap, null ,HCConstants.EMAIL,serviceRequestDate,days);
+	    	subject = getSubject( HCConstants.OVERDAYS, serviceReq, requestInfo,  messageMap, null ,HCConstants.EMAIL);
+	     }
+	    
+	     
+	     if(emailIdRetrived==null ||message== null)
+	 	   return null;
+	     return EmailRequest.builder().email(emailIdRetrived).subject(subject).body(message).isHTML(true).build();
+	 }
+	 
+
 }
