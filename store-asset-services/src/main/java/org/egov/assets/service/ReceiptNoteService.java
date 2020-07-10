@@ -112,6 +112,8 @@ public class ReceiptNoteService extends DomainService {
 
 			materialReceipt.getReceiptDetails().forEach(materialReceiptDetail -> {
 				setMaterialDetails(tenantId, materialReceiptDetail);
+				materialReceiptDetail
+						.setAuditDetails(getAuditDetails(materialReceiptRequest.getRequestInfo(), tenantId));
 			});
 
 			backUpdatePo(tenantId, materialReceipt);
@@ -471,9 +473,8 @@ public class ReceiptNoteService extends DomainService {
 							addnlinfo.getLotNo() + " at serial no." + i);
 				}
 
-				if (true == (material.getShelfLifeControl() == null ? false : material.getShelfLifeControl())
-						&& (isEmpty(addnlinfo.getExpiryDate()) || (!isEmpty(addnlinfo.getExpiryDate())
-								&& !(addnlinfo.getExpiryDate().doubleValue() > 0)))) {
+				if (true == material.getShelfLifeControl() && (isEmpty(addnlinfo.getExpiryDate())
+						|| (!isEmpty(addnlinfo.getExpiryDate()) && !(addnlinfo.getExpiryDate().doubleValue() > 0)))) {
 					errors.addDataError(ErrorCode.EXP_DATE_NOT_EXIST.getCode(),
 							addnlinfo.getExpiryDate() + " at serial no." + i);
 					if (true == (material.getSerialNumber() == null ? false : material.getSerialNumber())
@@ -559,7 +560,7 @@ public class ReceiptNoteService extends DomainService {
 
 					BigDecimal remainingQuantity = purchaseOrderDetail.getOrderQuantity()
 							.subtract(purchaseOrderDetail.getReceivedQuantity());
-					BigDecimal conversionFactor = materialReceiptDetail.getUom().getConversionFactor();
+					BigDecimal conversionFactor = new BigDecimal(2); // materialReceiptDetail.getUom().getConversionFactor();
 					BigDecimal convertedRemainingQuantity = getSearchConvertedQuantity(remainingQuantity,
 							conversionFactor);
 					if (null != purchaseOrderDetail.getReceivedQuantity()

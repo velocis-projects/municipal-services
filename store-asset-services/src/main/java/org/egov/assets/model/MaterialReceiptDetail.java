@@ -58,6 +58,9 @@ public class MaterialReceiptDetail {
 	@JsonProperty("asset")
 	private Asset asset = null;
 
+	@JsonProperty("auditDetails")
+	private AuditDetails auditDetails = null;
+
 	@JsonProperty("voucherHeader")
 	private String voucherHeader = null;
 
@@ -477,14 +480,15 @@ public class MaterialReceiptDetail {
 				&& Objects.equals(this.rejectionRemark, materialReceiptDetail.rejectionRemark)
 				&& Objects.equals(this.remarks, materialReceiptDetail.remarks)
 				&& Objects.equals(this.isScrapItem, materialReceiptDetail.isScrapItem)
-				&& Objects.equals(this.receiptDetailsAddnInfo, materialReceiptDetail.receiptDetailsAddnInfo);
+				&& Objects.equals(this.receiptDetailsAddnInfo, materialReceiptDetail.receiptDetailsAddnInfo)
+				&& Objects.equals(this.auditDetails, materialReceiptDetail.auditDetails);
 	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, tenantId, material, mrnNumber, orderNumber, uom, purchaseOrderDetail, userReceivedQty,
 				receivedQty, userAcceptedQty, acceptedQty, unitRate, openingRate, asset, voucherHeader, rejectionRemark,
-				remarks, isScrapItem, receiptDetailsAddnInfo);
+				remarks, isScrapItem, receiptDetailsAddnInfo, auditDetails);
 	}
 
 	@Override
@@ -511,6 +515,7 @@ public class MaterialReceiptDetail {
 		sb.append("    remarks: ").append(toIndentedString(remarks)).append("\n");
 		sb.append("    isScrapItem: ").append(toIndentedString(isScrapItem)).append("\n");
 		sb.append("    receiptDetailsAddnInfo: ").append(toIndentedString(receiptDetailsAddnInfo)).append("\n");
+		sb.append("    auditDetails: ").append(toIndentedString(auditDetails)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}
@@ -524,5 +529,23 @@ public class MaterialReceiptDetail {
 			return "null";
 		}
 		return o.toString().replace("\n", "\n    ");
+	}
+
+	public MaterialReceiptDetail auditDetails(AuditDetails auditDetails) {
+		this.auditDetails = auditDetails;
+		return this;
+	}
+
+	/**
+	 * Get auditDetails
+	 *
+	 * @return auditDetails
+	 **/
+	public AuditDetails getAuditDetails() {
+		return auditDetails;
+	}
+
+	public void setAuditDetails(AuditDetails auditDetails) {
+		this.auditDetails = auditDetails;
 	}
 }
