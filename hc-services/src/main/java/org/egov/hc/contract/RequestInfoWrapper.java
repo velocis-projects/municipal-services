@@ -40,7 +40,7 @@ public class RequestInfoWrapper {
 	
 	
 	@JsonProperty("AuditDetails")
-	auditDetails auditDetails;
+	AuditDetails auditDetails;
 	
 	
 	@JsonProperty("services")

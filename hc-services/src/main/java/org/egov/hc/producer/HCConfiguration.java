@@ -39,8 +39,9 @@ public class HCConfiguration {
 		converter.setObjectMapper(objectMapper);
 		return converter;
 	}
+
 	
-	 @Value("${egov.hc.default.limit}")
+	 	@Value("${egov.hc.default.limit}")
 	    private Integer defaultLimit;
 
 	    @Value("${egov.hc.default.offset}")
@@ -52,30 +53,33 @@ public class HCConfiguration {
 
 	    @Value("${kafka.topics.save.service}")
 	    private String saveTopic;
-	
+	    
+	// Hc-Service
+	    
+		@Value("${kafka.topics.update.serviceRequest.service}")
+		private String updateServiceRequestData;
+	    
+		@Value("${kafka.topics.update.service}")
+		private String updateTopic;
+		
+		@Value("${kafka.topics.update.status.service}")
+		private String updateStatusTopic;
+		
+	    @Value("${kafka.insert.request.device.source}")
+		private String requestDeviceSource;
+	    
+	 // Mdms
+	    
 	    @Value("${egov.mdms.host}")
 	    private String mdmsHost;
 	    
 	    @Value("${egov.mdms.get.endpoint}")
 	    private String mdmsGetEndpoint;
-	    
-	    @Value("${egov.mdms.action.host}")
-	    private String actionHost;
-	    
-	    @Value("${egov.mdms.action.get.endpoint}")
-	    private String mdmsActionGetEndpoint;
-
 
 	    @Value("${egov.mdms.search.endpoint}")
 	    private String mdmsEndpoint;	
 	    
-	    @Value("${is.external.workflow.enabled}")
-	    private Boolean isExternalWorkFlowEnabled;
-	    
 	 // Workflow
-	    
-	    @Value("${create.hc.workflow.name}")
-	    private String hcBusinessServiceValue;
 	    
 	    @Value("${workflow.context.path}")
 	    private String wfHost;
@@ -86,8 +90,13 @@ public class HCConfiguration {
 	    @Value("${workflow.transition.path}")
 	    private String wfTransitionPath;
 	    
-	    @Value("${persister.insert.request.device.source}")
-		private String requestDeviceSource;
+	    @Value("${workflow.businessservice.search.path}")
+	    private String wfBusinessServiceSearchPath;
+	    
+	    @Value("${is.external.workflow.enabled}")
+	    private Boolean isExternalWorkFlowEnabled;
+	    
+	 // Hrms
 	    
 	    @Value("${egov.hrms.host}")
 		private String egovHRMShost;
@@ -95,14 +104,16 @@ public class HCConfiguration {
 		@Value("${egov.hrms.search.endpoint}")
 		private String egovHRMSSearchEndpoint;
 	
-		//Allowed Search Parameters
+	//Allowed Search Parameters
+		
 		@Value("${citizen.allowed.search.params}")
 		private String allowedCitizenSearchParameters;
 		
 		@Value("${employee.allowed.search.params}")
 		private String allowedEmployeeSearchParameters;
 	
-	    //Idgen Config
+	 //Idgen Config
+		
 	    @Value("${egov.idgen.host}")
 	    private String idGenHost;
 	
@@ -115,32 +126,26 @@ public class HCConfiguration {
 	    @Value("${egov.idgen.hc.serviceRequestNum.format}")
 	    private String applicationNumberIdgenFormat;
 
-	    @Value("${workflow.businessservice.search.path}")
-	    private String wfBusinessServiceSearchPath;
-	
-		@Value("${kafka.topics.notification.sms}")
-		private String smsNotifTopic;
-
-		@Value("${kafka.topics.notification.email}")
-		private String emailNotifTopic;
-
-		@Value("${notification.sms.enabled}")
-		private Boolean isSMSNotificationEnabled;
-
-		@Value("${notification.email.enabled}")
-		private Boolean isEmailNotificationEnabled;
-		
-		@Value("${date.format.notification}")
-		private String notificationDateFormat;
-
-		@Value("${egov.ui.app.host}")
-		private String uiAppHost;
+	   
+	// Notifications 
 
 		@Value("${notification.allowed.on.status}")
 		private String notificationEnabledStatuses;
 
-		@Value("${notification.fallback.locale}")
-		private String fallbackLocale;
+		@Value("${date.format.notification}")
+		private String notificationDateFormat;
+	    
+		@Value("${notification.sms.enabled}")
+		private Boolean isSMSNotificationEnabled;
+			
+		@Value("${kafka.topics.notification.sms}")
+		private String smsNotifTopic;
+
+		@Value("${notification.email.enabled}")
+		private Boolean isEmailNotificationEnabled;
+	
+		@Value("${kafka.topics.notification.email}")
+		private String emailNotifTopic;
 
 		@Value("${egov.usr.events.notification.enabled}")
 		private Boolean isUsrEventNotificationEnabled;
@@ -148,18 +153,8 @@ public class HCConfiguration {
 		@Value("${egov.usr.events.create.topic}")
 		private String saveUserEventsTopic;
 		
-		
 		@Value("${egov.usr.events.create.topic}")
 		private String saveUserEventsTopc;
-		
-		@Value("${kafka.topics.update.serviceRequest.service}")
-		private String updateServiceRequestData;
-
-		@Value("${kafka.topics.update.service}")
-		private String updateTopic;
-		
-		@Value("${kafka.topics.update.status.service}")
-		private String updateStatusTopic;
 
 		@Value("${egov.user.host}")
 		private String userBasePath;
@@ -170,12 +165,16 @@ public class HCConfiguration {
 		@Value("${egov.user.create.endpoint}")
 		private String userCreateEndPoint;
 		
+   // Localization
 
 		@Value("${egov.localization.host}")
 		private String localizationHost;
 
 		@Value("${egov.localization.search.endpoint}")
 		private String localizationSearchEndpoint;
+		
+		@Value("${notification.fallback.locale}")
+		private String fallbackLocale;
 
 		@Value("${egov.user.host}")
 		private String egovUserHost;

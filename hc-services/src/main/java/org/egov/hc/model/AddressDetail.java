@@ -3,7 +3,7 @@ package org.egov.hc.model;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.egov.hc.model.auditDetails;
+import org.egov.hc.model.AuditDetails;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -50,6 +50,6 @@ public class AddressDetail {
 	public String tenantId;
 	
 	@JsonProperty("auditDetails")
-	public auditDetails auditDetails;
+	public AuditDetails auditDetails;
 
 }

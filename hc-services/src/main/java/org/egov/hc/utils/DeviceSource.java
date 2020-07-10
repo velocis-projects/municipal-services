@@ -2,7 +2,7 @@ package org.egov.hc.utils;
 
 import java.util.UUID;
 
-import org.egov.hc.contract.auditDetails;
+import org.egov.hc.contract.AuditDetails;
 import org.egov.hc.contract.RequestInfoWrapper;
 import org.egov.hc.model.DeviceSources;
 
@@ -28,7 +28,7 @@ public class DeviceSource {
 	private HCConfiguration hcConfiguration;
 
 	public String saveDeviceDetails(String request, String moduleType, String tenantId, String moduleCode,
-			auditDetails auditDetails,String reference_uuid) {
+			AuditDetails auditDetails,String reference_uuid) {
 
 		JSONObject deviceDetails = new JSONObject();
 		UserAgent userAgent = UserAgent.parseUserAgentString(request);
@@ -47,8 +47,10 @@ public class DeviceSource {
 		DeviceSources deviceSources = DeviceSources.builder().sourceUuid(sourceUuid).moduleCode(moduleCode)
 				.deviceDetails(deviceDetails.toJSONString()).reference_uuid(reference_uuid)
 				.deviceType(os.getDeviceType() == null ? "" : os.getDeviceType().getName()).tenantId(tenantId)
-				.moduleType(moduleType).createdBy(auditDetails.getCreatedBy())
-				.createdTime(auditDetails.getCreatedTime()).build();
+				.moduleType(moduleType)
+				.createdBy(auditDetails.getCreatedBy())
+				.createdTime(auditDetails.getCreatedTime())
+				.build();
 
 		RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(deviceSources).build();
 

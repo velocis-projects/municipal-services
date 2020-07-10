@@ -144,7 +144,7 @@ public class ServiceRepository {
 		List <String> uuidList = new ArrayList<>();
 		try {	
 			
-			allRoles = rest.postForObject(hcConfiguration.getEgovHRMShost().concat(hcConfiguration.getEgovHRMSSearchEndpoint()).concat("?").concat("roles="+role+"&tenantId="+HCConstants.TENANT_ID), request, String.class);
+			allRoles = rest.postForObject(hcConfiguration.getEgovHRMShost().concat(hcConfiguration.getEgovHRMSSearchEndpoint()).concat("?").concat("roles="+role+"&tenantId="+request.getServices().get(0).getCity()), request, String.class);
 		
 		try {
 			org.json.JSONObject obj = new org.json.JSONObject(allRoles);
@@ -175,18 +175,14 @@ public class ServiceRepository {
 
 
 	
-	 public JSONObject getServiceRequestList() {
+	 public JSONArray getServiceRequestList() {
 	  		try {
 	  			
 
 	  				JSONArray actualResult = (JSONArray) jdbcTemplate.query(queryBuilder.GET_CREATED_TIME,
 	  						new Object[] { }, rowMapper);
-	  				JSONArray jsonArray = new JSONArray();
-	  				JSONObject serviceDetailjsonObject = (JSONObject) actualResult.get(0);
 
-	  				//jsonArray.add(serviceDetailjsonObject);
-	  				
-	  				return serviceDetailjsonObject;
+	  				return actualResult;
 	  			
 	  			
 	  		} catch (Exception e) {
