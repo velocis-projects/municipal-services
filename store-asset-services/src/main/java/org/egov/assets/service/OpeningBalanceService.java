@@ -322,14 +322,7 @@ public class OpeningBalanceService extends DomainService {
 
 						if (null != detail.getReceiptDetailsAddnInfo()) {
 							for (MaterialReceiptDetailAddnlinfo addInfo : detail.getReceiptDetailsAddnInfo()) {
-
-								// This line has to be removed Added by prakash temp
-								material.setLotControl(
-										material.getLotControl() == null ? false : material.getLotControl());
-								material.setShelfLifeControl(
-										material.getShelfLifeControl() == null ? false : material.getShelfLifeControl());
-								// Code end here
-								
+							
 								if (null != material && material.getLotControl() == true
 										&& isEmpty(addInfo.getLotNo())) {
 									errors.addDataError(ErrorCode.LOT_NO_NOT_EXIST.getCode(),
