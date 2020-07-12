@@ -1,6 +1,4 @@
 
----Alter table script eg_device_source_detail-------
-
 ALTER TABLE eg_device_source_detail
 DROP COLUMN referance_id;
 
