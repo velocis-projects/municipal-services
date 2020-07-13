@@ -51,7 +51,7 @@ public class ReceiptnotesApiController {
 			@RequestParam(value = "receivingStore", required = false) String receivingStore,
 			@RequestParam(value = "supplierCode", required = false) String supplierCode,
 			@RequestParam(value = "receiptDateFrom", required = false) Long receiptDateFrom,
-			@RequestParam(value = "receiptDateT0", required = false) Long receiptDateT0,
+			@RequestParam(value = "receiptDateTo", required = false) Long receiptDateTo,
 			@RequestParam(value = "supplierBillPaid", required = false) Boolean supplierBillPaid,
 			@Min(0) @Max(100) @RequestParam(value = "pageSize", required = false, defaultValue = "20") Integer pageSize,
 			@RequestParam(value = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
@@ -59,7 +59,7 @@ public class ReceiptnotesApiController {
 		MaterialReceiptSearch materialReceiptSearch = MaterialReceiptSearch.builder().tenantId(tenantId)
 				.mrnNumber(mrnNumber).receiptType(receiptType).mrnStatus(null != mrnStatus ? asList(mrnStatus) : null)
 				.receivingStore(receivingStore).supplierCode(supplierCode).receiptDate(receiptDateFrom)
-				.receiptDate(receiptDateT0).supplierBillPaid(supplierBillPaid).pageNumber(pageNumber).pageSize(pageSize)
+				.receiptDate(receiptDateTo).supplierBillPaid(supplierBillPaid).pageNumber(pageNumber).pageSize(pageSize)
 				.build();
 		MaterialReceiptResponse materialReceiptResponse = receiptNoteService.search(materialReceiptSearch);
 		return new ResponseEntity<>(materialReceiptResponse, HttpStatus.OK);

@@ -98,8 +98,7 @@ public class PriceListService extends DomainService {
 				if (priceList.getAgreementNumber() != null)
 					priceList.setAgreementNumber(priceList.getAgreementNumber().toUpperCase());
 			});
-			// validate(priceListRequest.getPriceLists(), Constants.ACTION_CREATE, tenantId,
-			// priceListRequest); // Temp Commented By Prakash
+			validate(priceListRequest.getPriceLists(), Constants.ACTION_CREATE, tenantId, priceListRequest);
 			priceListRequest.getPriceLists().forEach(priceList -> {
 				priceList.getPriceListDetails().forEach(priceListDetail -> {
 
@@ -171,8 +170,7 @@ public class PriceListService extends DomainService {
 					priceList.setAgreementNumber(priceList.getAgreementNumber().toUpperCase());
 			});
 
-			// validate(priceListRequest.getPriceLists(), Constants.ACTION_UPDATE, tenantId,
-			// priceListRequest); // Temp Committed By Prakash
+			validate(priceListRequest.getPriceLists(), Constants.ACTION_UPDATE, tenantId, priceListRequest);
 			List<String> ids = new ArrayList<String>();
 			priceListRequest.getPriceLists().stream().forEach(priceList -> {
 				priceList.setAuditDetails(mapAuditDetailsForUpdate(priceListRequest.getRequestInfo()));

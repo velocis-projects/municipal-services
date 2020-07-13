@@ -33,25 +33,13 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ServiceRequest  implements Cloneable  {
 	
-	
-	
-//	public ServiceRequest clone() throws CloneNotSupportedException {
-//		  ServiceRequest clonedObj = (ServiceRequest) super.clone();
-//		//  clonedObj.requestInfo=this.getRequestInfo();
-//		  
-//		    return clonedObj;
-//		}
-//	
-//	
-	
-	
+
 	public ServiceRequest clone() throws
     CloneNotSupportedException 
 { 
 return (ServiceRequest) super.clone(); 
 } 
-	
-	
+
   @JsonProperty("RequestInfo")
   private RequestInfo requestInfo = null;
 
@@ -68,7 +56,7 @@ return (ServiceRequest) super.clone();
   private Object requestBody;
   
   @JsonProperty("auditDetails")
-	auditDetails auditDetails;
+	AuditDetails auditDetails;
   
   @JsonProperty("status")
 	String status;

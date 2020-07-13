@@ -112,6 +112,8 @@ public class ReceiptNoteService extends DomainService {
 
 			materialReceipt.getReceiptDetails().forEach(materialReceiptDetail -> {
 				setMaterialDetails(tenantId, materialReceiptDetail);
+				materialReceiptDetail
+						.setAuditDetails(getAuditDetails(materialReceiptRequest.getRequestInfo(), tenantId));
 			});
 
 			backUpdatePo(tenantId, materialReceipt);
@@ -465,7 +467,8 @@ public class ReceiptNoteService extends DomainService {
 					new RequestInfo());
 
 			for (MaterialReceiptDetailAddnlinfo addnlinfo : receiptDetail.getReceiptDetailsAddnInfo()) {
-				if (true == material.getLotControl() && isEmpty(addnlinfo.getLotNo())) {
+				if (true == (material.getLotControl() == null ? false : material.getLotControl())
+						&& isEmpty(addnlinfo.getLotNo())) {
 					errors.addDataError(ErrorCode.LOT_NO_NOT_EXIST.getCode(),
 							addnlinfo.getLotNo() + " at serial no." + i);
 				}
@@ -474,7 +477,8 @@ public class ReceiptNoteService extends DomainService {
 						|| (!isEmpty(addnlinfo.getExpiryDate()) && !(addnlinfo.getExpiryDate().doubleValue() > 0)))) {
 					errors.addDataError(ErrorCode.EXP_DATE_NOT_EXIST.getCode(),
 							addnlinfo.getExpiryDate() + " at serial no." + i);
-					if (true == material.getSerialNumber() && isEmpty(addnlinfo.getSerialNo())) {
+					if (true == (material.getSerialNumber() == null ? false : material.getSerialNumber())
+							&& isEmpty(addnlinfo.getSerialNo())) {
 						errors.addDataError(ErrorCode.MANDATORY_VALUE_MISSINGROW.getCode(), "Serial number ",
 								String.valueOf(i));
 					}
@@ -556,7 +560,7 @@ public class ReceiptNoteService extends DomainService {
 
 					BigDecimal remainingQuantity = purchaseOrderDetail.getOrderQuantity()
 							.subtract(purchaseOrderDetail.getReceivedQuantity());
-					BigDecimal conversionFactor = materialReceiptDetail.getUom().getConversionFactor();
+					BigDecimal conversionFactor = new BigDecimal(2); // materialReceiptDetail.getUom().getConversionFactor();
 					BigDecimal convertedRemainingQuantity = getSearchConvertedQuantity(remainingQuantity,
 							conversionFactor);
 					if (null != purchaseOrderDetail.getReceivedQuantity()

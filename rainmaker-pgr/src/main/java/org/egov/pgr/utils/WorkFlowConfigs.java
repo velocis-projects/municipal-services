@@ -82,13 +82,13 @@ public class WorkFlowConfigs {
 	private static Map<String, List<String>> prepareRoleActionMap() {
 
 		Map<String, List<String>> map = new HashMap<>();
-		map.put(PGRConstants.ROLE_EMPLOYEE, Arrays.asList(ACTION_RESOLVE, ACTION_REQUEST_FOR_REASSIGN));
+		map.put(PGRConstants.ROLE_EMPLOYEE, Arrays.asList(ACTION_RESOLVE, ACTION_REQUEST_FOR_REASSIGN, ACTION_REJECT));
 		map.put(PGRConstants.ROLE_CITIZEN, Arrays.asList(ACTION_OPEN, ACTION_CLOSE, ACTION_REOPEN));
 		map.put(PGRConstants.ROLE_GRO, Arrays.asList(ACTION_ASSIGN, ACTION_REJECT, ACTION_REASSIGN, ACTION_RESOLVE));
 		map.put(PGRConstants.ROLE_DGRO, Arrays.asList(ACTION_ASSIGN, ACTION_REJECT, ACTION_REASSIGN));
 		map.put(PGRConstants.ROLE_CSR, Arrays.asList(ACTION_OPEN, ACTION_CLOSE, ACTION_REOPEN));
-		map.put(PGRConstants.ROLE_ESCALATION_OFFICER1, Arrays.asList(ACTION_RESOLVE, ACTION_REJECT));
-		map.put(PGRConstants.ROLE_ESCALATION_OFFICER2, Arrays.asList(ACTION_RESOLVE, ACTION_REJECT));
+		map.put(PGRConstants.ROLE_ESCALATION_OFFICER1, Arrays.asList(ACTION_RESOLVE, ACTION_REQUEST_FOR_REASSIGN, ACTION_REJECT));
+		map.put(PGRConstants.ROLE_ESCALATION_OFFICER2, Arrays.asList(ACTION_RESOLVE, ACTION_REQUEST_FOR_REASSIGN, ACTION_REJECT));
 		return map;
 	}
 	

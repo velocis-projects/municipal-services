@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.egov.common.contract.request.RequestInfo;
 import org.egov.hc.contract.ServiceRequest;
 import org.egov.hc.model.ServiceRequestData;
 import org.egov.hc.producer.HCConfiguration;
@@ -63,10 +64,6 @@ public class WorkflowIntegrator {
 	private RestTemplate rest;
 	@Autowired
 	private HCConfiguration config;
-	
-
-	@Value("${workflow.bpa.businessServiceCode.fallback_enabled}")
-	private Boolean pickWFServiceNameFromTradeTypeOnly;
 
 	@Autowired
 	public WorkflowIntegrator(RestTemplate rest, HCConfiguration config) {
@@ -89,8 +86,7 @@ public class WorkflowIntegrator {
 		if(!request.getServices().isEmpty())
 		{
 
-			String wfTenantId = HCConstants.TENANT_ID;
-		//String businessServiceFromMDMS = request.getServices().isEmpty()?null:request.getServices().get(0).getServiceType().toUpperCase();
+		String wfTenantId = request.getServices().get(0).getCity();
 		JSONArray array = new JSONArray();
 		for (ServiceRequestData servicerequestdata : request.getServices()) {
 				JSONObject obj = new JSONObject();
@@ -233,4 +229,7 @@ public class WorkflowIntegrator {
 		return status;
 		
 	}
+	
+
+
 }
