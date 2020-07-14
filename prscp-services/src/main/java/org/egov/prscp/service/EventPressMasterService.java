@@ -68,7 +68,8 @@ public class EventPressMasterService {
 			pressMaster.setActive(true);
 			pressMaster.setLastModifiedBy(requestInfoWrapper.getAuditDetails().getCreatedBy());
 			pressMaster.setLastModifiedTime(requestInfoWrapper.getAuditDetails().getCreatedTime());
-
+			pressMaster.setCreatedTime(requestInfoWrapper.getAuditDetails().getCreatedTime());
+			
 			repository.updatePress(pressMaster);
 
 			return new ResponseEntity<>(ResponseInfoWrapper.builder()

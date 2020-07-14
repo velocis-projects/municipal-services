@@ -137,7 +137,8 @@ public class EventManagementService {
 			eventDetail.setStartTime((LocalTime.parse(eventDetail.getStartTime())).toString());
 			eventDetail.setEndTime((LocalTime.parse(eventDetail.getEndTime())).toString());
 			eventDetail.setEventString(eventDetail.getEventImage().toJSONString());
-
+			eventDetail.setCreatedTime(requestInfoWrapper.getAuditDetails().getCreatedTime());
+			
 			repository.updateEvent(eventDetail);
 			NotificationReceiver notificationReceiver = NotificationReceiver.builder()
 					.receiverType(CommonConstants.RECIEVER_TYPE_EVENTUPDATE)
@@ -170,7 +171,8 @@ public class EventManagementService {
 
 			eventDetail.setLastModifiedBy(requestInfoWrapper.getAuditDetails().getLastModifiedBy());
 			eventDetail.setLastModifiedTime(requestInfoWrapper.getAuditDetails().getLastModifiedTime());
-
+			eventDetail.setCreatedTime(requestInfoWrapper.getAuditDetails().getCreatedTime());
+			
 			List<EventDetail> listCommittee = Arrays.asList(eventDetail);
 			RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(listCommittee).build();
 			repository.updateEventStatus(infoWrapper);

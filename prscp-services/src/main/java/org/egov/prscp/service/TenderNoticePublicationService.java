@@ -109,6 +109,7 @@ public class TenderNoticePublicationService {
 			tenderNotice.setLastModifiedBy(requestInfoWrapper.getAuditDetails().getLastModifiedBy());
 			tenderNotice.setLastModifiedTime(requestInfoWrapper.getAuditDetails().getLastModifiedTime());
 			tenderNotice.setTenderDocumentList(tenderNotice.getTenderDocument().toJSONString());
+			tenderNotice.setCreatedTime(requestInfoWrapper.getAuditDetails().getCreatedTime());
 			repository.updateTender(tenderNotice);
 			return new ResponseEntity<>(ResponseInfoWrapper.builder()
 					.responseInfo(ResponseInfo.builder().status(CommonConstants.SUCCESS).build())
