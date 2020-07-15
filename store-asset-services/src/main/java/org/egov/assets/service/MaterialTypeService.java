@@ -75,9 +75,15 @@ public class MaterialTypeService extends DomainService {
 			List<StoreMapping> storeMappings = new ArrayList<>();
 
 			MaterialTypeStoreMappingSearch materialTypeStoreMappingSearch = MaterialTypeStoreMappingSearch.builder()
+<<<<<<< .mine
 					.materialType(materialType.getCode()).tenantId(materialTypeSearch.getTenantId())
 					.active(materialTypeSearch.getActive()).store(materialTypeSearch.getStore())
 					.ids(materialTypeSearch.getIds()).build();
+=======
+					.materialType(materialType.getCode()).active(materialTypeSearch.getActive())
+					.store(materialTypeSearch.getStore()).ids(materialTypeSearch.getIds())
+					.tenantId(materialTypeSearch.getTenantId()).build();
+>>>>>>> .theirs
 
 			List<MaterialTypeStoreMapping> materialTypeStoreMappings = materialTypeStoreMappingService
 					.search(materialTypeStoreMappingSearch).getMaterialTypeStores();
@@ -99,8 +105,14 @@ public class MaterialTypeService extends DomainService {
 					materialTypes.add(materialType);
 				}
 			}
+
+			response.materialTypes(materialTypes).responseInfo(null);
 		}
+<<<<<<< .mine
 		response.materialTypes(materialTypes).responseInfo(null);
+=======
+
+>>>>>>> .theirs
 		return response;
 	}
 
