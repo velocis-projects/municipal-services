@@ -99,7 +99,7 @@ public class SupplierJdbcRepository extends JdbcRepository {
         if (supplierGetRequest.getName() != null) {
             if (params.length() > 0)
                 params.append(" and ");
-            params.append("name = :name");
+            params.append("name like concat('%',:name,'%')");
             paramValues.put("name", supplierGetRequest.getName());
         }
         if (supplierGetRequest.getType() != null) {
