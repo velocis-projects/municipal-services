@@ -18,6 +18,7 @@ import org.egov.tlcalculator.config.TLCalculatorConfigs;
 import org.egov.tlcalculator.kafka.broker.TLCalculatorProducer;
 import org.egov.tlcalculator.repository.CTLBillingslabRepository;
 import org.egov.tlcalculator.repository.builder.CTLBillingslabQueryBuilder;
+import org.egov.tlcalculator.utils.CTLConstants;
 import org.egov.tlcalculator.utils.CalculationUtils;
 import org.egov.tlcalculator.utils.TLCalculatorConstants;
 import org.egov.tlcalculator.web.models.CTLBillingSlab;
@@ -168,6 +169,20 @@ public class CTLCalculationService {
 			  		  log.error("Ignoring the error", customBillingSlabException);
 			  	  }
 			}
+	  }
+	  else{
+		  if(tradeLicense.getBusinessService()!=null){
+			  switch(tradeLicense.getBusinessService()){
+				  case CTLConstants.businessService_REHRI_RC:
+				  case CTLConstants.businessService_REHRI_DL:
+					  TaxHeadEstimate estimate = new TaxHeadEstimate();
+					  estimate.setEstimateAmount(BigDecimal.ZERO);
+					  estimate.setCategory(Category.PENALTY);
+			  	      estimate.setTaxHeadCode(getTaxHeadCode(tradeLicense.getBusinessService(), Category.PENALTY));
+			  	      estimates.add(estimate);
+			  	      break;
+				  }
+		  }
 	  }
   
 	  try {
