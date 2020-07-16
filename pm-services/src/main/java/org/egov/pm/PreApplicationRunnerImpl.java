@@ -57,9 +57,9 @@ public class PreApplicationRunnerImpl implements ApplicationRunner {
 	private ResourceLoader resourceLoader;
 
 	public static final Logger logger = LoggerFactory.getLogger(PreApplicationRunnerImpl.class);
-	public static Vector<DocumentColumn> documentColumnList = new Vector<>();
+	public static ArrayList<DocumentColumn> documentColumnList = new ArrayList<>();
 
-	public static Vector<DisplayColumns> displayColumns = new Vector<>();
+	public static ArrayList<DisplayColumns> displayColumns = new ArrayList<>();
 	public static ArrayList<EmailTemplateModel> emailTemplates = new ArrayList<>();
 
 	@Override
@@ -157,7 +157,7 @@ public class PreApplicationRunnerImpl implements ApplicationRunner {
 		}
 	}
 
-	public static Vector<DisplayColumns> getDisplayColumns() {
+	public static ArrayList<DisplayColumns> getDisplayColumns() {
 		return displayColumns;
 	}
 
@@ -206,7 +206,7 @@ public class PreApplicationRunnerImpl implements ApplicationRunner {
 		return map;
 	}
 
-	public static void setDisplayColumns(Vector<DisplayColumns> displayColumns) {
+	public static void setDisplayColumns(ArrayList<DisplayColumns> displayColumns) {
 		PreApplicationRunnerImpl.displayColumns = displayColumns;
 	}
 

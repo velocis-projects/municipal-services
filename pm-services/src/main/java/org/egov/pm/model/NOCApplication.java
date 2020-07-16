@@ -2,6 +2,8 @@ package org.egov.pm.model;
 
 import java.math.BigDecimal;
 
+import org.springframework.stereotype.Component;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +18,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Component
 public class NOCApplication {
 
 	private String applicationUuid;
