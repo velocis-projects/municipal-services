@@ -12,6 +12,7 @@ import org.egov.pm.model.ErrorResponseInfo;
 import org.egov.pm.model.Errors;
 import org.egov.pm.model.RequestData;
 import org.egov.pm.service.NocService;
+import org.egov.pm.service.ReportGenerationSchecduler;
 import org.egov.pm.util.UserUtil;
 import org.egov.pm.web.contract.NocResponse;
 import org.egov.pm.web.contract.ResponseData;
@@ -50,6 +51,9 @@ public class NocControllerTestCases {
 	private NocService nocService;
 
 	@MockBean
+	private ReportGenerationSchecduler reportGenerationSchecduler;
+
+	@MockBean
 	private UserUtil userUtil;
 
 	@MockBean
@@ -64,7 +68,7 @@ public class NocControllerTestCases {
 
 		// when(userUtil.validateUser(any(RequestData.class))).thenReturn(getError());
 		
-		when(nocService.searchNoc(Matchers.any(RequestData.class)))
+		when(nocService.getNoc(Matchers.any(RequestData.class)))
 				.thenReturn(new ResponseEntity(NocResponse.builder().build(), HttpStatus.OK));
 
 		mockMvc.perform(

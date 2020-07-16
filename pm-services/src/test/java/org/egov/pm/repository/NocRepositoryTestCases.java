@@ -14,7 +14,10 @@ import org.egov.common.contract.request.Role;
 import org.egov.common.contract.request.User;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.pm.PreApplicationRunnerImpl;
+import org.egov.pm.model.NOCApplication;
 import org.egov.pm.model.NOCApplicationDetail;
+import org.egov.pm.model.NOCApplicationRemark;
+import org.egov.pm.model.NOCRequestData;
 import org.egov.pm.model.ReportModel;
 import org.egov.pm.model.RequestData;
 import org.egov.pm.producer.Producer;
@@ -22,7 +25,7 @@ import org.egov.pm.repository.querybuilder.QueryBuilder;
 import org.egov.pm.repository.rowmapper.ColumnsNocRowMapper;
 import org.egov.pm.repository.rowmapper.CounterRowMapper;
 import org.egov.pm.repository.rowmapper.NocRowMapper;
-import org.egov.pm.service.IDGenUtil;
+import org.egov.pm.service.CommonService;
 import org.egov.pm.util.CommonConstants;
 import org.egov.pm.util.UserUtil;
 import org.egov.pm.web.contract.NocResponse;
@@ -52,7 +55,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 public class NocRepositoryTestCases {
 
 	@Mock
-	IDGenUtil idgen;
+	CommonService commonService;
 
 	@InjectMocks
 	private NocRepository nocRepository;
@@ -71,6 +74,14 @@ public class NocRepositoryTestCases {
 	@Mock
 	private ResponseData responseData;
 
+	
+	@Mock
+
+	private NOCApplication nocApplication;
+	
+	
+	@Mock
+	private NOCApplicationRemark nocApplicationRemark;
 	@Mock
 	QueryBuilder queryBuilder;
 
@@ -173,7 +184,7 @@ public class NocRepositoryTestCases {
 		when(jdbcTemplate.query(Matchers.contains(sql), any(Object[].class), any(ResultSetExtractor.class)))
 				.thenReturn(ob2);
 
-		Assert.assertEquals(ob2, nocRepository.findNoc(requestData));
+		Assert.assertEquals(ob2, nocRepository.getNoc(requestData));
 	}
 
 	@Test
@@ -299,16 +310,12 @@ public class NocRepositoryTestCases {
 				.applicationId(null).applicationStatus("INITIATED").applicationType("PETNOC").dataPayload(obj).build();
 
 		String APPLICATION_ID = "PMS-2020-03-25-042731";
-		// when(idgen.generateApplicationId(anyString())).thenReturn(APPLICATION_ID);
 		when(nocRepository.saveValidateStatus(requestData, "INITIATED")).thenReturn(APPLICATION_ID);
-		when(idgen.createWorkflowRequest(Matchers.any(ProcessInstanceRequest.class)))
+		when(commonService.createWorkflowRequest(Matchers.any(ProcessInstanceRequest.class)))
 				.thenReturn(ResponseInfo.builder().status("successful").build());
 
 		String SELECT_APPLICATION_ID_QUERY = "select * from egpm_noc_application where noc_number=? AND is_active=TRUE";
 
-		// when(jdbcTemplate.query(SELECT_APPLICATION_ID_QUERY, new Object[] {
-		// APPLICATION_ID }, new CounterRowMapper()))
-		// .thenReturn(0);
 
 		when(jdbcTemplate.query(Matchers.contains(SELECT_APPLICATION_ID_QUERY), any(Object[].class),
 				any(ResultSetExtractor.class))).thenReturn(0);
@@ -317,17 +324,9 @@ public class NocRepositoryTestCases {
 		ob.add(new JSONObject().put("application_uuid", "5f7b6de7-8628-4b09-b97c-ecb6d3ac1cd6"));
 		String SELECT_APPID_QUERY = "select ED.application_uuid from egpm_noc_application ED WHERE ED.noc_number=?";
 
-		// when(nocRepository.getAppIdUuid(APPLICATION_ID)).thenReturn("5f7b6de7-8628-4b09-b97c-ecb6d3ac1cd6");
-		// when(jdbcTemplate.query(Matchers.contains(SELECT_APPID_QUERY),
-		// any(Object[].class), new ColumnsNocRowMapper()))
-		// .thenReturn(ob);
-
-		// when(nocRepository.getAppIdUuid(APPLICATION_ID)).thenReturn("5f7b6de7-8628-4b09-b97c-ecb6d3ac1cd6");
-
 		Assert.assertEquals(APPLICATION_ID, nocRepository.saveValidateStatus(requestData, "INITIATED"));
 
-		//////////// 2
-		when(idgen.generateApplicationId(anyString())).thenReturn(APPLICATION_ID);
+		when(commonService.generateApplicationId(anyString())).thenReturn(APPLICATION_ID);
 		when(jdbcTemplate.query(anyString(), any(Object[].class), any(ResultSetExtractor.class))).thenReturn(0);
 
 		RequestData requestData2 = RequestData.builder()
@@ -393,19 +392,12 @@ public class NocRepositoryTestCases {
 				.applicationId(APPLICATION_ID).applicationStatus("INITIATED").applicationType("PETNOC").dataPayload(obj)
 				.build();
 
-		// when(nocRepository.saveValidateStatus(requestData,
-		// "INITIATED")).thenReturn(APPLICATION_ID);
-		// when(idgen.createWorkflowRequest(Matchers.any(ProcessInstanceRequest.class)))
-		// .thenReturn(ResponseInfo.builder().status("successful").build());
-
 		ResponseInfo workflowResponse = ResponseInfo.builder().status("successful").build();
 
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("application_uuid", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
 		JSONArray ob = new JSONArray();
 		ob.add(jsonObject);
-		// when(jdbcTemplate.query(anyString(), any(Object[].class),
-		// any(ResultSetExtractor.class))).thenReturn(ob);
 		String SELECT_APPID_QUERY = "select ED.application_uuid from egpm_noc_application ED WHERE ED.noc_number=?";
 
 		ResponseData responseData = ResponseData.builder().responseInfo(
@@ -438,10 +430,38 @@ public class NocRepositoryTestCases {
 				any(ResultSetExtractor.class))).thenReturn(ob2);
 		when(jdbcTemplate.query(Matchers.contains(SELECT_APPLICATION_DETAIL_QUERY), any(Object[].class),
 				any(ResultSetExtractor.class))).thenReturn(ob2);
+		String SELECT_FALLBACK_QUERY =   "select EA.application_uuid as applicationUuid, EA.noc_number as nocNumber,EA.application_type as applicationType,\r\n"
+				+ "EA.applicant_name as applicantName,ED.application_detail as applicationDetail,EA.house_number as houseNumber,\r\n"
+				+ "EA.sector as sector,EA.applied_date as appliedDate,EA.application_status as applicationStatus,\r\n"
+				+ "EA.amount as amount,EA.gst_amount as gstAmount,EA.performance_bank_guarantee as performanceBankGuaranteeCharges,\r\n"
+				+ "EA.total_amount as totalamount,ER.remark_id as remarkid\r\n"
+				+ "from egpm_noc_application EA inner join egpm_noc_application_detail ED on EA.application_uuid=ED.application_uuid inner join egpm_noc_application_remark ER on EA.application_uuid=ER.application_uuid  where EA.noc_number=?\r\n"
+				+ "and EA.is_active=true and ED.is_active=true and ER.is_active=true";
 
+
+		JSONObject jsonObject1 = new JSONObject();
+		jsonObject1.put("nocnumber", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		jsonObject1.put("amount", "100");
+		jsonObject1.put("performancebankguaranteecharges", "100");
+		jsonObject1.put("gstamount", "100");
+		jsonObject1.put("totalamount", "100");
+		jsonObject1.put("applicationstatus", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		jsonObject1.put("applicantname", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		jsonObject1.put("housenumber", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		jsonObject1.put("sector", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		jsonObject1.put("applicationuuid", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		jsonObject1.put("remarkid", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		jsonObject1.put("applicationdetail", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		nocApplicationRemark.setApplicationUuid("WHW");
+		nocApplication.setNocApplicationRemark(nocApplicationRemark);
+		JSONArray ob1 = new JSONArray();
+		ob1.add(jsonObject1);
+		when(jdbcTemplate.query(Matchers.contains(SELECT_FALLBACK_QUERY), any(Object[].class),
+				any(ResultSetExtractor.class))).thenReturn(ob1);
+		
 		NocRepository nocRepository2 = Mockito.spy(nocRepository);
 		
-		nocRepository.updateAppStatus(requestData,workflowResponse);
+		nocRepository.updateAppStatus(requestData);
 		
 	}
 
@@ -530,7 +550,7 @@ public class NocRepositoryTestCases {
 				.build();
 
 		ResponseInfo workflowResponse = ResponseInfo.builder().status("successful").build();
-		when(idgen.createWorkflowRequest(any(ProcessInstanceRequest.class))).thenReturn(workflowResponse);
+		when(commonService.createWorkflowRequest(any(ProcessInstanceRequest.class))).thenReturn(workflowResponse);
 
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("application_uuid", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
@@ -560,7 +580,7 @@ public class NocRepositoryTestCases {
 				.applicationId(APPLICATION_ID).build();
 
 		Assert.assertEquals("Fail",
-				nocRepository.updateApplicationStatus(requestData).getResponseInfo().getStatus().toString());
+				nocRepository.updateAppStatus(requestData).getResponseInfo().getStatus().toString());
 
 	}
 
@@ -808,6 +828,63 @@ public class NocRepositoryTestCases {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+	}
+	
+	@Test
+	public void testsetFallBack() {
+		String SELECT_FALLBACK_QUERY =   "select EA.application_uuid as applicationUuid, EA.noc_number as nocNumber,EA.application_type as applicationType,\r\n"
+				+ "EA.applicant_name as applicantName,ED.application_detail as applicationDetail,EA.house_number as houseNumber,\r\n"
+				+ "EA.sector as sector,EA.applied_date as appliedDate,EA.application_status as applicationStatus,\r\n"
+				+ "EA.amount as amount,EA.gst_amount as gstAmount,EA.performance_bank_guarantee as performanceBankGuaranteeCharges,\r\n"
+				+ "EA.total_amount as totalamount,ER.remark_id as remarkid\r\n"
+				+ "from egpm_noc_application EA inner join egpm_noc_application_detail ED on EA.application_uuid=ED.application_uuid inner join egpm_noc_application_remark ER on EA.application_uuid=ER.application_uuid  where EA.noc_number=?\r\n"
+				+ "and EA.is_active=true and ED.is_active=true and ER.is_active=true";
+
+
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("nocnumber", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		jsonObject.put("amount", "100");
+		jsonObject.put("performancebankguaranteecharges", "100");
+		jsonObject.put("gstamount", "100");
+		jsonObject.put("totalamount", "100");
+		jsonObject.put("applicationstatus", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		jsonObject.put("applicantname", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		jsonObject.put("housenumber", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		jsonObject.put("sector", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		jsonObject.put("applicationuuid", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		jsonObject.put("remarkid", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		jsonObject.put("applicationdetail", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		
+		
+		JSONArray ob = new JSONArray();
+		ob.add(jsonObject);
+		when(jdbcTemplate.query(Matchers.contains(SELECT_FALLBACK_QUERY), any(Object[].class),
+				any(ResultSetExtractor.class))).thenReturn(ob);
+		
+				nocRepository.setFallBack("PMS-2020-03-25-042731");
+
+	}
+	
+	
+
+	@Test
+	public void callWorkflow()  {
+		JSONObject dataPayload = new JSONObject();
+		dataPayload.put("effectiveFromDate", "2019-07-20");
+		RequestData requestData = RequestData.builder().requestInfo(RequestInfo.builder().build())
+				.dataPayload(dataPayload).build();
+		String SELECT_PRICE_BOOK_INBETWEEN_QUERY = " SELECT price_book_id,min_sqft,max_sqft, calculation_sequence, calculation_type FROM egpm_noc_price_book WHERE category_id=? and sub_category_id=? AND to_date(?, 'YYYY-MM-DD') between effective_from_date::date and coalesce(effective_to_date::date,current_timestamp + interval '100 year') and application_type=? ";
+
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("application_uuid", "a14efd6e-ef04-4195-84f3-c5a9c3a11a77");
+		JSONArray ob = new JSONArray();
+		ob.add(jsonObject);
+		when(jdbcTemplate.query(Matchers.contains(SELECT_PRICE_BOOK_INBETWEEN_QUERY), any(Object[].class),
+				any(ResultSetExtractor.class))).thenReturn(1);
+		NOCRequestData req=new NOCRequestData();
+		
+		nocRepository.callWorkflow(requestData, "PMS-2020-03-25-042731", req);
+
 	}
 
 }
