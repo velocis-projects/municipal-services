@@ -28,4 +28,5 @@ public class NOCApplicationRemark {
 	private Long lastModifiedTime;
 	private String documentId;
 	private String tenantId;
+	private String previousRemarkId;
 }

@@ -49,83 +49,88 @@ public class EmailSmsNotificationListener {
 		this.producer = producer;
 	}
 
-	@KafkaListener(topics = "${persister.update.transition.noc.status.topic}")
+	@KafkaListener(topics = "${persister.notification.noc.topic}")
 	public void invitationsNew(ConsumerRecord<String, Object> data) throws IOException {
 		try {
-		log.info("Send Notofication Kafka Topic :{} " ,data);
-		NOCRequestData app1 = objectMapper.convertValue(data.value(), NOCRequestData.class);
-		if (app1 == null || app1.getNocApplication().isEmpty())
-			throw new CustomException("BAD REQUEST", "Email data nor found");
+			log.info("Send Notofication Kafka Topic :{} ", data);
+			NOCRequestData app1 = objectMapper.convertValue(data.value(), NOCRequestData.class);
+			if (app1 == null || app1.getNocApplication().isEmpty())
+				throw new CustomException("BAD REQUEST", "Email data nor found");
 
-		NOCApplication application = app1.getNocApplication().get(0);
+			NOCApplication application = app1.getNocApplication().get(0);
 
-		Map<String, EmailTemplateModel> map = null;
-		map = nocRepository.findTemplate(application.getApplicationStatus(), application.getTenantId(),
-				application.getApplicationType());
-		if (map != null) {
-			log.info("roles are {}", map.keySet().toString());
-			for (String role : map.keySet()) {
+			Map<String, EmailTemplateModel> map = null;
+			map = nocRepository.findTemplate(application.getApplicationStatus(), application.getTenantId(),
+					application.getApplicationType());
+			if (map != null) {
+				log.info("roles are {}", map.keySet().toString());
+				for (String role : map.keySet()) {
 
-				if (role.equals("CITIZEN")) {
-					enrichCitizenNotification(map, role, application,app1);
-				} else {
-					enrichEmployeeNotification(map, role, application, app1);
+					if (role.equals("CITIZEN")) {
+						enrichCitizenNotification(map, role, application, app1);
+					} else {
+						enrichEmployeeNotification(map, role, application, app1);
+					}
 				}
 			}
-		}
 
-		}catch(Exception e){
-			log.info("Exception In Sending Mail:{}",e.getMessage());
+		} catch (Exception e) {
+			log.info("Exception In Sending Mail:{}", e.getMessage());
 		}
 	}
 
 	private void enrichEmployeeNotification(Map<String, EmailTemplateModel> map, String role,
 			NOCApplication application, NOCRequestData app1) throws IOException {
-		log.info("Users will be fetched for role {}",role);
+		log.info("Users will be fetched for role {}", role);
 		JsonNode userResponse = userUtil.getUserByRole(app1.getRequestInfo(), role, application.getTenantId());
-		log.info("Response {}",userResponse);
+		log.info("Response {}", userResponse);
 
 		if (userResponse != null) {
-			
-			JsonNode userInfo = userResponse.get("Employees") != null ? userResponse.get("Employees").get(0).get("user")
-					: null;
-			if (userInfo != null) {
-				log.info("userInfo found{}",userInfo);
-				User user = objectMapper.readValue(objectMapper.writeValueAsString(userInfo), User.class);
-				log.info("user found{}",user);
-				String queryString = map.get(role).getTemplate().replace(CommonConstants.EMAILAPPID,
-						application.getNocNumber());
-				log.info("queryString :{} ",queryString);
-				if (user != null && user.getEmailId() != null && !user.getEmailId().isEmpty()) {
-					log.info("Email Sent To Id :{} ",user.getEmailId());
+			for (JsonNode employee : userResponse.get("Employees")) {
 
-					EmailRequest email = EmailRequest.builder().email(user.getEmailId())
-							.subject(map.get(role).getEmailSubject()).isHTML(true).body(queryString).build();
-					producer.push(emailtopic, email);
-					log.info("email sent to kafka");
+				// JsonNode userInfo = userResponse.get("Employees") != null
+				// ? userResponse.get("Employees").get(0).get("user")
+				// : null;
+				JsonNode userInfo = employee.get("user");
+				if (userInfo != null) {
+
+					log.info("userInfo found{}", userInfo);
+					User user = objectMapper.readValue(objectMapper.writeValueAsString(userInfo), User.class);
+					log.info("user found{}", user);
+					String queryString = map.get(role).getTemplate().replace(CommonConstants.EMAILAPPID,
+							application.getNocNumber());
+					log.info("queryString :{} ", queryString);
+					if (user != null && user.getEmailId() != null && !user.getEmailId().isEmpty()) {
+						log.info("Email Sent To Id :{} ", user.getEmailId());
+
+						EmailRequest email = EmailRequest.builder().email(user.getEmailId())
+								.subject(map.get(role).getEmailSubject()).isHTML(true).body(queryString).build();
+						producer.push(emailtopic, email);
+						log.info("email sent to kafka");
+					}
 				}
 			}
 		}
 
 	}
 
-	private void enrichCitizenNotification(Map<String, EmailTemplateModel> map, String role, NOCApplication application,NOCRequestData app1)
-			throws IOException {
+	private void enrichCitizenNotification(Map<String, EmailTemplateModel> map, String role, NOCApplication application,
+			NOCRequestData app1) throws IOException {
 
-		log.info("Calling user service for uuid {}" ,application.getCreatedBy());
-		JsonNode userInfo = userUtil.getUser(app1.getRequestInfo(),application.getCreatedBy());
-		log.info("Response from user service {}" ,userInfo);
-		
+		log.info("Calling user service for uuid {}", application.getCreatedBy());
+		JsonNode userInfo = userUtil.getUser(app1.getRequestInfo(), application.getCreatedBy());
+		log.info("Response from user service {}", userInfo);
+
 		User user = null;
 		if (userInfo != null && userInfo.get("user") != null)
 			user = objectMapper.readValue(objectMapper.writeValueAsString(userInfo.get("user").get(0)), User.class);
 
-		log.info("UserInfo {}" ,user);
+		log.info("UserInfo {}", user);
 		String queryString = map.get(role).getTemplate().replace(CommonConstants.EMAILAPPID, application.getNocNumber())
 				.replace("[:fees:]", application.getTotalamount().toString());
-		log.info("emailTemplate is {}",queryString);
+		log.info("emailTemplate is {}", queryString);
 		if (user != null && user.getEmailId() != null && !user.getEmailId().isEmpty()) {
-			log.info("emailId is {}",user.getEmailId());
+			log.info("emailId is {}", user.getEmailId());
 			EmailRequest email = EmailRequest.builder().email(user.getEmailId())
 					.subject(map.get(role).getEmailSubject()).isHTML(true).body(queryString).build();
 

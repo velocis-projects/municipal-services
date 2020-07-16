@@ -18,13 +18,19 @@ public class QueryBuilder {
 
 	public static final String ALL_REMARKS_QUERY = "select application_uuid applicationUuid,remark,created_by,document_detail documentDetail,application_status applicationStatus, created_time createdTime from egpm_noc_application_remark WHERE application_uuid=? order by created_time DESC";
 	public static final String SELECT_VIEW_QUERY = "select EA.application_uuid applicationUuid, EA.noc_number nocNumber,EA.application_type applicationType,EA.applicant_name applicantName,ED.application_detail applicationDetail,EA.house_number houseNumber,EA.sector sector,EA.applied_date appliedDate,EA.application_status applicationStatus,EA.amount amount,EA.gst_amount gstAmount,EA.performance_bank_guarantee performanceBankGuaranteeCharges,EA.total_amount totalamount from egpm_noc_application_detail ED inner join egpm_noc_application EA on ED.application_uuid=EA.application_uuid WHERE EA.noc_number=? AND EA.is_active=TRUE AND ED.is_active=TRUE";
+	public static final String SELECT_FALLBACK_QUERY = "select EA.application_uuid as applicationUuid, EA.noc_number as nocNumber,EA.application_type as applicationType,\r\n"
+			+ "EA.applicant_name as applicantName,ED.application_detail as applicationDetail,EA.house_number as houseNumber,\r\n"
+			+ "EA.sector as sector,EA.applied_date as appliedDate,EA.application_status as applicationStatus,\r\n"
+			+ "EA.amount as amount,EA.gst_amount as gstAmount,EA.performance_bank_guarantee as performanceBankGuaranteeCharges,\r\n"
+			+ "EA.total_amount as totalamount,ER.remark_id as remarkid\r\n"
+			+ "from egpm_noc_application EA inner join egpm_noc_application_detail ED on EA.application_uuid=ED.application_uuid inner join egpm_noc_application_remark ER on EA.application_uuid=ER.application_uuid  where EA.noc_number=?\r\n"
+			+ "and EA.is_active=true and ED.is_active=true and ER.is_active=true";
 
 	public static final String SELECT_NOC_BY_NOCNUMBER = "select EA.application_uuid applicationUuid, EA.noc_number nocNumber,EA.application_type applicationType,EA.applicant_name applicantName,EA.house_number houseNumber,EA.sector sector,EA.applied_date appliedDate,EA.application_status applicationStatus,EA.tenant_id tenantId,EA.amount amount,EA.gst_amount gstAmount,EA.performance_bank_guarantee performanceBankGuaranteeCharges,EA.total_amount totalamount,EA.created_by createdBy from egpm_noc_application EA WHERE EA.noc_number=? AND EA.is_active=TRUE";
 
 	public static final String SELECT_APPLICATION_ID_QUERY = "select * from egpm_noc_application where noc_number=? AND is_active=TRUE";
 	public static final String SELECT_APPLICATION_DETAIL_QUERY = "select application_detail_uuid, application_uuid, application_detail, is_active, created_by, created_time, last_modified_by, last_modified_time, tenant_id from egpm_noc_application_detail where application_uuid=(select application_uuid from egpm_noc_application where noc_number=? and is_active='true') and is_active='true'";
 	public static final String SELECT_USER_BY_APPLICATION_ID_QUERY = "select created_by,total_amount from egpm_noc_application where noc_number=? AND is_active=TRUE";
-
 
 	public static final String SELECT_TOTAL_AMOUNT_BY_APPLICATION_ID_QUERY = "select total_amount from egpm_noc_application where noc_number=? AND is_active=TRUE";
 
@@ -254,7 +260,6 @@ public class QueryBuilder {
 			+ "         GROUP BY\r\n" + "            T4.application_type \r\n" + "      )\r\n" + "      MainTable2 \r\n"
 			+ "      ON MainTable1.application_type = MainTable2.application_type";
 
-	
 	public static String getPetsQuery() {
 
 		StringBuilder petsQuery = new StringBuilder(SELECT_PETS_QUERY);

@@ -39,13 +39,14 @@ import org.egov.pm.repository.rowmapper.ColumnsNocRowMapper;
 import org.egov.pm.repository.rowmapper.CounterRowMapper;
 import org.egov.pm.repository.rowmapper.NocRowMapper;
 import org.egov.pm.repository.rowmapper.PriceRowMapper;
-import org.egov.pm.service.IDGenUtil;
+import org.egov.pm.service.CommonService;
 import org.egov.pm.util.CommonConstants;
 import org.egov.pm.web.contract.NocResponse;
 import org.egov.pm.web.contract.ResponseData;
 import org.egov.pm.wf.model.Document;
 import org.egov.pm.wf.model.ProcessInstance;
 import org.egov.pm.wf.model.ProcessInstanceRequest;
+import org.egov.tracer.model.CustomException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
@@ -79,7 +80,10 @@ public class NocRepository {
 	private ColumnsNocRowMapper columnsNocRowMapper;
 
 	@Autowired
-	private IDGenUtil idgen;
+	private CommonService commonService;
+
+	@Autowired
+	private NOCApplication nocApplication;
 
 	@Autowired
 	private Producer producer;
@@ -108,6 +112,9 @@ public class NocRepository {
 	@Value("${persister.update.noc.applicationDetails.topic}")
 	private String updateNOCApplicationDetailsTopic;
 
+	@Value("${persister.notification.noc.topic}")
+	private String notificationTopic;
+
 	@Value("${persister.delete.transition.noc.details.topic}")
 	private String deleteNOCDetailsTopic;
 
@@ -119,6 +126,9 @@ public class NocRepository {
 
 	@Value("${persister.insert.pricebook.noc.topic}")
 	private String insertPriceBook;
+
+	@Value("${persister.wf.fallback.noc.topic}")
+	private String fallbackTopic;
 
 	@Autowired
 	private PriceRowMapper priceRowMapper;
@@ -142,7 +152,7 @@ public class NocRepository {
 				: dataPayLoad.get(CommonConstants.SECTOR).toString()));
 		app.setNocNumber(applicationId);
 		app.setApplicationStatus(requestData.getApplicationStatus());
-
+		app.setLastModifiedTime(System.currentTimeMillis());
 		List<NOCApplication> applist = Arrays.asList(app);
 		NOCRequestData data = new NOCRequestData();
 		data.setRequestInfo(requestInfo);
@@ -181,6 +191,7 @@ public class NocRepository {
 
 			NOCApplicationDetail nocappdetails1 = new NOCApplicationDetail();
 			nocappdetails1.setApplicationDetailUuid(ps.getApplicationDetailUuid());
+			nocappdetails1.setLastModifiedTime(time);
 			List<NOCApplicationDetail> applisttodelete = Arrays.asList(nocappdetails1);
 			NOCDetailsRequestData data2 = new NOCDetailsRequestData();
 			data2.setRequestInfo(requestInfo);
@@ -221,7 +232,7 @@ public class NocRepository {
 	 * @param required
 	 *            applicationType,RequestInfo and tenantId
 	 */
-	public JSONArray findNoc(RequestData requestInfo) {
+	public JSONArray getNoc(RequestData requestInfo) {
 		List<Role> roles = requestInfo.getRequestInfo().getUserInfo().getRoles();
 		String tenantId = requestInfo.getTenantId();
 		List<String> queries = new ArrayList<>();
@@ -344,7 +355,6 @@ public class NocRepository {
 		}
 	}
 
-
 	/**
 	 * Generating Id and calling to save noc
 	 * 
@@ -355,7 +365,7 @@ public class NocRepository {
 	public String saveValidateStatus(RequestData requestData, String status)
 			throws JsonParseException, JsonMappingException, ParseException, IOException {
 		String nocId = null;
-		String applicationId = idgen.generateApplicationId(requestData.getTenantId());
+		String applicationId = commonService.generateApplicationId(requestData.getTenantId());
 		if (applicationId != null) {
 			requestData.setApplicationId(applicationId);
 			nocId = saveNoc(requestData, status, applicationId);
@@ -366,12 +376,14 @@ public class NocRepository {
 	}
 
 	/**
-	 * Adding new record for NOC using kafka
-	 * Setting data to Noc Application,details and remarks for NOC
+	 * Adding new record for NOC using kafka Setting data to Noc Application,details
+	 * and remarks for NOC
+	 * 
 	 * @param required
 	 *            Requestdata,applicationId and status
 	 */
 	// add
+	@SuppressWarnings("deprecation")
 	public String saveNoc(RequestData requestData, String status, String nocId) {
 
 		RequestInfo requestInfo = requestData.getRequestInfo();
@@ -530,7 +542,7 @@ public class NocRepository {
 		List<ProcessInstance> processList = Arrays.asList(processInstances);
 		workflowRequest.setProcessInstances(processList);
 		try {
-			return idgen.createWorkflowRequest(workflowRequest);
+			return commonService.createWorkflowRequest(workflowRequest);
 
 		} catch (Exception e) {
 			ResponseInfo responseInfo = new ResponseInfo();
@@ -578,191 +590,256 @@ public class NocRepository {
 	}
 
 	/**
-	 * Updating status of application Integrates the workflow and then updated the
-	 * status of application
-	 * 
-	 * @param required
-	 *            applicationType,applicationId,RequestInfo and tenantId
-	 */
-	public ResponseData updateApplicationStatus(RequestData requestData) throws ParseException, IOException {
-		ResponseInfo workflowResponse = workflowIntegration(requestData.getApplicationId(), requestData,
-				requestData.getApplicationStatus());
-		return updateAppStatus(requestData, workflowResponse);
-
-	}
-
-	/**
 	 * Updating status for application This method updates th status in main noc and
 	 * noc details and remarks data
 	 * 
 	 * @param required
 	 *            applicationType,RequestInfo,tenantId and workflowresponse
 	 */
-	public ResponseData updateAppStatus(RequestData requestData, ResponseInfo workflowResponse)
+	public ResponseData updateAppStatus(RequestData requestData)
 			throws ParseException, JsonParseException, JsonMappingException, IOException {
 		log.info("Started approveRejectNocTable() : " + requestData);
 		RequestInfo requestInfo = requestData.getRequestInfo();
 		String applicationId = null;
 		try {
-			if (workflowResponse != null && workflowResponse.getStatus().equals(CommonConstants.SUCCESSFUL)) {
+			setFallBack(requestData.getApplicationId());
 
-				JSONObject dataPayLoad = requestData.getDataPayload();
-				String roleCode = "";
-				roleCode = requestData.getRequestInfo().getUserInfo().getType();
-				// getApplication Details by noc_number
-				JSONArray actualResult = jdbcTemplate.query(QueryBuilder.SELECT_NOC_BY_NOCNUMBER,
-						new Object[] { requestData.getApplicationId() }, columnsNocRowMapper);
-				JSONObject jsonObject1 = (JSONObject) actualResult.get(0);
+			JSONObject dataPayLoad = requestData.getDataPayload();
+			String roleCode = "";
+			roleCode = requestData.getRequestInfo().getUserInfo().getType();
+			// getApplication Details by noc_number
+			JSONArray actualResult = jdbcTemplate.query(QueryBuilder.SELECT_NOC_BY_NOCNUMBER,
+					new Object[] { requestData.getApplicationId() }, columnsNocRowMapper);
+			JSONObject jsonObject1 = (JSONObject) actualResult.get(0);
 
-				String appId = jsonObject1.get(CommonConstants.STATUSAPPUUID).toString();
-				String tenantId = jsonObject1.get(CommonConstants.TENANTID).toString();
+			String appId = jsonObject1.get(CommonConstants.STATUSAPPUUID).toString();
+			String tenantId = jsonObject1.get(CommonConstants.TENANTID).toString();
 
-				Long time = System.currentTimeMillis();
-				applicationId = UUID.randomUUID().toString();
-				NOCApplicationRemark app = new NOCApplicationRemark();
-				app.setRemarkId(applicationId);
-				app.setApplicationUuid(appId);
-				app.setApplicationStatus(requestData.getApplicationStatus());
-				app.setRemark((dataPayLoad.get(CommonConstants.REMARKS) == null ? ""
-						: dataPayLoad.get(CommonConstants.REMARKS).toString()));
-				app.setRemarkBy(roleCode);
-				app.setIsActive(true);
-				app.setCreatedBy(requestInfo.getUserInfo().getUuid());
-				app.setCreatedTime(time);
-				app.setLastModifiedBy(requestInfo.getUserInfo().getUuid());
-				app.setLastModifiedTime(time);
-				app.setTenantId(tenantId);
-				app.setDocumentId((dataPayLoad.get(CommonConstants.DOCUMENTDETAIL) == null ? "{ \"fileStoreId\":\"\" }"
-						: dataPayLoad.get(CommonConstants.DOCUMENTDETAIL).toString()));
+			Long time = System.currentTimeMillis();
+			applicationId = UUID.randomUUID().toString();
+			NOCApplicationRemark app = new NOCApplicationRemark();
+			app.setRemarkId(applicationId);
+			app.setApplicationUuid(appId);
+			app.setApplicationStatus(requestData.getApplicationStatus());
+			app.setRemark((dataPayLoad.get(CommonConstants.REMARKS) == null ? ""
+					: dataPayLoad.get(CommonConstants.REMARKS).toString()));
+			app.setRemarkBy(roleCode);
+			app.setIsActive(true);
+			app.setCreatedBy(requestInfo.getUserInfo().getUuid());
+			app.setCreatedTime(time);
+			app.setLastModifiedBy(requestInfo.getUserInfo().getUuid());
+			app.setLastModifiedTime(time);
+			app.setTenantId(tenantId);
+			app.setDocumentId((dataPayLoad.get(CommonConstants.DOCUMENTDETAIL) == null ? "{ \"fileStoreId\":\"\" }"
+					: dataPayLoad.get(CommonConstants.DOCUMENTDETAIL).toString()));
 
-				List<NOCApplicationRemark> applist = Arrays.asList(app);
+			List<NOCApplicationRemark> applist = Arrays.asList(app);
 
-				NOCRemarksRequestData data = new NOCRemarksRequestData();
-				data.setRequestInfo(requestInfo);
-				data.setNocApplicationRamarks(applist);
+			NOCRemarksRequestData data = new NOCRemarksRequestData();
+			data.setRequestInfo(requestInfo);
+			data.setNocApplicationRamarks(applist);
 
-				Integer isAvail = findRemarks(appId);
-				if (isAvail != null && isAvail > 0) {
-					// Call Update first
-					producer.push(updateNOCApproveRejectTopic, data);
-				}
-
-				// then Save new entry
-				producer.push(saveNOCApproveRejectTopic, data);
-
-				// then Update the main table application status
-
-				BigDecimal gstAmount = jsonObject1.get(CommonConstants.GSTAMOUNTDB) != null
-						&& !jsonObject1.get(CommonConstants.GSTAMOUNTDB).toString().isEmpty()
-								? new BigDecimal(jsonObject1.get(CommonConstants.GSTAMOUNTDB).toString())
-								: BigDecimal.valueOf(0);
-				BigDecimal performanceCharges = jsonObject1
-						.get(CommonConstants.PERFORMANCEBANKGUARANTEECHARGESDB) != null
-						&& !jsonObject1.get(CommonConstants.PERFORMANCEBANKGUARANTEECHARGESDB).toString().isEmpty()
-								? new BigDecimal(
-										jsonObject1.get(CommonConstants.PERFORMANCEBANKGUARANTEECHARGESDB).toString())
-								: BigDecimal.valueOf(0);
-				BigDecimal amount = jsonObject1.get(CommonConstants.AMOUNT) != null
-						&& !jsonObject1.get(CommonConstants.AMOUNT).toString().isEmpty()
-								? new BigDecimal(jsonObject1.get(CommonConstants.AMOUNT).toString())
-								: BigDecimal.valueOf(0);
-
-				BigDecimal totalamount = jsonObject1.get(CommonConstants.TOTALAMOUNT) != null
-						&& !jsonObject1.get(CommonConstants.TOTALAMOUNT).toString().isEmpty()
-								? new BigDecimal(jsonObject1.get(CommonConstants.TOTALAMOUNT).toString())
-								: BigDecimal.valueOf(0);
-
-				NOCApplication apps = new NOCApplication();
-				apps.setTenantId(tenantId);
-				apps.setApplicationUuid(appId);
-				apps.setNocNumber(requestData.getApplicationId());
-				apps.setApplicationType(requestData.getApplicationType());
-				apps.setApplicationStatus(requestData.getApplicationStatus());
-				apps.setCreatedBy(jsonObject1.get(CommonConstants.CREATEDBYDB).toString());
-				apps.setLastModifiedBy(requestInfo.getUserInfo().getUuid());
-				apps.setLastModifiedTime(time);
-				apps.setAmount((dataPayLoad.get(CommonConstants.AMOUNT) != null
-						? new BigDecimal(dataPayLoad.get(CommonConstants.AMOUNT).toString())
-						: amount));
-				apps.setGstAmount((dataPayLoad.get(CommonConstants.GSTAMOUNT) != null
-						? new BigDecimal(dataPayLoad.get(CommonConstants.GSTAMOUNT).toString())
-						: gstAmount));
-				apps.setPerformanceBankGuarantee(
-						(dataPayLoad.get(CommonConstants.PERFORMANCEBANKGUARANTEECHARGES) != null
-								? new BigDecimal(
-										dataPayLoad.get(CommonConstants.PERFORMANCEBANKGUARANTEECHARGES).toString())
-								: performanceCharges));
-
-				apps.setAmount(apps.getAmount().setScale(0, BigDecimal.ROUND_UP));
-				apps.setPerformanceBankGuarantee(apps.getPerformanceBankGuarantee().setScale(0, BigDecimal.ROUND_UP));
-				apps.setGstAmount(apps.getGstAmount().setScale(0, BigDecimal.ROUND_UP));
-				if (dataPayLoad.get(CommonConstants.GSTAMOUNT) != null
-						&& dataPayLoad.get(CommonConstants.AMOUNT) != null
-						&& dataPayLoad.get(CommonConstants.PERFORMANCEBANKGUARANTEECHARGES) != null) {
-					totalamount = apps.getGstAmount().add(apps.getAmount()).add(apps.getPerformanceBankGuarantee());
-					apps.setTotalamount(totalamount.setScale(0, BigDecimal.ROUND_UP));
-				} else {
-					apps.setTotalamount(totalamount.setScale(0, BigDecimal.ROUND_UP));
-				}
-
-				if (dataPayLoad.get(CommonConstants.BADGENUMBER) != null) {
-					NOCApplicationDetail applicationDetailModel = jdbcTemplate.queryForObject(
-							QueryBuilder.SELECT_APPLICATION_DETAIL_QUERY,
-							new Object[] { requestData.getApplicationId() },
-							BeanPropertyRowMapper.newInstance(NOCApplicationDetail.class));
-
-					if (applicationDetailModel != null) {
-						ObjectMapper objectMapper = new ObjectMapper();
-						JSONObject applicationDetailData = objectMapper
-								.readValue(applicationDetailModel.getApplicationDetail(), JSONObject.class);
-						applicationDetailData.put(CommonConstants.BADGENUMBER,
-								dataPayLoad.get(CommonConstants.BADGENUMBER));
-						NOCApplicationDetail details = new NOCApplicationDetail();
-						details.setApplicationDetail(applicationDetailData.toJSONString());
-						details.setApplicationUuid(getAppIdUuid(requestData.getApplicationId()));
-						JSONObject object = new JSONObject();
-						object.put("NOCApplicationDetail", details);
-						producer.push(updateNOCApplicationDetailsTopic, object);
-					}
-				} else if (dataPayLoad.get(CommonConstants.WITHDRAWAPPROVALAMOUNT) != null) {
-					NOCApplicationDetail applicationDetailModel = jdbcTemplate.queryForObject(
-							QueryBuilder.SELECT_APPLICATION_DETAIL_QUERY,
-							new Object[] { requestData.getApplicationId() },
-							BeanPropertyRowMapper.newInstance(NOCApplicationDetail.class));
-
-					if (applicationDetailModel != null) {
-						ObjectMapper objectMapper = new ObjectMapper();
-						JSONObject applicationDetailData = objectMapper
-								.readValue(applicationDetailModel.getApplicationDetail(), JSONObject.class);
-						applicationDetailData.put(CommonConstants.WITHDRAWAPPROVALAMOUNT,
-								dataPayLoad.get(CommonConstants.WITHDRAWAPPROVALAMOUNT));
-						NOCApplicationDetail details = new NOCApplicationDetail();
-						details.setApplicationDetail(applicationDetailData.toJSONString());
-						details.setApplicationUuid(getAppIdUuid(requestData.getApplicationId()));
-						JSONObject object = new JSONObject();
-						object.put("NOCApplicationDetail", details);
-						producer.push(updateNOCApplicationDetailsTopic, object);
-					}
-				}
-
-				List<NOCApplication> applists = Arrays.asList(apps);
-				NOCRequestData dataApp = new NOCRequestData();
-				dataApp.setRequestInfo(requestInfo);
-				dataApp.setNocApplication(applists);
-				producer.push(updateStatusNOCTopic, dataApp);
-
-				return ResponseData.builder().responseInfo(ResponseInfo.builder().msgId(workflowResponse.getMsgId())
-						.status(CommonConstants.SUCCESS).build()).applicationId(applicationId).build();
-			} else {
-				return ResponseData.builder().responseInfo(
-						ResponseInfo.builder().status(CommonConstants.FAIL).msgId(workflowResponse.getMsgId()).build())
-						.build();
+			Integer isAvail = findRemarks(appId);
+			if (isAvail != null && isAvail > 0) {
+				// Call Update first
+				producer.push(updateNOCApproveRejectTopic, data);
 			}
+
+			// then Save new entry
+			producer.push(saveNOCApproveRejectTopic, data);
+
+			// setting remark id to fallback object
+			if (nocApplication.getNocApplicationRemark() != null)
+				nocApplication.getNocApplicationRemark().setRemarkId(applicationId);
+
+			nocApplication.setLastModifiedTime(time);
+
+			// then Update the main table application status
+
+			BigDecimal gstAmount = jsonObject1.get(CommonConstants.GSTAMOUNTDB) != null
+					&& !jsonObject1.get(CommonConstants.GSTAMOUNTDB).toString().isEmpty()
+							? new BigDecimal(jsonObject1.get(CommonConstants.GSTAMOUNTDB).toString())
+							: null;
+			BigDecimal performanceCharges = jsonObject1.get(CommonConstants.PERFORMANCEBANKGUARANTEECHARGESDB) != null
+					&& !jsonObject1.get(CommonConstants.PERFORMANCEBANKGUARANTEECHARGESDB).toString().isEmpty()
+							? new BigDecimal(
+									jsonObject1.get(CommonConstants.PERFORMANCEBANKGUARANTEECHARGESDB).toString())
+							: null;
+			BigDecimal amount = jsonObject1.get(CommonConstants.AMOUNT) != null
+					&& !jsonObject1.get(CommonConstants.AMOUNT).toString().isEmpty()
+							? new BigDecimal(jsonObject1.get(CommonConstants.AMOUNT).toString())
+							: null;
+
+			BigDecimal totalamount = jsonObject1.get(CommonConstants.TOTALAMOUNT) != null
+					&& !jsonObject1.get(CommonConstants.TOTALAMOUNT).toString().isEmpty()
+							? new BigDecimal(jsonObject1.get(CommonConstants.TOTALAMOUNT).toString())
+							: null;
+
+			NOCApplication apps = new NOCApplication();
+			apps.setTenantId(tenantId);
+			apps.setApplicationUuid(appId);
+			apps.setNocNumber(requestData.getApplicationId());
+			apps.setApplicationType(requestData.getApplicationType());
+			apps.setApplicationStatus(requestData.getApplicationStatus());
+			apps.setCreatedBy(jsonObject1.get(CommonConstants.CREATEDBYDB).toString());
+			apps.setLastModifiedBy(requestInfo.getUserInfo().getUuid());
+			apps.setLastModifiedTime(time);
+			apps.setAmount((dataPayLoad.get(CommonConstants.AMOUNT) != null
+					? new BigDecimal(dataPayLoad.get(CommonConstants.AMOUNT).toString())
+					: amount));
+			apps.setGstAmount((dataPayLoad.get(CommonConstants.GSTAMOUNT) != null
+					? new BigDecimal(dataPayLoad.get(CommonConstants.GSTAMOUNT).toString())
+					: gstAmount));
+			apps.setPerformanceBankGuarantee((dataPayLoad.get(CommonConstants.PERFORMANCEBANKGUARANTEECHARGES) != null
+					? new BigDecimal(dataPayLoad.get(CommonConstants.PERFORMANCEBANKGUARANTEECHARGES).toString())
+					: performanceCharges));
+
+			apps.setAmount(apps.getAmount() != null ? apps.getAmount().setScale(0, BigDecimal.ROUND_UP) : null);
+			apps.setPerformanceBankGuarantee(apps.getPerformanceBankGuarantee() != null
+					? apps.getPerformanceBankGuarantee().setScale(0, BigDecimal.ROUND_UP)
+					: null);
+			apps.setGstAmount(
+					apps.getGstAmount() != null ? apps.getGstAmount().setScale(0, BigDecimal.ROUND_UP) : null);
+			if (dataPayLoad.get(CommonConstants.GSTAMOUNT) != null && dataPayLoad.get(CommonConstants.AMOUNT) != null
+					&& dataPayLoad.get(CommonConstants.PERFORMANCEBANKGUARANTEECHARGES) != null) {
+				totalamount = apps.getGstAmount().add(apps.getAmount()).add(apps.getPerformanceBankGuarantee());
+				apps.setTotalamount(totalamount.setScale(0, BigDecimal.ROUND_UP));
+			} else {
+				apps.setTotalamount(totalamount != null ? totalamount.setScale(0, BigDecimal.ROUND_UP) : null);
+			}
+
+			if (dataPayLoad.get(CommonConstants.BADGENUMBER) != null) {
+				NOCApplicationDetail applicationDetailModel = jdbcTemplate.queryForObject(
+						QueryBuilder.SELECT_APPLICATION_DETAIL_QUERY, new Object[] { requestData.getApplicationId() },
+						BeanPropertyRowMapper.newInstance(NOCApplicationDetail.class));
+
+				if (applicationDetailModel != null) {
+					ObjectMapper objectMapper = new ObjectMapper();
+					JSONObject applicationDetailData = objectMapper
+							.readValue(applicationDetailModel.getApplicationDetail(), JSONObject.class);
+					applicationDetailData.put(CommonConstants.BADGENUMBER,
+							dataPayLoad.get(CommonConstants.BADGENUMBER));
+					NOCApplicationDetail details = new NOCApplicationDetail();
+					details.setApplicationDetail(applicationDetailData.toJSONString());
+					details.setApplicationUuid(getAppIdUuid(requestData.getApplicationId()));
+					JSONObject object = new JSONObject();
+					object.put("NOCApplicationDetail", details);
+					producer.push(updateNOCApplicationDetailsTopic, object);
+				}
+			} else if (dataPayLoad.get(CommonConstants.WITHDRAWAPPROVALAMOUNT) != null) {
+				NOCApplicationDetail applicationDetailModel = jdbcTemplate.queryForObject(
+						QueryBuilder.SELECT_APPLICATION_DETAIL_QUERY, new Object[] { requestData.getApplicationId() },
+						BeanPropertyRowMapper.newInstance(NOCApplicationDetail.class));
+
+				if (applicationDetailModel != null) {
+					ObjectMapper objectMapper = new ObjectMapper();
+					JSONObject applicationDetailData = objectMapper
+							.readValue(applicationDetailModel.getApplicationDetail(), JSONObject.class);
+					applicationDetailData.put(CommonConstants.WITHDRAWAPPROVALAMOUNT,
+							dataPayLoad.get(CommonConstants.WITHDRAWAPPROVALAMOUNT));
+					NOCApplicationDetail details = new NOCApplicationDetail();
+					details.setApplicationDetail(applicationDetailData.toJSONString());
+					details.setApplicationUuid(getAppIdUuid(requestData.getApplicationId()));
+					JSONObject object = new JSONObject();
+					object.put("NOCApplicationDetail", details);
+					producer.push(updateNOCApplicationDetailsTopic, object);
+				}
+			}
+
+			List<NOCApplication> applists = Arrays.asList(apps);
+			NOCRequestData dataApp = new NOCRequestData();
+			dataApp.setRequestInfo(requestInfo);
+			dataApp.setNocApplication(applists);
+			producer.push(updateStatusNOCTopic, dataApp);
+
+			return callWorkflow(requestData, applicationId, dataApp);
 		} catch (Exception e) {
 			return ResponseData.builder().responseInfo(
 					ResponseInfo.builder().status(CommonConstants.FAIL).msgId("Exception : " + e.getMessage()).build())
 					.build();
 		}
+	}
+
+	public ResponseData callWorkflow(RequestData requestData, String applicationId, NOCRequestData dataApp) {
+		try {
+			log.info("NocRepository.callWorkflow :: Calling Workflow Service");
+			ResponseInfo workflowResponse = workflowIntegration(requestData.getApplicationId(), requestData,
+					requestData.getApplicationStatus());
+
+			if (workflowResponse != null && workflowResponse.getStatus().equals(CommonConstants.SUCCESSFUL)) {
+				log.info("NocRepository.callWorkflow :: Received Workflow Response Successful for id:{}",
+						nocApplication.getNocNumber());
+
+				producer.push(notificationTopic, dataApp);
+				log.info("NocRepository.callWorkflow :: Notification Data Sent to Topic for id:{}",
+						nocApplication.getNocNumber());
+
+				return ResponseData.builder().responseInfo(ResponseInfo.builder().msgId(workflowResponse.getMsgId())
+						.status(CommonConstants.SUCCESS).build()).applicationId(applicationId).build();
+			} else {
+				log.info(
+						"NocRepository.callWorkflow :: Received Workflow Response Failed.Pushing Data to Fallback Topic for id:{}",
+						nocApplication.getNocNumber());
+
+				JSONObject fallbackObject = new JSONObject();
+				fallbackObject.put("NOCApplication", nocApplication);
+				producer.push(fallbackTopic, fallbackObject);
+				log.info("NocRepository.callWorkflow :: Data pushed To fallback topic for id:{}",
+						nocApplication.getNocNumber());
+
+				return ResponseData.builder().responseInfo(
+						ResponseInfo.builder().status(CommonConstants.FAIL).msgId(workflowResponse.getMsgId()).build())
+						.build();
+			}
+		} catch (Exception e) {
+			log.error("EXCEPTION -> Inside NocRepository.callWorkflow:: Id:{}", nocApplication.getNocNumber());
+			log.info(
+					"NocRepository.callWorkflow :: Received Workflow Response Failed.Pushing Data to Fallback Topic for id:{}",
+					nocApplication.getNocNumber());
+
+			JSONObject fallbackObject = new JSONObject();
+			fallbackObject.put("NOCApplication", nocApplication);
+			producer.push(fallbackTopic, fallbackObject);
+			log.info("NocRepository.callWorkflow :: Data pushed To fallback topic for id:{}",
+					nocApplication.getNocNumber());
+			return ResponseData.builder()
+					.responseInfo(ResponseInfo.builder().status(CommonConstants.FAIL).msgId("WORKFLOW ERROR").build())
+					.build();
+		}
+	}
+
+	public void setFallBack(String applicationId) {
+
+		JSONArray actualResult = jdbcTemplate.query(QueryBuilder.SELECT_FALLBACK_QUERY, new Object[] { applicationId },
+				columnsNocRowMapper);
+		if (actualResult.isEmpty() || actualResult.get(0) == null || actualResult == null)
+			throw new CustomException("FALLBACK DATA ERROR", "No data found");
+
+		JSONObject jsonObject1 = (JSONObject) actualResult.get(0);
+		nocApplication.setNocNumber(jsonObject1.get("nocnumber").toString());
+		nocApplication.setAmount(
+				jsonObject1.get("amount") != "" ? new BigDecimal(jsonObject1.get("amount").toString()) : null);
+		nocApplication.setPerformanceBankGuarantee(jsonObject1.get("performancebankguaranteecharges") != ""
+				? new BigDecimal(jsonObject1.get("performancebankguaranteecharges").toString())
+				: null);
+		nocApplication.setGstAmount(
+				jsonObject1.get("gstamount") != "" ? new BigDecimal(jsonObject1.get("gstamount").toString()) : null);
+		nocApplication.setTotalamount(
+				jsonObject1.get("totalamount") != "" ? new BigDecimal(jsonObject1.get("totalamount").toString())
+						: null);
+
+		nocApplication.setApplicationStatus(jsonObject1.get("applicationstatus").toString());
+		// nocApplication.setApplicantName(jsonObject1.get("applicantname").toString());
+		nocApplication.setHouseNo(jsonObject1.get("housenumber").toString());
+		nocApplication.setSector(jsonObject1.get("sector").toString());
+		nocApplication.setApplicantName(jsonObject1.get("applicantname").toString());
+		nocApplication.setApplicationUuid(jsonObject1.get("applicationuuid").toString());
+		nocApplication.setNocApplicationRemark(
+				NOCApplicationRemark.builder().previousRemarkId(jsonObject1.get("remarkid").toString()).build());
+		nocApplication.setNocApplicationDetails(NOCApplicationDetail.builder()
+				.applicationDetail(jsonObject1.get("applicationdetail").toString()).build());
+		System.out.println(nocApplication);
+
 	}
 
 	/**
@@ -849,9 +926,13 @@ public class NocRepository {
 					(jsonObject.get("price_book_id") == null ? "" : jsonObject.get("price_book_id").toString()));
 			nb.setEffectiveToDate(formatter.format(yesterday));
 			nb.setLastModifiedBy(requestData.getRequestInfo().getUserInfo().getUuid());
+			nb.setCreatedTime(time);
+			nb.setApplicationType(requestData.getApplicationType());
+			nb.setTenantId(requestData.getTenantId());
 			List<NOCPriceBook> applist1 = Arrays.asList(nb);
 			data.setRequestInfo(requestData.getRequestInfo());
 			data.setNocPriceBook(applist1);
+	
 			producer.push(updatePriceBookdate, data);
 			NOCPriceBook app = new NOCPriceBook();
 			String applicationId = UUID.randomUUID().toString();
@@ -902,6 +983,8 @@ public class NocRepository {
 			app.setEffectiveFromDate(formatter.format(date));
 			app.setCreatedBy(requestData.getRequestInfo().getUserInfo().getUuid());
 			app.setCreatedTime(time);
+			app.setTenantId(requestData.getTenantId());
+			app.setApplicationType(requestData.getApplicationType());
 			List<NOCPriceBook> nocPriceBook = Arrays.asList(app);
 
 			PriceBookRequestData data1 = new PriceBookRequestData();
@@ -991,7 +1074,8 @@ public class NocRepository {
 
 		app.setPerDayPrice(Long.parseLong(dataPayLoad.get(CommonConstants.PER_DAY_PRICE).toString()) == 0 ? 0L
 				: Long.parseLong(dataPayLoad.get(CommonConstants.PER_DAY_PRICE).toString()));
-
+		
+		app.setCreatedTime(System.currentTimeMillis());
 		List<NOCPriceBook> nocPriceBook = Arrays.asList(app);
 
 		PriceBookRequestData data = new PriceBookRequestData();
