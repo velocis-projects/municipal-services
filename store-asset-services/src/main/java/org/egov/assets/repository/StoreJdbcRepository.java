@@ -110,7 +110,7 @@ public class StoreJdbcRepository extends JdbcRepository {
         if (storeGetRequest.getName() != null) {
             if (params.length() > 0)
                 params.append(" and ");
-            params.append("name = :name");
+            params.append("name like concat('%',:name,'%')");
             paramValues.put("name", storeGetRequest.getName());
         }
 

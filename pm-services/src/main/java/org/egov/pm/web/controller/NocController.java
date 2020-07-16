@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.egov.pm.model.RequestInfoWrapper;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -181,7 +182,7 @@ public class NocController {
 	 * @return The list of applications
 	 */
 	@PostMapping("cron/jobs/report/_processingTimeReport")
-	public void processingTimeReport() {
+	public void processingTimeReport(@RequestBody RequestInfoWrapper requestInfoWrapper) {
 		log.debug(String.format("STARTED processingTimeReport()"));
 		schedularService.scheduleTask();
 		log.debug(String.format("ENDED processingTimeReport()"));
