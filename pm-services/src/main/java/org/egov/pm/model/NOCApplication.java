@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Collection of audit related fields used by most models
- */
+* A Object holds the data for a for NOC with remark and details
+*/
 @Getter
 @Setter
 @AllArgsConstructor
