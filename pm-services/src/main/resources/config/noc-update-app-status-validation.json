@@ -5,7 +5,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
            },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -17,12 +17,12 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"false",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "badgeNumber":{
                "fieldName":"badgeNumber",
                "mandatory":"false",
-               "validateRegularExp":"^[a-zA-Z0-9-_ ]{1,50}$"
+               "validateRegularExp":"^[a-zA-Z0-9- ]{1,50}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -36,19 +36,19 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "badgeNumber":{
                "fieldName":"badgeNumber",
                "mandatory":"false",
-               "validateRegularExp":"^[a-zA-Z0-9-_ ]{1,50}$"
+               "validateRegularExp":"^[a-zA-Z0-9- ]{1,50}$"
             }
          },
          "REJECTED":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -60,7 +60,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -99,7 +99,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -126,7 +126,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -140,7 +140,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -152,7 +152,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -166,14 +166,14 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             }
          },
          "REVIEWOFSE":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -185,7 +185,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -197,7 +197,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -211,7 +211,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -223,7 +223,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -237,14 +237,14 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             }
          },
          "REASSIGNTOSE":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -256,7 +256,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -296,7 +296,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -308,7 +308,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -321,14 +321,14 @@
          "remarks":{
             "fieldName":"remarks",
             "mandatory":"true",
-            "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+            "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
          }
       },
       "FORWARD":{
          "remarks":{
             "fieldName":"remarks",
             "mandatory":"true",
-            "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+            "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
          }
       },
       "SUPERINTENDENT":{
@@ -336,7 +336,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -348,7 +348,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -362,14 +362,14 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             }
          },
          "REASSIGNTOSUPERINTENDENT":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -381,7 +381,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -404,14 +404,14 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             }
          },
          "WITHDRAWAFTERAPRROVAL":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             }
          },
          "PAID":{
@@ -445,7 +445,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -456,7 +456,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -473,7 +473,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -487,7 +487,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -499,7 +499,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -513,7 +513,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -525,7 +525,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -541,7 +541,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -555,14 +555,14 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             }
          },
          "REJECTED":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -574,14 +574,14 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             }
          },
          "REJECTEFORWITHDRAW":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.,' ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.,'\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
@@ -593,7 +593,7 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]{1,128}$"
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",

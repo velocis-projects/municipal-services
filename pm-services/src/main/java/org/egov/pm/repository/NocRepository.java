@@ -639,12 +639,6 @@ public class NocRepository {
 			data.setRequestInfo(requestInfo);
 			data.setNocApplicationRamarks(applist);
 
-			Integer isAvail = findRemarks(appId);
-			if (isAvail != null && isAvail > 0) {
-				// Call Update first
-				producer.push(updateNOCApproveRejectTopic, data);
-			}
-
 			// then Save new entry
 			producer.push(saveNOCApproveRejectTopic, data);
 
@@ -815,6 +809,7 @@ public class NocRepository {
 		if (actualResult.isEmpty() || actualResult.get(0) == null || actualResult == null)
 			throw new CustomException("FALLBACK DATA ERROR", "No data found");
 
+		
 		JSONObject jsonObject1 = (JSONObject) actualResult.get(0);
 		nocApplication.setNocNumber(jsonObject1.get("nocnumber").toString());
 		nocApplication.setAmount(
