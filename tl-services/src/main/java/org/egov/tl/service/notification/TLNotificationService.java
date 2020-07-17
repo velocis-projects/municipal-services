@@ -194,7 +194,7 @@ public class TLNotificationService {
 			}
             if(message==null) continue;
 
-//			message = message.replace("\\n","");
+			message = message.replace("\\n", "\n");
             emailRequests.addAll(util.createEMAILRequest(message,emailIdToOwner));
         }
     }
