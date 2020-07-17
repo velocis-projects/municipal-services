@@ -5,7 +5,7 @@ import java.util.Map;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import org.egov.hc.contract.RequestInfoWrapper;
+
 import org.egov.hc.contract.ServiceRequest;
 
 import org.egov.hc.model.RequestData;
@@ -14,8 +14,6 @@ import org.egov.hc.producer.HCConfiguration;
 import org.egov.hc.producer.HCProducer;
 import org.egov.hc.repository.builder.HCQueryBuilder;
 import org.egov.hc.repository.rowmapper.HCRowMapper;
-
-import org.egov.hc.utils.HCConstants;
 
 
 import org.egov.tracer.model.ServiceCallException;
