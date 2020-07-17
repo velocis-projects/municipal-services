@@ -14,7 +14,7 @@ public class EcConstants {
 
 	public static final String MDM_TEMPLATE_AUCTION_NOTIFICATION = "AuctionNotificationTemplate";
 	public static final String MDMS_TEMPLATE_PATH = "$.MdmsRes.egec";
-
+	public static final String ROLE_STORE_MANAGER="challanSM";
 	public static final String MDM_MODULE = "egov-echallan";
 
 	public static final String NOTIFICATION_LOCALE = "en_IN";

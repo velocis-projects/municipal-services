@@ -17,7 +17,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.ec.config.EcConstants;
 import org.egov.ec.config.EchallanConfiguration;
@@ -39,6 +38,10 @@ import org.egov.ec.web.models.Violation;
 import org.egov.ec.web.models.workflow.ProcessInstance;
 import org.egov.ec.web.models.workflow.ProcessInstanceRequest;
 import org.egov.ec.workflow.WorkflowIntegrator;
+import org.egov.mdms.model.MasterDetail;
+import org.egov.mdms.model.MdmsCriteria;
+import org.egov.mdms.model.MdmsCriteriaReq;
+import org.egov.mdms.model.ModuleDetail;
 import org.egov.tracer.model.CustomException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -256,7 +259,7 @@ public class EcSchedulerService {
 					.queryParam("tenantId", (response.getFiles().get(0).getTenantId()));
 
 			FileStore urlResponse = restTemplate.getForObject(builder.toUriString(), FileStore.class);
-			sendMail(urlResponse,ecSearchCriteria);
+			sendMail(urlResponse,ecSearchCriteria,requestInfoWrapper);
 
 			return new ResponseEntity<>(ResponseInfoWrapper.builder()
 					.responseInfo(ResponseInfo.builder().status(EcConstants.STATUS_SUCCESS).build()).responseBody(null)
@@ -278,20 +281,21 @@ public class EcSchedulerService {
 	 * 
 	 * @param urlResponse
 	 * @param ecSearchCriteria 
+	 * @param req 
 	 *
 	 */
-	private void sendMail(FileStore urlResponse, EcSearchCriteria ecSearchCriteria) {
+	private void sendMail(FileStore urlResponse, EcSearchCriteria ecSearchCriteria, RequestInfoWrapper req) {
 		String subject = "";
 		String body = "";
 
 		User user = new User();
-		RequestInfo req = new RequestInfo();
+	//	RequestInfo req = new RequestInfo();
 
 		UriComponentsBuilder userUrlBuilder = UriComponentsBuilder
-				.fromUriString(config.getHrmsHost() + config.getHrmsSearchEndpoint()).queryParam("roles", "challanSM")
+				.fromUriString(config.getHrmsHost() + config.getHrmsSearchEndpoint()).queryParam("roles", EcConstants.ROLE_STORE_MANAGER)
 				.queryParam("tenantId", ecSearchCriteria.getTenantId());
 		JsonNode userResponse = restTemplate.postForObject(userUrlBuilder.toUriString(),
-				RequestInfoWrapper.builder().requestInfo(req).build(), JsonNode.class);
+				RequestInfoWrapper.builder().requestInfo(req.getRequestInfo()).build(), JsonNode.class);
 		String json = userResponse.toString();
 		JSONObject obj = new JSONObject(json);
 
@@ -304,11 +308,31 @@ public class EcSchedulerService {
 			}
 		}
 
+		MdmsCriteriaReq mdmsCriteriaReq = new MdmsCriteriaReq();
+    	mdmsCriteriaReq.setRequestInfo(req.getRequestInfo());
+		MdmsCriteria criteria = new MdmsCriteria();
+		criteria.setTenantId("ch");
+
+		ModuleDetail detail = new ModuleDetail();
+		detail.setModuleName("egec");
+
+		MasterDetail masterDetail = new MasterDetail();
+		masterDetail.setName("AuctionNotificationTemplate");
+		//masterDetail.setFilter(filter);
+		ArrayList<MasterDetail> masterList = new ArrayList<>();
+		masterList.add(masterDetail);
+		detail.setMasterDetails(masterList);
+
+		ArrayList<ModuleDetail> moduleList = new ArrayList<>();
+		moduleList.add(detail);
+
+		criteria.setModuleDetails(moduleList);
+		mdmsCriteriaReq.setMdmsCriteria(criteria);
 		UriComponentsBuilder mdmsUrlBuilder = UriComponentsBuilder
 				.fromUriString(config.getMdmsHost() + config.getMdmsEndPoint()).queryParam("moduleName", "egec")
 				.queryParam("tenantId", "ch").queryParam("masterName", EcConstants.MDM_TEMPLATE_AUCTION_NOTIFICATION);
 
-		Object response = restTemplate.postForObject(mdmsUrlBuilder.toUriString(), user, Object.class);
+		Object response = restTemplate.postForObject((config.getMdmsHost() + config.getMdmsEndPoint()), mdmsCriteriaReq, Object.class);
 
 		Map<String, List<String>> mdmResponse = getAttributeValues(response);
 		String value = mdmResponse.get(EcConstants.MDM_TEMPLATE_AUCTION_NOTIFICATION).toString();
