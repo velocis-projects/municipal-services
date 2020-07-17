@@ -141,13 +141,15 @@ public class TLNotificationService {
 					break;
 			}
             if(message==null) continue;
-
+            
             Map<String,String > mobileNumberToOwner = new HashMap<>();
 
             license.getTradeLicenseDetail().getOwners().forEach(owner -> {
                 if(owner.getMobileNumber()!=null)
                     mobileNumberToOwner.put(owner.getMobileNumber(),owner.getName());
             });
+            
+           message = message.replace("\\n", "\n");
            smsRequests.addAll(util.createSMSRequest(message,mobileNumberToOwner));
         }
     }
