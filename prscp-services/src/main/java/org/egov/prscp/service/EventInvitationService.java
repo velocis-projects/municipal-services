@@ -2,12 +2,18 @@
 package org.egov.prscp.service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -87,8 +93,22 @@ public class EventInvitationService {
 			if (fileUrls == null || fileUrls.isEmpty())
 				throw new CustomException(CommonConstants.INVITATION_EXCEPTION_CODE,
 						"Failed to get file Url from File service");
-
-			UrlResource fileResource = new UrlResource(fileUrls);
+			
+			int lastIndexOf = fileUrls.lastIndexOf('\\')+1;
+			int lastIndexOf1 = fileUrls.indexOf(".xls")-1;
+			String filename=fileUrls.substring(lastIndexOf, lastIndexOf1).replaceAll(" ", "%20");
+			StringBuilder string = new StringBuilder(fileUrls);			
+			string.replace(lastIndexOf,lastIndexOf1 , filename);
+			UrlResource fileResource = new UrlResource(string.toString());
+			/*
+			CloseableHttpClient client = HttpClientBuilder.create().build();
+			HttpGet request = new HttpGet(fileUrls.replaceAll(" ", "%20"));
+			request.addHeader("accept", "application/vnd.ms-excel");
+			HttpResponse response = client.execute(request);
+			HttpEntity entity = response.getEntity();
+			int responseCode = response.getStatusLine().getStatusCode();
+			InputStream inputStream = entity.getContent();*/
+			
 			List<InviteGuest> userList = new ArrayList<>();
 			HSSFWorkbook workbook = new HSSFWorkbook(fileResource.getInputStream());
 			HSSFSheet worksheet = workbook.getSheetAt(0);
@@ -194,7 +214,8 @@ public class EventInvitationService {
 			repository.updateTemplateOfEvent(inviteGuest);
 			EventDetail eventDetail = EventDetail.builder().notificationTemplateUuid(notificationTemplateUuid)
 					.tenantId(template.getTenantId()).isActive(true).moduleCode(template.getModuleCode())
-					.eventDetailUuid(template.getEventDetailUuid()).build();
+					.eventDetailUuid(template.getEventDetailUuid())
+					.createdTime(requestInfoWrapper.getAuditDetails().getCreatedTime()).build();
 
 			repository.updateEventNotification(eventDetail);
 
@@ -240,6 +261,7 @@ public class EventInvitationService {
 			notitemplate.setEmailContent(template.getEmailContent().toJSONString());
 			notitemplate.setLastModifiedBy(requestInfoWrapper.getAuditDetails().getLastModifiedBy());
 			notitemplate.setLastModifiedTime(requestInfoWrapper.getAuditDetails().getLastModifiedTime());
+			notitemplate.setCreatedTime(requestInfoWrapper.getAuditDetails().getCreatedTime());
 			repository.updateTemplate(notitemplate);
 		}
 		return uuid;

@@ -161,7 +161,8 @@ public class EventCommitteeMasterService {
 			committeeDetail.setActive(true);
 			committeeDetail.setLastModifiedBy(requestInfoWrapper.getAuditDetails().getLastModifiedBy());
 			committeeDetail.setLastModifiedTime(requestInfoWrapper.getAuditDetails().getLastModifiedTime());
-
+			committeeDetail.setCreatedTime(requestInfoWrapper.getAuditDetails().getCreatedTime());
+			
 			List<CommitteeMember> listCommitteeMember = new ArrayList<>();
 			for (CommitteeMember member : committeeDetail.getCommitteeMember()) {
 				String memberUuid = UUID.randomUUID().toString();

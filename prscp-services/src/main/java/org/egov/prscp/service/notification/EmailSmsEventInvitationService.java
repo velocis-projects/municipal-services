@@ -134,7 +134,7 @@ public class EmailSmsEventInvitationService {
 				}
 
 				InviteGuest inviteGuests = InviteGuest.builder().moduleCode(notificationReceiver.getModuleCode())
-						.eventDetailUuid(notificationReceiver.getReceiverUuid())
+						.eventDetailUuid(notificationReceiver.getReceiverUuid()).sentFlag(false).createdBy(notificationReceiver.getSenderUuid())
 						.tenantId(notificationReceiver.getTenantId()).build();
 				List<InviteGuest> guestsList = eventInvetationRepository.getGuest(inviteGuests);
 
@@ -155,6 +155,7 @@ public class EmailSmsEventInvitationService {
 						String emailSubject = (emailContent.isEmpty() ? "" : emailContent.get(0).getEmailSubject());
 						String emailBody = (emailContent.isEmpty() ? "" : emailContent.get(0).getEmailBody());
 						String smsTemplate = notificationTemplate.getSmsContent();
+						Date currentDate = new Date();
 						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
 						String datsse = detail.getStartDate().substring(0, 10);
 						LocalDate localDate = LocalDate.parse(datsse);
@@ -212,6 +213,7 @@ public class EmailSmsEventInvitationService {
 								object.setEventDetailUuid(notificationReceiver.getReceiverUuid());
 								object.setTenantId(notificationReceiver.getTenantId());
 								object.setModuleCode(notificationReceiver.getModuleCode());
+								object.setCreatedTime(currentDate.getTime());
 							});
 							RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(guestsList)
 									.build();
@@ -278,7 +280,7 @@ public class EmailSmsEventInvitationService {
 						String emailSubject = (emailContent.isEmpty() ? "" : emailContent.get(0).getEmailSubject());
 						String emailBody = (emailContent.isEmpty() ? "" : emailContent.get(0).getEmailBody());
 						String smsTemplate = notificationTemplate.getSmsContent();
-
+						Date currentDate = new Date();
 						for (PublicationList press : publicationLists) {
 							StringBuilder builderEmail = new StringBuilder(
 									config.getEmailGuestGreet().replace("[:contactName:]", press.getPersonnelName())
@@ -306,7 +308,8 @@ public class EmailSmsEventInvitationService {
 						PressNoteMap pressNoteMap = PressNoteMap.builder()
 								.pressNoteUuid(notificationReceiver.getReceiverUuid())
 								.moduleCode(notificationReceiver.getModuleCode())
-								.tenantId(notificationReceiver.getTenantId()).notifyStatus(true).build();
+								.tenantId(notificationReceiver.getTenantId()).notifyStatus(true)
+								.createdTime(currentDate.getTime()).build();
 
 						if (!publicationLists.isEmpty()) {
 							// call update to set sentFlag as true
@@ -372,7 +375,7 @@ public class EmailSmsEventInvitationService {
 
 					// Sending
 					if (!emailContent.isEmpty() && tenderNoticeDetail != null) {
-					
+						Date currentDate = new Date();
 						String emailSubject = (emailContent.isEmpty() ? "" : emailContent.get(0).getEmailSubject());
 						String emailBody = (emailContent.isEmpty() ? "" : emailContent.get(0).getEmailBody());
 						String smsTemplate = notificationTemplate.getSmsContent();
@@ -413,7 +416,8 @@ public class EmailSmsEventInvitationService {
 						MapTenderPress mapTenderPress = MapTenderPress.builder()
 								.tenderNoticeUuid(notificationReceiver.getReceiverUuid())
 								.moduleCode(notificationReceiver.getModuleCode())
-								.tenantId(notificationReceiver.getTenantId()).notifyStatus(true).build();
+								.tenantId(notificationReceiver.getTenantId()).notifyStatus(true)
+								.createdTime(currentDate.getTime()).build();
 
 						if (!pressTenderList.isEmpty()) {
 							// call update to set sentFlag as true
@@ -474,7 +478,7 @@ public class EmailSmsEventInvitationService {
 
 				InviteGuest inviteGuests = InviteGuest.builder().moduleCode(notificationReceiver.getModuleCode())
 						.eventDetailUuid(notificationReceiver.getReceiverUuid())
-						.tenantId(notificationReceiver.getTenantId()).sentFlag(false).build();
+						.tenantId(notificationReceiver.getTenantId()).sentFlag(true).build();
 
 				List<InviteGuest> guestsList = eventInvetationRepository.getGuest(inviteGuests);
 
@@ -496,6 +500,7 @@ public class EmailSmsEventInvitationService {
 						String emailSubject = (emailContent.isEmpty() ? "" : emailContent.get(0).getEmailSubject());
 						String emailBody = (emailContent.isEmpty() ? "" : emailContent.get(0).getEmailBody());
 						String smsTemplate = notificationTemplate.getSmsContent();
+						Date currentDate = new Date();
 						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
 						String datsse = detail.getStartDate().substring(0, 10);
 						LocalDate localDate = LocalDate.parse(datsse);
@@ -550,6 +555,7 @@ public class EmailSmsEventInvitationService {
 								object.setEventDetailUuid(notificationReceiver.getReceiverUuid());
 								object.setTenantId(notificationReceiver.getTenantId());
 								object.setModuleCode(notificationReceiver.getModuleCode());
+								object.setCreatedTime(currentDate.getTime());
 							});
 							RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(guestsList)
 									.build();
@@ -607,7 +613,7 @@ public class EmailSmsEventInvitationService {
 
 				InviteGuest inviteGuests = InviteGuest.builder().moduleCode(notificationReceiver.getModuleCode())
 						.eventDetailUuid(notificationReceiver.getReceiverUuid())
-						.tenantId(notificationReceiver.getTenantId()).sentFlag(false).build();
+						.tenantId(notificationReceiver.getTenantId()).sentFlag(true).build();
 
 				List<InviteGuest> guestsList = eventInvetationRepository.getGuest(inviteGuests);
 

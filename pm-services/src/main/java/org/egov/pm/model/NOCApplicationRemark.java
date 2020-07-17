@@ -7,8 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Collection of audit related fields used by most models
- */
+* A Object holds the data for a for NOC remark data
+*/
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -28,4 +29,5 @@ public class NOCApplicationRemark {
 	private Long lastModifiedTime;
 	private String documentId;
 	private String tenantId;
+	private String previousRemarkId;
 }

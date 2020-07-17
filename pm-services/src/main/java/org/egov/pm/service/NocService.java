@@ -79,8 +79,8 @@ public class NocService {
 	 *            for applicationType,tenantId,applicationId,requestinfo
 	 * @return The data list based on role,applicationType and tenantId
 	 */
-	public ResponseEntity<NocResponse> searchNoc(RequestData requestInfo) {
-		JSONArray nocs = nocRepository.findNoc(requestInfo);
+	public ResponseEntity<NocResponse> getNoc(RequestData requestInfo) {
+		JSONArray nocs = nocRepository.getNoc(requestInfo);
 		if (nocs == null || nocs.isEmpty()) {
 			return new ResponseEntity(NocResponse.builder()
 					.resposneInfo(
@@ -149,7 +149,7 @@ public class NocService {
 
 		String responseValidate = "";
 		try {
-			responseValidate = validateJsonAddUpdateData(requestData, "I");
+			responseValidate = validateJsonAddUpdateData(requestData, CommonConstants.INSERT);
 			if (responseValidate.equals("")) {
 				String applicationId = nocRepository.saveValidateStatus(requestData,
 						requestData.getApplicationStatus());
@@ -201,7 +201,7 @@ public class NocService {
 	public ResponseEntity<ResponseData> updateNoc(RequestData requestData) {
 		String responseValidate = "";
 		try {
-			responseValidate = validateJsonAddUpdateData(requestData, "U");
+			responseValidate = validateJsonAddUpdateData(requestData, CommonConstants.UPDATE);
 
 			if (responseValidate.equals("")) {
 				int applicationcount = nocRepository.validateApplicationId(requestData.getApplicationId());
@@ -239,7 +239,7 @@ public class NocService {
 	 * 
 	 * @param RequestData,applicationType,tenantId,applicationId,requestinfo
 	 */
-	private String validateJsonUpdateStatusData(RequestData requestData) throws ParseException {
+	String validateJsonUpdateStatusData(RequestData requestData) throws ParseException {
 		String responseText = "";
 		if (requestData.getApplicationStatus() == null || requestData.getApplicationStatus().isEmpty()
 				|| requestData.getTenantId() == null || requestData.getTenantId().isEmpty()
@@ -251,20 +251,22 @@ public class NocService {
 			JSONParser jsonParser = new JSONParser();
 
 			List<Role> roleList = requestData.getRequestInfo().getUserInfo().getRoles();
-			if (roleList != null && !roleList.isEmpty()) {
-				Role roleObject = roleList.get(0);
-				roleCode = roleObject.getCode();
-			}
-
+			boolean roleFlag=false;
 			JSONObject jsonValidator = (JSONObject) jsonParser.parse(jsonApproveRejectObject.toJSONString());
 			jsonValidator = (JSONObject) jsonValidator.get(requestData.getApplicationType());
 			for (Role role : roleList) {
 				if (role.getCode() != null && role.getCode().isEmpty()) {
 					return "Invalid Role";
 				}
-				if (jsonValidator.get(role.getCode()) != null)
+				if (jsonValidator.get(role.getCode()) != null) {
 					jsonValidator = (JSONObject) jsonValidator.get(role.getCode());
+					roleFlag=true;
+				}
 			}
+
+			if (!roleFlag)
+				return "Invalid Role";
+
 			jsonValidator = (JSONObject) jsonValidator.get(requestData.getApplicationStatus());
 			JSONObject jsonRequested = (JSONObject) jsonParser.parse(requestData.getDataPayload().toString());
 
@@ -330,9 +332,6 @@ public class NocService {
 					String isMandatory = actualValidate.get("mandatory").toString();
 					String isRegExpression = actualValidate.get("validateRegularExp").toString();
 					String dataReq = jsonRequested.get(key).toString();
-					String isBackendRequired = actualValidate.get("isbackendRequired") == null ? "true"
-							: actualValidate.get("isbackendRequired").toString();
-					if (isBackendRequired.equalsIgnoreCase("true")) {
 						if (isMandatory.equals("true") && dataReq.equals("")) {
 							responseText.append(key + " : [Mandatory field]");
 							responseText.append(",");
@@ -345,7 +344,6 @@ public class NocService {
 								}
 							}
 						}
-					}
 				}
 				if (!responseText.toString().equals("")) {
 					responseText = new StringBuilder(
@@ -377,7 +375,7 @@ public class NocService {
 			responseValidate = validateJsonUpdateStatusData(requestData);
 
 			if (responseValidate.equals("")) {
-				reponseData = nocRepository.updateApplicationStatus(requestData);
+				reponseData = nocRepository.updateAppStatus(requestData);
 				if (reponseData.getResponseInfo().getStatus().equals(CommonConstants.SUCCESS)) {
 					return new ResponseEntity<>(ResponseData.builder()
 							.responseInfo(ResponseInfo.builder().status(CommonConstants.SUCCESS).build())
@@ -393,9 +391,9 @@ public class NocService {
 			}
 
 		} catch (Exception e) {
-			log.debug("PetsService approveRejectAsync:" + e);
+			log.debug("NOCUPDATESTAUS ERROR:" + e);
 			e.printStackTrace();
-			throw new CustomException("EGBS_PETS_SAVE_ERROR", e.getMessage());
+			throw new CustomException("NOCUPDATESTAUS ERROR", e.getMessage());
 		}
 	}
 

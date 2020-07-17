@@ -33,7 +33,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
@@ -97,15 +99,15 @@ public class NocServiceTestCases {
 				NocResponse.builder().resposneInfo(ResponseInfo.builder().status(CommonConstants.SUCCESS).build())
 						.nocApplicationDetail(arr).build(),
 				HttpStatus.OK);
-		when(nocRepository.findNoc(Matchers.any(RequestData.class))).thenReturn(arr);
-		Assert.assertEquals(reps.getStatusCode(), nocService.searchNoc(RequestData.builder().build()).getStatusCode());
+		when(nocRepository.getNoc(Matchers.any(RequestData.class))).thenReturn(arr);
+		Assert.assertEquals(reps.getStatusCode(), nocService.getNoc(RequestData.builder().build()).getStatusCode());
 
 		JSONArray arr1 = new JSONArray();
 		ResponseEntity reps1 = new ResponseEntity(NocResponse.builder()
 				.resposneInfo(ResponseInfo.builder().msgId("Invalid role or application type or blank data").build())
 				.nocApplicationDetail(arr1).build(), HttpStatus.BAD_REQUEST);
-		when(nocRepository.findNoc(Matchers.any(RequestData.class))).thenReturn(arr1);
-		Assert.assertEquals(reps1.getStatusCode(), nocService.searchNoc(RequestData.builder().build()).getStatusCode());
+		when(nocRepository.getNoc(Matchers.any(RequestData.class))).thenReturn(arr1);
+		Assert.assertEquals(reps1.getStatusCode(), nocService.getNoc(RequestData.builder().build()).getStatusCode());
 	}
 
 	@Test
@@ -339,7 +341,7 @@ public class NocServiceTestCases {
 
 		ResponseData reponseData = ResponseData.builder()
 				.responseInfo(ResponseInfo.builder().status(CommonConstants.SUCCESS).build()).build();
-		when(nocRepository.updateApplicationStatus(Matchers.any(RequestData.class))).thenReturn(reponseData);
+		when(nocRepository.updateAppStatus(Matchers.any(RequestData.class))).thenReturn(reponseData);
 
 		EmailTemplateModel emailTemplateModel = new EmailTemplateModel("ch", "email tempalte - [:applicationId:]",
 				"REVIEWOFSUPERINTENDENT", "SI", "SELLMEATNOC", "sms tempalte - [:applicationId:]", "Testing Juints");
@@ -368,7 +370,7 @@ public class NocServiceTestCases {
 
 		ResponseData reponseData2 = ResponseData.builder()
 				.responseInfo(ResponseInfo.builder().status(CommonConstants.FAIL).build()).build();
-		when(nocRepository.updateApplicationStatus(Matchers.any(RequestData.class))).thenReturn(reponseData2);
+		when(nocRepository.updateAppStatus(Matchers.any(RequestData.class))).thenReturn(reponseData2);
 
 		// 2
 		Assert.assertEquals(HttpStatus.OK, nocService.updateNocApplicationStatus(requestData).getStatusCode());
@@ -429,5 +431,58 @@ public class NocServiceTestCases {
 	}
 	private String getFileContents(String fileName) throws IOException {
 		return IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream(fileName), "UTF-8");
+	}
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+
+	@Test
+	public void saveNocThrowsCustomException() throws JsonParseException, JsonMappingException, ParseException, IOException {
+
+	RequestData requestData = RequestData.builder().requestInfo(RequestInfo.builder().build())
+	.applicationId("PMS-82748264828482374").applicationType("SELLMEATNOC").tenantId("ch")
+	.applicationType("SELLMEATNOC").build();
+
+	NocService obj = new NocService();
+	obj.saveNoc(requestData);
+	}
+	@Test
+	public void updateNocThrowsCustomException() throws JsonParseException, JsonMappingException, ParseException, IOException {
+
+	RequestData requestData = RequestData.builder().requestInfo(RequestInfo.builder().build())
+	.applicationId("PMS-82748264828482374").applicationType("SELLMEATNOC").tenantId("ch")
+	.applicationType("SELLMEATNOC").build();
+
+	NocService obj = new NocService();
+	obj.updateNoc(requestData);
+	}
+	@Test
+	public void updateNocApplicationStatuscThrowsCustomException() throws JsonParseException, JsonMappingException, ParseException, IOException {
+
+	RequestData requestData = RequestData.builder().requestInfo(RequestInfo.builder().build())
+	.applicationId("PMS-82748264828482374").applicationType("SELLMEATNOC").tenantId("ch")
+	.applicationType("SELLMEATNOC").build();
+
+	NocService obj = new NocService();
+	obj.updateNocApplicationStatus(requestData);
+	}
+	@Test
+	public void validateJsonUpdateStatusDataThrowsCustomException() throws JsonParseException, JsonMappingException, ParseException, IOException {
+
+	RequestData requestData = RequestData.builder().requestInfo(RequestInfo.builder().build())
+	.applicationId("PMS-82748264828482374").applicationType("SELLMEATNOC").tenantId("ch")
+	.applicationType("SELLMEATNOC").build();
+
+	NocService obj = new NocService();
+	obj.validateJsonUpdateStatusData(requestData);
+	}
+	@Test
+	public void updatepricebookThrowsCustomException() throws java.text.ParseException {
+	thrown.expect(NullPointerException.class);
+	RequestData requestData = RequestData.builder().requestInfo(RequestInfo.builder().build())
+	.applicationId("PMS-82748264828482374").applicationType("SELLMEATNOC").tenantId("ch")
+	.applicationType("SELLMEATNOC").build();
+
+	NocService obj = new NocService();
+	obj.updatepricebook(requestData);
 	}
 }

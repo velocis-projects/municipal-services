@@ -2,6 +2,8 @@ package org.egov.pm.model;
 
 import java.math.BigDecimal;
 
+import org.springframework.stereotype.Component;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,13 +11,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Collection of audit related fields used by most models
- */
+* A Object holds the data for a for NOC with remark and details
+*/
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Component
 public class NOCApplication {
 
 	private String applicationUuid;

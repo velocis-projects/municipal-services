@@ -5,47 +5,29 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "displaySequence":"1",
-               "value":""
-            },
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
+           },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          },
          "FORWARD":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"false",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "badgeNumber":{
                "fieldName":"badgeNumber",
                "mandatory":"false",
-               "validateRegularExp":"^[a-zA-Z0-9- ]+$",
-               "displayName":"Badge Number",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9- ]{1,50}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          }
       },
@@ -54,57 +36,36 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "badgeNumber":{
                "fieldName":"badgeNumber",
                "mandatory":"false",
-               "validateRegularExp":"^[a-zA-Z0-9- ]+$",
-               "displayName":"Badge Number",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9- ]{1,50}$"
             }
          },
          "REJECTED":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          },
          "REASSIGNTOSI":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "displaySequence":"1",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          }
       },
@@ -113,26 +74,17 @@
             "amount":{
                "fieldName":"amount",
                "mandatory":"true",
-               "validateRegularExp":"^[0-9 ]+$",
-               "displayName":"Estimated Amount",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[0-9 ]+$"
             },
             "gstAmount":{
                "fieldName":"gstAmount",
                "mandatory":"true",
-               "validateRegularExp":"^[0-9 ]+$",
-               "displayName":"GST Amount",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[0-9 ]+$"
             },
             "performanceBankGuaranteeCharges":{
                "fieldName":"performanceBankGuaranteeCharges",
                "mandatory":"true",
-               "validateRegularExp":"^[0-9 ]+$",
-               "displayName":"Performance Bank Guarantee Charges",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[0-9 ]+$"
             }
          },
          "RESENT":{
@@ -147,63 +99,39 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "displaySequence":"1",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             },
             "amount":{
                "fieldName":"amount",
                "mandatory":"true",
-               "validateRegularExp":"^[0-9. ]+$",
-               "displayName":"Estimated Amount",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[0-9. ]+$"
             },
             "gstAmount":{
                "fieldName":"gstAmount",
                "mandatory":"true",
-               "validateRegularExp":"^[0-9. ]+$",
-               "displayName":"GST Amount",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[0-9. ]+$"
             },
             "performanceBankGuaranteeCharges":{
                "fieldName":"performanceBankGuaranteeCharges",
                "mandatory":"true",
-               "validateRegularExp":"^[0-9. ]+$",
-               "displayName":"Performance Bank Guarantee Charges",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[0-9. ]+$"
             }
          },
          "REASSIGN":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          }
       },
@@ -212,39 +140,24 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "displaySequence":"1",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          },
          "REASSIGNTOJE":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          }
       },
@@ -253,68 +166,43 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             }
          },
          "REVIEWOFSE":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "displaySequence":"1",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          },
          "REASSIGNTOSDO":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          },
          "REJECTED":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          }
       },
@@ -323,39 +211,24 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "displaySequence":"1",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          },
          "REASSIGNTOEE":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          }
       },
@@ -364,48 +237,31 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             }
          },
          "REASSIGNTOSE":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          },
-         "REJECTED":{
+         "REJECT":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          }
       },
@@ -419,26 +275,17 @@
             "amount":{
                "fieldName":"amount",
                "mandatory":"true",
-               "validateRegularExp":"^[0-9. ]+$",
-               "displayName":"Estimated Amount",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[0-9. ]+$"
             },
             "gstAmount":{
                "fieldName":"gstAmount",
                "mandatory":"true",
-               "validateRegularExp":"^[0-9. ]+$",
-               "displayName":"GST Amount",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[0-9. ]+$"
             },
             "performanceBankGuaranteeCharges":{
                "fieldName":"performanceBankGuaranteeCharges",
                "mandatory":"true",
-               "validateRegularExp":"^[0-9. ]+$",
-               "displayName":"Performance Bank Guarantee Charges",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[0-9. ]+$"
             }
          }
       }
@@ -449,39 +296,24 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "displaySequence":"1",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          },
          "REASSIGN":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          }
       },
@@ -489,20 +321,14 @@
          "remarks":{
             "fieldName":"remarks",
             "mandatory":"true",
-            "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-            "displayName":"Remark",
-            "inputType":"textbox",
-            "value":""
+            "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
          }
       },
       "FORWARD":{
          "remarks":{
             "fieldName":"remarks",
             "mandatory":"true",
-            "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-            "displayName":"Remark",
-            "inputType":"textbox",
-            "value":""
+            "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
          }
       },
       "SUPERINTENDENT":{
@@ -510,39 +336,24 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "displaySequence":"1",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          },
          "REASSIGNTOSI":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          }
       },
@@ -551,48 +362,31 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             }
          },
          "REASSIGNTOSUPERINTENDENT":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          },
          "REJECTED":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          }
       },
@@ -610,46 +404,31 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             }
          },
          "WITHDRAWAFTERAPRROVAL":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             }
          },
          "PAID":{
             "amount":{
                "fieldName":"amount",
                "mandatory":"true",
-               "validateRegularExp":"^[0-9 ]+$",
-               "displayName":"Estimated Amount",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[0-9 ]+$"
             },
             "gstAmount":{
                "fieldName":"gstAmount",
                "mandatory":"true",
-               "validateRegularExp":"^[0-9 ]+$",
-               "displayName":"GST Amount",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[0-9 ]+$"
             },
             "performanceBankGuaranteeCharges":{
                "fieldName":"performanceBankGuaranteeCharges",
                "mandatory":"true",
-               "validateRegularExp":"^[0-9 ]+$",
-               "displayName":"Performance Bank Guarantee Charges",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[0-9 ]+$"
             }
          },
        "RESENT":{
@@ -666,66 +445,40 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "displaySequence":"1",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
-            }
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"            }
          },
          "REASSIGN":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          },
          "REVIEWOFSPAFTERWITHDRAW":{
             "withdrawapprovalamount":{
                "fieldName":"Amount",
                "mandatory":"false",
-               "validateRegularExp":"^[0-9. ]+$",
-               "displayName":"Amount",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[0-9. ]+$"
             },
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          }
       },
@@ -734,39 +487,24 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "displaySequence":"1",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          },
          "REASSIGNTOJEX":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          }
       },
@@ -775,66 +513,40 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "displaySequence":"1",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          },
          "REASSIGNTOSUPERINTENDENT":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
-            }
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"            }
          },
          "PENDINGAPPROVALFORWITHDRAW":{
             "withdrawapprovalamount":{
                "fieldName":"Amount",
                "mandatory":"false",
-               "validateRegularExp":"^[0-9. ]+$",
-               "displayName":"Amount",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[0-9. ]+$"
             },
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          }
       },
@@ -843,77 +555,50 @@
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             }
          },
          "REJECTED":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          },
          "APPROVEFORWITHDRAW":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             }
          },
          "REJECTEFORWITHDRAW":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.,' ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.,'\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          },
          "REASSIGNTOOSD":{
             "remarks":{
                "fieldName":"remarks",
                "mandatory":"true",
-               "validateRegularExp":"^[a-zA-Z0-9.', ]+$",
-               "displayName":"Remark",
-               "inputType":"textbox",
-               "value":""
+               "validateRegularExp":"^[a-zA-Z0-9.',\n\r ]{1,128}$"
             },
             "uploadDocuments":{
                "fieldName":"uploadDocuments",
                "mandatory":"false",
-               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]",
-               "displayName":"Upload Documents",
-               "inputType":"file",
-               "displaySequence":"2",
-               "value":""
+               "validateRegularExp":"\\[\\{\"fileStoreId\":\"(.*?)\"\\}\\]"
             }
          }   
       }

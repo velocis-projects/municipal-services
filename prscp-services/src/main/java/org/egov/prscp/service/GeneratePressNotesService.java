@@ -149,7 +149,8 @@ public class GeneratePressNotesService {
 				pressNote.setActive(true);
 				pressNote.setLastModifiedBy(requestInfoWrapper.getAuditDetails().getLastModifiedBy());
 				pressNote.setLastModifiedTime(requestInfoWrapper.getAuditDetails().getLastModifiedTime());
-
+				pressNote.setCreatedTime(requestInfoWrapper.getAuditDetails().getCreatedTime());
+				
 				// save notification_Template
 				NotificationTemplate notify = NotificationTemplate.builder().build();
 
@@ -161,6 +162,8 @@ public class GeneratePressNotesService {
 				notify.setModuleCode(pressNote.getModuleCode());
 				notify.setTenantId(pressNote.getTenantId());
 				notify.setSetdoc(pressNote.getDocumentAttachment().toJSONString());
+				notify.setCreatedTime(requestInfoWrapper.getAuditDetails().getCreatedTime());
+				
 				// map to delete
 				PressNoteMap map = new PressNoteMap();
 				map.setPressNoteUuid(pressNote.getPressNoteUuid());
@@ -168,6 +171,7 @@ public class GeneratePressNotesService {
 				map.setTenantId(pressNote.getTenantId());
 				map.setLastModifiedBy(pressNote.getLastModifiedBy());
 				map.setLastModifiedTime(pressNote.getLastModifiedTime());
+				map.setCreatedTime(requestInfoWrapper.getAuditDetails().getCreatedTime());
 				map.setIsActive(false);
 
 				// save map new records

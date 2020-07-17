@@ -2,6 +2,8 @@ package org.egov.pm.web.controller;
 
 import java.io.IOException;
 
+import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.response.ResponseInfo;
 import org.egov.pm.model.Errors;
 import org.egov.pm.model.RequestData;
 import org.egov.pm.service.NocService;
@@ -50,7 +52,7 @@ public class NocController {
 	public ResponseEntity<NocResponse> get(@RequestBody RequestData requestData) {
 
 		log.debug(String.format("STARTED GET NOC REQUEST : %1s", requestData.toString()));
-		return nocService.searchNoc(requestData);
+		return nocService.getNoc(requestData);
 	}
 
 	/**
@@ -181,10 +183,13 @@ public class NocController {
 	 * @return The list of applications
 	 */
 	@PostMapping("cron/jobs/report/_processingTimeReport")
-	public void processingTimeReport() {
+	public ResponseEntity<?> processingTimeReport(@RequestBody RequestInfo requestInfo) {
 		log.debug(String.format("STARTED processingTimeReport()"));
 		schedularService.scheduleTask();
 		log.debug(String.format("ENDED processingTimeReport()"));
+
+		return new ResponseEntity<>(ResponseInfo.builder().status("SUCCESS").build(), HttpStatus.CREATED);
+
 	}
 
 }
