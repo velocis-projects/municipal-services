@@ -1,10 +1,5 @@
 package org.egov.hc.controller;
-import java.math.BigInteger;
 
-import javax.validation.Valid;
-
-import org.egov.common.contract.request.RequestInfo;
-import org.egov.hc.contract.RequestInfoWrapper;
 import org.egov.hc.contract.ServiceRequest;
 import org.egov.hc.contract.ServiceResponse;
 import org.egov.hc.model.RequestData;
@@ -46,7 +41,7 @@ public class ServiceController {
 		ServiceResponse response = null;
 
 		if (serviceRequest.getServices().get(0).getIsEditState() == 1) {		
-			response =  service.updateServiceRequest(serviceRequest, request);
+			response = service.updateServiceRequest(serviceRequest, request);
 		} else {
 			response = service.create(serviceRequest, request);
 		}

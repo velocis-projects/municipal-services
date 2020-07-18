@@ -8,14 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.egov.common.contract.request.RequestInfo;
 import org.egov.hc.contract.ServiceRequest;
 import org.egov.hc.model.ServiceRequestData;
 import org.egov.hc.producer.HCConfiguration;
 import org.egov.hc.utils.HCConstants;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -62,6 +61,7 @@ public class WorkflowIntegrator {
 
 	@Autowired
 	private RestTemplate rest;
+	
 	@Autowired
 	private HCConfiguration config;
 
@@ -80,7 +80,7 @@ public class WorkflowIntegrator {
 	 *
 	 * @param ServiceRequest
 	 */
-	public boolean callWorkFlow(ServiceRequest request, String service_request_id) {
+	public  boolean callWorkFlow(ServiceRequest request, String service_request_id) {
 		boolean status = false;
 		
 		if(!request.getServices().isEmpty())
@@ -230,6 +230,4 @@ public class WorkflowIntegrator {
 		
 	}
 	
-
-
 }

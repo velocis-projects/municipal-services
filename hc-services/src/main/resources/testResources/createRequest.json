@@ -21,8 +21,8 @@
   ],
   "services": [
     {
-      "serviceType":"dead tree",  
-      "ownerName":"abcd",  
+      "serviceType":"PRUNING OF TREES GIRTH GREATER THAN 90 CMS",  
+      "ownerName":"dhanaji",  
       "treeCount":"8",
       "description": "Testing of Complaint", 
       "addressDetail": {

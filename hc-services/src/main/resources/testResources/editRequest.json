@@ -1,15 +1,12 @@
-
 {
   "RequestInfo": {
     "apiId": "Rainmaker",
     "ver": ".01",
-    "ts": 0,
-    "action": "",
+    "ts": "",
     "did": "1",
     "key": "",
     "msgId": "20170310130900|en_IN",
-    "authToken": "30d97835-cc1d-4a83-b23c-9d656a5dc285",
-    "correlationId": "",
+    "authToken": "a7309aab-d258-45bd-9987-6228ad8c2015",
     "userInfo": {
       "id": 112,
       "userName": "mrunmay",
@@ -61,28 +58,38 @@
     "createdTime": 1590428785988,
     "lastModifiedTime": 159042878598
   }
-  },
-  
-    "services": [
-        {
-        "serviceType": "PRUNING OF TREES GIRTH GREATER THAN 90 CMS",
-          
-        "isRoleSpecific": 1,
-        "tenantId": "ch",
-        "comment": "ewewew",
-        "assignees": [],
-        "roleList": [],
-        
-        
-        "service_request_id": "CH-HC-2020-06-14-001432_1",
-        "action": "COMPLETE",
-            "wfDocuments": [
-                {
-                    "fileName": "TRD Service Request.jpg",
-                    "fileStoreId": "72a6f4ed-e3f0-4b9e-bccd-2e474713d19c",
-                    "documentType": "Document - 1"
-                }
-        ]
-}
-    ]}
-
+ },
+  "actionInfo": [
+    {
+      "media": [
+        "b8f3c1a1-1d20-438f-946e-c483c37c0212"
+      ]
+    }
+  ],
+  "services": [
+    {
+      "serviceType":"PRUNING OF TREES GIRTH LESS THAN 90 CMS",  
+      "ownerName":"abcd",  
+      "treeCount":"8",
+      "description": "Testing of Complaint", 
+      "addressDetail": {
+        "latitude": "30.743085",
+        "longitude": "76.786507",
+        "city": "ch.chandigarh",
+        "mohalla": "AMBEDKAR_AWAS_YOJNA",
+        "houseNoAndStreetName": "Test House no-34",
+        "landmark": "TEst landmark"
+      },
+      "address": "SCO 1-2-3, opp. Hotel Taj, 17A, Sector 17, Chandigarh, 160017, India",
+      "tenantId": "ch.chandigarh",   
+      "source": "mobileapp/web",
+      "contactNumber": "9811165595",
+      "email":"abcd@gmail.com"
+    }
+  ],
+ "idRequests":[{
+ "idName":"ch.hc",
+ "tenantId":"ch.chandigarh",
+ "format":"MCC-HC-[SEQ_EG_HC_APL]"
+ }]
+ }

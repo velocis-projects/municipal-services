@@ -593,6 +593,8 @@ public class ServiceRequestService {
 				request.getServices().get(0).setContactNumber(serviceRequest.getContactNumber());
 				request.getServices().get(0).setOwnerName(serviceRequest.getOwnerName());
 				request.getServices().get(0).setEmail(serviceRequest.getEmail());
+				
+				//request.getServices().get(0).setCity(request.getRequestInfo().getUserInfo().getTenantId());
 				request.getServices().get(0).setService_request_status(request.getServices().get(servReqCount).getAction());
 				String msgId = requestInfo.getMsgId().split("[|]")[0];
 				requestInfo.setMsgId(msgId+"|"+serviceRequest.getServicerequest_lang());
@@ -1142,6 +1144,8 @@ public class ServiceRequestService {
 		updateRequest.setComment(HCConstants.COMMENT);
 		updateRequest.setAction(action);
 		updateRequest.setCurrent_assignee("");
+		updateRequest.setTenantId(serviceRequest.getServices().get(0).getTenantId());
+		updateRequest.setService_request_uuid(serviceRequest.getServices().get(0).getService_request_uuid());
 		RequestInfoWrapper infowraperforupdate = RequestInfoWrapper.builder().requestBody(updateRequest).build();
 		
 		log.info("Update service request : " + infowraperforupdate);

@@ -12,7 +12,6 @@ import org.egov.hc.contract.AuditDetails;
 import org.egov.hc.model.user.Citizen;
 import org.egov.hc.workflow.Document;
 
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import com.fasterxml.jackson.annotation.JsonProperty;

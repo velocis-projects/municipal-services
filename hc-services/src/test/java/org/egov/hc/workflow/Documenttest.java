@@ -25,7 +25,7 @@ import javax.validation.constraints.*;
 @NoArgsConstructor
 @Builder
 @EqualsAndHashCode
-public class Document   {
+public class Documenttest   {
 
         @Size(max=64)
         @JsonProperty("id")
