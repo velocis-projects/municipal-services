@@ -149,7 +149,6 @@ public class TLNotificationService {
                     mobileNumberToOwner.put(owner.getMobileNumber(),owner.getName());
             });
             
-           message = message.replace("\\n", "\n");
            smsRequests.addAll(util.createSMSRequest(message,mobileNumberToOwner));
         }
     }
