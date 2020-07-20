@@ -549,6 +549,7 @@ public class PurchaseOrderService extends DomainService {
 			// validate except during preparepofromindent
 			if (!method.equals(Constants.ACTION_SEARCH_INDENT_FOR_PO))
 				for (PurchaseOrder eachPurchaseOrder : pos) {
+					
 					BigDecimal totalAmount = BigDecimal.ZERO;
 					int index = pos.indexOf(eachPurchaseOrder) + 1;
 					if (!isValidStore(tenantId, eachPurchaseOrder.getStore().getCode())) {
@@ -719,7 +720,7 @@ public class PurchaseOrderService extends DomainService {
 
 							// Material reference validation
 							if (poDetail == null || null != poDetail.getMaterial()) {
-								if (validateMaterial(tenantId, poDetail.getMaterial())) {
+								if (!validateMaterial(tenantId, poDetail.getMaterial())) {
 									errors.addDataError(ErrorCode.MATERIAL_NAME_NOT_EXIST.getCode(),
 											poDetail.getMaterial().getCode() + " at serial no." + detailIndex);
 								}

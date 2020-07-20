@@ -27,6 +27,7 @@ import org.egov.assets.model.IndentRequest;
 import org.egov.assets.model.IndentResponse;
 import org.egov.assets.model.IndentSearch;
 import org.egov.assets.model.Material;
+import org.egov.assets.model.Store;
 import org.egov.assets.model.Tenant;
 import org.egov.assets.model.Uom;
 import org.egov.assets.repository.IndentDetailJdbcRepository;
@@ -187,7 +188,7 @@ public class IndentService extends DomainService {
 			throw errors;
 		}
 
-		String seq = "IND/" + tenant.getCity().getCode() + "/" + b.getIssueStore().getCode() + "/" + finYearRange;
+		String seq = "IND/" + tenant.getCity().getCode() + "/" + b.getIndentStore().getCode() + "/" + finYearRange;
 		return seq + "/" + numberGenerator.getNextNumber(seq, 5);
 	}
 
@@ -318,7 +319,7 @@ public class IndentService extends DomainService {
 		try {
 			Long currentDate = currentEpochWithoutTime();
 			currentDate = currentDate + (24 * 60 * 60 * 1000) - 1;
-			LOG.info("CurrentDate is " + toDateStr(currentDate));
+//			LOG.info("CurrentDate is " + toDateStr(currentDate));
 
 			Long ll = new Date().getTime();
 			switch (method) {
@@ -335,7 +336,6 @@ public class IndentService extends DomainService {
 						errors.addDataError(ErrorCode.UPDATE_NOT_ALLOWED.getCode(), "indent", entity.getIndentStatus(),
 								indent.getIndentNumber());
 					}
-
 				}
 				if (errors.getValidationErrors().size() > 0)
 					break;
@@ -379,6 +379,7 @@ public class IndentService extends DomainService {
 							&& indent.getIndentDate().compareTo(indent.getExpectedDeliveryDate()) > 0) {
 						LOG.info("expectedDeliveryDate=" + toDateStr(indent.getExpectedDeliveryDate()));
 						LOG.info("indentDate=" + toDateStr(indent.getIndentDate()));
+						
 						String expectedDeliveryDate = convertEpochtoDate(indent.getExpectedDeliveryDate());
 						String indentDate = convertEpochtoDate(indent.getIndentDate());
 						errors.addDataError(ErrorCode.DATE1_GE_DATE2.getCode(), "expectedDeliveryDate", "indentDate",
@@ -389,15 +390,11 @@ public class IndentService extends DomainService {
 					for (IndentDetail detail : indent.getIndentDetails()) {
 						++i;
 						if (materialCodes.isEmpty()) {
-
 							materialCodes.add(detail.getMaterial().getCode());
-
 						} else {
 							if (materialCodes.indexOf(detail.getMaterial().getCode()) == -1) {
 								materialCodes.add(detail.getMaterial().getCode());
-							}
-
-							else {
+							} else {
 								errors.addDataError(ErrorCode.REPEATED_VALUE.getCode(), "material",
 										detail.getMaterial().getCode(), " at serial no. " + i + " and "
 												+ (materialCodes.indexOf(detail.getMaterial().getCode()) + 1));
@@ -442,22 +439,25 @@ public class IndentService extends DomainService {
 		for (Indent indent : indentRequest.getIndents()) {
 
 			// fetch related items
+			if (indent.getIssueStore() != null) {
+				indent.getIssueStore().setTenantId(tenantId);
+				Store issueStore = (Store) storeJdbcRepository.findById(indent.getIssueStore(), "StoreEntity");
+				if (issueStore == null) {
+					throw new InvalidDataException("issueStore", "issueStore.invalid", " Invalid issueStore");
+				}
+				indent.setIssueStore(issueStore);
+			}
+			if (indent.getIndentStore() != null) {
+				indent.getIndentStore().setTenantId(tenantId);
+				Store indentStore = (Store) storeJdbcRepository.findById(indent.getIndentStore(), "StoreEntity");
+				if (indentStore == null) {
+					throw new InvalidDataException("indentStore", "indentStore.invalid", " Invalid indentStore");
+				}
+				indent.setIndentStore(indentStore);
+			}
 
-			// if (indent.getIssueStore() != null) {
-			// indent.getIssueStore().setTenantId(tenantId); Store issueStore =
-			// (Store)
-			// storeJdbcRepository.findById(indent.getIssueStore(),"StoreEntity"
-			// ); if (issueStore == null) { throw new
-			// InvalidDataException("issueStore", "issueStore.invalid",
-			// " Invalid issueStore"); } indent.setIssueStore(issueStore); } if
-			// (indent.getIndentStore() != null) {
-			// indent.getIndentStore().setTenantId(tenantId); Store indentStore
-			// = (Store) storeJdbcRepository.findById(indent.getIndentStore(),
-			// "StoreEntity"); if (indentStore == null) { throw new
-			// InvalidDataException("indentStore", "indentStore.invalid",
-			// " Invalid indentStore"); } indent.setIndentStore(indentStore); }
-			//
 			for (IndentDetail detail : indent.getIndentDetails()) {
+
 				detail.setUom(uomMap.get(detail.getUom().getCode()));
 				detail.setMaterial(materialMap.get(detail.getMaterial().getCode()));
 
