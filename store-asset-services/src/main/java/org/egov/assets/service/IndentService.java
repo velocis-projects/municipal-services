@@ -5,6 +5,8 @@ import static org.springframework.util.StringUtils.isEmpty;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +29,10 @@ import org.egov.assets.model.IndentRequest;
 import org.egov.assets.model.IndentResponse;
 import org.egov.assets.model.IndentSearch;
 import org.egov.assets.model.Material;
+import org.egov.assets.model.MaterialTypeStoreMapping;
 import org.egov.assets.model.Store;
+import org.egov.assets.model.StoreGetRequest;
+import org.egov.assets.model.StoreResponse;
 import org.egov.assets.model.Tenant;
 import org.egov.assets.model.Uom;
 import org.egov.assets.repository.IndentDetailJdbcRepository;
@@ -85,6 +90,9 @@ public class IndentService extends DomainService {
 
 	@Value("${inv.indents.update.key}")
 	private String updateKey;
+
+	@Autowired
+	private StoreService storeService;
 
 	@Autowired
 	private IndentDetailJdbcRepository indentDetailJdbcRepository;
@@ -319,7 +327,7 @@ public class IndentService extends DomainService {
 		try {
 			Long currentDate = currentEpochWithoutTime();
 			currentDate = currentDate + (24 * 60 * 60 * 1000) - 1;
-//			LOG.info("CurrentDate is " + toDateStr(currentDate));
+			// LOG.info("CurrentDate is " + toDateStr(currentDate));
 
 			Long ll = new Date().getTime();
 			switch (method) {
@@ -379,7 +387,7 @@ public class IndentService extends DomainService {
 							&& indent.getIndentDate().compareTo(indent.getExpectedDeliveryDate()) > 0) {
 						LOG.info("expectedDeliveryDate=" + toDateStr(indent.getExpectedDeliveryDate()));
 						LOG.info("indentDate=" + toDateStr(indent.getIndentDate()));
-						
+
 						String expectedDeliveryDate = convertEpochtoDate(indent.getExpectedDeliveryDate());
 						String indentDate = convertEpochtoDate(indent.getIndentDate());
 						errors.addDataError(ErrorCode.DATE1_GE_DATE2.getCode(), "expectedDeliveryDate", "indentDate",
@@ -441,7 +449,7 @@ public class IndentService extends DomainService {
 			// fetch related items
 			if (indent.getIssueStore() != null) {
 				indent.getIssueStore().setTenantId(tenantId);
-				Store issueStore = (Store) storeJdbcRepository.findById(indent.getIssueStore(), "StoreEntity");
+				Store issueStore = getStore(indent.getIssueStore().getCode(), tenantId);
 				if (issueStore == null) {
 					throw new InvalidDataException("issueStore", "issueStore.invalid", " Invalid issueStore");
 				}
@@ -449,7 +457,7 @@ public class IndentService extends DomainService {
 			}
 			if (indent.getIndentStore() != null) {
 				indent.getIndentStore().setTenantId(tenantId);
-				Store indentStore = (Store) storeJdbcRepository.findById(indent.getIndentStore(), "StoreEntity");
+				Store indentStore = getStore(indent.getIndentStore().getCode(), tenantId);
 				if (indentStore == null) {
 					throw new InvalidDataException("indentStore", "indentStore.invalid", " Invalid indentStore");
 				}
@@ -495,6 +503,20 @@ public class IndentService extends DomainService {
 
 		}
 		return materialMap;
+	}
+
+	private Store getStore(String storeCode, String tenantId) {
+		StoreGetRequest storeGetRequest = getStoreGetRequest(storeCode, tenantId);
+		List<Store> storeList = storeService.search(storeGetRequest).getStores();
+		if (storeList.size() == 1) {
+			return storeList.get(0);
+		} else {
+			return null;
+		}
+	}
+
+	private StoreGetRequest getStoreGetRequest(String storeCode, String tenantId) {
+		return StoreGetRequest.builder().code(Arrays.asList(storeCode)).tenantId(tenantId).active(true).build();
 	}
 
 	private Map<String, Uom> getUoms(String tenantId, final ObjectMapper mapper, RequestInfo requestInfo) {
