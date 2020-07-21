@@ -482,9 +482,6 @@ public class PurchaseOrderService extends DomainService {
 				purchaseOrder.setStore(getStore(purchaseOrder.getTenantId(), purchaseOrder.getStore().getCode()));
 				purchaseOrder
 						.setSupplier(getSupplier(purchaseOrder.getTenantId(), purchaseOrder.getSupplier().getCode()));
-				for (PurchaseOrderDetail details : purchaseOrder.getPurchaseOrderDetails()) {
-					details.setMaterial(getMaterial(purchaseOrder.getTenantId(), details.getMaterial()));
-				}
 
 				PurchaseOrderDetailSearch purchaseOrderDetailSearch = new PurchaseOrderDetailSearch();
 				purchaseOrderDetailSearch.setPurchaseOrder(purchaseOrder.getPurchaseOrderNumber());
@@ -492,8 +489,12 @@ public class PurchaseOrderService extends DomainService {
 				Pagination<PurchaseOrderDetail> detailPagination = purchaseOrderDetailService
 						.search(purchaseOrderDetailSearch);
 				purchaseOrder.setPurchaseOrderDetails(
-						!detailPagination.getPagedData().isEmpty()? detailPagination.getPagedData()
+						!detailPagination.getPagedData().isEmpty() ? detailPagination.getPagedData()
 								: Collections.EMPTY_LIST);
+
+				for (PurchaseOrderDetail details : purchaseOrder.getPurchaseOrderDetails()) {
+					details.setMaterial(getMaterial(purchaseOrder.getTenantId(), details.getMaterial()));
+				}
 			}
 		}
 
@@ -993,7 +994,7 @@ public class PurchaseOrderService extends DomainService {
 	private Material getMaterial(String tenantId, Material material) {
 		Material materialFromMdms = materialService.fetchMaterial(tenantId, material.getCode(),
 				new org.egov.common.contract.request.RequestInfo());
-		if (materialFromMdms == null) {
+		if (materialFromMdms != null) {
 			return materialFromMdms;
 		}
 		return null;

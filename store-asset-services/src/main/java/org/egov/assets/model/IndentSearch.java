@@ -18,6 +18,7 @@ public class IndentSearch   {
 	 private String tenantId;
 	 private List<String> ids;
 	 private String issueStore;
+	 private String indentStore;
 	 private Long indentDate;
 	 private String indentNumber;
 	 private String indentPurpose;
