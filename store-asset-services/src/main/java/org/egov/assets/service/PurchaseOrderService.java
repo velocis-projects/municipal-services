@@ -476,8 +476,26 @@ public class PurchaseOrderService extends DomainService {
 		PurchaseOrderResponse response = new PurchaseOrderResponse();
 		Pagination<PurchaseOrder> search = purchaseOrderRepository.search(is);
 
-		if (search.getPagedData().size() > 0) {
+		if (!search.getPagedData().isEmpty()) {
 			for (PurchaseOrder purchaseOrder : search.getPagedData()) {
+
+				// if (purchaseOrder.getStore() != null && purchaseOrder.getStore().getCode() !=
+				// null) {
+				purchaseOrder.setStore(getStore(purchaseOrder.getTenantId(), purchaseOrder.getStore().getCode()));
+				// }
+
+				// if (purchaseOrder.getSupplier() != null &&
+				// purchaseOrder.getSupplier().getCode() != null) {
+				purchaseOrder
+						.setSupplier(getSupplier(purchaseOrder.getTenantId(), purchaseOrder.getSupplier().getCode()));
+				// }
+
+				for (PurchaseOrderDetail details : purchaseOrder.getPurchaseOrderDetails()) {
+					// if (details.getMaterial() != null) {
+					details.setMaterial(getMaterial(purchaseOrder.getTenantId(), details.getMaterial()));
+					// }
+				}
+
 				PurchaseOrderDetailSearch purchaseOrderDetailSearch = new PurchaseOrderDetailSearch();
 				purchaseOrderDetailSearch.setPurchaseOrder(purchaseOrder.getPurchaseOrderNumber());
 				purchaseOrderDetailSearch.setTenantId(purchaseOrder.getTenantId());
@@ -549,7 +567,7 @@ public class PurchaseOrderService extends DomainService {
 			// validate except during preparepofromindent
 			if (!method.equals(Constants.ACTION_SEARCH_INDENT_FOR_PO))
 				for (PurchaseOrder eachPurchaseOrder : pos) {
-					
+
 					BigDecimal totalAmount = BigDecimal.ZERO;
 					int index = pos.indexOf(eachPurchaseOrder) + 1;
 					if (!isValidStore(tenantId, eachPurchaseOrder.getStore().getCode())) {
@@ -978,13 +996,17 @@ public class PurchaseOrderService extends DomainService {
 		if (materialFromMdms == null) {
 			return false;
 		}
-		// if (material.getBaseUom().getCode() != null)
-		// if
-		// (!materialFromMdms.getBaseUom().getCode().equals(material.getBaseUom().getCode()))
-		// {
-		// return false;
-		// }
+
 		return true;
+	}
+
+	private Material getMaterial(String tenantId, Material material) {
+		Material materialFromMdms = materialService.fetchMaterial(tenantId, material.getCode(),
+				new org.egov.common.contract.request.RequestInfo());
+		if (materialFromMdms == null) {
+			return materialFromMdms;
+		}
+		return null;
 	}
 
 	private boolean isValidStore(String tenantId, String storeCode) {
@@ -997,13 +1019,32 @@ public class PurchaseOrderService extends DomainService {
 		return false;
 	}
 
+	private Store getStore(String tenantId, String storeCode) {
+		StoreGetRequest storeEntity = StoreGetRequest.builder().code(Collections.singletonList(storeCode))
+				.tenantId(tenantId).active(true).build();
+		Pagination<Store> stores = storeJdbcRepository.search(storeEntity);
+		if (!stores.getPagedData().isEmpty()) {
+			return stores.getPagedData().get(0);
+		}
+		return null;
+	}
+
 	private boolean isValidSupplier(String tenantId, String supplierCode) {
 		SupplierGetRequest supplierGetRequest = SupplierGetRequest.builder()
 				.code(Collections.singletonList(supplierCode)).tenantId(tenantId).active(true).build();
 		Pagination<Supplier> suppliers = supplierJdbcRepository.search(supplierGetRequest);
-		if (suppliers.getPagedData().size() > 0)
+		if (!suppliers.getPagedData().isEmpty())
 			return true;
 		return false;
+	}
+
+	private Supplier getSupplier(String tenantId, String supplierCode) {
+		SupplierGetRequest supplierGetRequest = SupplierGetRequest.builder()
+				.code(Collections.singletonList(supplierCode)).tenantId(tenantId).active(true).build();
+		Pagination<Supplier> suppliers = supplierJdbcRepository.search(supplierGetRequest);
+		if (!suppliers.getPagedData().isEmpty())
+			return suppliers.getPagedData().get(0);
+		return null;
 	}
 
 	private void buildPurchaseOrderIndentDetail(PurchaseOrderRequest purchaseOrderRequest, IndentDetail indentDetail,

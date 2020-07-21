@@ -125,10 +125,14 @@ public class IndentService extends DomainService {
 	public IndentResponse create(IndentRequest indentRequest) {
 
 		try {
+			LOG.info("Validation Stated");
 			indentRequest = fetchRelated(indentRequest);
+			LOG.info("Validation Working");
 			validate(indentRequest.getIndents(), Constants.ACTION_CREATE);
+			LOG.info("Validation Success");
 			List<String> sequenceNos = indentRepository.getSequence(Indent.class.getSimpleName(),
 					indentRequest.getIndents().size());
+			LOG.info("Sequence Generation Success");
 			int i = 0;
 			for (Indent b : indentRequest.getIndents()) {
 				b.setId(sequenceNos.get(i));
@@ -154,6 +158,7 @@ public class IndentService extends DomainService {
 					j++;
 				}
 			}
+			LOG.info("Final - Kafka Processing");
 			kafkaQue.send(saveTopic, saveKey, indentRequest);
 			IndentResponse response = new IndentResponse();
 			response.setIndents(indentRequest.getIndents());
