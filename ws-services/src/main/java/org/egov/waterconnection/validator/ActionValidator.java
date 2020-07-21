@@ -57,7 +57,7 @@ public class ActionValidator {
 	private void validateIds(WaterConnectionRequest request, BusinessService businessService, String applicationStatus) {
 		WaterConnection connection = request.getWaterConnection();
 		Map<String, String> errorMap = new HashMap<>();
-		log.info("workflowService:"+workflowService+",applicationStatus:"+applicationStatus+",businessService:"+businessService);
+		//log.info("workflowService:"+workflowService+",applicationStatus:"+applicationStatus+",businessService:"+businessService);
 		if (!workflowService.isStateUpdatable(applicationStatus, businessService)) {
 			if (connection.getId() == null)
 				errorMap.put("INVALID_UPDATE", "Id of waterConnection cannot be null");
