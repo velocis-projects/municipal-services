@@ -67,7 +67,7 @@ public class PurchaseordersApiController {
 		purchaseOrderSearch.setPageSize(pageSize);
 		purchaseOrderSearch.setPageNumber(pageNumber);
 
-		return new ResponseEntity<PurchaseOrderResponse>(purchaseOrderService.search(purchaseOrderSearch),
+		return new ResponseEntity<>(purchaseOrderService.search(purchaseOrderSearch),
 				HttpStatus.OK);
 	}
 

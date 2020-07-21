@@ -479,21 +479,11 @@ public class PurchaseOrderService extends DomainService {
 		if (!search.getPagedData().isEmpty()) {
 			for (PurchaseOrder purchaseOrder : search.getPagedData()) {
 
-				// if (purchaseOrder.getStore() != null && purchaseOrder.getStore().getCode() !=
-				// null) {
 				purchaseOrder.setStore(getStore(purchaseOrder.getTenantId(), purchaseOrder.getStore().getCode()));
-				// }
-
-				// if (purchaseOrder.getSupplier() != null &&
-				// purchaseOrder.getSupplier().getCode() != null) {
 				purchaseOrder
 						.setSupplier(getSupplier(purchaseOrder.getTenantId(), purchaseOrder.getSupplier().getCode()));
-				// }
-
 				for (PurchaseOrderDetail details : purchaseOrder.getPurchaseOrderDetails()) {
-					// if (details.getMaterial() != null) {
 					details.setMaterial(getMaterial(purchaseOrder.getTenantId(), details.getMaterial()));
-					// }
 				}
 
 				PurchaseOrderDetailSearch purchaseOrderDetailSearch = new PurchaseOrderDetailSearch();
@@ -502,7 +492,7 @@ public class PurchaseOrderService extends DomainService {
 				Pagination<PurchaseOrderDetail> detailPagination = purchaseOrderDetailService
 						.search(purchaseOrderDetailSearch);
 				purchaseOrder.setPurchaseOrderDetails(
-						detailPagination.getPagedData().size() > 0 ? detailPagination.getPagedData()
+						!detailPagination.getPagedData().isEmpty()? detailPagination.getPagedData()
 								: Collections.EMPTY_LIST);
 			}
 		}

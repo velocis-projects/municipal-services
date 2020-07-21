@@ -443,16 +443,18 @@ public class IndentService extends DomainService {
 	public IndentRequest fetchRelated(IndentRequest indentRequest) {
 		String tenantId = indentRequest.getIndents().get(0).getTenantId();
 		ObjectMapper mapper = new ObjectMapper();
+		LOG.info("111111");
 
 		RequestInfo requestInfo = indentRequest.getRequestInfo();
 
 		Map<String, Uom> uomMap = getUoms(tenantId, mapper, requestInfo);
 		Map<String, Material> materialMap = getMaterial(tenantId, mapper, requestInfo);
-
+		LOG.info("111111 MDMD end");
 		for (Indent indent : indentRequest.getIndents()) {
-
+			LOG.info("2222");
 			// fetch related items
 			if (indent.getIssueStore() != null) {
+				LOG.info("3333");
 				indent.getIssueStore().setTenantId(tenantId);
 				Store issueStore = getStore(indent.getIssueStore().getCode(), tenantId);
 				if (issueStore == null) {
@@ -460,7 +462,9 @@ public class IndentService extends DomainService {
 				}
 				indent.setIssueStore(issueStore);
 			}
+			
 			if (indent.getIndentStore() != null) {
+				LOG.info("4444");
 				indent.getIndentStore().setTenantId(tenantId);
 				Store indentStore = getStore(indent.getIndentStore().getCode(), tenantId);
 				if (indentStore == null) {
@@ -468,12 +472,14 @@ public class IndentService extends DomainService {
 				}
 				indent.setIndentStore(indentStore);
 			}
+			LOG.info("55555");
 
 			for (IndentDetail detail : indent.getIndentDetails()) {
 
+				LOG.info("6666");
 				detail.setUom(uomMap.get(detail.getUom().getCode()));
 				detail.setMaterial(materialMap.get(detail.getMaterial().getCode()));
-
+				LOG.info("77777");
 				/*
 				 * if(detail.getAsset().getCode()!=null) { Asset
 				 * a=assetRepository.findByCode(detail.getAsset(),indentRequest.getRequestInfo()
@@ -491,7 +497,7 @@ public class IndentService extends DomainService {
 			 */
 
 		}
-
+		LOG.info("8888888888888888");
 		return indentRequest;
 	}
 
