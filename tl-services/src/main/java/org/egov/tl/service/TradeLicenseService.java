@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.request.Role;
 import org.egov.tl.config.TLConfiguration;
 import org.egov.tl.repository.TLRepository;
 import org.egov.tl.service.notification.EditNotificationService;
@@ -21,6 +22,7 @@ import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import static org.egov.tl.util.TLConstants.*;
 
@@ -328,7 +330,13 @@ public class TradeLicenseService {
         }
         enrichmentService.postStatusEnrichment(tradeLicenseRequest,endStates);
         userService.createUser(tradeLicenseRequest, false);
-        calculationService.addCalculation(tradeLicenseRequest);
+        
+        List<Role> roles = tradeLicenseRequest.getRequestInfo().getUserInfo().getRoles();
+        roles.forEach(role -> {
+            if(role.getCode().equalsIgnoreCase("CITIZEN"))
+            	calculationService.addCalculation(tradeLicenseRequest);
+        });
+        
         String businessServiceFromRequest = tradeLicenseRequest.getLicenses().get(0).getBusinessService();
         if (businessServiceFromRequest == null) {
         	businessServiceFromRequest = businessService_TL;
