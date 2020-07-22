@@ -1,6 +1,5 @@
 package org.egov.pt.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -26,7 +25,6 @@ import org.egov.pt.repository.AssessmentRepository;
 import org.egov.pt.repository.ServiceRequestRepository;
 import org.egov.pt.repository.builder.OldPropertyQueryBuilder;
 import org.egov.pt.repository.builder.PropertyQueryBuilder;
-import org.egov.pt.repository.rowmapper.MigrationCountRowMapper;
 import org.egov.pt.repository.rowmapper.OldPropertyRowMapper;
 import org.egov.pt.repository.rowmapper.PropertyRowMapper;
 import org.egov.pt.util.AssessmentUtils;
@@ -35,7 +33,8 @@ import org.egov.pt.util.PTConstants;
 import org.egov.pt.validator.AssessmentValidator;
 import org.egov.pt.validator.PropertyMigrationValidator;
 import org.egov.pt.validator.PropertyValidator;
-import org.egov.pt.web.contracts.*;
+import org.egov.pt.web.contracts.AssessmentRequest;
+import org.egov.pt.web.contracts.PropertyRequest;
 import org.egov.pt.web.contracts.RequestInfoWrapper;
 import org.egov.tracer.model.CustomException;
 import org.egov.tracer.model.ServiceCallException;
@@ -44,7 +43,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -96,9 +94,6 @@ public class MigrationService {
     private OldPropertyRowMapper rowMapper;
 
     @Autowired
-    private MigrationCountRowMapper migrationCountRowMapper;
-
-    @Autowired
     private ServiceRequestRepository restRepo;
 
 
@@ -124,120 +119,71 @@ public class MigrationService {
     @Value("${migration.batch.value}")
     private Integer batchSize;
 
-    @Value("${migration.offset.value}")
-    private Integer batchOffset;
-
-    private Integer count2=0;
-
-    public static final String COUNT_QUERY = "select count(*) from eg_pt_property_v2 where tenantid = '{}';";
-    public static final String TENANT_QUERY = "select distinct tenantid from eg_pt_property_v2;";
-    public static final String MIGARTION_COUNT_QUERY = "select count(*) from eg_pt_property_migration;";
-    //public static final String MIGARTION_POINT_QUERY = "select offset from eg_pt_property_migration;";
-    public static final String MIGARTION_POINT_QUERY ="select id,batch,batchsize,createdtime,tenantid,recordCount from eg_pt_property_migration as migration where tenantid = ? and createdtime = (select max(createdtime) from eg_pt_property_migration where tenantid = ?);";
+    public static final String COUNT_QUERY = "select count(*) from eg_pt_property_v2 where tenantid like '?';";
+    public static final String TENANT_QUERY = "select distinct tenantid from eg_pt_property_v2";
 
 
 
+    public Map<String, String> initiatemigration(RequestInfoWrapper requestInfoWrapper,OldPropertyCriteria propertyCriteria) {
 
-
-    public long getTenantCount(String tenantid){
-        String query = COUNT_QUERY.replace("{}",tenantid);
-        long count = jdbcTemplate.queryForObject(query, Integer.class);
-        return count;
-    }
-    public List<String> getTenantList(){
-        List<String> tenantList =jdbcTemplate.queryForList(TENANT_QUERY,String.class);
-        return tenantList;
-    }
-    public MigrationCount getMigrationCountForTenant(String tenantId){
-        MigrationCount migrationCount = jdbcTemplate.query(MIGARTION_POINT_QUERY, new Object[] { tenantId, tenantId }, migrationCountRowMapper);
-        return migrationCount;
-    }
-
-    public Map<String, String> initiateProcess(RequestInfoWrapper requestInfoWrapper,OldPropertyCriteria propertyCriteria,Map<String, String> errorMap){
-
-        Map<String, String> resultMap = null;
-        Map<String, List<String>> masters = getMDMSData(requestInfoWrapper.getRequestInfo(),"pb");
-        List<String> tenantList = getTenantList();
-
-        if(StringUtils.isEmpty(propertyCriteria.getLimit()))
-            propertyCriteria.setLimit(Long.valueOf(batchSize));
-
-        if(StringUtils.isEmpty(propertyCriteria.getOffset()))
-            propertyCriteria.setLimit(Long.valueOf(batchSize));
-
-        for(int i= 0;i<tenantList.size();i++){
-            MigrationCount migrationCount = getMigrationCountForTenant(tenantList.get(i));
-            System.out.println("\n\nMigration count--->"+migrationCount.toString()+"\n\n");
-            if(ObjectUtils.isEmpty(migrationCount) || migrationCount.getId() == null){
-                propertyCriteria.setTenantId(tenantList.get(i));
-                resultMap = initiatemigration(requestInfoWrapper, propertyCriteria,masters,errorMap);
-            }
-            else{
-                long count = getTenantCount(tenantList.get(i));
-
-                System.out.println("\n\ntenant--->"+tenantList.get(i)+"\n\n");
-                System.out.println("\n\ncount--->"+count+"\n\n");
-
-                if(migrationCount.getRecordCount() >= count)
-                    continue;
-                else{
-                    propertyCriteria.setTenantId(tenantList.get(i));
-                    propertyCriteria.setOffset(migrationCount.getOffset()+migrationCount.getLimit());
-                    resultMap = initiatemigration(requestInfoWrapper, propertyCriteria,masters,errorMap);
-                }
-
-            }
-        }
-        return resultMap;
-    }
-
-    public Map<String, String> initiatemigration(RequestInfoWrapper requestInfoWrapper,OldPropertyCriteria propertyCriteria,Map<String, List<String>> masters,Map<String, String> errorMap) {
-
-        RequestInfo requestInfo = requestInfoWrapper.getRequestInfo();
-        List<Property> properties = new ArrayList<>();
         Map<String, String> responseMap = new HashMap<>();
-
+        Map<String, String> errorMap = new HashMap<>();
         Integer startBatch = Math.toIntExact(propertyCriteria.getOffset());
         Integer batchSizeInput = Math.toIntExact(propertyCriteria.getLimit());
+        RequestInfo requestInfo = requestInfoWrapper.getRequestInfo();
+        List<Property> properties = new ArrayList<>();
+        //String tenantId = propertyCriteria.getTenantId();
+        String query = null;
 
+        if(null != batchSizeInput && batchSizeInput > 0)
+            batchSize = batchSizeInput;
 
-        long count = getTenantCount(propertyCriteria.getTenantId());
-        log.info("Count: "+count);
-        log.info("startbatch: "+startBatch);
+        Map<String, List<String>> masters = getMDMSData(requestInfo,"pb");
 
-        while(startBatch<count) {
-            long startTime = System.nanoTime();
-            List<OldProperty> oldProperties = searchOldPropertyFromURL(requestInfoWrapper,propertyCriteria) ;
-            try {
-                properties= migrateProperty(requestInfo,oldProperties,masters,errorMap);
-            } catch (Exception e) {
+        List<String> tenantList =jdbcTemplate.queryForList(TENANT_QUERY,String.class);
+        //System.out.println("\n\nList--->"+tenantList+"\n\n");
 
-                log.error("Migration failed at batch count of : " + startBatch);
-                responseMap.put( "Migration failed at batch count : " + startBatch, e.getMessage());
-                return responseMap;
+        for(String tenantId:tenantList){
+
+            query = COUNT_QUERY.replace("?", tenantId);
+            log.info("Query: "+query);
+            int count = jdbcTemplate.queryForObject(query, Integer.class);
+            int i = 0;
+            if (null != startBatch && startBatch > 0)
+                i = startBatch;
+
+            //count = count - startBatch;
+            log.info("Count: "+count);
+
+            propertyCriteria.setTenantId(tenantId);
+
+            while(i<count) {
+                long startTime = System.nanoTime();
+                List<OldProperty> oldProperties = searchPropertyPlainSearch(propertyCriteria,requestInfoWrapper.getRequestInfo()) ;
+                //List<OldProperty> oldProperties = searchOldPropertyFromURL(requestInfoWrapper,tenantId,i,batchSize) ;
+                try {
+                    migrateProperty(requestInfo,oldProperties,tenantId,masters,errorMap);
+                } catch (Exception e) {
+
+                    log.error("Migration failed at batch count of : " + i+"for tenantId"+tenantId);
+                    responseMap.put( "Migration failed at batch count : " + i+"for tenantId"+tenantId, e.getMessage());
+                    //return errorMap;
+                }
+                addResponseToMap(properties,responseMap,"SUCCESS");
+                log.info(" count completed : " + i);
+                long endtime = System.nanoTime();
+                long elapsetime = endtime - startTime;
+                log.info("\n\nBatch elapsed time: "+elapsetime+"\n\n");
+                i = i+batchSize;
+                propertyCriteria.setOffset(Long.valueOf(i));
             }
-            addResponseToMap(properties,responseMap,"SUCCESS");
-            log.info(" count completed for batch : " + startBatch);
-            long endtime = System.nanoTime();
-            long elapsetime = endtime - startTime;
-            log.info("\n\nBatch elapsed time: "+elapsetime+"\n\n");
 
-            MigrationCount migrationCount = new MigrationCount();
-            migrationCount.setId(UUID.randomUUID().toString());
-            migrationCount.setOffset(Long.valueOf(startBatch));
-            migrationCount.setLimit(Long.valueOf(batchSizeInput));
-            migrationCount.setCreatedTime(System.currentTimeMillis());
-            migrationCount.setTenantid(propertyCriteria.getTenantId());
-            migrationCount.setRecordCount(Long.valueOf(startBatch+batchSizeInput));
-            PropertyMigrationCountRequest request = PropertyMigrationCountRequest.builder().requestInfo(requestInfo).migrationCount(migrationCount).build();
-            producer.push(config.getMigartionBatchCountTopic(), request);
-
-            startBatch = startBatch+batchSizeInput;
-            propertyCriteria.setOffset(Long.valueOf(startBatch));
-            System.out.println("Property Count which pushed into kafka topic:"+count2);
         }
-        propertyCriteria.setOffset(Long.valueOf(batchOffset));
-        return responseMap;
+
+
+
+
+        return errorMap;
 
     }
 
@@ -254,7 +200,7 @@ public class MigrationService {
 
 
 
-    /*public List<OldProperty> searchOldPropertyFromURL(org.egov.pt.web.contracts.RequestInfoWrapper requestInfoWrapper,String tenantId,int i,Integer batchSize){
+    public List<OldProperty> searchOldPropertyFromURL(org.egov.pt.web.contracts.RequestInfoWrapper requestInfoWrapper,String tenantId,int i,Integer batchSize){
 
 
         StringBuilder url = new StringBuilder(ptHost).append(oldPropertySearchEndpoint).append(URL_PARAMS_SEPARATER)
@@ -266,43 +212,27 @@ public class MigrationService {
 
 
         return res.getProperties();
-    }*/
-
-    public List<OldProperty> searchOldPropertyFromURL(org.egov.pt.web.contracts.RequestInfoWrapper requestInfoWrapper,OldPropertyCriteria propertyCriteria){
-
-
-        StringBuilder url = new StringBuilder(ptHost).append(oldPropertySearchEndpoint).append(URL_PARAMS_SEPARATER)
-                .append(TENANT_ID_FIELD_FOR_SEARCH_URL).append(propertyCriteria.getTenantId())
-                .append(SEPARATER).append(OFFSET_FIELD_FOR_SEARCH_URL).append(propertyCriteria.getOffset())
-                .append(SEPARATER).append(LIMIT_FIELD_FOR_SEARCH_URL).append(propertyCriteria.getLimit());
-
-
-        OldPropertyResponse res = mapper.convertValue(fetchResult(url, requestInfoWrapper), OldPropertyResponse.class);
-
-
-        return res.getProperties();
     }
 
 
 
-
-    public List<OldProperty> searchPropertyPlainSearch(OldPropertyCriteria criteria, RequestInfo requestInfo,long initialPoint) {
-        List<OldProperty> properties = getPropertiesPlainSearch(criteria, requestInfo,initialPoint);
+    public List<OldProperty> searchPropertyPlainSearch(OldPropertyCriteria criteria, RequestInfo requestInfo) {
+        List<OldProperty> properties = getPropertiesPlainSearch(criteria, requestInfo);
         //enrichmentService.enrichBoundary(new PropertyRequest(requestInfo, properties));
         return properties;
     }
 
-    List<OldProperty> getPropertiesPlainSearch(OldPropertyCriteria criteria, RequestInfo requestInfo,long initialPoint) {
-        List<OldProperty> properties = getPropertiesPlainSearch(criteria,initialPoint);
-        //enrichPropertyCriteriaWithOwnerids(criteria, properties);
+    List<OldProperty> getPropertiesPlainSearch(OldPropertyCriteria criteria, RequestInfo requestInfo) {
+        List<OldProperty> properties = getPropertiesPlainSearch(criteria);
+//        enrichPropertyCriteriaWithOwnerids(criteria, properties);
 //        OldUserDetailResponse userDetailResponse = getUser(criteria, requestInfo);
 //        enrichOwner(userDetailResponse, properties);
         return properties;
     }
 
-    public List<OldProperty> getPropertiesPlainSearch(OldPropertyCriteria criteria,long initialPoint){
+    public List<OldProperty> getPropertiesPlainSearch(OldPropertyCriteria criteria){
         List<Object> preparedStmtList = new ArrayList<>();
-        String query = queryBuilder.getPropertyLikeQuery(criteria, preparedStmtList,initialPoint);
+        String query = queryBuilder.getPropertyLikeQuery(criteria, preparedStmtList);
         log.info("Query: "+query);
         log.info("PS: "+preparedStmtList);
         return jdbcTemplate.query(query, preparedStmtList.toArray(), rowMapper);
@@ -450,16 +380,23 @@ public class MigrationService {
         return  d.getTime();
     }
 
-    public  List<Property> migrateProperty(RequestInfo requestInfo, List<OldProperty> oldProperties,Map<String, List<String>> masters,Map<String, String> errorMap) {
+    public Map<String, String> migrateProperty(RequestInfo requestInfo, List<OldProperty> oldProperties,String tenantId,Map<String, List<String>> masters,Map<String, String> errorMap) {
+        //Map<String, String> errorMap = new HashMap<>();
         List<Property> properties = new ArrayList<>();
         for(OldProperty oldProperty : oldProperties){
-
-            String Id = UUID.randomUUID().toString();
-            String propertyId = oldProperty.getPropertyId();
-            String tenantId= oldProperty.getTenantId();
-            String accountId = requestInfo.getUserInfo().getUuid();
-            String oldPropertyId = oldProperty.getOldPropertyId();
-            Status status = Status.fromValue(oldProperty.getStatus().toString());
+            Property property = new Property();
+            property.setId(UUID.randomUUID().toString());
+            property.setPropertyId(oldProperty.getPropertyId());
+            property.setTenantId(oldProperty.getTenantId());
+            property.setAccountId(requestInfo.getUserInfo().getUuid());
+            property.setOldPropertyId(oldProperty.getOldPropertyId());
+            property.setStatus(Status.fromValue(oldProperty.getStatus().toString()));
+            if(oldProperty.getAddress()!=null)
+                property.setAddress(migrateAddress(oldProperty.getAddress()));
+            else
+                property.setAddress(null
+                );
+            property.setAcknowldgementNumber(oldProperty.getAcknowldgementNumber());
 
             Collections.sort(oldProperty.getPropertyDetails(), new Comparator<PropertyDetail>() {
                 @Override
@@ -469,20 +406,6 @@ public class MigrationService {
             });
 
             for(int i=0;i< oldProperty.getPropertyDetails().size();i++){
-                Property property = new Property();
-                property.setId(Id);
-                property.setPropertyId(propertyId);
-                property.setTenantId(tenantId);
-                property.setAccountId(accountId);
-                property.setOldPropertyId(oldPropertyId);
-                property.setStatus(status);
-
-                if(oldProperty.getAddress()!=null)
-                    property.setAddress(migrateAddress(oldProperty.getAddress()));
-                else
-                    property.setAddress(null);
-                property.setAcknowldgementNumber(oldProperty.getAcknowldgementNumber());
-
                 if(oldProperty.getPropertyDetails().get(i) != null){
                     property.setPropertyType(migratePropertyType(oldProperty.getPropertyDetails().get(i)));
                     property.setOwnershipCategory(migrateOwnwershipCategory(oldProperty.getPropertyDetails().get(i)));
@@ -527,15 +450,10 @@ public class MigrationService {
                 else
                     property.setDocuments(migrateDocument(oldProperty.getPropertyDetails().get(i).getDocuments()));
 
-                List<Unit> units = new ArrayList<>();
                 if(oldProperty.getPropertyDetails().get(i).getUnits() == null)
                     property.setUnits(null);
-                else{
-                    units=migrateUnit(oldProperty.getPropertyDetails().get(i).getUnits());
-                    property.setUnits(units);
-
-                }
-
+                else
+                    property.setUnits(migrateUnit(oldProperty.getPropertyDetails().get(i).getUnits()));
 
                 if(oldProperty.getPropertyDetails().get(i).getAdditionalDetails() == null)
                     property.setAdditionalDetails(null);
@@ -545,11 +463,10 @@ public class MigrationService {
                 }
 
 
-                if( oldProperty.getPropertyDetails().get(i).getAuditDetails() == null)
+                if(oldProperty.getOldAuditDetails() == null)
                     property.setAuditDetails(null);
                 else
-                    property.setAuditDetails(migrateAuditDetails(oldProperty.getPropertyDetails().get(i).getAuditDetails()));
-
+                    property.setAuditDetails(migrateAuditDetails(oldProperty.getOldAuditDetails()));
 
                 if(oldProperty.getPropertyDetails().get(i).getOwners()!=null){
                     List<OwnerInfo> ownerInfos = migrateOwnerInfo(oldProperty.getPropertyDetails().get(i).getOwners());
@@ -562,22 +479,21 @@ public class MigrationService {
                 try{
                     propertyMigrationValidator.validatePropertyCreateRequest(request,masters,errorMap);
                 } catch (Exception e) {
-                   /*errorMap.put(property.getPropertyId(), String.valueOf(e));
-                   throw new CustomException(errorMap);*/
+                    errorMap.put(property.getPropertyId(), String.valueOf(e));
+                   //throw new CustomException(errorMap);
                 }
-
-                producer.push(config.getSavePropertyTopic(), request);
-                properties.add(property);
-
+                if(i==0)
+                    producer.push(config.getSavePropertyTopic(), request);
+                else
+                    producer.push(config.getUpdatePropertyTopic(), request);
 
                 if(oldProperty.getPropertyDetails().get(i)!=null)
-                    migrateAssesment(oldProperty.getPropertyDetails().get(i),property,requestInfo,errorMap,masters,units);
-
+                    migrateAssesment(oldProperty.getPropertyDetails().get(i),property,requestInfo,errorMap,masters);
             }
-            count2++;
+            properties.add(property);
         }
 
-        return properties;
+        return errorMap;
     }
 
     public Address migrateAddress(org.egov.pt.models.oldProperty.Address oldAddress){
@@ -585,7 +501,7 @@ public class MigrationService {
         address.setTenantId(oldAddress.getTenantId());
         address.setDoorNo(oldAddress.getDoorNo());
         //address.setPlotNo();
-        address.setId(UUID.randomUUID().toString());
+        address.setId(oldAddress.getId());
         address.setLandmark(oldAddress.getLandmark());
         address.setCity(oldAddress.getCity());
         //address.setDistrict();
@@ -646,7 +562,6 @@ public class MigrationService {
         for(OldOwnerInfo oldOwnerInfo : oldOwnerInfosSet){
             OwnerInfo ownerInfo = new OwnerInfo();
             ownerInfo.setId(oldOwnerInfo.getId());
-            //ownerInfo.setOwnerInfoUuid(UUID.randomUUID().toString());
             ownerInfo.setUuid(oldOwnerInfo.getUuid());
             ownerInfo.setUserName(oldOwnerInfo.getUserName());
             ownerInfo.setPassword(oldOwnerInfo.getPassword());
@@ -760,7 +675,7 @@ public class MigrationService {
         List<Unit> units = new ArrayList<>();
         for(OldUnit oldUnit : oldUnits){
             Unit unit = new Unit();
-            unit.setId(UUID.randomUUID().toString());
+            unit.setId(oldUnit.getId());
             unit.setTenantId(oldUnit.getTenantId());
             unit.setFloorNo(Integer.valueOf(oldUnit.getFloorNo()));
             unit.setUnitType(oldUnit.getUnitType());
@@ -818,7 +733,7 @@ public class MigrationService {
         List<Document> documentList = new ArrayList<>();
         for(OldDocument oldDocument: oldDocumentList){
             Document doc = new Document();
-            doc.setId(UUID.randomUUID().toString());
+            doc.setId(oldDocument.getId());
             doc.setDocumentType(oldDocument.getDocumentType());
             if(oldDocument.getFileStore() == null)
                 doc.setFileStoreId(oldDocument.getId());
@@ -843,7 +758,7 @@ public class MigrationService {
     }
 
 
-    public void migrateAssesment(PropertyDetail propertyDetail, Property property, RequestInfo requestInfo,Map<String,String> errorMap,Map<String, List<String>> masters, List<Unit> units){
+    public void migrateAssesment(PropertyDetail propertyDetail, Property property, RequestInfo requestInfo,Map<String,String> errorMap,Map<String, List<String>> masters){
         Assessment assessment = new Assessment();
         assessment.setId(String.valueOf(UUID.randomUUID()));
         assessment.setTenantId(propertyDetail.getTenantId());
@@ -871,7 +786,7 @@ public class MigrationService {
         if(propertyDetail.getUnits() == null)
             assessment.setUnitUsageList(null);
         else
-            assessment.setUnitUsageList(migrateUnitUsageList(propertyDetail,units));
+            assessment.setUnitUsageList(migrateUnitUsageList(propertyDetail));
 
         if(propertyDetail.getAdditionalDetails()!=null){
             try{
@@ -923,7 +838,6 @@ public class MigrationService {
             errorMap.put(assessment.getAssessmentNumber(), String.valueOf(e));
             //throw new CustomException(errorMap);
         }
-        //assessmentRequestList.add(request);
         producer.push(config.getCreateAssessmentTopic(), request);
     }
 
@@ -944,16 +858,17 @@ public class MigrationService {
         return assessmentAdditionalDetail;
     }
 
-    public List<UnitUsage> migrateUnitUsageList(PropertyDetail propertyDetail, List<Unit> propertyUnits){
+    public List<UnitUsage> migrateUnitUsageList(PropertyDetail propertyDetail){
+        List<OldUnit> oldUnits = propertyDetail.getUnits();
         List<UnitUsage> units = new ArrayList<>();
-        for(Unit propertyUnit : propertyUnits){
+        for(OldUnit oldUnit : oldUnits){
             UnitUsage unit = new UnitUsage();
             unit.setId(String.valueOf(UUID.randomUUID()));
-            unit.setUnitId(propertyUnit.getId());
-            unit.setTenantId(propertyUnit.getTenantId());
-            unit.setUsageCategory(propertyUnit.getUsageCategory());
-            unit.setOccupancyType(propertyUnit.getOccupancyType());
-            unit.setOccupancyDate(propertyUnit.getOccupancyDate());
+            unit.setUnitId(oldUnit.getId());
+            unit.setTenantId(oldUnit.getTenantId());
+            unit.setUsageCategory(migrateUnitUsageCategory(oldUnit));
+            unit.setOccupancyType(oldUnit.getOccupancyType());
+            unit.setOccupancyDate(oldUnit.getOccupancyDate());
             unit.setAuditDetails(migrateAuditDetails(propertyDetail.getAuditDetails()));
             units.add(unit);
         }
@@ -1054,7 +969,7 @@ public class MigrationService {
         return response;
     }
 
-    public Map<String, List<String>> getMDMSData(RequestInfo requestInfo, String tenantId) {
+    private Map<String, List<String>> getMDMSData(RequestInfo requestInfo, String tenantId) {
         Map<String, List<String>> masters = fetchMaster(requestInfo, tenantId);
         if(CollectionUtils.isEmpty(masters.keySet()))
             throw new CustomException("MASTER_FETCH_FAILED", "Couldn't fetch master data for validation");
@@ -1078,28 +993,6 @@ public class MigrationService {
         }
         if (!errorMap.isEmpty())
             throw new CustomException(errorMap);
-    }
-
-    public void sendDataToAssessmentCreateTopic(List<AssessmentRequest> assessmentRequestList){
-        for(AssessmentRequest assessmentRequest: assessmentRequestList)
-            producer.push(config.getCreateAssessmentTopic(), assessmentRequest);
-    }
-
-    public Object propertyfetchResult(StringBuilder uri, Object request) {
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        Object response = null;
-        log.info("URI: "+uri.toString());
-        try {
-            log.info("Request: "+mapper.writeValueAsString(request));
-            response = restTemplate.postForObject(uri.toString(), request, OldPropertyCriteria.class);
-        }catch(HttpClientErrorException e) {
-            log.error("External Service threw an Exception: ",e);
-            throw new ServiceCallException(e.getResponseBodyAsString());
-        }catch(Exception e) {
-            log.error("Exception while fetching from external service: ",e);
-        }
-
-        return response;
     }
 
 }
