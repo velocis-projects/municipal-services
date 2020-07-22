@@ -116,10 +116,17 @@ public class OpeningBalanceService extends DomainService {
 					});
 				}
 			});
+
 			for (MaterialReceipt material : openBalReq.getMaterialReceipt()) {
 				material.setAuditDetails(getAuditDetails(openBalReq.getRequestInfo(), "CREATE"));
+
+				for (MaterialReceiptDetail recipt : material.getReceiptDetails()) {
+					recipt.auditDetails(getAuditDetails(openBalReq.getRequestInfo(), "CREATE"));
+				}
 				material.setId(jdbcRepository.getSequence(material));
 			}
+
+			System.out.println("openBalReq :" + openBalReq);
 			kafkaTemplate.send(createTopic, openBalReq);
 			return openBalReq.getMaterialReceipt();
 		} catch (CustomBindException e) {
@@ -175,6 +182,9 @@ public class OpeningBalanceService extends DomainService {
 			for (MaterialReceipt material : openBalReq.getMaterialReceipt()) {
 				material.setAuditDetails(getAuditDetails(openBalReq.getRequestInfo(), "UPDATE"));
 			}
+
+			System.out.println("openBalReq Update :" + openBalReq);
+
 			kafkaTemplate.send(updateTopic, openBalReq);
 			return openBalReq.getMaterialReceipt();
 		} catch (CustomBindException e) {
@@ -231,7 +241,7 @@ public class OpeningBalanceService extends DomainService {
 			case Constants.ACTION_CREATE: {
 				if (receipt == null) {
 					errors.addDataError(ErrorCode.NOT_NULL.getCode(), "materialReceipt", null);
-					
+
 				}
 			}
 				break;
@@ -323,13 +333,6 @@ public class OpeningBalanceService extends DomainService {
 						if (null != detail.getReceiptDetailsAddnInfo()) {
 							for (MaterialReceiptDetailAddnlinfo addInfo : detail.getReceiptDetailsAddnInfo()) {
 
-								// This line has to be removed Added by prakash temp
-								material.setLotControl(
-										material.getLotControl() == null ? false : material.getLotControl());
-								material.setShelfLifeControl(
-										material.getShelfLifeControl() == null ? false : material.getShelfLifeControl());
-								// Code end here
-								
 								if (null != material && material.getLotControl() == true
 										&& isEmpty(addInfo.getLotNo())) {
 									errors.addDataError(ErrorCode.LOT_NO_NOT_EXIST.getCode(),

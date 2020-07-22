@@ -14,7 +14,7 @@ import org.egov.hc.producer.HCConfiguration;
 import org.egov.hc.utils.HCConstants;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -61,12 +61,9 @@ public class WorkflowIntegrator {
 
 	@Autowired
 	private RestTemplate rest;
+	
 	@Autowired
 	private HCConfiguration config;
-	
-
-	@Value("${workflow.bpa.businessServiceCode.fallback_enabled}")
-	private Boolean pickWFServiceNameFromTradeTypeOnly;
 
 	@Autowired
 	public WorkflowIntegrator(RestTemplate rest, HCConfiguration config) {
@@ -83,14 +80,13 @@ public class WorkflowIntegrator {
 	 *
 	 * @param ServiceRequest
 	 */
-	public boolean callWorkFlow(ServiceRequest request, String service_request_id) {
+	public  boolean callWorkFlow(ServiceRequest request, String service_request_id) {
 		boolean status = false;
 		
 		if(!request.getServices().isEmpty())
 		{
 
-			String wfTenantId = HCConstants.TENANT_ID;
-		//String businessServiceFromMDMS = request.getServices().isEmpty()?null:request.getServices().get(0).getServiceType().toUpperCase();
+		String wfTenantId = request.getServices().get(0).getCity();
 		JSONArray array = new JSONArray();
 		for (ServiceRequestData servicerequestdata : request.getServices()) {
 				JSONObject obj = new JSONObject();
@@ -233,4 +229,5 @@ public class WorkflowIntegrator {
 		return status;
 		
 	}
+	
 }

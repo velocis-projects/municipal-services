@@ -39,6 +39,7 @@
  */
 package org.egov.assets.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.*;
 
@@ -54,6 +55,7 @@ import org.egov.assets.model.AuditableContract;
 @NoArgsConstructor
 
 @JsonPropertyOrder({"id", "code", "name", "description", "active", "type", "fund"})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BankContract extends AuditableContract {
 
     private String id;

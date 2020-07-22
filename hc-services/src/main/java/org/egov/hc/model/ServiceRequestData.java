@@ -1,7 +1,6 @@
 package org.egov.hc.model;
 
-import java.util.ArrayList;
-import java.util.Date;
+
 import java.util.List;
 
 import javax.validation.constraints.Max;
@@ -9,22 +8,22 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.egov.hc.contract.AuditDetails;
 import org.egov.hc.model.user.Citizen;
 import org.egov.hc.workflow.Document;
-import org.springframework.validation.annotation.Validated;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
+
 
 @Getter
 @Setter
@@ -94,12 +93,20 @@ public class ServiceRequestData {
 	private String service_request_date;
 	
 	@Size(max=255)
+	@JsonProperty("city")
+	private String city;
+	
+	@Size(max=255)
 	@JsonProperty("service_request_status")
 	private String service_request_status;
 	
 	@Size(max=255)
 	@JsonProperty("service_request_id")
 	private String service_request_id;
+	
+	@Size(max=255)
+	@JsonProperty("service_request_id_old")
+	private String service_request_id_old;
 	
 	@Size(max=255)
 	@JsonProperty("history_service_request_id")
@@ -143,7 +150,7 @@ public class ServiceRequestData {
 	  
 	  
 	  @JsonProperty("auditDetails")
-	  private auditDetails auditDetails;
+	  private AuditDetails auditDetails;
 
 	  
 	  @JsonProperty("addressDetail")

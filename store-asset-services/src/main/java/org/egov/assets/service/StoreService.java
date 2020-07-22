@@ -363,7 +363,7 @@ public class StoreService extends DomainService {
 	}
 
 	private Map<String, Department> getDepartment(String tenantId) {
-		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "common-masters", "Department", null, null,
+		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "store-asset", "Department", null, null,
 				new RequestInfo());
 		Map<String, Department> departmentMap = new HashMap<>();
 		ObjectMapper mapper = new ObjectMapper();

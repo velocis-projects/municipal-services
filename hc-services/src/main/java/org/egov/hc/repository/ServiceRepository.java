@@ -5,7 +5,7 @@ import java.util.Map;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import org.egov.hc.contract.RequestInfoWrapper;
+
 import org.egov.hc.contract.ServiceRequest;
 
 import org.egov.hc.model.RequestData;
@@ -14,8 +14,6 @@ import org.egov.hc.producer.HCConfiguration;
 import org.egov.hc.producer.HCProducer;
 import org.egov.hc.repository.builder.HCQueryBuilder;
 import org.egov.hc.repository.rowmapper.HCRowMapper;
-
-import org.egov.hc.utils.HCConstants;
 
 
 import org.egov.tracer.model.ServiceCallException;
@@ -144,7 +142,7 @@ public class ServiceRepository {
 		List <String> uuidList = new ArrayList<>();
 		try {	
 			
-			allRoles = rest.postForObject(hcConfiguration.getEgovHRMShost().concat(hcConfiguration.getEgovHRMSSearchEndpoint()).concat("?").concat("roles="+role+"&tenantId="+HCConstants.TENANT_ID), request, String.class);
+			allRoles = rest.postForObject(hcConfiguration.getEgovHRMShost().concat(hcConfiguration.getEgovHRMSSearchEndpoint()).concat("?").concat("roles="+role+"&tenantId="+request.getServices().get(0).getCity()), request, String.class);
 		
 		try {
 			org.json.JSONObject obj = new org.json.JSONObject(allRoles);
@@ -175,18 +173,14 @@ public class ServiceRepository {
 
 
 	
-	 public JSONObject getServiceRequestList() {
+	 public JSONArray getServiceRequestList() {
 	  		try {
 	  			
 
 	  				JSONArray actualResult = (JSONArray) jdbcTemplate.query(queryBuilder.GET_CREATED_TIME,
 	  						new Object[] { }, rowMapper);
-	  				JSONArray jsonArray = new JSONArray();
-	  				JSONObject serviceDetailjsonObject = (JSONObject) actualResult.get(0);
 
-	  				//jsonArray.add(serviceDetailjsonObject);
-	  				
-	  				return serviceDetailjsonObject;
+	  				return actualResult;
 	  			
 	  			
 	  		} catch (Exception e) {

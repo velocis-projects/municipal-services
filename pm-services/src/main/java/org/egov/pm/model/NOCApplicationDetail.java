@@ -6,6 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+* A Object holds the data for a for NOC specific details
+*/
+
+
 @Getter
 @Setter
 @Builder

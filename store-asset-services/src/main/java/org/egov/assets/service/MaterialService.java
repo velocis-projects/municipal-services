@@ -20,6 +20,7 @@ import org.egov.assets.model.MaterialSearchRequest;
 import org.egov.assets.model.MaterialStoreMapping;
 import org.egov.assets.model.MaterialStoreMappingRequest;
 import org.egov.assets.model.MaterialStoreMappingSearch;
+import org.egov.assets.model.MaterialType;
 import org.egov.assets.model.StoreMapping;
 import org.egov.assets.repository.MaterialJdbcRepository;
 import org.egov.common.contract.request.RequestInfo;
@@ -124,7 +125,7 @@ public class MaterialService extends DomainService {
 
 		MaterialResponse response = new MaterialResponse();
 
-		List<Material> materials = new ArrayList<Material>();
+		List<Material> materials = new ArrayList<>();
 
 		List<Material> materialFromMdms = getMaterialFromMdms(materialSearchRequest.getTenantId(),
 				materialSearchRequest.getCode(), requestInfo);
@@ -142,8 +143,15 @@ public class MaterialService extends DomainService {
 
 						prepareMaterial(materialDb, material);
 
-						List<StoreMapping> storeMappings = new ArrayList<>();
+						if (materialDb.getMaterialType().getCode() != null) {
+							MaterialType materialType = (MaterialType) mdmsRepository.fetchObject(
+									materialSearchRequest.getTenantId(), "store-asset", "MaterialType", "code",
+									materialDb.getMaterialType().getCode(), MaterialType.class, requestInfo);
+							materialDb.setMaterialType(
+									materialType == null ? materialDb.getMaterialType() : materialType);
+						}
 
+						List<StoreMapping> storeMappings = new ArrayList<>();
 						MaterialStoreMappingSearch materialStoreMappingSearch = MaterialStoreMappingSearch.builder()
 								.material(material.getCode()).tenantId(materialSearchRequest.getTenantId()).build();
 
@@ -176,7 +184,8 @@ public class MaterialService extends DomainService {
 		JSONArray responseJSONArray;
 		final ObjectMapper mapper = new ObjectMapper();
 
-		responseJSONArray = mdmsRepository.getByCriteria(tenantId, "store-asset", "Material", "code", code, requestInfo);
+		responseJSONArray = mdmsRepository.getByCriteria(tenantId, "store-asset", "Material", "code", code,
+				requestInfo);
 
 		if (responseJSONArray != null && responseJSONArray.size() > 0)
 			return mapper.convertValue(responseJSONArray.get(0), Material.class);
@@ -281,12 +290,33 @@ public class MaterialService extends DomainService {
 				.oldCode(mdmsMaterial.getOldCode()).assetCategory(mdmsMaterial.getAssetCategory())
 				.description(mdmsMaterial.getDescription()).expenseAccount(mdmsMaterial.getExpenseAccount())
 				.inActiveDate(mdmsMaterial.getInActiveDate()).inventoryType(mdmsMaterial.getInventoryType())
-				.lotControl(mdmsMaterial.getLotControl()).manufacturePartNo(mdmsMaterial.getManufacturePartNo())
-				.materialClass(mdmsMaterial.getMaterialClass()).materialType(mdmsMaterial.getMaterialType())
-				.scrapable(mdmsMaterial.getScrapable()).serialNumber(mdmsMaterial.getSerialNumber())
-				.shelfLifeControl(mdmsMaterial.getShelfLifeControl()).model(mdmsMaterial.getModel())
-				.status(mdmsMaterial.getStatus()).techincalSpecs(mdmsMaterial.getTechincalSpecs())
-				.termsOfDelivery(mdmsMaterial.getTermsOfDelivery()).tenantId(mdmsMaterial.getTenantId());
+				.lotControl(mdmsMaterial.getLotControl()).materialClass(mdmsMaterial.getMaterialClass())
+				.materialType(mdmsMaterial.getMaterialType()).scrapable(mdmsMaterial.getScrapable())
+				.serialNumber(mdmsMaterial.getSerialNumber()).shelfLifeControl(mdmsMaterial.getShelfLifeControl())
+				.status(mdmsMaterial.getStatus()).tenantId(mdmsMaterial.getTenantId());
+
+		/*
+		 * material.baseUom(mdmsMaterial.getBaseUom()).purchaseUom(mdmsMaterial.
+		 * getPurchaseUom())
+		 * .stockingUom(mdmsMaterial.getStockingUom()).name(mdmsMaterial.getName())
+		 * .oldCode(mdmsMaterial.getOldCode()).assetCategory(mdmsMaterial.
+		 * getAssetCategory())
+		 * .description(mdmsMaterial.getDescription()).expenseAccount(mdmsMaterial.
+		 * getExpenseAccount())
+		 * .inActiveDate(mdmsMaterial.getInActiveDate()).inventoryType(mdmsMaterial.
+		 * getInventoryType())
+		 * .lotControl(mdmsMaterial.getLotControl()).manufacturePartNo(mdmsMaterial.
+		 * getManufacturePartNo())
+		 * .materialClass(mdmsMaterial.getMaterialClass()).materialType(mdmsMaterial.
+		 * getMaterialType())
+		 * .scrapable(mdmsMaterial.getScrapable()).serialNumber(mdmsMaterial.
+		 * getSerialNumber())
+		 * .shelfLifeControl(mdmsMaterial.getShelfLifeControl()).model(mdmsMaterial.
+		 * getModel()) .status(mdmsMaterial.getStatus()).techincalSpecs(mdmsMaterial.
+		 * getTechincalSpecs())
+		 * .termsOfDelivery(mdmsMaterial.getTermsOfDelivery()).tenantId(mdmsMaterial.
+		 * getTenantId());
+		 */
 	}
 
 	private void validateMaterial(String code, String tenantId, RequestInfo requestInfo) {

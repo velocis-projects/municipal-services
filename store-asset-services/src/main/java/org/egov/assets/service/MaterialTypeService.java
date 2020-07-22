@@ -1,6 +1,7 @@
 package org.egov.assets.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,7 +15,9 @@ import org.egov.assets.model.MaterialTypeSearch;
 import org.egov.assets.model.MaterialTypeStoreMapping;
 import org.egov.assets.model.MaterialTypeStoreMappingSearch;
 import org.egov.assets.model.MaterialTypeStoreRequest;
+import org.egov.assets.model.StoreGetRequest;
 import org.egov.assets.model.StoreMapping;
+import org.egov.assets.model.StoreResponse;
 import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +33,9 @@ public class MaterialTypeService extends DomainService {
 
 	@Autowired
 	private MdmsRepository mdmsRepository;
+
+	@Autowired
+	private StoreService storeService;
 
 	public MaterialTypeResponse save(MaterialTypeRequest materialTypeRequest, String tenantId) {
 
@@ -73,21 +79,26 @@ public class MaterialTypeService extends DomainService {
 		for (MaterialType materialType : materialTypeMap) {
 
 			List<StoreMapping> storeMappings = new ArrayList<>();
-
 			MaterialTypeStoreMappingSearch materialTypeStoreMappingSearch = MaterialTypeStoreMappingSearch.builder()
-					.materialType(materialType.getCode()).tenantId(materialTypeSearch.getTenantId())
-					.active(materialTypeSearch.getActive()).store(materialTypeSearch.getStore())
-					.ids(materialTypeSearch.getIds()).build();
-
+					.tenantId(materialTypeSearch.getTenantId()).build();
 			List<MaterialTypeStoreMapping> materialTypeStoreMappings = materialTypeStoreMappingService
 					.search(materialTypeStoreMappingSearch).getMaterialTypeStores();
 
 			if (materialTypeStoreMappings.size() > 0) {
 				if (!materialTypeStoreMappings.isEmpty()) {
 					for (MaterialTypeStoreMapping materialStoreMapping : materialTypeStoreMappings) {
+
+						StoreGetRequest storeGetRequest = StoreGetRequest.builder()
+								.tenantId(materialTypeSearch.getTenantId())
+								.code(Arrays.asList(materialStoreMapping.getStore().getCode())).build();
+						StoreResponse storeResponse = storeService.search(storeGetRequest);
+
 						StoreMapping storeMapping = StoreMapping.builder().id(materialStoreMapping.getId())
 								.chartofAccount(materialStoreMapping.getChartofAccount())
-								.active(materialStoreMapping.getActive()).store(materialStoreMapping.getStore())
+								.active(materialStoreMapping.getActive())
+								.store((storeResponse != null && !storeResponse.getStores().isEmpty())
+										? storeResponse.getStores().get(0)
+										: materialStoreMapping.getStore())
 								.auditDetails(materialStoreMapping.getAuditDetails()).build();
 						storeMappings.add(storeMapping);
 
@@ -99,8 +110,10 @@ public class MaterialTypeService extends DomainService {
 					materialTypes.add(materialType);
 				}
 			}
+
+			response.materialTypes(materialTypes).responseInfo(null);
 		}
-		response.materialTypes(materialTypes).responseInfo(null);
+
 		return response;
 	}
 

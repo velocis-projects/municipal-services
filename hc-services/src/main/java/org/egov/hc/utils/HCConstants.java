@@ -1,8 +1,5 @@
 package org.egov.hc.utils;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.stereotype.Component;
 
 
@@ -10,12 +7,7 @@ import org.springframework.stereotype.Component;
 public class HCConstants {
 	
 	private HCConstants() {}
-
-	public static final String SERV_REQ_ID_NAME = "hc.servicerequestid";
-	public static final String SERV_REQ_ID_FORMAT = "[cy:dd]/[cy:MM]/[cy:yyyy]/[SEQ_EG_HC_SERVICEREQUESTID]";
 	
-	public static final String TENANT_ID = "ch.chandigarh";
-	public static final String TENANT_ID_CITIZEN = "ch";
 	public static final String CITIZEN = "CITIZEN";
 	
 	
@@ -63,6 +55,7 @@ public class HCConstants {
 	public static final String VERIFYANDFORWARD = "VERIFYANDFORWARD";
 	public static final String REVIEW = "REVIEW";
 	public static final String REJECTED = "REJECTED";
+	public static final String ACTION_OPEN = "open";
 	
 	//Notification type
 	public static final String SMS = "sms";
@@ -78,89 +71,20 @@ public class HCConstants {
 	
 	public static final String SUCCESS = "success";
 	public static final String MEDIA = "media";
-	public static final String RAISE_SEVICE_REQUEST = "Raise Service Request";
-	public static  final String businessService_BPA = "BPAREG";
-	public static  final String businessService_HC = "HORTICULTURE";
-	public static final String TRIGGER_NOWORKFLOW  = "NOWORKFLOW";
+
 	
 	public static final String ACTION_UPDATE  = "UPDATE";
 	
-		
-	//Notification
-	public static final String TEMPLATE_COMPLAINT_EMAIL = "./src/main/resources/email-templates/velocityEmailNotifSample.vm";
-	
-	public static final String SEARCHER_HC_MOD_NAME = "rainmaker-hc-V2";
-	public static final String SEARCHER_SRSEARCH_DEF_NAME = "serviceSearchWithDetails";
-	public static final String SEARCHER_PLAINSEARCH_DEF_NAME = "plainSearch";
-	public static final String SEARCHER_COUNT_DEF_NAME = "count";
-	public static final String PG_JSONPATH_COUNT = "$.count[0].count";
-	public static final String SEARCHER_SRID_ASSIGNEDTO_DEF_NAME = "getServiceRequestsOnAssignedTo";
-	public static final String SRID_ASSIGNEDTO_JSONPATH = "$.servicesRequestIds.*.businesskey";
-	public static final String MDMS_HC_MOD_NAME = "rainmaker-hc";
-	public static final String MDMS_SERVICETYPE_MASTER_NAME = "ServiceDefs";
-	public static final String MDMS_COMMON_MASTERS_MODULE_NAME = "common-masters";
-	public static final String MDMS_DEPT_MASTERS_MASTER_NAME = "Department";
-	public static final String MDMS_DESIGNATION_MASTERS_MASTER_NAME = "Designation";
 	public static final String LOCALIZATION_MODULE_NAME = "rainmaker-hc";
-	
 
-	public static final String LOCALIZATION_CODE_SUBMIT_CITIZEN = "hc.sms.notification.submit.citizen";
-	
-	public static final String LOCALIZATION_CODE_REOPEN_CITIZEN = "hc.sms.notification.reopen.citizen";
-	public static final String LOCALIZATION_CODE_REOPEN_EMPLOYEE = "hc.sms.notification.reopen.employee";
-
-	public static final String LOCALIZATION_CODE_ASSIGN_CITIZEN = "hc.sms.notification.assign.citizen";
-	public static final String LOCALIZATION_CODE_ASSIGN_EMPLOYEE = "hc.sms.notification.assign.employee";
-
-	public static final String LOCALIZATION_CODE_REASSIGN_CITIZEN = "hc.sms.notification.reassign.citizen";
-	public static final String LOCALIZATION_CODE_REASSIGN_EMPLOYEE = "hc.sms.notification.reassign.employee";
-	
-	public static final String LOCALIZATION_CODE_REJECT_CITIZEN = "hc.sms.notification.reject.citizen";
-	
-	public static final String LOCALIZATION_CODE_RESOLVE_CITIZEN = "hc.sms.notification.resolve.citizen";
-	
-	public static final String LOCALIZATION_CODE_CLOSE_EMPLOYEE = "hc.sms.notification.close.employee";
-	
-	
-	
-	
-	public static final String LOCALIZATION_CODE_COMMENT = "hc.sms.notification.comment";
-	public static final String LOCALIZATION_CODE_DEFAULT = "hc.sms.notification.default";
-	public static final String LOCALIZATION_CODE_COMMENT_DEFAULT = "hc.sms.notification.comment.default";
-	public static final String LOCALIZATION_COMP_CATEGORY_PREFIX = "hc.servicerequest.category.";
-	public static final String LOCALIZATION_CODE_SERVICE_REQUEST = "hc.event.notification.service.request";
-
-	public static final String SERVICE_CODES = "serviceCode";
-	public static final String JSONPATH_SERVICEDEFS = "$.MdmsRes.RAINMAKER-HC.ServiceDefs";
-	public static final String JSONPATH_SERVICE_CODES = "$.MdmsRes.RAINMAKER-HC.ServiceDefs.*.serviceCode";
-	public static final String JSONPATH_SLA = "$.MdmsRes.RAINMAKER-HC.ServiceDefs.*.slaHours";
-	public static final String JSONPATH_DEPARTMENTS = "$.MdmsRes.common-masters.Department";
-	public static final String JSONPATH_DESIGNATIONS = "$.MdmsRes.common-masters.Designation";
-
-	public static final String SERVICE_NAME = "serviceName";
-	public static final String DEFAULT_COMPLAINT_TYPE = "resolution";
-	public static final String EMPLOYEE_DEPTCODES_JSONPATH = "$.Employees[0].assignments.*.department";
-	public static final String EMPLOYEE_DEPTCODE_JSONPATH = "$.Employees.[0].assignments.[?(@.isCurrentAssignment == true)].department";
-	public static final String EMPLOYEE_DESGCODE_JSONPATH = "$.Employees.[0].assignments.[?(@.isCurrentAssignment == true)].designation";
 	public static final String EMPLOYEE_NAME_JSONPATH = "$.Employees[0].user.name";
 	public static final String EMPLOYEE_PHNO_JSONPATH = "$.Employees[0].user.mobileNumber"; 
-	public static final String EMPLOYEE_EMAIL_JSONPATH = "$.Employees[0].user.email";
+	
 	public static final String EMPLOYEE_EMAILID_JSONPATH = "$.Employees[0].user.emailId";
-	
-	public static final String EMPLOYEE_TENANTID_JSONPATH = "$.Employees[0].tenantId";
-	public static final String EMPLOYEE_BASE_JSONPATH = "$.Employees";
-	public static final String DEPARTMENTNAME_EMPLOYEE_JSONPATH = "$.Department[0].name";
-	
+
 	public static final String LOCALIZATION_CODES_JSONPATH = "$.messages.*.code";
 	public static final String LOCALIZATION_MSGS_JSONPATH = "$.messages.*.message";
-	
-	public static final String LOCATION__BOUNDARY_NAMES_JSONPATH = "$.TenantBoundary.*.boundary.*.name";
-	public static final String LOCATION__BOUNDARY_CODES_JSONPATH = "$.TenantBoundary.*.boundary.*.code";
-	public static final String LOCATION__BOUNDARY_HIERARCHYTYPE_ADMIN = "ADMIN";
-	public static final String LOCATION__BOUNDARY_BOUNDARYTYPE_LOCALITY = "Locality";
 
-	
-	public static final String SEARCHER_RESPONSE_TEXT = "Searcher response : ";
 	
 	//SMS
 	
@@ -178,7 +102,8 @@ public class HCConstants {
 	public static final String HC_EMPLOYEE_INSPECTION_SMS_NOTIFICATION="HC_EMPLOYEE_INSPECTION_SMS_NOTIFICATION";
 	public static final String HC_EMPLOYEE_CLARIFICATION_SMS_NOTIFICATION="HC_EMPLOYEE_CLARIFICATION_SMS_NOTIFICATION";
 	public static final String HC_EMPLOYEE_INSPECT_SMS_NOTIFICATION="HC_EMPLOYEE_INSPECT_SMS_NOTIFICATION";
-	
+	public static final String HC_EMPLOYEE_REQUEST_FORWARD_SMS_NOTIFICATION="HC_EMPLOYEE_REQUEST_FORWARD_SMS_NOTIFICATION";
+	public static final String HC_CITIZEN_REQUEST_FOR_UPDATE_SMS_NOTIFICATION="HC_CITIZEN_REQUEST_FOR_UPDATE_SMS_NOTIFICATION";
 	
 	//EMAIL
 	public static final String HC_CITIZEN_SUBMITREQUEST_EMAIL_NOTIFICATION="HC_CITIZEN_SUBMITREQUEST_EMAIL_NOTIFICATION";
@@ -193,6 +118,9 @@ public class HCConstants {
 	public static final String HC_EMPLOYEE_INSPECTION_EMAIL_NOTIFICATION="HC_EMPLOYEE_INSPECTION_EMAIL_NOTIFICATION";
 	public static final String HC_EMPLOYEE_INSPECT_EMAIL_SUBJECT_NOTIFICATION="HC_EMPLOYEE_INSPECT_EMAIL_SUBJECT_NOTIFICATION";
 	public static final String HC_EMPLOYEE_INSPECT_EMAIL_NOTIFICATION="HC_EMPLOYEE_INSPECT_EMAIL_NOTIFICATION";
+	public static final String HC_EMPLOYEE_REQUEST_FORWARD_EMAIL_NOTIFICATION="HC_EMPLOYEE_REQUEST_FORWARD_EMAIL_NOTIFICATION";
+	public static final String HC_CITIZEN_REQUEST_FOR_UPDATE_EMAIL_NOTIFICATION="HC_CITIZEN_REQUEST_FOR_UPDATE_EMAIL_NOTIFICATION";
+	
 	
 	//EMAIL SUBJECT
 	public static final String HC_CITIZEN_REQUEST_EMAIL_SUBJECT_ACTION_ASSIGN="HC_CITIZEN_REQUEST_EMAIL_SUBJECT_ACTION_ASSIGN";
@@ -208,6 +136,7 @@ public class HCConstants {
 	public static final String HC_EMPLOYEE_REQUEST_EMAIL_SUBJECT="HC_EMPLOYEE_REQUEST_EMAIL_SUBJECT";
 	public static final String HC_EMPLOYEE_FORWARDREQUEST_EMAIL_SUBJECT="HC_EMPLOYEE_FORWARDREQUEST_EMAIL_SUBJECT";
 	public static final String HC_EMPLOYEE_CLARIFICATION_EMAIL_NOTIFICATION="HC_EMPLOYEE_CLARIFICATION_EMAIL_NOTIFICATION";
+	public static final String HC_CITIZEN_REQUEST_FOR_UPDATE_EMAIL_NOTIFICATION_SUBJECT="HC_CITIZEN_REQUEST_FOR_UPDATE_EMAIL_NOTIFICATION_SUBJECT";
 	
 	//PUSH
 	public static final String HC_EMPLOYEE_SERVICEREQUEST_PUSH_NOTIFICATION="HC_EMPLOYEE_SERVICEREQUEST_PUSH_NOTIFICATION";
@@ -225,6 +154,8 @@ public class HCConstants {
 	public static final String HC_EMPLOYEE_INSPECTION_PUSH_NOTIFICATION="HC_EMPLOYEE_INSPECTION_PUSH_NOTIFICATION";
 	public static final String HC_EMPLOYEE_CLARIFICATION_PUSH_NOTIFICATION="HC_EMPLOYEE_CLARIFICATION_PUSH_NOTIFICATION";
 	public static final String HC_CITIZEN_SUBMITREQUEST_PUSH_NOTIFICATION="HC_CITIZEN_SUBMITREQUEST_PUSH_NOTIFICATION";
+	public static final String HC_EMPLOYEE_REQUEST_FORWARD_PUSH_NOTIFICATION="HC_EMPLOYEE_REQUEST_FORWARD_PUSH_NOTIFICATION";
+	public static final String HC_CITIZEN_REQUEST_FOR_UPDATE_PUSH_NOTIFICATION="HC_CITIZEN_REQUEST_FOR_UPDATE_PUSH_NOTIFICATION";
 	
 	//REMAINSER/OVERDAYS NOTIFICATION
 	

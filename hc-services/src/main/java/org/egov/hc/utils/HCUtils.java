@@ -1,50 +1,36 @@
 package org.egov.hc.utils;
 
-import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.StringUtils;
+
+
 import org.egov.common.contract.request.RequestInfo;
-
+import org.egov.hc.contract.AuditDetails;
 import org.egov.hc.contract.RequestInfoWrapper;
 
-import org.egov.hc.contract.ServiceResponse;
-import org.egov.hc.model.ActionHistory;
-import org.egov.hc.model.ActionInfo;
-import org.egov.hc.model.ServiceRequestData;
-import org.egov.hc.model.auditDetails;
-import org.egov.hc.producer.HCConfiguration;
-import org.egov.hc.repository.ServiceRepository;
-import org.egov.mdms.model.MasterDetail;
-import org.egov.mdms.model.MdmsCriteria;
-import org.egov.mdms.model.MdmsCriteriaReq;
-import org.egov.mdms.model.ModuleDetail;
-import org.egov.tracer.model.CustomException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import org.egov.hc.producer.HCConfiguration;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.stereotype.Component;
+
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.jayway.jsonpath.JsonPath;
+
 
 import lombok.extern.slf4j.Slf4j;
 
 @Component
-@Slf4j
+
 public class HCUtils {
 
 
@@ -61,13 +47,21 @@ public class HCUtils {
 	 * @param isCreate
 	 * @return
 	 */
-	public auditDetails getAuditDetails(String by, Boolean isCreate) {
+	public AuditDetails getAuditDetails(String by, Boolean isCreate) {
 
 		Long dt = new Date().getTime();
 		if (isCreate)
-			return auditDetails.builder().createdBy(by).createdTime(dt).lastModifiedBy(by).lastModifiedTime(dt).build();
+			return AuditDetails.builder().createdBy(by).createdTime(dt).lastModifiedBy(by).lastModifiedTime(dt).build();
 		else
-			return auditDetails.builder().lastModifiedBy(by).lastModifiedTime(dt).build();
+			return AuditDetails.builder().lastModifiedBy(by).lastModifiedTime(dt).build();
+	}
+	
+	public AuditDetails getAuditDetail(String by, Boolean isCreate) {
+
+		Long dt = new Date().getTime();
+		
+		return AuditDetails.builder().createdBy(by).createdTime(dt).lastModifiedBy(by).lastModifiedTime(dt).build();
+		
 	}
 
 

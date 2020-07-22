@@ -392,8 +392,6 @@ public class MaterialIssueService extends DomainService {
 									materialIssue.getFromStore(), materialIssueDetail.getMaterial(),
 									materialIssue.getIssueDate(), materialIssue.getTenantId());
 							
-							// balanceQuantity = new BigDecimal(1); Added By Prakash for Testing
-							
 							if (StringUtils.isNotBlank(balanceQuantity.toString())) {
 								if (balanceQuantity.compareTo(BigDecimal.ZERO) <= 0)
 									errors.addDataError(ErrorCode.QUANTITY_GT_ZERO.getCode(), "balanceQuantity",

@@ -124,11 +124,11 @@ public class IndentJdbcRepository extends org.egov.assets.common.JdbcRepository 
 			orderBy = "order by " + indentSearch.getSortBy();
 		}
 
-		searchQuery = searchQuery.replace(":tablename", "indent indent,Store issueStore,indentdetail details" );
+		searchQuery = searchQuery.replace(":tablename", "indent indent,Store issueStore,Store indentStore,indentdetail details" );
 
-		searchQuery = searchQuery.replace(":selectfields", " distinct indent.*,issueStore.code as \"issueStore.code\" ,issueStore.name as \"issueStore.name\"  ");
+		searchQuery = searchQuery.replace(":selectfields", " distinct indent.*,issueStore.code as \"issueStore.code\" ,issueStore.name as \"issueStore.name\",indentStore.code as \"indentStore.code\" ,indentStore.name as \"indentStore.name\"  ");
 
-		String conditions=" and issuestore.code=indent.issuestore and details.indentnumber=indent.indentnumber";
+		String conditions=" and issueStore.code=indent.issueStore and indentStore.code=indent.indentStore and details.indentnumber=indent.indentnumber";
 		// implement jdbc specfic search
 	 
 		if (indentSearch.getTenantId() != null) {
@@ -151,6 +151,13 @@ public class IndentJdbcRepository extends org.egov.assets.common.JdbcRepository 
 				params.append(" and ");
 			params.append("issueStore =:issueStore");
 			paramValues.put("issueStore", indentSearch.getIssueStore ());
+		}
+		
+		if (indentSearch.getIndentStore() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append("indentStore =:indentStore");
+			paramValues.put("indentStore", indentSearch.getIndentStore ());
 		}
 		 
 		if (indentSearch.getIndentDate() != null) {

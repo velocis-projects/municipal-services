@@ -571,7 +571,7 @@ public class NonIndentMaterialIssueService extends DomainService {
 	}
 
 	private Map<String, Uom> getUoms(String tenantId, final ObjectMapper mapper, RequestInfo requestInfo) {
-		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "common-masters", "Uom", null, null,
+		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "common-masters", "UOM", null, null,
 				requestInfo);
 		Map<String, Uom> uomMap = new HashMap<>();
 
@@ -586,7 +586,7 @@ public class NonIndentMaterialIssueService extends DomainService {
 	}
 
 	private Map<String, Material> getMaterials(String tenantId, final ObjectMapper mapper, RequestInfo requestInfo) {
-		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "inventory", "Material", null, null,
+		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "store-asset", "Material", null, null,
 				requestInfo);
 		Map<String, Material> materialMap = new HashMap<>();
 

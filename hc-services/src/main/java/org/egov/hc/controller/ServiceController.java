@@ -1,7 +1,5 @@
 package org.egov.hc.controller;
-import javax.validation.Valid;
 
-import org.egov.hc.contract.RequestInfoWrapper;
 import org.egov.hc.contract.ServiceRequest;
 import org.egov.hc.contract.ServiceResponse;
 import org.egov.hc.model.RequestData;
@@ -16,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +40,8 @@ public class ServiceController {
 			@RequestHeader("User-Agent") String request) {
 		ServiceResponse response = null;
 
-		if (serviceRequest.getServices().get(0).getIsEditState() == 1) {
-			response =  service.updateServiceRequest(serviceRequest, request);
+		if (serviceRequest.getServices().get(0).getIsEditState() == 1) {		
+			response = service.updateServiceRequest(serviceRequest, request);
 		} else {
 			response = service.create(serviceRequest, request);
 		}
@@ -73,14 +72,14 @@ public class ServiceController {
 	 * 
 	 * @author Dhanaji Patil
 	 */
-
+	
 	@PostMapping("_get")
 	@ResponseBody
-	public ResponseEntity<?> get( @RequestBody RequestInfoWrapper requestInfoWrapper,
-			@Valid @RequestBody RequestData requestData) {
-
+	public ResponseEntity<?> get( @RequestBody RequestData requestData) {
+		
 		log.debug(String.format("STARTED Get Details SERVICE REQUEST : %1s", requestData.toString()));
-		return service.searchRequest(requestData, requestInfoWrapper.getRequestInfo());
+		return service.searchRequest(requestData, requestData.getRequestInfo());
+		
 	}
 
 	/*
@@ -96,6 +95,16 @@ public class ServiceController {
 			@RequestHeader("User-Agent") String requestHeader) {
 
 		ServiceResponse response = service.update(serviceRequest, requestHeader);
+		return new ResponseEntity<>(response, HttpStatus.CREATED);
+	}
+	
+	
+	@RequestMapping(value = "/_scheduler", method = RequestMethod.POST)
+	public ResponseEntity<?> scheduler(@RequestParam("tenantId") String tenantId ,
+			@RequestBody ServiceRequest requestInfo) 
+	{
+		ServiceResponse response = service.scheduler(requestInfo, tenantId);
+		
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 }
