@@ -343,15 +343,15 @@ public class EcSchedulerService {
 
 		for (String pair : keyValuePairs) {
 			String[] entry = pair.split("=");
-			if (entry[0].equals("subject") || entry[0].equals("body"))
-				map.put(entry[0].trim(), entry[1].trim());
+			if (entry[0].trim().equalsIgnoreCase("subject") || entry[0].trim().equalsIgnoreCase("body")) {
+				map.put(entry[0].trim(), entry[1].trim());}
 		}
 
 		for (Map.Entry<String, String> entry : map.entrySet()) {
-			if (entry.getKey().equals("subject")) {
+			if (entry.getKey().equalsIgnoreCase("subject")) {
 				subject = subject.replace(null, entry.getValue());
 			}
-			if (entry.getKey().equals("body")) {
+			if (entry.getKey().equalsIgnoreCase("body")) {
 				body = entry.getValue();
 			}
 
