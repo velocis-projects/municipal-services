@@ -96,11 +96,13 @@ public class FineMasterRepository {
 	public void updatePenaltyAmount(EcSearchCriteria ecSearchCriteria) {
 		log.info("FineMaster Repository - updatePenaltyAmount Method");
 		List<FineMaster> finelist;
-		finelist = jdbcTemplate.query(EcQueryBuilder.GET_PENALTY_VIOLATIONS, new Object[] {ecSearchCriteria.getTenantId()},
+		finelist = jdbcTemplate.query(EcQueryBuilder.GET_PENALTY_VIOLATIONS,
+				new Object[] { ecSearchCriteria.getTenantId() },
 				new BeanPropertyRowMapper<FineMaster>(FineMaster.class));
-
-		RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(finelist).build();
-		producer.push(config.getUpdatePenaltyAmountTopic(), infoWrapper);
+		if (!finelist.isEmpty()) {
+			RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(finelist).build();
+			producer.push(config.getUpdatePenaltyAmountTopic(), infoWrapper);
+		}
 	}
 
 }
