@@ -90,4 +90,16 @@ public class ErrorConstants {
 	
 	public static final String INVALID_ACTION_REOPEN_EXPIRED_CODE = "EG_PGR_INVALID_ACTION_REOPEN_EXPIRED_CODE";
 	public static final String INVALID_ACTION_REOPEN_EXPIRED_MSG = "Complaint has to be reopened only within $days days of resolution. This complaint is past that range.";
+	
+	public static final String INVALID_AUTOROUTING_CODE = "EG_PGR_INVALID_AUTOROUTING_CODE";
+	public static final String INVALID_AUTOROUTING_MSG = "Autorouting dat cannot be null";
+	
+	public static final String INVALID_ID_CODE = "EG_PGR_INVALID_ID";
+	public static final String INVALID_ID_MSG = "ID cannot be null";
+	
+	public static final String NO_DATA_FOUND_CODE = "EG_PGR_NO_DATA_FOUND_CODE";
+	public static final String NO_DATA_FOUND_MSG = "No record exists";
+	
+	public static final String AUTOROUTING_DATA_EXISTS_CODE = "EG_PGR_AUTOROUTING_DATA_EXISTS_CODE";
+	public static final String AUTOROUTING_DATA_EXISTS_MSG = "Autorouting data already exists for this tenant. You can not insert the data again. Please update data.";
 }
