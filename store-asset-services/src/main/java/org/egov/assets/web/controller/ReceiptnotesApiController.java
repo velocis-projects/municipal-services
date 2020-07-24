@@ -10,13 +10,13 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.egov.assets.model.MaterialBalanceRateResponse;
 import org.egov.assets.model.MaterialReceiptRequest;
 import org.egov.assets.model.MaterialReceiptResponse;
 import org.egov.assets.model.MaterialReceiptSearch;
 import org.egov.assets.service.ReceiptNoteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,6 +63,19 @@ public class ReceiptnotesApiController {
 				.build();
 		MaterialReceiptResponse materialReceiptResponse = receiptNoteService.search(materialReceiptSearch);
 		return new ResponseEntity<>(materialReceiptResponse, HttpStatus.OK);
+	}
+
+	@PostMapping(value = "/_balance", produces = { "application/json" }, consumes = { "application/json" })
+	public ResponseEntity<MaterialBalanceRateResponse> balanceAndRateSearchPost(
+			@Valid @RequestBody org.egov.common.contract.request.RequestInfo requestInfo,
+			@NotNull @RequestParam(value = "tenantId", required = true) String tenantId,
+			@Size(max = 100) @RequestParam(value = "material", required = true) List<String> materials,
+			@RequestParam(value = "issueingStore", required = true) String issueingStore) {
+		MaterialReceiptSearch materialReceiptSearch = MaterialReceiptSearch.builder().tenantId(tenantId)
+				.materials(materials).issueingStore(issueingStore).build();
+		MaterialBalanceRateResponse materialBalanceRateResponse = receiptNoteService
+				.searchBalanceAndRate(materialReceiptSearch);
+		return new ResponseEntity<>(materialBalanceRateResponse, HttpStatus.OK);
 	}
 
 	@PostMapping(value = "/_update", produces = { "application/json" }, consumes = { "application/json" })

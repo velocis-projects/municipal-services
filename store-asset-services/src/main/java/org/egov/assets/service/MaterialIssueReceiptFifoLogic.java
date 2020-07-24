@@ -36,6 +36,12 @@ public class MaterialIssueReceiptFifoLogic extends DomainService {
 		return materialIssueReceiptFifoLogicRepository.implementFifoLogic(store, material, issueDate, tenantId);
 	}
 
+	public List<FifoEntity> implementFifoLogicBalanceRate(Store store, Material material, Long issueDate,
+			String tenantId, String mrnNumber) {
+		return materialIssueReceiptFifoLogicRepository.implementFifoLogicBanlceRate(store, material, issueDate,
+				tenantId, mrnNumber);
+	}
+
 	public List<FifoEntity> implementFifoLogicForReturnMaterial(Store store, Material material, Long issueDate,
 			String tenantId, String mrnNumber) {
 		return materialIssueReceiptFifoLogicRepository.implementFifoLogicForReturnMaterial(store, material, issueDate,

@@ -23,6 +23,12 @@ public class MaterialIssueDetail {
 	@JsonProperty("tenantId")
 	private String tenantId = null;
 
+	@JsonProperty("receiptId")
+	private String receiptId = null;
+
+	@JsonProperty("receiptDetailId")
+	private String receiptDetailId = null;
+
 	@JsonProperty("material")
 	private Material material = null;
 
@@ -338,6 +344,32 @@ public class MaterialIssueDetail {
 		return this;
 	}
 
+	public MaterialIssueDetail receiptId(String receiptId) {
+		this.receiptId = receiptId;
+		return this;
+	}
+
+	public MaterialIssueDetail receiptDetailId(String receiptDetailId) {
+		this.receiptDetailId = receiptDetailId;
+		return this;
+	}
+
+	public String getReceiptId() {
+		return receiptId;
+	}
+
+	public void setReceiptId(String receiptId) {
+		this.receiptId = receiptId;
+	}
+
+	public String getReceiptDetailId() {
+		return receiptDetailId;
+	}
+
+	public void setReceiptDetailId(String receiptDetailId) {
+		this.receiptDetailId = receiptDetailId;
+	}
+
 	/**
 	 * Receipt number reference.
 	 * 
@@ -409,6 +441,8 @@ public class MaterialIssueDetail {
 		MaterialIssueDetail materialIssueDetail = (MaterialIssueDetail) o;
 		return Objects.equals(this.id, materialIssueDetail.id)
 				&& Objects.equals(this.tenantId, materialIssueDetail.tenantId)
+				&& Objects.equals(this.receiptId, materialIssueDetail.receiptId)
+				&& Objects.equals(this.receiptDetailId, materialIssueDetail.receiptDetailId)
 				&& Objects.equals(this.material, materialIssueDetail.material)
 				&& Objects.equals(this.orderNumber, materialIssueDetail.orderNumber)
 				&& Objects.equals(this.userQuantityIssued, materialIssueDetail.userQuantityIssued)
@@ -427,9 +461,9 @@ public class MaterialIssueDetail {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, tenantId, material, orderNumber, userQuantityIssued, quantityIssued, balanceQuantity,
-				value, uom, voucherHeader, indentDetail, scrapedQuantity, scrapValue, mrnNumber, description,
-				materialIssuedFromReceipts);
+		return Objects.hash(id, tenantId, receiptId, receiptDetailId, material, orderNumber, userQuantityIssued,
+				quantityIssued, balanceQuantity, value, uom, voucherHeader, indentDetail, scrapedQuantity, scrapValue,
+				mrnNumber, description, materialIssuedFromReceipts);
 	}
 
 	@Override
@@ -439,6 +473,8 @@ public class MaterialIssueDetail {
 
 		sb.append("    id: ").append(toIndentedString(id)).append("\n");
 		sb.append("    tenantId: ").append(toIndentedString(tenantId)).append("\n");
+		sb.append("    receiptId: ").append(toIndentedString(receiptId)).append("\n");
+		sb.append("    receiptDetailId: ").append(toIndentedString(receiptDetailId)).append("\n");
 		sb.append("    material: ").append(toIndentedString(material)).append("\n");
 		sb.append("    orderNumber: ").append(toIndentedString(orderNumber)).append("\n");
 		sb.append("    userQuantityIssued: ").append(toIndentedString(userQuantityIssued)).append("\n");
