@@ -11,43 +11,45 @@ import java.util.List;
 @Builder
 public class MaterialReceiptSearch {
 
-    private List<String> ids;
+	private List<String> ids;
 
-    private List<String> mrnNumber;
+	private List<String> mrnNumber;
 
-    private List<String> mrnStatus;
-    
-    private List<String> issueNumber;
+	private List<String> mrnStatus;
 
-    private Long receiptDate;
+	private List<String> issueNumber;
 
-    private List<String> receiptType;
+	private Long receiptDate;
 
-    private String receiptPurpose;
+	private List<String> receiptType;
 
-    private String receivingStore;
+	private String receiptPurpose;
 
-    private String issueingStore;
+	private String receivingStore;
 
-    private String supplierCode;
+	private String issueingStore;
 
-    private Boolean supplierBillPaid;
+	List<String> materials;
 
-    private String receivedBy;
-    
-    private String materialTypeName;
-    
-    private String storeName;
-    
-    private String financialYear;
+	private String supplierCode;
 
-    private String tenantId;
+	private Boolean supplierBillPaid;
 
-    private String sortBy;
+	private String receivedBy;
 
-    private Integer pageSize;
-    
-    private Integer pageNumber;
+	private String materialTypeName;
 
-    private Integer offset;
+	private String storeName;
+
+	private String financialYear;
+
+	private String tenantId;
+
+	private String sortBy;
+
+	private Integer pageSize;
+
+	private Integer pageNumber;
+
+	private Integer offset;
 }

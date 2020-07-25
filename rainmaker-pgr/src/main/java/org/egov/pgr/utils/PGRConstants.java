@@ -77,6 +77,12 @@ public class PGRConstants {
 	public static final String JSONPATH_AUTOROUTING_CATEGORY_CODES = "$.MdmsRes.RAINMAKER-PGR.AutoroutingEscalationMap.*.category";
 	public static final String JSONPATH_AUTOROUTING_MAP_CODES = "$.MdmsRes.RAINMAKER-PGR.AutoroutingEscalationMap";
 
+	public static final String JSONPATH_ESCALATING_OFFICER1_CODES_DB = "$.AutoroutingEscalationMap.*.escalationOfficer1";
+	public static final String JSONPATH_ESCALATING_OFFICER2_CODES_DB = "$.AutoroutingEscalationMap.*.escalationOfficer2";
+	public static final String JSONPATH_AUTOROUTING_CODES_DB = "$.AutoroutingEscalationMap.*.autoRouting";
+	public static final String JSONPATH_AUTOROUTING_CATEGORY_CODES_DB = "$.AutoroutingEscalationMap.*.category";
+	public static final String JSONPATH_AUTOROUTING_MAP_CODES_DB = "$.AutoroutingEscalationMap";
+	
 	public static final String SERVICE_NAME = "serviceName";
 	public static final String DEFAULT_COMPLAINT_TYPE = "resolution";
 	public static final String EMPLOYEE_DEPTCODES_JSONPATH = "$.Employees[0].assignments.*.department";

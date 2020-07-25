@@ -192,7 +192,7 @@
       },
       "applicantAddress":{
          "mandatory":"false",
-         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]{1,100}$"
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\"\n\r ]{1,100}$"
       },
       "applicantLandmark":{
          "mandatory":"false",
@@ -260,7 +260,7 @@
       },
       "advertisementMatterDescription":{
          "mandatory":"false",
-         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\" ]{1,100}$"
+         "validateRegularExp":"^[a-zA-Z0-9-\/,()_'&.\"\n\r ]{1,100}$"
       },
       "space":{
          "mandatory":"false",

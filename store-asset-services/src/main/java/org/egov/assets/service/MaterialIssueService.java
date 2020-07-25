@@ -126,8 +126,10 @@ public class MaterialIssueService extends DomainService {
 				int j = 0;
 				BigDecimal totalIssueValue = BigDecimal.ZERO;
 				if (!materialIssue.getMaterialIssueDetails().isEmpty()) {
+
 					List<String> detailSequenceNos = materialIssueDetailsJdbcRepository.getSequence(
 							MaterialIssueDetail.class.getSimpleName(), materialIssue.getMaterialIssueDetails().size());
+
 					for (MaterialIssueDetail materialIssueDetail : materialIssue.getMaterialIssueDetails()) {
 						materialIssueDetail.setId(detailSequenceNos.get(j));
 						materialIssueDetail.setTenantId(materialIssue.getTenantId());
@@ -165,8 +167,8 @@ public class MaterialIssueService extends DomainService {
 	private BigDecimal getMaterialIssuedFromReceiptData(Store store, Material material, Long issueDate, String tenantId,
 			MaterialIssueDetail materialIssueDetail) {
 		List<MaterialIssuedFromReceipt> materialIssuedFromReceipts = new ArrayList<>();
-		List<FifoEntity> listOfFifoEntity = materialIssueReceiptFifoLogic.implementFifoLogic(store, material, issueDate,
-				tenantId);
+		List<FifoEntity> listOfFifoEntity = materialIssueReceiptFifoLogic.implementFifoLogicBalanceRate(store, material,
+				issueDate, tenantId, materialIssueDetail.getMrnNumber());
 		BigDecimal value = BigDecimal.ZERO;
 		BigDecimal quantityIssued = materialIssueDetail.getQuantityIssued();
 		for (FifoEntity fifoEntity : listOfFifoEntity) {
@@ -390,8 +392,9 @@ public class MaterialIssueService extends DomainService {
 							LOG.info("calculating balance quantity");
 							balanceQuantity = getBalanceQuantityByStoreByMaterialAndIssueDate(
 									materialIssue.getFromStore(), materialIssueDetail.getMaterial(),
-									materialIssue.getIssueDate(), materialIssue.getTenantId());
-							
+									materialIssue.getIssueDate(), materialIssue.getTenantId(),
+									materialIssueDetail.getMrnNumber());
+
 							if (StringUtils.isNotBlank(balanceQuantity.toString())) {
 								if (balanceQuantity.compareTo(BigDecimal.ZERO) <= 0)
 									errors.addDataError(ErrorCode.QUANTITY_GT_ZERO.getCode(), "balanceQuantity",
@@ -413,7 +416,7 @@ public class MaterialIssueService extends DomainService {
 							if (materialIssueDetail.getIndentDetail() != null) {
 								if (materialIssueDetail.getIndentDetail().getIndentQuantity() != null
 										&& materialIssueDetail.getIndentDetail().getIndentIssuedQuantity() != null)
-									
+
 									materialIssueDetail.setPendingIndentQuantity(
 											materialIssueDetail.getIndentDetail().getIndentQuantity().subtract(
 													materialIssueDetail.getIndentDetail().getIndentIssuedQuantity()));
@@ -532,13 +535,15 @@ public class MaterialIssueService extends DomainService {
 							fifo.setMaterial(materialIssueDetail.getMaterial());
 							fifo.setIssueDate(materialIssue.getIssueDate());
 							fifo.setTenantId(materialIssue.getTenantId());
+							fifo.setMrnNumber(materialIssueDetail.getMrnNumber());
 							fifoRequest.setFifo(fifo);
 
 							MaterialIssueSearchContract searchContract = new MaterialIssueSearchContract();
 							searchContract.setIssueNoteNumber(materialIssue.getIssueNumber());
 							searchContract.setTenantId(materialIssue.getTenantId());
 							Pagination<MaterialIssueDetail> listOfPagedMaterialIssueDetails = materialIssueDetailsJdbcRepository
-									.search(materialIssue.getIssueNumber(), materialIssue.getTenantId(), null);
+									.search(materialIssue.getIssueNumber(), materialIssue.getTenantId(),
+											materialIssue.getIssueType().toString());
 							List<MaterialIssueDetail> listOfMaterialIssueDetails = new ArrayList<>();
 							BigDecimal quantityIssued = BigDecimal.ZERO;
 							if (listOfPagedMaterialIssueDetails != null)
@@ -555,7 +560,7 @@ public class MaterialIssueService extends DomainService {
 									.getTotalStockAsPerMaterial(fifoRequest);
 							if (fifoResponse != null)
 								balQuantity = fifoResponse.getStock();
-							// TODO: CHECK THIS LOGIC.
+
 							BigDecimal balanceQuantity = balQuantity.add(quantityIssued);
 							if (StringUtils.isNotBlank(balanceQuantity.toString())) {
 								if (balanceQuantity.compareTo(BigDecimal.ZERO) <= 0)
@@ -621,7 +626,7 @@ public class MaterialIssueService extends DomainService {
 	}
 
 	private BigDecimal getBalanceQuantityByStoreByMaterialAndIssueDate(Store store, Material material, Long issueDate,
-			String tenantId) {
+			String tenantId, String mrnNumber) {
 		BigDecimal balanceQuantity = BigDecimal.ZERO;
 		LOG.info("store :" + store + "material :" + material + "issueDate :" + issueDate + "tenantId :" + tenantId);
 		FifoRequest fifoRequest = new FifoRequest();
@@ -630,6 +635,7 @@ public class MaterialIssueService extends DomainService {
 		fifo.setMaterial(material);
 		fifo.setIssueDate(issueDate);
 		fifo.setTenantId(tenantId);
+		fifo.setMrnNumber(mrnNumber);
 		fifoRequest.setFifo(fifo);
 		FifoResponse fifoResponse = materialIssueReceiptFifoLogic.getTotalStockAsPerMaterial(fifoRequest);
 		if (fifoResponse != null)
@@ -663,6 +669,7 @@ public class MaterialIssueService extends DomainService {
 			MaterialIssueSearchContract searchContract = new MaterialIssueSearchContract();
 			searchContract.setIssueNoteNumber(materialIssue.getIssueNumber());
 			searchContract.setTenantId(materialIssue.getTenantId());
+			searchContract.setSearchPurpose("update");
 			MaterialIssueResponse issueResponse = search(searchContract, type);
 			// legacy mifr updation
 			List<MaterialIssueDetail> materialIssueDetails = issueResponse.getMaterialIssues().get(0)
@@ -814,7 +821,7 @@ public class MaterialIssueService extends DomainService {
 								materialIssueDetail.setBalanceQuantity(InventoryUtilities.getQuantityInSelectedUom(
 										getBalanceQuantityByStoreByMaterialAndIssueDate(materialIssue.getFromStore(),
 												materialIssueDetail.getMaterial(), materialIssue.getIssueDate(),
-												materialIssue.getTenantId())
+												materialIssue.getTenantId(), materialIssueDetail.getMrnNumber())
 														.add(materialIssueDetail.getQuantityIssued()),
 										uoms.get(materialIssueDetail.getUom().getCode()).getConversionFactor()));
 								if (materialIssueDetail.getIndentDetail() != null
@@ -948,7 +955,7 @@ public class MaterialIssueService extends DomainService {
 												materialIssueDet.getMaterial(),
 												(materialIssue.getIssueDate() != null ? materialIssue.getIssueDate()
 														: currentEpochWithoutTime()),
-												materialIssue.getTenantId()),
+												materialIssue.getTenantId(), materialIssueDet.getMrnNumber()),
 										materialIssueDet.getUom().getConversionFactor()));
 
 							}

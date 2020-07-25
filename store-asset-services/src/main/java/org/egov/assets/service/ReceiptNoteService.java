@@ -1,12 +1,41 @@
 package org.egov.assets.service;
 
+import static org.springframework.util.StringUtils.isEmpty;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+
 import org.egov.assets.common.Constants;
 import org.egov.assets.common.DomainService;
 import org.egov.assets.common.MdmsRepository;
 import org.egov.assets.common.Pagination;
 import org.egov.assets.common.exception.ErrorCode;
 import org.egov.assets.common.exception.InvalidDataException;
-import org.egov.assets.model.*;
+import org.egov.assets.model.Material;
+import org.egov.assets.model.MaterialBalanceRate;
+import org.egov.assets.model.MaterialBalanceRateResponse;
+import org.egov.assets.model.MaterialReceipt;
+import org.egov.assets.model.MaterialReceiptDetail;
+import org.egov.assets.model.MaterialReceiptDetailAddnlinfo;
+import org.egov.assets.model.MaterialReceiptRequest;
+import org.egov.assets.model.MaterialReceiptResponse;
+import org.egov.assets.model.MaterialReceiptSearch;
+import org.egov.assets.model.PurchaseOrderDetail;
+import org.egov.assets.model.PurchaseOrderDetailSearch;
+import org.egov.assets.model.PurchaseOrderSearch;
+import org.egov.assets.model.StoreGetRequest;
+import org.egov.assets.model.StoreResponse;
+import org.egov.assets.model.SupplierGetRequest;
+import org.egov.assets.model.SupplierResponse;
+import org.egov.assets.model.Uom;
 import org.egov.assets.repository.PurchaseOrderDetailJdbcRepository;
 import org.egov.assets.repository.PurchaseOrderJdbcRepository;
 import org.egov.assets.repository.ReceiptNoteRepository;
@@ -22,12 +51,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static org.springframework.util.StringUtils.isEmpty;
 
 @Service
 public class ReceiptNoteService extends DomainService {
@@ -108,12 +131,13 @@ public class ReceiptNoteService extends DomainService {
 			}
 			materialReceipt.setMrnNumber(appendString(materialReceipt));
 			materialReceipt.setMrnStatus(MaterialReceipt.MrnStatusEnum.APPROVED);
-			materialReceipt.setAuditDetails(getAuditDetails(materialReceiptRequest.getRequestInfo(), tenantId));
+			materialReceipt
+					.setAuditDetails(getAuditDetails(materialReceiptRequest.getRequestInfo(), Constants.ACTION_CREATE));
 
 			materialReceipt.getReceiptDetails().forEach(materialReceiptDetail -> {
 				setMaterialDetails(tenantId, materialReceiptDetail);
-				materialReceiptDetail
-						.setAuditDetails(getAuditDetails(materialReceiptRequest.getRequestInfo(), tenantId));
+				materialReceiptDetail.setAuditDetails(
+						getAuditDetails(materialReceiptRequest.getRequestInfo(), Constants.ACTION_CREATE));
 			});
 
 			backUpdatePo(tenantId, materialReceipt);
@@ -228,7 +252,7 @@ public class ReceiptNoteService extends DomainService {
 				if (purchaseOrderService.checkAllItemsSuppliedForPo(purchaseOrderSearch))
 					receiptNoteRepository.updateColumn(new PurchaseOrderEntity(), "purchaseorder", new HashMap<>(),
 							"status = (case when status = 'RECEIPTED' then 'APPROVED' ELSE status end)"
-									+ " where purchaseordernumber = '" + purchaseOrderSearch.getPurchaseOrderNumber()
+									+ " where purchaseordernumber = ('" + purchaseOrderSearch.getPurchaseOrderNumber()
 									+ "') and tenantid = '" + tenantId + "'");
 			}
 		}
@@ -240,6 +264,32 @@ public class ReceiptNoteService extends DomainService {
 		return response.responseInfo(null).materialReceipt(
 				materialReceiptPagination.getPagedData().size() > 0 ? materialReceiptPagination.getPagedData()
 						: Collections.EMPTY_LIST);
+	}
+
+	public MaterialBalanceRateResponse searchBalanceAndRate(MaterialReceiptSearch materialReceiptSearch) {
+		Pagination<MaterialBalanceRate> materialBalanceRate = materialReceiptService
+				.searchBalanceRate(materialReceiptSearch);
+		MaterialBalanceRateResponse response = new MaterialBalanceRateResponse();
+		if (!materialBalanceRate.getPagedData().isEmpty()) {
+			List<MaterialBalanceRate> materialBalanceRate2 = materialBalanceRate.getPagedData();
+			setMaterials(materialBalanceRate2, materialReceiptSearch.getTenantId());
+			response.setMaterialBalanceRate(materialBalanceRate2);
+		} else {
+			response.setMaterialBalanceRate(Collections.EMPTY_LIST);
+		}
+		return response;
+	}
+
+	private void setMaterials(List<MaterialBalanceRate> materialBalanceRate, String tenantId) {
+
+		for (MaterialBalanceRate materialBalanceRate2 : materialBalanceRate) {
+			Material material = materialService.fetchMaterial(tenantId, materialBalanceRate2.getMaterialCode(),
+					new RequestInfo());
+			BigDecimal rounded = new BigDecimal(materialBalanceRate2.getBalance().toString());
+			rounded = rounded.setScale(2, RoundingMode.CEILING);
+			materialBalanceRate2.setMaterialName(String.format("%s (Qty:%s, Rate:%s)", material.getName(),
+					rounded, materialBalanceRate2.getUnitRate()));
+		}
 	}
 
 	private void setMaterialDetails(String tenantId, MaterialReceiptDetail materialReceiptDetail) {
@@ -384,13 +434,14 @@ public class ReceiptNoteService extends DomainService {
 		validateDuplicateMaterialDetails(materialReceipt.getReceiptDetails(), errors);
 		for (MaterialReceiptDetail materialReceiptDetail : materialReceipt.getReceiptDetails()) {
 			i++;
+			materialReceiptDetail.setUom(getUom(materialReceiptDetail, tenantId, requestInfo));
 			if (materialReceipt.getReceiptType().toString()
 					.equalsIgnoreCase(MaterialReceipt.ReceiptTypeEnum.PURCHASE_RECEIPT.toString())) {
 				validatePurchaseOrder(materialReceiptDetail, materialReceipt.getReceivingStore().getCode(),
 						materialReceipt.getReceiptDate(), materialReceipt.getSupplier().getCode(), tenantId, i, errors);
 			}
 			validateMaterial(materialReceiptDetail, tenantId, i, errors);
-			validateUom(materialReceiptDetail.getUom(), tenantId, i, errors, requestInfo);
+			validateUom(materialReceiptDetail, tenantId, i, errors, requestInfo);
 			validateQuantity(materialReceiptDetail, i, errors);
 			if (materialReceiptDetail.getReceiptDetailsAddnInfo().size() > 0) {
 				validateDetailsAddnInfo(materialReceiptDetail.getReceiptDetailsAddnInfo(),
@@ -421,13 +472,22 @@ public class ReceiptNoteService extends DomainService {
 		}
 	}
 
-	private void validateUom(Uom uom, String tenantId, int i, InvalidDataException errors, RequestInfo requestInfo) {
-		if (null != uom && !isEmpty(uom.getCode())) {
-			mdmsRepository.fetchObject(tenantId, "common-masters", "UOM", "code", uom.getCode(), Uom.class,
-					requestInfo);
+	private void validateUom(MaterialReceiptDetail materialReceiptDetail, String tenantId, int i,
+			InvalidDataException errors, RequestInfo requestInfo) {
+		if (null != materialReceiptDetail.getUom() && !isEmpty(materialReceiptDetail.getUom().getCode())) {
+			Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "UOM", "code",
+					materialReceiptDetail.getUom().getCode(), Uom.class, requestInfo);
+			materialReceiptDetail.setUom(uom);
 		} else
-			errors.addDataError(ErrorCode.OBJECT_NOT_FOUND_ROW.getCode(), "UOM ", uom.getCode(), String.valueOf(i));
+			errors.addDataError(ErrorCode.OBJECT_NOT_FOUND_ROW.getCode(), "UOM ",
+					materialReceiptDetail.getUom().toString(), String.valueOf(i));
 
+	}
+
+	private Uom getUom(MaterialReceiptDetail materialReceiptDetail, String tenantId, RequestInfo requestInfo) {
+		Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "UOM", "code",
+				materialReceiptDetail.getUom().getCode(), Uom.class, requestInfo);
+		return uom;
 	}
 
 	private void validateQuantity(MaterialReceiptDetail materialReceiptDetail, int i, InvalidDataException errors) {
@@ -560,7 +620,7 @@ public class ReceiptNoteService extends DomainService {
 
 					BigDecimal remainingQuantity = purchaseOrderDetail.getOrderQuantity()
 							.subtract(purchaseOrderDetail.getReceivedQuantity());
-					BigDecimal conversionFactor = new BigDecimal(2); // materialReceiptDetail.getUom().getConversionFactor();
+					BigDecimal conversionFactor = materialReceiptDetail.getUom().getConversionFactor();
 					BigDecimal convertedRemainingQuantity = getSearchConvertedQuantity(remainingQuantity,
 							conversionFactor);
 					if (null != purchaseOrderDetail.getReceivedQuantity()

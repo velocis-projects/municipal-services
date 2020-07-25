@@ -44,6 +44,7 @@ public class IndentsApiController {
 			@RequestBody RequestInfo requestInfo,
 			@Size(max = 50) @RequestParam(value = "ids", required = false) List<String> ids,
 			@RequestParam(value = "issueStore", required = false) String issueStore,
+			@RequestParam(value = "indentStore", required = false) String indentStore,
 			@RequestParam(value = "indentDate", required = false) Long indentDate,
 			@RequestParam(value = "indentNumber", required = false) String indentNumber,
 			@RequestParam(value = "indentPurpose", required = false) String indentPurpose,
@@ -59,8 +60,9 @@ public class IndentsApiController {
 		System.out.println("RequestInfo....................");
 
 		IndentSearch is = new IndentSearch().builder().tenantId(tenantId).ids(ids).indentDate(indentDate)
-				.indentNumber(indentNumber).indentPurpose(indentPurpose).inventoryType(inventoryType)
-				.issueStore(issueStore).indentType(indentType).searchPurpose(searchPurpose).build();
+				.indentStore(indentStore).indentNumber(indentNumber).indentPurpose(indentPurpose)
+				.inventoryType(inventoryType).issueStore(issueStore).indentType(indentType).searchPurpose(searchPurpose)
+				.build();
 		IndentResponse response = indentService.search(is, requestInfo);
 		return new ResponseEntity(response, HttpStatus.OK);
 	}

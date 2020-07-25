@@ -85,8 +85,6 @@ public class Violation {
 	private String address;
 	
 	@Size(max = 64)
-	@NotNull(message = "emailId  should not be empty or null")
-	@NotBlank(message = "emailId  should not be empty or null")
 	@JsonProperty("emailId")
 	private String emailId;
 	
