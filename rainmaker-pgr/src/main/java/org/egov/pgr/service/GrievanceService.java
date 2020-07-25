@@ -115,6 +115,9 @@ public class GrievanceService {
 	@Autowired
 	private PGRRequestValidator pgrRequestValidator;
 	
+	@Autowired
+	private MasterDataService masterDataService;
+	
 	public static Map<String, Map<String, String>> localizedMessageMap = new HashMap<>();
 
 	/***
@@ -1114,9 +1117,10 @@ public class GrievanceService {
 				sector = address.getMohalla();
 			}
 			
-			Object result = fetchAutoroutingEscalationMap(requestInfo, tenantId, category, sector);
+			//Object result = fetchAutoroutingEscalationMap(requestInfo, tenantId, category, sector);
+			Object result = masterDataService.fetchAutoroutingEscalationMap(tenantId, category, null);
 			if(null != result) {
-				List objList = JsonPath.read(result, PGRConstants.JSONPATH_AUTOROUTING_CODES);
+				List objList = JsonPath.read(result, PGRConstants.JSONPATH_AUTOROUTING_CODES_DB);
 				if(CollectionUtils.isEmpty(objList)) {
 					return null;
 				}
@@ -1160,10 +1164,10 @@ public class GrievanceService {
 			if(!CollectionUtils.isEmpty(serivceDefs))
 				category = String.valueOf(serivceDefs.get(0));
 			
-			Object result = fetchAutoroutingEscalationMap(requestInfo, tenantId, category, null);
+			Object result = masterDataService.fetchAutoroutingEscalationMap(tenantId, category, null);
 			if(null != result) {
-				escalationOfficer1 = JsonPath.read(result, PGRConstants.JSONPATH_ESCALATING_OFFICER1_CODES);
-				escalationOfficer2 = JsonPath.read(result, PGRConstants.JSONPATH_ESCALATING_OFFICER2_CODES);
+				escalationOfficer1 = JsonPath.read(result, PGRConstants.AUTOROUTING_ESCALATING_OFFICER1_JSONPATH);
+				escalationOfficer2 = JsonPath.read(result, PGRConstants.AUTOROUTING_ESCALATING_OFFICER2_JSONPATH);
 			}
 		} catch (Exception e) {
 			log.error("Exception while fetching fetchEscalatingOfficers: " + e);
@@ -1317,10 +1321,11 @@ public class GrievanceService {
 		List<String> categoryList2=null;
 		try {
 			//Get category list for escalationOfficer1
-			Object result = fetchCategoriesFromAutoroutingEscalationMap(requestInfo, tenantId);
-			
+			//Object result = fetchCategoriesFromAutoroutingEscalationMap(requestInfo, tenantId);
+			Object result = masterDataService.fetchAutoroutingEscalationMap(tenantId, null, null);
 			if(null != result) {
-				List objList = JsonPath.read(result, PGRConstants.JSONPATH_AUTOROUTING_MAP_CODES);
+				//List objList = JsonPath.read(result, PGRConstants.JSONPATH_AUTOROUTING_CODES_DB);
+				List objList = (List)result;
 				if(CollectionUtils.isEmpty(objList)) {
 					return null;
 				}
