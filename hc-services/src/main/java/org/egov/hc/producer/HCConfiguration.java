@@ -41,6 +41,9 @@ public class HCConfiguration {
 	}
 
 	
+		@Value("${persister.save.transition.wf.topic}")
+		private String saveTransitionTopic;
+	
 	 	@Value("${egov.hc.default.limit}")
 	    private Integer defaultLimit;
 

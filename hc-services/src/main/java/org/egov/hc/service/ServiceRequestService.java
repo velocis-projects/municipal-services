@@ -30,6 +30,7 @@ import org.egov.common.contract.request.Role;
 import org.egov.common.contract.request.User;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.hc.consumer.HCNotificationConsumer;
+import org.egov.hc.contract.Action;
 import org.egov.hc.contract.AuditDetails;
 
 import org.egov.hc.contract.RequestInfoWrapper;
@@ -40,9 +41,10 @@ import org.egov.hc.contract.ServiceRequest;
 import org.egov.hc.contract.ServiceResponse;
 import org.egov.hc.model.ActionHistory;
 import org.egov.hc.model.ActionInfo;
-
+import org.egov.hc.model.ProcessInstance;
+import org.egov.hc.model.ProcessInstanceRequest;
 import org.egov.hc.model.ServiceRequestData;
-
+import org.egov.hc.model.State;
 import org.egov.hc.model.RequestData;
 
 import org.egov.hc.model.user.Citizen;
@@ -778,7 +780,7 @@ public class ServiceRequestService {
 				request.getServices().get(0).setServicerequest_lang(langDataSplit[1]);
 
 				request.getServices().get(0)
-						.setServiceType(request.getServices().get(0).getServiceType().toUpperCase());
+						.setServiceType(request.getServices().get(0).getServiceType());
 				request.getServices().get(0).setService_request_uuid(service_request_uuid);
 				request.getServices().get(0).setCurrent_assignee(role);
 				request.getServices().get(0).setService_request_status(status);
@@ -1028,7 +1030,7 @@ public class ServiceRequestService {
 				log.info("Generate new service requet ID : " + service_request_id_new);
 			}
 
-			// add entry in service request table with service_request_id = current_1
+			// add entry in service request table with service_request_id = service_request_id_old_1
 			
 			String action = HCConstants.ACTION_UPDATE;
 			serviceRequest.getServices().get(0).setService_request_id_old(service_request_id);
@@ -1159,10 +1161,14 @@ public class ServiceRequestService {
 
 		
 		String procesinstanceData = null;
+		String bussinessServiceData = null;
+		
 		String tenentId = null;
 		String businessService = null;
 		String action = null;
 		String comment=null;
+		String nextState ="";
+		
 
 		User userData = new User();
 		String tenantId = serviceRequestGetData.getRequestInfo().getUserInfo().getTenantId();
@@ -1186,7 +1192,7 @@ public class ServiceRequestService {
 		userData.setUserName(userName);
 		userData.setTenantId(tenantId);
 		
-		
+		ArrayList <ProcessInstance> ProcessInstanceList = new ArrayList<>();
 		
 
 		try {
@@ -1196,15 +1202,19 @@ public class ServiceRequestService {
 							),
 					serviceRequestGetData, String.class);
 			
-
+			
+			bussinessServiceData = rest.postForObject(
+					hcConfiguration.getWfHost().concat(hcConfiguration.getWfBusinessServiceSearchPath()).concat("?").concat(
+							"tenantId=" + "ch" + "&businessServices=" + serviceRequestGetData.getServices().get(0).getServiceType().toUpperCase()
+							),
+					serviceRequestGetData, String.class);
+			
 			try { 
+				
 				log.info("get data from procesinstance :" +procesinstanceData );
 				org.json.JSONObject obj = new org.json.JSONObject(procesinstanceData);
 				org.json.JSONArray ProcessInstances = obj.getJSONArray("ProcessInstances");
 
-				
-				
-				
 				List<ServiceRequest> ServiceRequestList= new ArrayList<>() ;
 				ServiceRequest serviceRequestData = serviceRequestGetData.clone();
 
@@ -1303,30 +1313,124 @@ public class ServiceRequestService {
 						comment = ProcessInstancesDetails.getString("comment");
 					else
 						comment = "";
-
-					serviceRequestData.getServices().get(0).setTenantId(tenentId);
-					serviceRequestData.getServices().get(0).setAction(action);
-					serviceRequestData.getServices().get(0).setTenantId(tenentId);
-					serviceRequestData.getServices().get(0).setService_request_id(service_request_id_new);
-					serviceRequestData.getServices().get(0).setComment(comment);
-					serviceRequestData.getServices().get(0).setServiceType(businessService);
-					serviceRequestData.getServices().get(0).setIsRoleSpecific(true);
-					serviceRequestData.getServices().get(0).setWfDocuments(wfAddDocument);
-					serviceRequestData.getRequestInfo().setUserInfo(wfUser);
-					serviceRequestData.getServices().get(0).setCity(city);
+				
+					long businesssServiceSla = ProcessInstancesDetails.getLong("businesssServiceSla");
 					
+					org.json.JSONObject auditDetails = ProcessInstancesDetails.getJSONObject("auditDetails");
 					
+					String createdBy = auditDetails.getString("createdBy");
+					String lastModifiedBy = auditDetails.getString("lastModifiedBy");
+					long createdTime = auditDetails.getLong("createdTime");
+					long lastModifiedTime = auditDetails.getLong("lastModifiedTime");
+					
+					AuditDetails details = new AuditDetails();
+					details.setCreatedBy(createdBy);
+					details.setLastModifiedBy(lastModifiedBy);
+					details.setCreatedTime(createdTime);
+					details.setLastModifiedTime(lastModifiedTime);
+					
+					String newactions = null;
+					String newState = null;
+					Boolean found = false;
+					
+					for (int businessCnt = 0; businessCnt <= bussinessServiceData.length(); businessCnt++) 
+					{
+						org.json.JSONObject bussinessServiceDetails = new org.json.JSONObject(
+								bussinessServiceData.toString());
 
-					if (hcConfiguration.getIsExternalWorkFlowEnabled()) {
-						log.info("Process instance call"+i);
-						log.info("Process values"+ serviceRequestData + " With id " + service_request_id_new);
-						 wfIntegrator.callWorkFlow(serviceRequestData, service_request_id_new);
-						Thread.sleep(20000);
+						org.json.JSONArray businessServicesObj = bussinessServiceDetails.getJSONArray("BusinessServices");
+						
+						for (int businessServiceCnt = 0; businessServiceCnt <= businessServicesObj.length(); businessServiceCnt++) 
+						{
+						
+							org.json.JSONObject businessServicesSingleObj = new org.json.JSONObject(
+									businessServicesObj.get(businessServiceCnt).toString());
+							
+							org.json.JSONArray stateObj = businessServicesSingleObj.getJSONArray("states");
+							
+							for (int stateCnt = 0; stateCnt <= stateObj.length(); stateCnt++) 
+							{
+								org.json.JSONObject stateSingleObj = new org.json.JSONObject(
+										stateObj.get(stateCnt).toString());
+								
+								org.json.JSONArray actionsObj = stateSingleObj.getJSONArray("actions");
+								
+								for (int actionCnt = 0; actionCnt < actionsObj.length(); actionCnt++) 
+								{
+									org.json.JSONObject actionsSingleObj = new org.json.JSONObject(
+											actionsObj.get(actionCnt).toString());
+									
+									newactions = actionsSingleObj.getString("action");
+									newState = actionsSingleObj.getString("nextState");
+
+									if(newactions.equals(action))
+									{
+										  nextState = newState;
+										  found = true;
+										  System.out.println("businessServicesObj" + newState);
+										  System.out.println("businessServicesObj" + actionsObj);
+										  break;
+										  
+									}
+									
+									if(found) break;
+								}	
+								if(found) break;
+							}	
+							if(found) break;
+						}
+						if(found) break;	
 					}
-
+					
+					ProcessInstance process = new ProcessInstance();
+					User user = new User();
+					user.setUuid(wfUser.getUuid());
+					List<Action> list = new ArrayList<>();
+					
+					State state = new State();
+					
+					String proccessId = UUID.randomUUID().toString();
+					  state.setUuid(nextState);
+					  state.setTenantId(tenantId);
+					  
+					List<Document> wfDocument = new ArrayList<>();
+					  
+					 for(Document wf: wfAddDocument)
+					 {
+						 String documentId = UUID.randomUUID().toString();
+						 wf.setId(documentId);
+						 wfDocument.add(wf);
+					 }
+					  
+	
+					  List<Document> wfAddDocumentnew = new ArrayList<>();
+					
+				        process.setId(proccessId);
+						process.setTenantId(serviceRequestGetData.getServices().get(0).getCity());
+						process.setBusinessService(businessService.toUpperCase());
+						process.setBusinessId(service_request_id_new);
+						process.setModuleName(HCConstants.MODULENAMEVALUE);
+						process.setAction(action);
+						process.setState(state);
+						process.setComment(comment);
+						process.setAssigner(user);
+						process.setBusinesssServiceSla(businesssServiceSla);
+						process.setStateSla(businesssServiceSla);
+						process.setDocuments(wfDocument);
+						process.setAuditDetails(details);
+				
+					RequestInfo requestInfo = new RequestInfo();
+					requestInfo.setUserInfo(wfUser);
+				
+					List<ProcessInstance> processInstances = new ArrayList<>();
+					processInstances.add(process);
+					ProcessInstanceList.addAll(processInstances);
 					
 				}
-
+				ProcessInstanceRequest processInstanceRequest=new ProcessInstanceRequest();
+				processInstanceRequest.setProcessInstances(ProcessInstanceList);
+				hCProducer.push(hcConfiguration.getSaveTransitionTopic(),processInstanceRequest);
+				
 				List<ActionInfo> actionInfos = new ArrayList<>();
 				ActionInfo newActionInfo = ActionInfo.builder().uuid(UUID.randomUUID().toString())
 						.businessKey(serviceRequestData.getServices().get(0).getBusinessService())

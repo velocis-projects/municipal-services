@@ -19,6 +19,8 @@ public class HCConstants {
 	
 	public static final String REMINDER = "REMINDER";
 	
+	public static final String MODULENAMEVALUE = "HORTICULTURE";
+	
 	//Roll
 	
 	public static final String ROLE = "EE";
