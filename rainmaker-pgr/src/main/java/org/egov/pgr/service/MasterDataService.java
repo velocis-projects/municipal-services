@@ -305,8 +305,8 @@ public class MasterDataService {
 		for(String userName : eo1RoleUpdateList) {
 			log.info("User {} needs to assign the role {}",userName,PGRConstants.ROLE_ESCALATION_OFFICER1);
 			User user = getUser(requestInfo, userName, tenantId);
-			log.info("User found with username {}",userName);
 			if(null != user) {
+				log.info("User found with username {}",userName);
 				List<String> codes = user.getRoles().stream().map(Role::getCode).collect(Collectors.toList());
 				if (!codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER1)) {
 					user.getRoles().add(Role.builder().code(PGRConstants.ROLE_ESCALATION_OFFICER1).build());
@@ -315,14 +315,17 @@ public class MasterDataService {
 				}else {
 					log.info("User {} already has the role {}",userName,PGRConstants.ROLE_ESCALATION_OFFICER1);
 				}
+			}else {
+				log.info("User not found with username {}",userName);
 			}
 		}
 		
 		for(String userName : eo2RoleUpdateList) {
 			log.info("User {} needs to assign the roles {},{}",userName,PGRConstants.ROLE_ESCALATION_OFFICER1,PGRConstants.ROLE_ESCALATION_OFFICER2);
 			User user = getUser(requestInfo, userName, tenantId);
-			log.info("User found with username {}",userName);
+			
 			if(null != user) {
+				log.info("User found with username {}",userName);
 				List<String> codes = user.getRoles().stream().map(Role::getCode).collect(Collectors.toList());
 				List<Role> newRoles = new ArrayList<Role>();
 				if (!codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER1)) {
@@ -339,32 +342,40 @@ public class MasterDataService {
 				}else {
 					log.info("User {} already has the roles {},{}",userName,PGRConstants.ROLE_ESCALATION_OFFICER1,PGRConstants.ROLE_ESCALATION_OFFICER2);
 				}
+			}else {
+				log.info("User not found with username {}",userName);
 			}
 		}
 		
 		for(String userName : eo1RoleRemovedList) {
 			log.info("User {} needs to remove the role {}",userName,PGRConstants.ROLE_ESCALATION_OFFICER1);
 			User user = getUser(requestInfo, userName, tenantId);
-			log.info("User found with username {}",userName);
+			
 			if(null != user) {
+				log.info("User found with username {}",userName);
 				List<Role> roles = user.getRoles().stream()
 						  .filter(e -> !e.getCode().startsWith(PGRConstants.ROLE_ESCALATION_OFFICER1))
 						  .collect(Collectors.toList());
 				user.setRoles(roles);
 				String id= updateUser(requestInfo, user);
 				log.info("User Role {} removed from the user {}. Id {}",PGRConstants.ROLE_ESCALATION_OFFICER1,userName,id);
+			}else {
+				log.info("User not found with username {}",userName);
 			}
 		}
 		
 		for(String userName : eo2RoleRemovedList) {
 			log.info("User {} needs to remove the roles {},{}",userName,PGRConstants.ROLE_ESCALATION_OFFICER1,PGRConstants.ROLE_ESCALATION_OFFICER2);
 			User user = getUser(requestInfo, userName, tenantId);
-			log.info("User found with username {}",userName);
+			
 			if(null != user) {
+				log.info("User found with username {}",userName);
 				user.getRoles().removeIf(e -> e.getCode().equals(PGRConstants.ROLE_ESCALATION_OFFICER1));
 				user.getRoles().removeIf(e -> e.getCode().equals(PGRConstants.ROLE_ESCALATION_OFFICER2));
 				String id= updateUser(requestInfo, user);
 				log.info("User Roles {},{} removed from the user {}. Id {}",PGRConstants.ROLE_ESCALATION_OFFICER1,PGRConstants.ROLE_ESCALATION_OFFICER2,userName,id);
+			}else {
+				log.info("User found with username {}",userName);
 			}
 		}
 	}
