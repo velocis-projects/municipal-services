@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiModel;
 
 import lombok.*;
 
-import org.egov.hc.model.AuditDetails;
+import org.egov.hc.contract.AuditDetails;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.*;
@@ -53,6 +53,9 @@ public class Document   {
         
   	  @JsonProperty("auditDetails")
   	  private AuditDetails auditDetails;
+
+
+	
 
 
 }
