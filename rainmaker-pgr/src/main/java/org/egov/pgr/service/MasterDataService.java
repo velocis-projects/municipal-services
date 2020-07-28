@@ -1,60 +1,37 @@
 package org.egov.pgr.service;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
-import org.egov.common.contract.request.Role;
-import org.egov.common.contract.request.User;
-import org.egov.mdms.model.MdmsCriteriaReq;
-import org.egov.pgr.contract.Address;
 import org.egov.pgr.contract.AutoroutingMapReqSearchCriteria;
 import org.egov.pgr.contract.AutoroutingMapRequest;
 import org.egov.pgr.contract.AutoroutingMapResponse;
-import org.egov.pgr.contract.CountResponse;
-import org.egov.pgr.contract.IdResponse;
-import org.egov.pgr.contract.RequestInfoWrapper;
-import org.egov.pgr.contract.SearcherRequest;
-import org.egov.pgr.contract.ServiceReqSearchCriteria;
-import org.egov.pgr.contract.ServiceRequest;
-import org.egov.pgr.contract.ServiceRequestDetails;
-import org.egov.pgr.contract.ServiceResponse;
-import org.egov.pgr.model.ActionHistory;
-import org.egov.pgr.model.ActionInfo;
 import org.egov.pgr.model.AuditDetails;
 import org.egov.pgr.model.AutoroutingMap;
-import org.egov.pgr.model.Service;
-import org.egov.pgr.model.Service.StatusEnum;
-import org.egov.pgr.model.user.Citizen;
-import org.egov.pgr.model.user.CreateUserRequest;
-import org.egov.pgr.model.user.UserResponse;
+import org.egov.pgr.model.user.Role;
+import org.egov.pgr.model.user.User;
+import org.egov.pgr.model.user.UserRequest;
+import org.egov.pgr.model.user.UserResponses;
 import org.egov.pgr.model.user.UserSearchRequest;
-import org.egov.pgr.model.user.UserType;
 import org.egov.pgr.producer.PGRProducer;
-import org.egov.pgr.repository.FileStoreRepo;
-import org.egov.pgr.repository.IdGenRepo;
 import org.egov.pgr.repository.MasterDataRepository;
 import org.egov.pgr.repository.ServiceRequestRepository;
 import org.egov.pgr.utils.ErrorConstants;
 import org.egov.pgr.utils.PGRConstants;
 import org.egov.pgr.utils.PGRUtils;
 import org.egov.pgr.utils.ResponseInfoFactory;
-import org.egov.pgr.utils.WorkFlowConfigs;
-import org.egov.pgr.validator.PGRRequestValidator;
 import org.egov.tracer.model.CustomException;
-import org.json.JSONObject;
 import org.postgresql.util.PGobject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,11 +57,11 @@ public class MasterDataService {
 	@Value("${egov.user.host}")
 	private String userBasePath;
 	
-	@Value("${egov.user.create.endpoint}")
-	private String userCreateEndPoint;
-	
 	@Value("${egov.user.search.endpoint}")
 	private String userSearchEndPoint;
+	
+	@Value("${egov.user.update.endpoint}")
+	private String userUpdateEndpoint;
 
 	@Autowired
 	private ResponseInfoFactory factory;
@@ -146,7 +123,8 @@ public class MasterDataService {
 		if(null == autoroutingMap) {
 			errorMap.put(ErrorConstants.NO_DATA_FOUND_CODE, ErrorConstants.NO_DATA_FOUND_MSG);
 		}else {	
-			autoroutingMap.setAutorouting(getFilterAutoroutingData(criteria, autoroutingMap));
+			autoroutingMap.setAutorouting(
+					getFilterAutoroutingData(autoroutingMap.getAutorouting(), criteria.getTenantId(), criteria.getCategory(), criteria.getSector()));
 		}
 		if (!errorMap.isEmpty()) {
 			throw new CustomException(errorMap);
@@ -191,14 +169,21 @@ public class MasterDataService {
 		AutoroutingMap autoroutingMap =autoroutingMapRequest.getAutoroutingMap();
 		
 		AutoroutingMap mapDataFromDB = masterDataRepository.getAutoRoutingData(autoroutingMap.getTenantId());
-		if(null == mapDataFromDB) {
+		if(null == mapDataFromDB || null == mapDataFromDB.getAutorouting() ) {
 			errorMap.put(ErrorConstants.NO_DATA_FOUND_CODE, ErrorConstants.NO_DATA_FOUND_MSG);
 		}else {
-			mapDataFromDB.setAutorouting(updateAutoroutingData(mapDataFromDB.getAutorouting(), autoroutingMap.getAutorouting()));
-			mapDataFromDB.setActive(true);
-			AuditDetails auditDetails = pGRUtils.getAuditDetails(String.valueOf(requestInfo.getUserInfo().getId()), false);
-			mapDataFromDB.setAuditDetails(auditDetails);
-			autoroutingMapRequest.setAutoroutingMap(mapDataFromDB);
+			try {
+				mapDataFromDB.setAutorouting(
+						updateAutoroutingData(mapDataFromDB.getAutorouting(), autoroutingMap.getAutorouting(),
+								autoroutingMapRequest.getRequestInfo(), autoroutingMapRequest.getAutoroutingMap().getTenantId()));
+				mapDataFromDB.setActive(true);
+				AuditDetails auditDetails = pGRUtils.getAuditDetails(String.valueOf(requestInfo.getUserInfo().getId()), false);
+				mapDataFromDB.setAuditDetails(auditDetails);
+				autoroutingMapRequest.setAutoroutingMap(mapDataFromDB);
+			}catch(Exception e) {
+				log.error("Unable to update autorouting data",e);
+				errorMap.put(ErrorConstants.AUTOROUTING_UPDATION_FAILED_CODE, ErrorConstants.AUTOROUTING_UPDATION_FAILED_MSG);
+			}
 		}
 		
 		if (!errorMap.isEmpty()) {
@@ -207,127 +192,290 @@ public class MasterDataService {
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Object updateAutoroutingData(Object dbAutoroutingData, Object selectedData) {
+	private Object updateAutoroutingData(Object dbAutoroutingData, Object selectedData, RequestInfo requestInfo, String tenantId) throws JsonParseException, JsonMappingException, IOException {
 		String selectedCategory = JsonPath.read(selectedData, PGRConstants.AUTOROUTING_CATEGORY_JSONPATH);
+		List<String> selectedEO1List = JsonPath.read(selectedData, PGRConstants.AUTOROUTING_ESCALATING_OFFICER1_JSONPATH);
+		List<String> selectedEO2List = JsonPath.read(selectedData, PGRConstants.AUTOROUTING_ESCALATING_OFFICER2_JSONPATH);
 		
-		List dbData = new ArrayList<>();
-		if(null != dbAutoroutingData) {
-			dbData = JsonPath.read(((PGobject)dbAutoroutingData).getValue(), PGRConstants.JSONPATH_AUTOROUTING_MAP_CODES_DB);
-		}
+		List dbMapData = JsonPath.read(((PGobject)dbAutoroutingData).getValue(), PGRConstants.JSONPATH_AUTOROUTING_MAP_CODES_DB);
+		
+		//Get all the existing leve1 officer & level2 officer list
+		List<List<String>> dbEO1List = JsonPath.read(((PGobject)dbAutoroutingData).getValue(), PGRConstants.JSONPATH_ESCALATING_OFFICER1_CODES_DB);
+		List<List<String>> dbEO2List = JsonPath.read(((PGobject)dbAutoroutingData).getValue(), PGRConstants.JSONPATH_ESCALATING_OFFICER2_CODES_DB);
+		Map<String,String> dbEO1Map = dbEO1List.stream().flatMap(l -> l.stream()).collect(Collectors.toMap(s -> s, s -> s,(s,s1)->s1));
+		Map<String,String> dbEO2Map = dbEO2List.stream().flatMap(l -> l.stream()).collect(Collectors.toMap(s -> s, s -> s,(s,s1)->s1));
 		
 		//replace existing category wise autorouting with newer one
+		List<String> replacedEO1List = new ArrayList<String>();
+		List<String> replacedEO2List = new ArrayList<String>();
 		boolean isFound =false;
-		for (int i = 0; i < dbData.size(); i++) {
-			String dbCat = JsonPath.read(dbData.get(i), PGRConstants.AUTOROUTING_CATEGORY_JSONPATH);
+		for (int i = 0; i < dbMapData.size(); i++) {
+			String dbCat = JsonPath.read(dbMapData.get(i), PGRConstants.AUTOROUTING_CATEGORY_JSONPATH);
 			if(!StringUtils.isEmpty(dbCat) && dbCat.equalsIgnoreCase(selectedCategory)) {
-				dbData.set(i, selectedData);
+				replacedEO1List = JsonPath.read(dbMapData.get(i), PGRConstants.AUTOROUTING_ESCALATING_OFFICER1_JSONPATH);
+				replacedEO2List = JsonPath.read(dbMapData.get(i), PGRConstants.AUTOROUTING_ESCALATING_OFFICER2_JSONPATH);
+				dbMapData.set(i, selectedData);
 				isFound = true;
 				break;
 			}
 		}
 		if(!isFound) {
-			dbData.add(selectedData);
+			dbMapData.add(selectedData);
 		}
-		LinkedHashMap<String, Object> finalObject =null;
-		try {
-			finalObject = objectMapper.readValue(((PGobject)dbAutoroutingData).getValue(), LinkedHashMap.class);
-			finalObject.put("AutoroutingEscalationMap", dbData);
-		} catch (Exception e) {
-			log.error("Unable to replace autorouting data ",e);
-		}
+		LinkedHashMap<String, Object> finalObject = objectMapper.readValue(((PGobject)dbAutoroutingData).getValue(), LinkedHashMap.class);
+		finalObject.put("AutoroutingEscalationMap", dbMapData);
+		
+		updateEOUserRole(selectedEO1List, selectedEO2List, dbEO1Map, dbEO2Map, replacedEO1List, replacedEO2List,
+				finalObject, requestInfo, tenantId);
 		
 		return finalObject;
 	}
 	
-	private Object getFilterAutoroutingData(AutoroutingMapReqSearchCriteria criteria, AutoroutingMap autoroutingMap) {
+	private Object getFilterAutoroutingData(Object map, String tenantId, String category, String sector) {
 		String filter ="[?(@.active == true)]";
-		if(!StringUtils.isBlank(criteria.getCategory())) {
-			filter = "[?((@.category == '" + criteria.getCategory() + "') && (@.active == true))]";
+		if(!StringUtils.isBlank(category)) {
+			filter = "[?((@.category == '" + category + "') && (@.active == true))]";
 		}
 		
 		List filteredData = null;
-		if(null != autoroutingMap.getAutorouting()) {
-			List autoroutingData = JsonPath.read(((PGobject)autoroutingMap.getAutorouting()).getValue(), PGRConstants.JSONPATH_AUTOROUTING_MAP_CODES_DB);
+		if(null != map) {
+			List autoroutingData = JsonPath.read(((PGobject)map).getValue(), PGRConstants.JSONPATH_AUTOROUTING_MAP_CODES_DB);
 			filteredData = JsonPath.read(autoroutingData, filter);
 		}
 		
 		return filteredData;
 	}
 	
-	/**
-	 * This method creates user in user svc.
-	 * 
-	 * @param citizen
-	 * @param requestInfo
-	 * @param tenantId
-	 * @return
-	 */
-	private String updateUser(Citizen citizen, RequestInfo requestInfo, String tenantId) {
-		ObjectMapper mapper = pGRUtils.getObjectMapper();
-		citizen.setUserName(citizen.getMobileNumber());
-		citizen.setActive(true);
-		citizen.setTenantId(tenantId);
-		citizen.setType(UserType.CITIZEN);
-		citizen.setRoles(Arrays.asList(org.egov.pgr.model.user.Role.builder().code(PGRConstants.ROLE_CITIZEN).build()));
-		StringBuilder url = new StringBuilder(userBasePath+userCreateEndPoint); 
-		CreateUserRequest req = CreateUserRequest.builder().citizen(citizen).requestInfo(requestInfo).build();
-		UserResponse res = mapper.convertValue(serviceRequestRepository.fetchResult(url, req), UserResponse.class);
-		return res.getUser().get(0).getId().toString();
+	public Object fetchAutoroutingEscalationMap(String tenantId, String category, String sector) {
+		AutoroutingMap autoroutingMap = masterDataRepository.getAutoRoutingData(tenantId);
+		return getFilterAutoroutingData(autoroutingMap.getAutorouting(), tenantId, category, sector);
+	}
+	
+	private void updateEOUserRole(List<String> selectedEO1List, List<String> selectedEO2List,
+			Map<String, String> dbEO1Map, Map<String, String> dbEO2Map, List<String> replacedEO1List,
+			List<String> replacedEO2List, LinkedHashMap<String, Object> finalObject, RequestInfo requestInfo, String tenantId) {
+		
+		//Get all the updated leve1 officer & level2 officer list
+		List<List<String>> updatedEO1List = JsonPath.read(finalObject, PGRConstants.JSONPATH_ESCALATING_OFFICER1_CODES_DB);
+		List<List<String>> updatedEO2List = JsonPath.read(finalObject, PGRConstants.JSONPATH_ESCALATING_OFFICER2_CODES_DB);
+		Map<String,String> updatedEO1Map = updatedEO1List.stream().flatMap(l -> l.stream()).collect(Collectors.toMap(s -> s, s -> s,(s,s1)->s1));
+		Map<String,String> updatedEO2Map = updatedEO2List.stream().flatMap(l -> l.stream()).collect(Collectors.toMap(s -> s, s -> s,(s,s1)->s1));
+				
+		List<String> eo1RoleUpdateList = new ArrayList<String>();
+		List<String> eo2RoleUpdateList = new ArrayList<String>();
+		List<String> eo1RoleRemovedList = new ArrayList<String>();
+		List<String> eo2RoleRemovedList = new ArrayList<String>();
+		
+		/*If selected level1 officer does not match in the existing level1 & level2 officer data, 
+		 * then add this user in the level1 officer role update list 
+		*/
+		for(String eo1 : selectedEO1List) {
+			if(!dbEO1Map.containsKey(eo1) && !dbEO2Map.containsKey(eo1)) {
+				eo1RoleUpdateList.add(eo1);
+			}
+		}
+		
+		/*If selected level2 officer does not match in the existing level2 officer data, 
+		 * then add this user in the level2 officer role update list 
+		*/
+		for(String eo2 : selectedEO2List) {
+			if(!dbEO2Map.containsKey(eo2)) {
+				eo2RoleUpdateList.add(eo2);
+			}
+		}
+		
+		/*If the replaced level1 officer does not match in the updated level1 & level2 officer data, 
+		 * then add this user in the level1 officer role removed list 
+		*/
+		for(String eo1 : replacedEO1List) {
+			if(!updatedEO1Map.containsKey(eo1) && !updatedEO2Map.containsKey(eo1)) {
+				eo1RoleRemovedList.add(eo1);
+			}
+		}
+		
+		/*If the replaced level2 officer does not match in the updated level2 officer data, 
+		 * then add this user in the level2 officer role removed list 
+		*/
+		for(String eo2 : replacedEO2List) {
+			if(!updatedEO2Map.containsKey(eo2)) {
+				eo2RoleRemovedList.add(eo2);
+			}
+		}
+		
+		for(String userName : eo1RoleUpdateList) {
+			log.info("User {} needs to assign the role {}",userName,PGRConstants.ROLE_ESCALATION_OFFICER1);
+			User user = getUser(requestInfo, userName, tenantId);
+			if(null != user) {
+				log.info("User found with username {}",userName);
+				List<String> codes = user.getRoles().stream().map(Role::getCode).collect(Collectors.toList());
+				if (!codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER1)) {
+					user.getRoles().add(Role.builder().code(PGRConstants.ROLE_ESCALATION_OFFICER1).build());
+					String id= updateUser(requestInfo, user);
+					log.info("User {} updated with the role {}. Id {}",userName,PGRConstants.ROLE_ESCALATION_OFFICER1,id);
+				}else {
+					log.info("User {} already has the role {}",userName,PGRConstants.ROLE_ESCALATION_OFFICER1);
+				}
+			}else {
+				log.info("User not found with username {}",userName);
+			}
+		}
+		
+		for(String userName : eo2RoleUpdateList) {
+			log.info("User {} needs to assign the roles {},{}",userName,PGRConstants.ROLE_ESCALATION_OFFICER1,PGRConstants.ROLE_ESCALATION_OFFICER2);
+			User user = getUser(requestInfo, userName, tenantId);
+			
+			if(null != user) {
+				log.info("User found with username {}",userName);
+				List<String> codes = user.getRoles().stream().map(Role::getCode).collect(Collectors.toList());
+				List<Role> newRoles = new ArrayList<Role>();
+				if (!codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER1)) {
+					newRoles.add(Role.builder().code(PGRConstants.ROLE_ESCALATION_OFFICER1).build());
+				}
+				if (!codes.contains(PGRConstants.ROLE_ESCALATION_OFFICER2)) {
+					newRoles.add(Role.builder().code(PGRConstants.ROLE_ESCALATION_OFFICER2).build());
+				}
+				
+				if (!CollectionUtils.isEmpty(newRoles)) {
+					user.getRoles().addAll(newRoles);
+					String id= updateUser(requestInfo, user);
+					log.info("User {} updated with the roles {},{}. Id {}",userName,PGRConstants.ROLE_ESCALATION_OFFICER1,PGRConstants.ROLE_ESCALATION_OFFICER2,id);
+				}else {
+					log.info("User {} already has the roles {},{}",userName,PGRConstants.ROLE_ESCALATION_OFFICER1,PGRConstants.ROLE_ESCALATION_OFFICER2);
+				}
+			}else {
+				log.info("User not found with username {}",userName);
+			}
+		}
+		
+		for(String userName : eo1RoleRemovedList) {
+			log.info("User {} needs to remove the role {}",userName,PGRConstants.ROLE_ESCALATION_OFFICER1);
+			User user = getUser(requestInfo, userName, tenantId);
+			
+			if(null != user) {
+				log.info("User found with username {}",userName);
+				List<Role> roles = user.getRoles().stream()
+						  .filter(e -> !e.getCode().startsWith(PGRConstants.ROLE_ESCALATION_OFFICER1))
+						  .collect(Collectors.toList());
+				user.setRoles(roles);
+				String id= updateUser(requestInfo, user);
+				log.info("User Role {} removed from the user {}. Id {}",PGRConstants.ROLE_ESCALATION_OFFICER1,userName,id);
+			}else {
+				log.info("User not found with username {}",userName);
+			}
+		}
+		
+		for(String userName : eo2RoleRemovedList) {
+			log.info("User {} needs to remove the roles {},{}",userName,PGRConstants.ROLE_ESCALATION_OFFICER1,PGRConstants.ROLE_ESCALATION_OFFICER2);
+			User user = getUser(requestInfo, userName, tenantId);
+			
+			if(null != user) {
+				log.info("User found with username {}",userName);
+				user.getRoles().removeIf(e -> e.getCode().equals(PGRConstants.ROLE_ESCALATION_OFFICER1));
+				user.getRoles().removeIf(e -> e.getCode().equals(PGRConstants.ROLE_ESCALATION_OFFICER2));
+				String id= updateUser(requestInfo, user);
+				log.info("User Roles {},{} removed from the user {}. Id {}",PGRConstants.ROLE_ESCALATION_OFFICER1,PGRConstants.ROLE_ESCALATION_OFFICER2,userName,id);
+			}else {
+				log.info("User found with username {}",userName);
+			}
+		}
 	}
 	
 	/**
-	 * Fetches Users to be populated in the response
+	 * This method update user in user svc.
 	 * 
+	 * @param User
 	 * @param requestInfo
 	 * @param tenantId
-	 * @param userIds
 	 * @return
 	 */
-	public UserResponse getUsers(RequestInfo requestInfo, String tenantId, List<Long> userIds) {
+	@SuppressWarnings("rawtypes")
+	private String updateUser(RequestInfo requestInfo, User user) {
 		ObjectMapper mapper = pGRUtils.getObjectMapper();
-		UserSearchRequest searchRequest = UserSearchRequest.builder().id(userIds).tenantId(tenantId)
-				.userType(PGRConstants.ROLE_CITIZEN).requestInfo(requestInfo).build();
-		StringBuilder url = new StringBuilder();
-		url.append(userBasePath).append(userSearchEndPoint);
+		StringBuilder url = new StringBuilder(userBasePath+userUpdateEndpoint); 
+		UserRequest req = UserRequest.builder().user(user).requestInfo(requestInfo).build();
+		String dobFormat="yyyy-MM-dd";
 		try {
-			UserResponse res = mapper.convertValue(serviceRequestRepository.fetchResult(url, searchRequest), UserResponse.class);
+			LinkedHashMap responseMap = (LinkedHashMap) serviceRequestRepository.fetchResult(url, req);
+			parseResponse(responseMap,dobFormat);
+			UserResponses res = mapper.convertValue(responseMap, UserResponses.class);
 			if(CollectionUtils.isEmpty(res.getUser())) {
 				return null;
 			}else {
-				return res;
+				return res.getUser().get(0).getId().toString();
 			}
 		}catch(Exception e) {
 			return null;
 		}
-		
 	}
 	
-
 	/**
 	 * Fetches Users to be populated in the response
 	 * 
 	 * @param requestInfo
-	 * @param tenantId
 	 * @param userIds
 	 * @return
 	 */
-	public UserResponse getUser(RequestInfo requestInfo, String tenantId, String employeeCode) {
+	@SuppressWarnings("rawtypes")
+	public User getUser(RequestInfo requestInfo, String userName, String tenantId) {
 		ObjectMapper mapper = pGRUtils.getObjectMapper();
-		UserSearchRequest searchRequest = UserSearchRequest.builder().tenantId(tenantId).userName(employeeCode)
+		UserSearchRequest searchRequest = UserSearchRequest.builder().userName(userName).tenantId(tenantId)
 				.userType(PGRConstants.ROLE_EMPLOYEE).requestInfo(requestInfo).build();
 		StringBuilder url = new StringBuilder();
 		url.append(userBasePath).append(userSearchEndPoint);
+		String dobFormat="yyyy-MM-dd";
 		try {
-			UserResponse res = mapper.convertValue(serviceRequestRepository.fetchResult(url, searchRequest), UserResponse.class);
+			LinkedHashMap responseMap = (LinkedHashMap) serviceRequestRepository.fetchResult(url, searchRequest);
+			parseResponse(responseMap,dobFormat);
+			UserResponses res = mapper.convertValue(responseMap, UserResponses.class);
 			if(CollectionUtils.isEmpty(res.getUser())) {
 				return null;
 			}else {
-				return res;
+				return res.getUser().get(0);
 			}
 		}catch(Exception e) {
 			return null;
 		}
 	}	
+	
+	/**
+	 * Parses date formats to long for all users in responseMap
+	 * @param responeMap LinkedHashMap got from user api response
+	 * @param dobFormat dob format (required because dob is returned in different format's in search and create response in user service)
+	 */
+	@SuppressWarnings("all")
+	private void parseResponse(LinkedHashMap responeMap,String dobFormat){
+		List<LinkedHashMap> users = (List<LinkedHashMap>)responeMap.get("user");
+		String format1 = "dd-MM-yyyy HH:mm:ss";
+		if(users!=null){
+			users.forEach( map -> {
+						map.put("createdDate",dateTolong((String)map.get("createdDate"),format1));
+						if((String)map.get("lastModifiedDate")!=null)
+							map.put("lastModifiedDate",dateTolong((String)map.get("lastModifiedDate"),format1));
+						if((String)map.get("dob")!=null)
+							map.put("dob",dateTolong((String)map.get("dob"),dobFormat));
+						if((String)map.get("pwdExpiryDate")!=null)
+							map.put("pwdExpiryDate",dateTolong((String)map.get("pwdExpiryDate"),format1));
+					}
+			);
+		}
+	}
+	
+	/**
+	 * Converts date to long
+	 * @param date date to be parsed
+	 * @param format Format of the date
+	 * @return Long value of date
+	 */
+	private Long dateTolong(String date,String format){
+		SimpleDateFormat f = new SimpleDateFormat(format);
+		Date d = null;
+		try {
+			d = f.parse(date);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return  d.getTime();
+	}
 	
 	/**
 	 * returns AutoroutingMapResponse fetched from database/built based on the given
@@ -340,51 +488,5 @@ public class MasterDataService {
 			return AutoroutingMapResponse.builder()
 					.responseInfo(factory.createResponseInfoFromRequestInfo(autoroutingMapRequest.getRequestInfo(), true))
 					.autoroutingMap(autoroutingMapRequest.getAutoroutingMap()).build();
-	}
-	
-	/**
-	 * method to fetch AutoroutingEscalationMap from mdms based on category,sector
-	 * 
-	 * @param requestInfo
-	 * @param tenantId
-	 * @param category
-	 * @param sector
-	 * @return Object
-	 * @author Tonmoy
-	 */
-	public Object fetchAutoroutingEscalationMap(RequestInfo requestInfo, String tenantId, String category, String sector) {
-		StringBuilder uri = new StringBuilder();
-		MdmsCriteriaReq mdmsCriteriaReq = pGRUtils.prepareAutoroutingEscalationMapSearchMdmsRequestByCategoryAndSector(uri, tenantId, category, sector, requestInfo);
-		Object response = null;
-		try {
-			response = serviceRequestRepository.fetchResult(uri, mdmsCriteriaReq);
-		} catch (Exception e) {
-			log.error("Exception while fetching AutoroutingEscalationMap: " + e);
-		}
-		return response;
-
-	}
-	
-	/**
-	 * method to fetch catrgory list from mdms based on employeeode,escalation officer
-	 * 
-	 * @param requestInfo
-	 * @param tenantId
-	 * @param employeCode
-	 * @param escalationOfficer
-	 * @return Object
-	 * @author Tonmoy
-	 */
-	public Object fetchCategoriesFromAutoroutingEscalationMap(RequestInfo requestInfo, String tenantId) {
-		StringBuilder uri = new StringBuilder();
-		MdmsCriteriaReq mdmsCriteriaReq = pGRUtils.prepareCategoryMdmsRequestByEscalationOfficer(uri, tenantId, requestInfo);
-		Object response = null;
-		try {
-			response = serviceRequestRepository.fetchResult(uri, mdmsCriteriaReq);
-		} catch (Exception e) {
-			log.error("Exception while fetching fetchCategoriesFromAutoroutingEscalationMap: " + e);
-		}
-		return response;
-
 	}
 }

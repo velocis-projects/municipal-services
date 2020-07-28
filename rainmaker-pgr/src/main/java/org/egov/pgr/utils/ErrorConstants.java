@@ -102,4 +102,7 @@ public class ErrorConstants {
 	
 	public static final String AUTOROUTING_DATA_EXISTS_CODE = "EG_PGR_AUTOROUTING_DATA_EXISTS_CODE";
 	public static final String AUTOROUTING_DATA_EXISTS_MSG = "Autorouting data already exists for this tenant. You can not insert the data again. Please update data.";
+	
+	public static final String AUTOROUTING_UPDATION_FAILED_CODE = "EG_PGR_AUTOROUTING_UPDATE_FAILED_CODE";
+	public static final String AUTOROUTING_UPDATION_FAILED_MSG = "Autorouting data updation failed.";
 }

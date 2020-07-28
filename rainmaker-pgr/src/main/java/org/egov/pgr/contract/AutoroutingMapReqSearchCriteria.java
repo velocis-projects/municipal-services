@@ -32,7 +32,7 @@ public class AutoroutingMapReqSearchCriteria {
 	@JsonProperty("category")
 	private String category;
 	
-	@JsonProperty("mohalla")
-	private List<String> mohalla;
+	@JsonProperty("sector")
+	private String sector;
 	
 }
