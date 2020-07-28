@@ -1,6 +1,6 @@
 package org.egov.hc.service;
 
-import static org.junit.Assert.*;
+
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -13,16 +13,20 @@ import org.egov.common.contract.request.User;
 import org.egov.common.contract.response.ResponseInfo;
 
 import org.egov.hc.consumer.HCNotificationConsumer;
+import org.egov.hc.contract.Action;
 import org.egov.hc.contract.AuditDetails;
 import org.egov.hc.contract.RequestInfoWrapper;
 import org.egov.hc.contract.ServiceRequest;
-import org.egov.hc.contract.ServiceResponse;
+
 import org.egov.hc.model.ActionInfo;
 import org.egov.hc.model.DeviceSources;
+import org.egov.hc.model.ProcessInstance;
+import org.egov.hc.model.ProcessInstanceRequest;
 import org.egov.hc.model.RequestData;
 import org.egov.hc.model.ServiceRequestData;
+import org.egov.hc.model.State;
 
-import org.egov.hc.producer.HCConfiguration;
+import org.egov.hc.producer.HCConfigurationTest;
 import org.egov.hc.producer.HCProducer;
 
 import org.egov.hc.repository.IdGenRepository;
@@ -30,8 +34,10 @@ import org.egov.hc.repository.ServiceRepository;
 import org.egov.hc.utils.HCConstants;
 import org.egov.hc.utils.HCUtils;
 import org.egov.hc.utils.ResponseInfoFactory;
-import org.egov.hc.workflow.WorkflowIntegrator;
-import org.egov.tracer.model.CustomException;
+import org.egov.hc.workflow.Document;
+
+import org.egov.hc.workflow.WorkflowIntegratortest;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.junit.Assert;
@@ -42,9 +48,9 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -59,7 +65,7 @@ public class ServiceRequestServiceTest {
 	private HCUtils hCUtils;
 	
 	@Mock
-	private WorkflowIntegrator wfIntegrator;
+	private WorkflowIntegratortest wfIntegrator;
 	
 	@Mock
 	private HCProducer hCProducer;
@@ -71,7 +77,7 @@ public class ServiceRequestServiceTest {
 	private ObjectMapper objectMapper;
 	
 	@Mock
-	private HCConfiguration hcConfiguration;
+	private HCConfigurationTest hcConfiguration;
 	
 	@Mock
 	private HCNotificationConsumer notificationConsumer;
@@ -147,11 +153,6 @@ public class ServiceRequestServiceTest {
 				.auditDetails(new  org.egov.hc.contract.AuditDetails())
 				.build();
 		
-		
-						
-	//	RequestInfoWrapper docinfoWrapper = RequestInfoWrapper.builder().requestBody(docServiceRequest).build();
-		
-		
 	    RequestData requestdata = RequestData.builder().service_request_id("CH-HC-2020-06-14-001432_1").serviceType("PRUNING OF TREES GIRTH GREATER THAN 90 CMS").serviceRequestStatus("INITIATED")
                 .requestInfo(RequestInfo.builder().userInfo(User.builder().tenantId("ch").build()).build()).build(); 
 	    
@@ -208,6 +209,7 @@ public class ServiceRequestServiceTest {
 				.requestBody(updateRequest).services(seerviceRequest.getServices()).build();
 
 		hCProducer.push(hcConfiguration.getUpdateTopic(), infowraperforupdate);
+		Assert.assertEquals(HttpStatus.CREATED, infowraperforupdate);
 		
 	}
 	
@@ -220,7 +222,6 @@ public class ServiceRequestServiceTest {
 		
 		sendReminderOverdueSlaNotification(role,serviceRequestId,HCConstants.REMINDER,request.getService_request_date(),tenantId,request.getServiceType(),days);
 
-	
 	}
 	
 	private List<String> sendReminderOverdueSlaNotification(String role,String service_request_id,String action,String serviceRequestDate,String tenantId,String serviceType,int days) 
@@ -251,14 +252,15 @@ public class ServiceRequestServiceTest {
 	
 	private void testWorkflow()throws Exception {
 		
-		String service_request_id = "CH-HC-2020-06-14-001432_1";
+		
 		ServiceRequest request = new ServiceRequest();
 		
 		
 		Mockito.when(objectMapper.convertValue(request, ServiceRequest.class)).thenReturn(request);
 		if (hcConfiguration.getIsExternalWorkFlowEnabled()) {
-			when(wfIntegrator.callWorkFlow(Matchers.any(ServiceRequest.class),Matchers.anyString()));
+			when(wfIntegrator.callWorkFlowTest(Matchers.any(ServiceRequest.class),Matchers.anyString()));
 		}
+		//Assert.assertEquals(HttpStatus.CREATED, request);
 	}
 	
 	@Test
@@ -274,7 +276,7 @@ public class ServiceRequestServiceTest {
 		deviceDetails.put("OperatingSystem", "OperatingSystem");
 		deviceDetails.put("DeviceType", "DeviceType");
 
-		DeviceSources deviceSources = DeviceSources.builder().sourceUuid("dkdkbkdbkd")//.moduleCode(moduleCode)
+		DeviceSources deviceSources = DeviceSources.builder().sourceUuid("dkdkbkdbkd")
 				.deviceDetails(deviceDetails.toJSONString())
 				.deviceType("").tenantId("ch")
 				.moduleType("dkhbd").createdBy(auditDetails.getCreatedBy())
@@ -284,6 +286,55 @@ public class ServiceRequestServiceTest {
 		RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(deviceSources).build();				
 		hCProducer.push(hcConfiguration.getRequestDeviceSource(), infoWrapper);
 
+	}
+	
+	@Test
+	public void testEdit() throws Exception {
+		
+		
+	RequestData requestdata = RequestData.builder().service_request_id("CH-HC-2020-06-14-001432_1").serviceType("PRUNING OF TREES GIRTH GREATER THAN 90 CMS").serviceRequestStatus("INITIATED")
+                .requestInfo(RequestInfo.builder().userInfo(User.builder().tenantId("ch").build()).build()).build(); 
+	    
+		
+		ServiceRequestData data = ServiceRequestData.builder().ownerName("ABCD")
+				.action("INITIATE").service_request_id("CH-HC-2020-06-14-001432_1").serviceType("PRUNING OF TREES GIRTH GREATER THAN 90 CMS").tenantId("ch").build();
+	
+		ProcessInstance process = new ProcessInstance();
+		AuditDetails details = new AuditDetails();
+		User user = new User();
+		List<Action> list = new ArrayList<>();
+		
+		State state = new State();
+		
+		String proccessId = UUID.randomUUID().toString();
+		  state.setUuid("5d89acc5-fcda-46a7-900b-dac4ba5f29d7");
+		  state.setTenantId("ch.chandigarh");
+		
+		
+		  List<Document> wfAddDocumentnew = new ArrayList<>();
+		
+	        process.setId(proccessId);
+			process.setTenantId("ch.chandigarh");
+			process.setBusinessService("PRUNING OF TREES GIRTH GREATER THAN 90 CMS");
+			process.setBusinessId("CH-HC-2020-06-14-001432_1");
+			process.setModuleName(HCConstants.MODULENAMEVALUE);
+			process.setAction("INITIATE");
+			process.setState(state);
+			process.setComment("comment");
+			process.setAssigner(user);
+			process.setDocuments(wfAddDocumentnew);
+			process.setAuditDetails(details);
+	
+		
+		ArrayList <ProcessInstance> ProcessInstanceList = new ArrayList<>();
+		List<ProcessInstance> processInstances = new ArrayList<>();
+		processInstances.add(process);
+		ProcessInstanceList.addAll(processInstances);
+		
+	
+	ProcessInstanceRequest processInstanceRequest=new ProcessInstanceRequest();
+	processInstanceRequest.setProcessInstances(ProcessInstanceList);
+	hCProducer.push(hcConfiguration.getSaveTransitionTopic(),processInstanceRequest);
 	}
 	
 
