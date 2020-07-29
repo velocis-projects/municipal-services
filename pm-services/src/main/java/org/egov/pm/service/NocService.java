@@ -258,8 +258,8 @@ public class NocService {
 				if (role.getCode() != null && role.getCode().isEmpty()) {
 					return "Invalid Role";
 				}
-				if (jsonValidator.get(role.getCode()) != null) {
-					jsonValidator = (JSONObject) jsonValidator.get(role.getCode());
+				if (jsonValidator.get(role.getCode()+"-"+requestData.getCurrentState()) != null) {
+					jsonValidator = (JSONObject) jsonValidator.get(role.getCode()+"-"+requestData.getCurrentState());
 					roleFlag=true;
 				}
 			}
