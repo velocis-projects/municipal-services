@@ -28,6 +28,7 @@ import org.egov.ec.repository.ViolationRepository;
 import org.egov.ec.web.models.Auction;
 import org.egov.ec.web.models.AuditDetails;
 import org.egov.ec.web.models.EcSearchCriteria;
+import org.egov.ec.web.models.EmailAttachment;
 import org.egov.ec.web.models.FileStore;
 import org.egov.ec.web.models.NotificationTemplate;
 import org.egov.ec.web.models.Report;
@@ -266,7 +267,7 @@ public class EcSchedulerService {
 					.build(), HttpStatus.OK);
 
 		} catch (Exception e) {
-			log.error("EcScheduler Service - Auction Reminder Exception" + e.getMessage());
+			log.error("EcScheduler Service - Auction Reminder Exception" + e);
 
 			return new ResponseEntity<>(ResponseInfoWrapper.builder()
 					.responseInfo(ResponseInfo.builder().status(EcConstants.STATUS_FAILED).build())
@@ -287,7 +288,7 @@ public class EcSchedulerService {
 	private void sendMail(FileStore urlResponse, EcSearchCriteria ecSearchCriteria, RequestInfoWrapper req) {
 		String subject = "";
 		String body = "";
-
+System.out.println(urlResponse);
 		User user = new User();
 	//	RequestInfo req = new RequestInfo();
 
@@ -298,7 +299,6 @@ public class EcSchedulerService {
 				RequestInfoWrapper.builder().requestInfo(req.getRequestInfo()).build(), JsonNode.class);
 		String json = userResponse.toString();
 		JSONObject obj = new JSONObject(json);
-
 		JSONArray arr = obj.getJSONArray("Employees");
 		List<String> emailList = new ArrayList<String>();
 		for (int i = 0; i < arr.length(); i++) {
@@ -315,7 +315,6 @@ public class EcSchedulerService {
 
 		ModuleDetail detail = new ModuleDetail();
 		detail.setModuleName("egec");
-
 		MasterDetail masterDetail = new MasterDetail();
 		masterDetail.setName("AuctionNotificationTemplate");
 		//masterDetail.setFilter(filter);
@@ -328,9 +327,6 @@ public class EcSchedulerService {
 
 		criteria.setModuleDetails(moduleList);
 		mdmsCriteriaReq.setMdmsCriteria(criteria);
-		UriComponentsBuilder mdmsUrlBuilder = UriComponentsBuilder
-				.fromUriString(config.getMdmsHost() + config.getMdmsEndPoint()).queryParam("moduleName", "egec")
-				.queryParam("tenantId", "ch").queryParam("masterName", EcConstants.MDM_TEMPLATE_AUCTION_NOTIFICATION);
 
 		Object response = restTemplate.postForObject((config.getMdmsHost() + config.getMdmsEndPoint()), mdmsCriteriaReq, Object.class);
 
@@ -349,7 +345,7 @@ public class EcSchedulerService {
 
 		for (Map.Entry<String, String> entry : map.entrySet()) {
 			if (entry.getKey().equalsIgnoreCase("subject")) {
-				subject = subject.replace(null, entry.getValue());
+				subject = entry.getValue();
 			}
 			if (entry.getKey().equalsIgnoreCase("body")) {
 				body = entry.getValue();
@@ -358,14 +354,21 @@ public class EcSchedulerService {
 		}
 
 		NotificationTemplate email = new NotificationTemplate();
-		List<String> attachment = new ArrayList<String>();
-		attachment.add(urlResponse.getFileStoreIds().get(0).getUrl());
-		email.setAttachmentUrls(attachment);
-
+		
+	//	email.setAttachmentUrls(attachment);
+		
+		
+		EmailAttachment emailattachment =  new EmailAttachment();
+		emailattachment.setName("AuctionReminderReport.xlsx");
+		emailattachment.setUrl(urlResponse.getFileStoreIds().get(0).getUrl());;
+		emailattachment.setMimeType("application/octet-stream");
+		List<EmailAttachment> attachment = new ArrayList<EmailAttachment>();
+		
+		attachment.add(emailattachment);
 		email.setIsHTML(true);
 		email.setBody(body);
 		email.setSubject(subject);
-
+		email.setAttachments(attachment);
 		emailList.stream().forEach((c) -> {
 			email.setEmail(c);
 			producer.push(config.getEmailNotificationTopic(), email);

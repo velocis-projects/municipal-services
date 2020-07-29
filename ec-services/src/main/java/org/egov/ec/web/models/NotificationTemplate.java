@@ -28,8 +28,8 @@ public class NotificationTemplate {
 	@JsonProperty("body")
 	private String body;
 	
-	@JsonProperty("attachmentUrls")
-	private List<String> attachmentUrls;
+	@JsonProperty("attachments")
+	private List<EmailAttachment> attachments;
 	
 	@JsonProperty("mobileNumber")
 	private Long mobileNumber;
