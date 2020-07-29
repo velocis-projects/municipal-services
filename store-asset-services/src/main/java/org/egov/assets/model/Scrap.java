@@ -155,9 +155,6 @@ public class Scrap   {
    * @return scrapNumber
   **/
   
-  @NotNull
-
-
   public String getScrapNumber() {
     return scrapNumber;
   }
@@ -315,7 +312,6 @@ public class Scrap   {
    * @return auditDetails
   **/
     @Valid
-
   public AuditDetails getAuditDetails() {
     return auditDetails;
   }

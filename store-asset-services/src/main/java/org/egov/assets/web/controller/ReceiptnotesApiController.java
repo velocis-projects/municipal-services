@@ -69,14 +69,14 @@ public class ReceiptnotesApiController {
 	public ResponseEntity<MaterialBalanceRateResponse> balanceAndRateSearchPost(
 			@Valid @RequestBody org.egov.common.contract.request.RequestInfo requestInfo,
 			@NotNull @RequestParam(value = "tenantId", required = true) String tenantId,
-			@Size(max = 100) @RequestParam(value = "material", required = true) List<String> materials,
+			@Size(max = 100) @RequestParam(value = "material", required = false) List<String> materials,
 			@RequestParam(value = "issueingStore", required = true) String issueingStore) {
 		MaterialReceiptSearch materialReceiptSearch = MaterialReceiptSearch.builder().tenantId(tenantId)
 				.materials(materials).issueingStore(issueingStore).build();
 		MaterialBalanceRateResponse materialBalanceRateResponse = receiptNoteService
 				.searchBalanceAndRate(materialReceiptSearch);
 		return new ResponseEntity<>(materialBalanceRateResponse, HttpStatus.OK);
-	}
+	} 
 
 	@PostMapping(value = "/_update", produces = { "application/json" }, consumes = { "application/json" })
 	public ResponseEntity<MaterialReceiptResponse> receiptnotesUpdatePost(

@@ -55,7 +55,7 @@ public class TransferinwardsApiController {
 				.mrnNumber(mrnNumber).receiptDate(receiptDate).issueNumber(issueNumber).mrnStatus(status)
 				.pageNumber(pageNumber).pageSize(pageSize).build();
 		TransferInwardResponse response = transferinwardsService.search(materialReceiptSearch, tenantId);
-		return new ResponseEntity<TransferInwardResponse>(response, HttpStatus.OK);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@PostMapping(value = "/_update", produces = { "application/json" }, consumes = { "application/json" })

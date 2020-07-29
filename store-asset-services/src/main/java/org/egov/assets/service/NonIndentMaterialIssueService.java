@@ -272,6 +272,7 @@ public class NonIndentMaterialIssueService extends DomainService {
 							fifo.setMaterial(materialIssueDetail.getMaterial());
 							fifo.setIssueDate(materialIssue.getIssueDate());
 							fifo.setTenantId(materialIssue.getTenantId());
+							fifo.setMrnNumber(materialIssueDetail.getMrnNumber());
 							fifoRequest.setFifo(fifo);
 							FifoResponse fifoResponse = materialIssueReceiptFifoLogic
 									.getTotalStockAsPerMaterial(fifoRequest);

@@ -42,6 +42,9 @@ public class ScrapDetail {
 	@JsonProperty("expiryDate")
 	private Integer expiryDate = null;
 
+	@JsonProperty("auditDetails")
+	private AuditDetails auditDetails = null;
+
 	/**
 	 * scrap reason of the ScrapDetail
 	 */
@@ -144,6 +147,25 @@ public class ScrapDetail {
 	public ScrapDetail scrapNumber(String scrapNumber) {
 		this.scrapNumber = scrapNumber;
 		return this;
+	}
+
+	public ScrapDetail auditDetails(AuditDetails auditDetails) {
+		this.auditDetails = auditDetails;
+		return this;
+	}
+
+	/**
+	 * Get auditDetails
+	 * 
+	 * @return auditDetails
+	 **/
+	@Valid
+	public AuditDetails getAuditDetails() {
+		return auditDetails;
+	}
+
+	public void setAuditDetails(AuditDetails auditDetails) {
+		this.auditDetails = auditDetails;
 	}
 
 	/**
