@@ -18,6 +18,7 @@ import org.egov.tlcalculator.config.TLCalculatorConfigs;
 import org.egov.tlcalculator.kafka.broker.TLCalculatorProducer;
 import org.egov.tlcalculator.repository.CTLBillingslabRepository;
 import org.egov.tlcalculator.repository.builder.CTLBillingslabQueryBuilder;
+import org.egov.tlcalculator.utils.CTLConstants;
 import org.egov.tlcalculator.utils.CalculationUtils;
 import org.egov.tlcalculator.utils.TLCalculatorConstants;
 import org.egov.tlcalculator.web.models.CTLBillingSlab;
@@ -135,6 +136,19 @@ public class CTLCalculationService {
 
       estimates.addAll(estimatesAndSlabs.getEstimates());
       
+      try {
+		  CTLBillingSlab billingSlab = this.getBillingSlabForCategory(tradeLicense, Category.CHARGES.toString(), null, null);
+		  TaxHeadEstimate estimate = new TaxHeadEstimate();
+  	      estimate.setEstimateAmount(billingSlab.getRate());
+  	      estimate.setCategory(Category.PENALTY);
+  	      estimate.setTaxHeadCode(getTaxHeadCode(tradeLicense.getBusinessService(), Category.CHARGES));
+  	      if (estimate.getEstimateAmount().compareTo(new BigDecimal(0)) > 0) {
+  	    	  estimates.add(estimate);	    	  
+  	      }
+	  } catch (CustomException customBillingSlabException) {
+		  log.error("Ignoring the error", customBillingSlabException);
+	  }
+      
 	  if(tradeLicense.getApplicationType() == TradeLicense.ApplicationTypeEnum.RENEW) {
 		  Long now = System.currentTimeMillis();
 		  JsonNode oldLicenseValidTo = tradeLicense.getTradeLicenseDetail().getAdditionalDetail().get("oldLicenseValidTo");
@@ -155,6 +169,20 @@ public class CTLCalculationService {
 			  		  log.error("Ignoring the error", customBillingSlabException);
 			  	  }
 			}
+	  }
+	  else{
+		  if(tradeLicense.getBusinessService()!=null){
+			  switch(tradeLicense.getBusinessService()){
+				  case CTLConstants.businessService_REHRI_RC:
+				  case CTLConstants.businessService_REHRI_DL:
+					  TaxHeadEstimate estimate = new TaxHeadEstimate();
+					  estimate.setEstimateAmount(BigDecimal.ZERO);
+					  estimate.setCategory(Category.PENALTY);
+			  	      estimate.setTaxHeadCode(getTaxHeadCode(tradeLicense.getBusinessService(), Category.PENALTY));
+			  	      estimates.add(estimate);
+			  	      break;
+				  }
+		  }
 	  }
   
 	  try {
@@ -273,7 +301,7 @@ private EstimatesAndSlabs getBaseFee(CalulationCriteria calulationCriteria, Requ
     		  CTLBillingSlab billingSlab = this.getBillingSlabForCategory(license, Category.FEE.toString(), tradeUnit.getUom(), tradeUnit.getUomValue());
     		  billingSlabIds.add(billingSlab.getId()+"|"+i+"|"+tradeUnit.getId());
 			  tradeUnitFees.add(billingSlab.getRate());
-			  tradeUnitTotalFee = tradeUnitTotalFee.add(billingSlab.getRate()); 		      		  
+			  tradeUnitTotalFee = tradeUnitTotalFee.add(billingSlab.getRate());
     		  i++;
     	  }
       }
