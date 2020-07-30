@@ -1,6 +1,10 @@
 package org.egov.pm.repository.querybuilder;
 
+import java.util.List;
+
 import org.egov.pm.config.ApplicationProperties;
+import org.egov.pm.model.RequestData;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -269,6 +273,71 @@ public class QueryBuilder {
 	public static String getApplicationQuery() {
 		StringBuilder petsQuery = new StringBuilder(SELECT_APPLICATION_QUERY);
 		return petsQuery.toString();
+	}
+
+	private static final String BASE_QUERY = "select noc_number \"applicationId\",applicant_name \"applicantName\",application_status \"applicationStatus\" from egpm_noc_application_detail ED inner join egpm_noc_application EA on ED.application_uuid=EA.application_uuid ";
+
+	public static String getSearchQuery(RequestData criteria, List<Object> preparedStmtList) {
+		StringBuilder builder = new StringBuilder(BASE_QUERY);
+		JSONObject dataPayload = criteria.getDataPayload();
+		// service type
+		if (criteria.getApplicationType() != null) {
+			addClauseIfRequired(preparedStmtList, builder);
+			builder.append(" EA.application_type=?");
+			preparedStmtList.add(criteria.getApplicationType());
+		}
+
+		// service request id
+		if (dataPayload.get("applicationId") != null) {
+
+			addClauseIfRequired(preparedStmtList, builder);
+			builder.append(" EA.noc_number like ?");
+			preparedStmtList.add("%" + dataPayload.get("applicationId").toString().trim() + "%");
+		}
+
+		// service request status
+		if (dataPayload.get("applicationStatus") != null) {
+
+			addClauseIfRequired(preparedStmtList, builder);
+			builder.append(" EA.application_status   = ?");
+			preparedStmtList.add(dataPayload.get("applicationStatus").toString());
+		}
+
+		// from date
+
+		if (dataPayload.get("fromDate") != null) {
+			addClauseIfRequired(preparedStmtList, builder);
+			builder.append(" EA.created_time >= ? ");
+			preparedStmtList.add(Long.parseLong(dataPayload.get("fromDate").toString()));
+		}
+
+		// to date
+		if (dataPayload.get("toDate") != null) {
+			addClauseIfRequired(preparedStmtList, builder);
+			builder.append(" EA.created_time <= ? ");
+			preparedStmtList.add(Long.parseLong(dataPayload.get("toDate").toString()));
+
+		}
+
+		builder.append(
+				" AND ED.is_active=TRUE AND EA.is_active=TRUE AND EA.application_status!='DRAFT' ORDER BY EA.created_time desc");
+		System.out.println(builder.toString());
+		return builder.toString();
+	}
+
+	// private String addPaginationWrapper(String query, List<Object>
+	// preparedStmtList, RequestData criteria) {
+	//
+	// String finalQuery = paginationWrapper.replace("{}", query);
+	// return finalQuery;
+	// }
+
+	private static void addClauseIfRequired(List<Object> values, StringBuilder queryString) {
+		if (values.isEmpty())
+			queryString.append(" WHERE ");
+		else {
+			queryString.append(" AND");
+		}
 	}
 
 }
