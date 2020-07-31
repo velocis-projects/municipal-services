@@ -37,7 +37,7 @@ public class ScrapJdbcRepository extends JdbcRepository{
 	            if (params.length() > 0)
 	                params.append(" and ");
 	            params.append("id in (:ids)");
-	            paramValues.put("id", scrapSearch.getIds());
+	            paramValues.put("ids", scrapSearch.getIds());
 	        }
 
 	        if (scrapSearch.getScrapNumber() != null) {
@@ -50,7 +50,7 @@ public class ScrapJdbcRepository extends JdbcRepository{
 	        if (scrapSearch.getScrapStatus() != null) {
 	            if (params.length() > 0)
 	                params.append(" and ");
-	            params.append("scrapStatus = :scrapStatus");
+	            params.append("status = :scrapStatus");
 	            paramValues.put("scrapStatus", scrapSearch.getScrapStatus());
 	        }
 	        

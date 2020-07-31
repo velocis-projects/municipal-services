@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,6 +38,7 @@ import org.egov.assets.model.MaterialIssueResponse;
 import org.egov.assets.model.MaterialIssueSearchContract;
 import org.egov.assets.model.MaterialIssuedFromReceipt;
 import org.egov.assets.model.MaterialReceiptDetail;
+import org.egov.assets.model.MaterialReceiptDetailSearch;
 import org.egov.assets.model.Store;
 import org.egov.assets.model.StoreGetRequest;
 import org.egov.assets.model.Uom;
@@ -76,6 +78,9 @@ public class MaterialIssueService extends DomainService {
 
 	@Autowired
 	private MdmsRepository mdmsRepository;
+
+	@Autowired
+	private MaterialReceiptDetailService materialReceiptDetailService;
 
 	@Autowired
 	private StoreService storeService;
@@ -851,6 +856,13 @@ public class MaterialIssueService extends DomainService {
 								BigDecimal quantity = getSearchConvertedQuantity(mifr.getQuantity(),
 										uoms.get(materialIssueDetail.getUom().getCode()).getConversionFactor());
 								mifr.setQuantity(quantity);
+
+								List<MaterialReceiptDetail> materialReceiptDetail = getMaterialReceiptDetail(
+										mifr.getMaterialReceiptDetail().getId(), materialIssueDetail.getTenantId());
+
+								mifr.setMaterialReceiptDetail(
+										materialReceiptDetail.isEmpty() ? mifr.getMaterialReceiptDetail()
+												: materialReceiptDetail.get(0));
 							}
 						}
 						materialIssueDetail.setMaterialIssuedFromReceipts(materialIssuedFromReceipts.getPagedData());
@@ -861,6 +873,15 @@ public class MaterialIssueService extends DomainService {
 		MaterialIssueResponse materialIssueResponse = new MaterialIssueResponse();
 		materialIssueResponse.setMaterialIssues(materialIssues.getPagedData());
 		return materialIssueResponse;
+	}
+
+	private List<MaterialReceiptDetail> getMaterialReceiptDetail(String ids, String tenantId) {
+		MaterialReceiptDetailSearch materialReceiptDetailSearch = MaterialReceiptDetailSearch.builder()
+				.ids(Arrays.asList(ids)).tenantId(tenantId).build();
+		Pagination<MaterialReceiptDetail> materialReceiptDetails = materialReceiptDetailService
+				.search(materialReceiptDetailSearch);
+		return materialReceiptDetails.getPagedData().size() > 0 ? materialReceiptDetails.getPagedData()
+				: Collections.EMPTY_LIST;
 	}
 
 	public MaterialIssueResponse prepareMIFromIndents(MaterialIssueRequest materialIssueRequest, String tenantId) {
