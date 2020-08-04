@@ -705,6 +705,7 @@ public class EnrichmentService {
             if (license.getStatus() != null 
             		&& !TLConstants.STATUS_APPROVED.equalsIgnoreCase(license.getStatus())
             		&& !TLConstants.STATUS_INITIATED.equalsIgnoreCase(license.getStatus())
+            		&& !CTLConstants.STATUS_PENDINGCLARIFICATION.equalsIgnoreCase(license.getStatus())
             		) {
             	return;
             }

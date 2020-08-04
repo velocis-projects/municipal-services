@@ -12,4 +12,5 @@ public class CTLConstants {
 	
 	 public static final String CTL_NOTIFICATION_PAYMENT_PAYER = "ctl.en.counter.payment.successful.payer";
 	 public static final String CTL_NOTIFICATION_PAYMENT_OWNER = "ctl.en.counter.payment.successful.owner";
+	 public static final String STATUS_PENDINGCLARIFICATION = "PENDINGCLARIFICATION";
 }
