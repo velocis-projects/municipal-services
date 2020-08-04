@@ -1,5 +1,6 @@
 package org.egov.assets.web.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -33,8 +34,7 @@ public class TransferinwardsApiController {
 	public ResponseEntity<TransferInwardResponse> transferinwardsCreatePost(
 			@NotNull @RequestParam(value = "tenantId", required = true) String tenantId,
 			@Valid @RequestBody TransferInwardRequest transferInwardRequest) {
-		return new ResponseEntity<>(
-				transferinwardsService.create(transferInwardRequest, tenantId), HttpStatus.OK);
+		return new ResponseEntity<>(transferinwardsService.create(transferInwardRequest, tenantId), HttpStatus.OK);
 	}
 
 	@PostMapping(value = "/_search", produces = { "application/json" }, consumes = { "application/json" })
@@ -42,6 +42,7 @@ public class TransferinwardsApiController {
 			@NotNull @RequestParam(value = "tenantId", required = true) String tenantId,
 			@Valid @RequestBody org.egov.common.contract.request.RequestInfo requestInfo,
 			@Size(max = 50) @RequestParam(value = "ids", required = false) List<String> ids,
+			@Size(max = 3) @RequestParam(value = "receiptType", required = false) List<String> receiptType,
 			@RequestParam(value = "receiptDate", required = false) Long receiptDate,
 			@RequestParam(value = "issueNumber", required = false) List<String> issueNumber,
 			@RequestParam(value = "description", required = false) String description,
@@ -51,9 +52,9 @@ public class TransferinwardsApiController {
 			@Min(0) @Max(100) @RequestParam(value = "pageSize", required = false, defaultValue = "20") Integer pageSize,
 			@RequestParam(value = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
 			@RequestParam(value = "sortBy", required = false, defaultValue = "id") String sortBy) {
-		MaterialReceiptSearch materialReceiptSearch = MaterialReceiptSearch.builder().tenantId(tenantId)
-				.mrnNumber(mrnNumber).receiptDate(receiptDate).issueNumber(issueNumber).mrnStatus(status)
-				.pageNumber(pageNumber).pageSize(pageSize).build();
+		MaterialReceiptSearch materialReceiptSearch = MaterialReceiptSearch.builder().tenantId(tenantId).ids(ids)
+				.receiptType(receiptType).mrnNumber(mrnNumber).receiptDate(receiptDate).issueNumber(issueNumber)
+				.mrnStatus(status).pageNumber(pageNumber).pageSize(pageSize).build();
 		TransferInwardResponse response = transferinwardsService.search(materialReceiptSearch, tenantId);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
