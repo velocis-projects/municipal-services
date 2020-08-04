@@ -348,7 +348,7 @@ public class ScrapService extends DomainService {
 			int res = convertedUserQuantity.compareTo(issueDetail.getQuantityIssued());
 			if (res == 1) {
 				errors.addDataError(ErrorCode.QTY1_LE_QTY2.getCode(), "Scrap Quantity ", "Issued Quantity ", null);
-
+  
 			}
 		}
 

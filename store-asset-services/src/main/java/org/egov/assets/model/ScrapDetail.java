@@ -100,7 +100,7 @@ public class ScrapDetail {
 	private BigDecimal userQuantity = null;
 
 	@JsonProperty("disposalQuantity")
-	private BigDecimal disposalQuantity = null;
+	private BigDecimal disposalQuantity = BigDecimal.ZERO;
 
 	@JsonProperty("existingValue")
 	private BigDecimal existingValue = null;
