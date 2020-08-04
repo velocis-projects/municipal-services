@@ -169,6 +169,13 @@ public class CTLCalculationService {
 			  		  log.error("Ignoring the error", customBillingSlabException);
 			  	  }
 			}
+			else if((oldLicenseValidTo != null) && (oldLicenseValidTo.asLong() > now)){
+				 TaxHeadEstimate estimate = new TaxHeadEstimate();
+				  estimate.setEstimateAmount(BigDecimal.ZERO);
+				  estimate.setCategory(Category.PENALTY);
+		  	      estimate.setTaxHeadCode(getTaxHeadCode(tradeLicense.getBusinessService(), Category.PENALTY));
+		  	      estimates.add(estimate);
+			}
 	  }
 	  else{
 		  if(tradeLicense.getBusinessService()!=null){
