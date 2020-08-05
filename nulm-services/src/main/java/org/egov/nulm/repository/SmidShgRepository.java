@@ -95,7 +95,7 @@ public class SmidShgRepository {
 				new Object[] { shg.getShgUuid(),shg.getTenantId()},
 				Integer.class);
 
-		if(i<=10)
+		if(i<10)
 		{
 			errorMap.put(CommonConstants.INVALID_SHG_REQUEST,CommonConstants.INVALID_SHG_REQUEST_MESSAGE);
 			throw new CustomException(errorMap);
