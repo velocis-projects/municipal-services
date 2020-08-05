@@ -2,18 +2,19 @@
 package org.egov.nulm.service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.egov.common.contract.request.Role;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.nulm.common.CommonConstants;
 import org.egov.nulm.config.NULMConfiguration;
 import org.egov.nulm.idgen.model.IdGenerationResponse;
-import org.egov.nulm.model.NULMSMIDRequest;
+import org.egov.nulm.model.NulmSmidRequest;
 import org.egov.nulm.model.ResponseInfoWrapper;
-import org.egov.nulm.model.SEPApplication;
-import org.egov.nulm.model.SMIDApplication;
-import org.egov.nulm.repository.SMIDRepository;
+import org.egov.nulm.model.SmidApplication;
+import org.egov.nulm.repository.SmidRepository;
 import org.egov.nulm.util.AuditDetailsUtil;
 import org.egov.nulm.util.IdGenRepository;
 import org.egov.tracer.model.CustomException;
@@ -26,20 +27,20 @@ import org.springframework.util.CollectionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-public class SMIDService {
+public class SmidService {
 
 	private final ObjectMapper objectMapper;
 
 	private NULMConfiguration config;
 
-	private SMIDRepository repository;
+	private SmidRepository repository;
 
 	private IdGenRepository idgenrepository;
 	
 	private AuditDetailsUtil auditDetailsUtil;
 	
 	@Autowired
-	public SMIDService(SMIDRepository repository, ObjectMapper objectMapper, IdGenRepository idgenrepository,
+	public SmidService(SmidRepository repository, ObjectMapper objectMapper, IdGenRepository idgenrepository,
 			NULMConfiguration config,AuditDetailsUtil auditDetailsUtil) {
 		this.objectMapper = objectMapper;
 		this.repository = repository;
@@ -49,13 +50,13 @@ public class SMIDService {
 
 	}
 
-	public ResponseEntity<ResponseInfoWrapper> createSMIDApplication(NULMSMIDRequest smidrequest) {
+	public ResponseEntity<ResponseInfoWrapper> createSMIDApplication(NulmSmidRequest smidrequest) {
 		try {
-			SMIDApplication smidapplication = objectMapper.convertValue(smidrequest.getNulmSmidRequest(),
-					SMIDApplication.class);
+			SmidApplication smidapplication = objectMapper.convertValue(smidrequest.getNulmSmidRequest(),
+					SmidApplication.class);
 		   checkValidation(smidapplication);
-			String sepid = UUID.randomUUID().toString();
-			smidapplication.setApplicationUuid(sepid);
+			String smidid = UUID.randomUUID().toString();
+			smidapplication.setApplicationUuid(smidid);
 			smidapplication.setIsActive(true);
 			smidapplication.setAuditDetails(auditDetailsUtil.getAuditDetails(smidrequest.getRequestInfo(), CommonConstants.ACTION_CREATE));
 		   // idgen service call to genrate event id
@@ -76,8 +77,71 @@ public class SMIDService {
 			throw new CustomException(CommonConstants.SMID_APPLICATION_EXCEPTION_CODE, e.getMessage());
 		}
 	}
+	
+	public ResponseEntity<ResponseInfoWrapper> updateSMIDApplication(NulmSmidRequest smidrequest) {
+		try {
+			SmidApplication smidapplication = objectMapper.convertValue(smidrequest.getNulmSmidRequest(),
+					SmidApplication.class);
+			checkValidation(smidapplication);
+			smidapplication.setIsActive(true);
+			smidapplication.setAuditDetails(auditDetailsUtil.getAuditDetails(smidrequest.getRequestInfo(), CommonConstants.ACTION_UPDATE));
+		 	repository.updateSMIDApplication(smidapplication);
 
-	private void checkValidation(SMIDApplication smidapplication) {
+			return new ResponseEntity<>(ResponseInfoWrapper.builder()
+					.responseInfo(ResponseInfo.builder().status(CommonConstants.SUCCESS).build())
+					.responseBody(smidapplication).build(), HttpStatus.OK);
+
+		} catch (Exception e) {
+			throw new CustomException(CommonConstants.SMID_APPLICATION_EXCEPTION_CODE, e.getMessage());
+		}
+	}
+	public ResponseEntity<ResponseInfoWrapper> updateSMIDApplicationStatus(NulmSmidRequest seprequest) {
+		try {
+			SmidApplication smidapplication = objectMapper.convertValue(seprequest.getNulmSmidRequest(),
+					SmidApplication.class);
+			
+		 if(smidapplication.getApplicationStatus() != null  && smidapplication.getApplicationStatus().toString().equalsIgnoreCase(config.getApproved()))
+		 {
+			 smidapplication.setApplicationStatus(SmidApplication.StatusEnum.fromValue(smidapplication.getApplicationStatus().toString()));
+			 smidapplication.setNulmApplicationId(UUID.randomUUID().toString());
+			 smidapplication.setIsActive(true);
+			 smidapplication.setAuditDetails(auditDetailsUtil.getAuditDetails(seprequest.getRequestInfo(), CommonConstants.ACTION_UPDATE));
+		 }
+		 else if(smidapplication.getApplicationStatus() != null  && smidapplication.getApplicationStatus().toString().equalsIgnoreCase(config.getRejected()))
+			 
+		 {
+			 smidapplication.setApplicationStatus(SmidApplication.StatusEnum.fromValue(smidapplication.getApplicationStatus().toString()));
+			 smidapplication.setIsActive(true);
+			 smidapplication.setAuditDetails(auditDetailsUtil.getAuditDetails(seprequest.getRequestInfo(), CommonConstants.ACTION_UPDATE));
+			
+		 }
+		 repository.updateSMIDApplicationStatus(smidapplication);
+		 return new ResponseEntity<>(ResponseInfoWrapper.builder()
+					.responseInfo(ResponseInfo.builder().status(CommonConstants.SUCCESS).build())
+					.responseBody(smidapplication).build(), HttpStatus.OK);
+
+		} catch (Exception e) {
+			throw new CustomException(CommonConstants.SMID_APPLICATION_STATUS_EXCEPTION_CODE, e.getMessage());
+		}
+	}
+
+	public ResponseEntity<ResponseInfoWrapper> getSMIDApplication(NulmSmidRequest smidrequest) {
+		try {
+
+			SmidApplication SmidApplication = objectMapper.convertValue(smidrequest.getNulmSmidRequest(),
+					SmidApplication.class);
+			List<Role> role=smidrequest.getRequestInfo().getUserInfo().getRoles();
+			List<SmidApplication> SmidApplicationresult = repository.getSMIDApplication(SmidApplication,role,smidrequest.getRequestInfo().getUserInfo().getId());
+			return new ResponseEntity<>(ResponseInfoWrapper.builder()
+					.responseInfo(ResponseInfo.builder().status(CommonConstants.SUCCESS).build())
+					.responseBody(SmidApplicationresult).build(), HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new CustomException(CommonConstants.SMID_APPLICATION_EXCEPTION_CODE, e.getMessage());
+		}
+	}
+	
+	private void checkValidation(SmidApplication smidapplication) {
 		Map<String, String> errorMap = new HashMap<>();
 		if (smidapplication != null) {
 			if (smidapplication.getIsMinority() == true
@@ -96,8 +160,8 @@ public class SMIDService {
 						CommonConstants.APPLICATION_INSURANCE_NULL_CODE_MESSAGE);
 			}
 		} else {
-			errorMap.put(CommonConstants.MISSING_OR_INVALID_SEP_APPLICATION_OBJECT,
-					CommonConstants.MISSING_OR_INVALID_SEP_APPLICATION_MESSAGE);
+			errorMap.put(CommonConstants.MISSING_OR_INVALID_SMID_APPLICATION_OBJECT,
+					CommonConstants.MISSING_OR_INVALID_SMID_APPLICATION_MESSAGE);
 		}
 
 		if (!CollectionUtils.isEmpty(errorMap.keySet())) {

@@ -17,14 +17,14 @@ import lombok.ToString;
 @NoArgsConstructor
 @Builder
 @ToString
-public class NULMSMIDRequest {
+public class NulmSmidRequest {
 
 	@JsonProperty("RequestInfo")
 	private RequestInfo requestInfo;
 
 	@Valid
-	@JsonProperty("NULMSMIDRequest")
-	private SMIDApplication nulmSmidRequest;
+	@JsonProperty("NulmSmidRequest")
+	private SmidApplication nulmSmidRequest;
 
 	@JsonProperty("AuditDetails")
 	AuditDetails auditDetails;

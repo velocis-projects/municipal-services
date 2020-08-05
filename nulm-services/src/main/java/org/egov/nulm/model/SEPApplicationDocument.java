@@ -19,7 +19,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class SEPApplicationDocument {
+public class SepApplicationDocument {
 	
 	private String documnetUuid ;
 	private String filestoreId ;
