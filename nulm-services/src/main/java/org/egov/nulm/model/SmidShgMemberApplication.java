@@ -23,22 +23,27 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 
-public class SmidApplication {
-	
+public class SmidShgMemberApplication {
 	private String applicationUuid ;
 	
 	private String applicationId ;
 	
+	
+	@JsonProperty("shgUuid")
+	private String shgUuid ;
+	
 	private String nulmApplicationId ;
 	
-	@NotNull
+	
 	@JsonProperty("applicationStatus")
 	private StatusEnum applicationStatus ;
 
 	public enum StatusEnum {
-	    DRAFTED("DRAFTED"),
 	    CREATED("CREATED"),
 	    APPROVED("APPROVED"),
+	    AWAITINGFORAPPROVAL("AWAITINGFORAPPROVAL"),
+	    UPDATED("UPDATED"),
+	    DELETED("DELETED"),
 		REJECTED("REJECTED");
 
 	    private String value;
@@ -70,29 +75,30 @@ public class SmidApplication {
 	@JsonProperty("name")
 	private String name ;
 	
-	@JsonProperty("isUrbanPoor")
-	private Boolean isUrbanPoor ;
 	
-	@JsonProperty("bplNo")
-	private String bplNo ;	
-	
-	@JsonProperty("caste")
-	private String caste ;
-	
-	@JsonProperty("isPwd")
-	private Boolean isPwd ;
-	
-	@JsonProperty("fatherOrHusbandName")
-	private String fatherOrHusbandName ;
-	
-	@JsonProperty("qualification")
-	private String qualification ;	 
+	@JsonProperty("positionLevel")
+	private String positionLevel ;
+		
+	@JsonProperty("gender")
+	private String gender ;
 	
 	@JsonProperty("dob")
 	private String dob ;
 	
-	@JsonProperty("emailId")
-	private String emailId ;
+	@JsonProperty("dateOfOpeningAccount")
+	private String dateOfOpeningAccount ;
+	
+	@JsonProperty("adharNo")
+	private String adharNo ;
+	
+	@JsonProperty("fatherOrHusbandName")
+	private String fatherOrHusbandName ;
+	
+	@JsonProperty("motherName")
+	private String motherName ;
+	
+	@JsonProperty("address")
+	private String address ;
 	
 	@JsonProperty("mobileNo")
 	private String mobileNo ;
@@ -100,17 +106,33 @@ public class SmidApplication {
 	@JsonProperty("phoneNo")
 	private String phoneNo ;
 
-	@JsonProperty("motherName")
-	private String motherName ;
+	@JsonProperty("emailId")
+	private String emailId ;
 	
-	@JsonProperty("address")
-	private String address ;
-	
-	@JsonProperty("gender")
-	private String gender ;
+	@JsonProperty("isUrbanPoor")
+	private Boolean isUrbanPoor ;
 	
 	@JsonProperty("isMinority")
 	private Boolean isMinority ;
+	
+	@JsonProperty("isPwd")
+	private Boolean isPwd ;
+	
+	@JsonProperty("isStreetVendor")
+	private Boolean isStreetVendor ;
+	
+	@JsonProperty("isInsurance")
+	private Boolean isInsurance ;
+	
+	@JsonProperty("isHomeless")
+	private Boolean isHomeless ;
+	
+	
+	@JsonProperty("bplNo")
+	private String bplNo ;	
+	
+	@JsonProperty("caste")
+	private String caste ;
 	
 	@JsonProperty("minority")
 	private String minority ;
@@ -121,23 +143,15 @@ public class SmidApplication {
 	@JsonProperty("nameAsPerAdhar")
 	private String nameAsPerAdhar ;
 	
-	@JsonProperty("adharNo")
-	private String adharNo ;
-	
 	@JsonProperty("adharAcknowledgementNo")
 	private String adharAcknowledgementNo ;
-
-	@JsonProperty("isInsurance")
-	private Boolean isInsurance ;
 	
 	@JsonProperty("insuranceThrough")
 	private String insuranceThrough ;
+
 	
-	@JsonProperty("isStreetVendor")
-	private Boolean isStreetVendor ;
-	
-	@JsonProperty("isHomeless")
-	private Boolean isHomeless ;
+	@JsonProperty("qualification")
+	private String qualification ;	 
 	
 	@JsonProperty("documentAttachemnt")
 	private String documentAttachemnt ;
@@ -151,14 +165,8 @@ public class SmidApplication {
 	@JsonProperty("branchName")
 	private String branchName;
 	
-	@JsonProperty("dateOfOpeningAccount")
-	private String dateOfOpeningAccount ;
-	
-	@JsonProperty("accountOpenedThrough")
-	private String accountOpenedThrough ;
-	
-	@JsonProperty("roType")
-	private String roType ;
+	@JsonProperty("remark")
+	private String remark ;
 	
 	@JsonProperty("isActive")
 	private Boolean isActive ;
@@ -169,8 +177,8 @@ public class SmidApplication {
 	@JsonProperty("toDate")
 	private String toDate;
 
+	private List<SmidShgGroup> smidShgGroup;
 			
 	@JsonProperty("auditDetails")
 	private AuditDetails auditDetails ;
-
 }

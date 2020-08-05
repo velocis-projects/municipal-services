@@ -23,7 +23,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 
-public class SEPApplication {
+public class SepApplication {
 	
 	private String applicationUuid ;
 	
@@ -36,7 +36,7 @@ public class SEPApplication {
 	private StatusEnum applicationStatus ;
 
 	public enum StatusEnum {
-	    DRAFT("DRAFT"),
+	    DRAFTED("DRAFTED"),
 	    CREATED("CREATED"),
 	    APPROVED("APPROVED"),
 		REJECTED("REJECTED");
@@ -189,7 +189,13 @@ public class SEPApplication {
 	private Boolean isActive ;
 	
 	@JsonProperty("applicationDocument")
-	private List<SEPApplicationDocument> applicationDocument;
+	private List<SepApplicationDocument> applicationDocument;
+	
+	@JsonProperty("fromDate")
+	private String fromDate;
+
+	@JsonProperty("toDate")
+	private String toDate;
 	
 	@JsonProperty("auditDetails")
 	private AuditDetails auditDetails ;
