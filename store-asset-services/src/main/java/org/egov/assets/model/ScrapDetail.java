@@ -42,6 +42,12 @@ public class ScrapDetail {
 	@JsonProperty("expiryDate")
 	private Integer expiryDate = null;
 
+	@JsonProperty("auditDetails")
+	private AuditDetails auditDetails = null;
+
+	@JsonProperty("updatedScrapedQty")
+	private BigDecimal updatedScrapedQty = null;
+
 	/**
 	 * scrap reason of the ScrapDetail
 	 */
@@ -94,7 +100,7 @@ public class ScrapDetail {
 	private BigDecimal userQuantity = null;
 
 	@JsonProperty("disposalQuantity")
-	private BigDecimal disposalQuantity = null;
+	private BigDecimal disposalQuantity = BigDecimal.ZERO;
 
 	@JsonProperty("existingValue")
 	private BigDecimal existingValue = null;
@@ -126,6 +132,14 @@ public class ScrapDetail {
 		return this;
 	}
 
+	public BigDecimal getUpdatedScrapedQty() {
+		return updatedScrapedQty;
+	}
+
+	public void setUpdatedScrapedQty(BigDecimal updatedScrapedQty) {
+		this.updatedScrapedQty = updatedScrapedQty;
+	}
+
 	/**
 	 * Tenant id of the Scrap Details
 	 * 
@@ -144,6 +158,25 @@ public class ScrapDetail {
 	public ScrapDetail scrapNumber(String scrapNumber) {
 		this.scrapNumber = scrapNumber;
 		return this;
+	}
+
+	public ScrapDetail auditDetails(AuditDetails auditDetails) {
+		this.auditDetails = auditDetails;
+		return this;
+	}
+
+	/**
+	 * Get auditDetails
+	 * 
+	 * @return auditDetails
+	 **/
+	@Valid
+	public AuditDetails getAuditDetails() {
+		return auditDetails;
+	}
+
+	public void setAuditDetails(AuditDetails auditDetails) {
+		this.auditDetails = auditDetails;
 	}
 
 	/**

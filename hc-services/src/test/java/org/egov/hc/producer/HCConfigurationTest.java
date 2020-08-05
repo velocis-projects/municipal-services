@@ -21,7 +21,7 @@ import java.util.TimeZone;
 @NoArgsConstructor
 @Builder
 @Component
-public class HCConfiguration {
+public class HCConfigurationTest {
 
 
 	@Value("${app.timezone}")
@@ -56,7 +56,6 @@ public class HCConfiguration {
 
 	    @Value("${kafka.topics.save.service}")
 	    private String saveTopic;
-	    
 	    
 	// Hc-Service
 	    

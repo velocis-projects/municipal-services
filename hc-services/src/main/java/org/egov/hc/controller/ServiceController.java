@@ -4,6 +4,7 @@ import org.egov.hc.contract.ServiceRequest;
 import org.egov.hc.contract.ServiceResponse;
 import org.egov.hc.model.RequestData;
 import org.egov.hc.service.ServiceRequestService;
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class ServiceController {
 
 	@RequestMapping(value = "/_create", method = RequestMethod.POST)
 	public ResponseEntity<?> create(@RequestBody ServiceRequest serviceRequest,
-			@RequestHeader("User-Agent") String request) {
+			@RequestHeader("User-Agent") String request) throws JSONException {
 		ServiceResponse response = null;
 
 		if (serviceRequest.getServices().get(0).getIsEditState() == 1) {		
@@ -92,7 +93,7 @@ public class ServiceController {
 
 	@RequestMapping(value = "/_update", method = RequestMethod.POST)
 	public ResponseEntity<?> update(@RequestBody ServiceRequest serviceRequest,
-			@RequestHeader("User-Agent") String requestHeader) {
+			@RequestHeader("User-Agent") String requestHeader) throws JSONException {
 
 		ServiceResponse response = service.update(serviceRequest, requestHeader);
 		return new ResponseEntity<>(response, HttpStatus.CREATED);

@@ -144,7 +144,7 @@ public class IndentJdbcRepository extends org.egov.assets.common.JdbcRepository 
 		if (indentSearch.getIds() != null) {
 			if (params.length() > 0)
 				params.append(" and ");
-			params.append("indent.indentNumber in (:ids)");
+			params.append("indent.id in (:ids)");
 			paramValues.put("ids", indentSearch.getIds());
 		}
 		

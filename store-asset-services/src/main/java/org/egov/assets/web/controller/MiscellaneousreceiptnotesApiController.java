@@ -2,6 +2,7 @@ package org.egov.assets.web.controller;
 
 import static java.util.Arrays.asList;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -47,6 +48,7 @@ public class MiscellaneousreceiptnotesApiController {
 	public ResponseEntity<MaterialReceiptResponse> miscellaneousreceiptnotesSearchPost(
 			@Valid @RequestBody org.egov.common.contract.request.RequestInfo requestInfo,
 			@NotNull @RequestParam(value = "tenantId", required = true) String tenantId,
+			@NotNull @RequestParam(value = "ids", required = false) String ids,
 			@Size(max = 100) @RequestParam(value = "mrnNumber", required = false) List<String> mrnNumber,
 			@Size(max = 3) @RequestParam(value = "receiptType", required = false) List<String> receiptType,
 			@RequestParam(value = "mrnStatus", required = false) String mrnStatus,
@@ -58,9 +60,10 @@ public class MiscellaneousreceiptnotesApiController {
 			@RequestParam(value = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
 			@RequestParam(value = "sortBy", required = false, defaultValue = "id") String sortBy) {
 		MaterialReceiptSearch materialReceiptSearch = MaterialReceiptSearch.builder().tenantId(tenantId)
-				.mrnNumber(mrnNumber).receiptType(receiptType).mrnStatus(null != mrnStatus ? asList(mrnStatus) : null)
-				.receivingStore(receivingStore).supplierCode(supplierCode).receiptDate(receiptDateFrom)
-				.receiptDate(receiptDateTo).pageNumber(pageNumber).pageSize(pageSize).build();
+				.ids(null != ids ? Arrays.asList(ids) : null).mrnNumber(mrnNumber).receiptType(receiptType)
+				.mrnStatus(null != mrnStatus ? asList(mrnStatus) : null).receivingStore(receivingStore)
+				.supplierCode(supplierCode).receiptDate(receiptDateFrom).receiptDate(receiptDateTo)
+				.pageNumber(pageNumber).pageSize(pageSize).build();
 		MaterialReceiptResponse materialReceiptResponse = miscellaneousReceiptNoteService.search(materialReceiptSearch);
 		return new ResponseEntity<>(materialReceiptResponse, HttpStatus.OK);
 	}
@@ -71,6 +74,6 @@ public class MiscellaneousreceiptnotesApiController {
 			@Valid @RequestBody MaterialReceiptRequest materialReceipt) {
 		MaterialReceiptResponse materialReceiptResponse = miscellaneousReceiptNoteService.update(materialReceipt,
 				tenantId);
-		return new ResponseEntity<>(materialReceiptResponse,HttpStatus.OK);
+		return new ResponseEntity<>(materialReceiptResponse, HttpStatus.OK);
 	}
 }

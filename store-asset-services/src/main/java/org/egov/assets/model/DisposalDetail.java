@@ -94,8 +94,6 @@ public class DisposalDetail {
 	 * @return material
 	 **/
 
-	@Valid
-
 	public Material getMaterial() {
 		return material;
 	}

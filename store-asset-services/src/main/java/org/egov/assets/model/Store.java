@@ -74,6 +74,9 @@ public class Store {
 	@JsonProperty("description")
 	private String description = null;
 
+	@JsonProperty("divisionName")
+	private String divisionName = null;
+
 	@JsonProperty("department")
 	private Department department = null;
 
@@ -513,5 +516,18 @@ public class Store {
 			return "null";
 		}
 		return o.toString().replace("\n", "\n    ");
+	}
+
+	public String getDivisionName() {
+		return divisionName;
+	}
+
+	public void setDivisionName(String divisionName) {
+		this.divisionName = divisionName;
+	}
+
+	public Store divisionName(String divisionName) {
+		this.divisionName = divisionName;
+		return this;
 	}
 }
