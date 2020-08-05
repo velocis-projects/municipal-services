@@ -56,9 +56,7 @@ public class IndentsApiController {
 			@Min(0) @Max(100) @RequestParam(value = "pageSize", required = false, defaultValue = "20") Integer pageSize,
 			@RequestParam(value = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
 			@RequestParam(value = "sortBy", required = false, defaultValue = "id") String sortBy) {
-		System.out.println("RequestInfo...................." + requestInfo);
-		System.out.println("RequestInfo....................");
-
+		
 		IndentSearch is = new IndentSearch().builder().tenantId(tenantId).ids(ids).indentDate(indentDate)
 				.indentStore(indentStore).indentNumber(indentNumber).indentPurpose(indentPurpose)
 				.inventoryType(inventoryType).issueStore(issueStore).indentType(indentType).searchPurpose(searchPurpose)

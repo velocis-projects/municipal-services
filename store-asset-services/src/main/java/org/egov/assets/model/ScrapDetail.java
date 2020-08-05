@@ -45,6 +45,9 @@ public class ScrapDetail {
 	@JsonProperty("auditDetails")
 	private AuditDetails auditDetails = null;
 
+	@JsonProperty("updatedScrapedQty")
+	private BigDecimal updatedScrapedQty = null;
+
 	/**
 	 * scrap reason of the ScrapDetail
 	 */
@@ -97,7 +100,7 @@ public class ScrapDetail {
 	private BigDecimal userQuantity = null;
 
 	@JsonProperty("disposalQuantity")
-	private BigDecimal disposalQuantity = null;
+	private BigDecimal disposalQuantity = BigDecimal.ZERO;
 
 	@JsonProperty("existingValue")
 	private BigDecimal existingValue = null;
@@ -127,6 +130,14 @@ public class ScrapDetail {
 	public ScrapDetail tenantId(String tenantId) {
 		this.tenantId = tenantId;
 		return this;
+	}
+
+	public BigDecimal getUpdatedScrapedQty() {
+		return updatedScrapedQty;
+	}
+
+	public void setUpdatedScrapedQty(BigDecimal updatedScrapedQty) {
+		this.updatedScrapedQty = updatedScrapedQty;
 	}
 
 	/**

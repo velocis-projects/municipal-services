@@ -30,7 +30,7 @@ public class ScrapEntity {
     
     private Long scrapDate;
     
-    private String scrapStatus;
+    private String status;
     
     private Integer stateId;
     
@@ -51,7 +51,7 @@ public class ScrapEntity {
                 .scrapNumber(scrapNumber)
                 .scrapDate(scrapDate)
                 .store(!isEmpty(storeCode)? buildStore(storeCode) : null)
-                .scrapStatus(Scrap.ScrapStatusEnum.fromValue(scrapStatus))
+                .scrapStatus(Scrap.ScrapStatusEnum.fromValue(status))
                 .tenantId(tenantId)
                 .auditDetails(buildAuditDetails());
 

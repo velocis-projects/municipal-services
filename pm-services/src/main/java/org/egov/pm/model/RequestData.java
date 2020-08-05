@@ -42,4 +42,7 @@ public class RequestData {
 	@JsonProperty("auditDetails")
 	private AuditDetail auditDetails;
 
+	@JsonProperty("currentState")
+	private String currentState;
+
 }

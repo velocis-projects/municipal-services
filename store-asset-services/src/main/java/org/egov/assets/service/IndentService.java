@@ -125,14 +125,10 @@ public class IndentService extends DomainService {
 	public IndentResponse create(IndentRequest indentRequest) {
 
 		try {
-			LOG.info("Validation Stated");
 			indentRequest = fetchRelated(indentRequest);
-			LOG.info("Validation Working");
 			validate(indentRequest.getIndents(), Constants.ACTION_CREATE);
-			LOG.info("Validation Success");
 			List<String> sequenceNos = indentRepository.getSequence(Indent.class.getSimpleName(),
 					indentRequest.getIndents().size());
-			LOG.info("Sequence Generation Success");
 			int i = 0;
 			for (Indent b : indentRequest.getIndents()) {
 				b.setId(sequenceNos.get(i));
@@ -158,7 +154,6 @@ public class IndentService extends DomainService {
 					j++;
 				}
 			}
-			LOG.info("Final - Kafka Processing");
 			kafkaQue.send(saveTopic, saveKey, indentRequest);
 			IndentResponse response = new IndentResponse();
 			response.setIndents(indentRequest.getIndents());
@@ -271,6 +266,14 @@ public class IndentService extends DomainService {
 			if (indentDetails != null) {
 				IndentDetail detail = null;
 				for (Indent indent : search.getPagedData()) {
+
+					if (indent.getIssueStore() != null && indent.getIssueStore().getCode() != null) {
+						indent.setIssueStore(getStore(indent.getIssueStore().getCode(), is.getTenantId()));
+					}
+					if (indent.getIndentStore() != null && indent.getIndentStore().getCode() != null) {
+						indent.setIndentStore(getStore(indent.getIndentStore().getCode(), is.getTenantId()));
+					}
+
 					for (IndentDetailEntity detailEntity : indentDetails) {
 						if (indent.getIndentNumber().equalsIgnoreCase(detailEntity.getIndentNumber())) {
 							detail = detailEntity.toDomain();
@@ -414,16 +417,19 @@ public class IndentService extends DomainService {
 							}
 						}
 
-						if (indent.getIndentPurpose().equals(IndentPurposeEnum.CAPITAL)) {
-							if (detail.getProjectCode() == null || detail.getProjectCode().getCode() == null)
-								errors.addDataError(ErrorCode.MANDATORY_BASED_ON.getCode(), "projectCode",
-										"indentPurpose=Capital", "at serail no. " + i);
-						}
-						if (indent.getIndentPurpose().equals(IndentPurposeEnum.REPAIRSANDMAINTENANCE)) {
-							if (detail.getAsset() == null || detail.getAsset().getCode() == null)
-								errors.addDataError(ErrorCode.MANDATORY_BASED_ON.getCode(), "assetCode",
-										"indentPurpose=Repairs and Maintenance", "at seraill no. " + i);
-						}
+						/*
+						 * if (indent.getIndentPurpose().equals(IndentPurposeEnum.CAPITAL)) { if
+						 * (detail.getProjectCode() == null || detail.getProjectCode().getCode() ==
+						 * null) errors.addDataError(ErrorCode.MANDATORY_BASED_ON.getCode(),
+						 * "projectCode", "indentPurpose=Capital", "at serail no. " + i); }
+						 */
+						/*
+						 * if
+						 * (indent.getIndentPurpose().equals(IndentPurposeEnum.REPAIRSANDMAINTENANCE)) {
+						 * if (detail.getAsset() == null || detail.getAsset().getCode() == null)
+						 * errors.addDataError(ErrorCode.MANDATORY_BASED_ON.getCode(), "assetCode",
+						 * "indentPurpose=Repairs and Maintenance", "at seraill no. " + i); }
+						 */
 
 					}
 				}
@@ -462,7 +468,7 @@ public class IndentService extends DomainService {
 				}
 				indent.setIssueStore(issueStore);
 			}
-			
+
 			if (indent.getIndentStore() != null) {
 				LOG.info("4444");
 				indent.getIndentStore().setTenantId(tenantId);

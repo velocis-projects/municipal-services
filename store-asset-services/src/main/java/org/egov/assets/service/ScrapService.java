@@ -109,39 +109,36 @@ public class ScrapService extends DomainService {
 		try {
 			fetchRelated(scrapReq, tenantId);
 			List<Scrap> scrap = scrapReq.getScraps();
-			List<String> scrapDetailNumbers = new ArrayList<>();
-			List<String> scrapNumbers = new ArrayList<>();
 			validate(scrapReq.getScraps(), Constants.ACTION_UPDATE, tenantId, scrapReq.getRequestInfo());
 			scrap.forEach(scrapData -> {
 				scrapData.setAuditDetails(getAuditDetails(scrapReq.getRequestInfo(), Constants.ACTION_UPDATE));
+
 				if (StringUtils.isEmpty(scrapData.getTenantId())) {
 					scrapData.setTenantId(tenantId);
 				}
 				if (StringUtils.isEmpty(scrapData.getId())) {
 					scrapData.setId(scrapJdbcRepository.getSequence("seq_scrap"));
 				}
-				// scrapNumbers.add(scrapData.getScrapNumber());
 
 				scrapData.getScrapDetails().forEach(scrapDetails -> {
-					scrapDetails.setAuditDetails(getAuditDetails(scrapReq.getRequestInfo(), Constants.ACTION_UPDATE));
 					if (StringUtils.isEmpty(scrapDetails.getId())) {
 						scrapDetails.setId(scrapJdbcRepository.getSequence("seq_scrapDetail"));
 					}
+					scrapDetails.setUpdatedScrapedQty(scrapDetails.getScrapQuantity());
+					List<ScrapDetail> scrapDetail = getScrapDetails(scrapDetails.getScrapNumber(),
+							scrapData.getTenantId());
+					if (!scrapDetail.isEmpty() && scrapDetail.size() == 1) {
+						scrapDetails.setScrapQuantity(
+								scrapDetails.getScrapQuantity().subtract(scrapDetail.get(0).getScrapQuantity()));
+					}
+					scrapDetails.setAuditDetails(getAuditDetails(scrapReq.getRequestInfo(), Constants.ACTION_UPDATE));
+
 					if (StringUtils.isEmpty(scrapDetails.getTenantId())) {
 						scrapDetails.setTenantId(tenantId);
 					}
 					scrapDetails.setScrapNumber(scrapData.getScrapNumber());
-					// scrapDetailNumbers.add(scrapDetails.getScrapNumber());
-
-					// scrapJdbcRepository.markDeleted(scrapDetailNumbers, tenantId, "scrapDetail",
-					// "scrapNumber",
-					// scrapDetails.getScrapNumber());
-					//
-					// scrapJdbcRepository.markDeleted(scrapNumbers, tenantId, "scrap",
-					// "scrapNumber",
-					// scrapData.getScrapNumber());
-
 				});
+
 			});
 			materialIssueBackUpdate(scrapReq, tenantId);
 			kafkaTemplate.send(updateTopic, scrapReq);
@@ -351,7 +348,7 @@ public class ScrapService extends DomainService {
 			int res = convertedUserQuantity.compareTo(issueDetail.getQuantityIssued());
 			if (res == 1) {
 				errors.addDataError(ErrorCode.QTY1_LE_QTY2.getCode(), "Scrap Quantity ", "Issued Quantity ", null);
-
+  
 			}
 		}
 
@@ -379,6 +376,7 @@ public class ScrapService extends DomainService {
 		for (Scrap scrap : request.getScraps()) {
 			for (ScrapDetail detail : scrap.getScrapDetails()) {
 				HashMap<String, String> hashMaps = new HashMap<>();
+
 				hashMaps.put("scrapedquantity", "scrapedquantity + " + detail.getScrapQuantity());
 
 				scrapJdbcRepository.updateColumn(new MaterialIssueDetailEntity(), "materialissuedetail", hashMaps,

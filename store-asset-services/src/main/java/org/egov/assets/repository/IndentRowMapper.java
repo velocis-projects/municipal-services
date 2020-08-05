@@ -8,6 +8,7 @@ import org.egov.assets.model.Indent;
 import org.egov.assets.model.Store;
 import org.egov.assets.model.Indent.IndentPurposeEnum;
 import org.egov.assets.model.Indent.IndentStatusEnum;
+import org.egov.assets.model.Indent.IndentTypeEnum;
 import org.egov.assets.model.Indent.InventoryTypeEnum;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -21,7 +22,7 @@ public class IndentRowMapper implements RowMapper<Indent> {
 				.expectedDeliveryDate(rs.getLong("expectedDeliveryDate")).fileStoreId(rs.getString("fileStoreId"))
 				.indentStore(new Store().name(rs.getString("indentStore.name")).code(rs.getString("indentStore.code")))
 				.materialHandOverTo(rs.getString("materialHandOverTo")).narration(rs.getString("narration"))
-				.tenantId(rs.getString("tenantId"))
+				.tenantId(rs.getString("tenantId")).indentType(IndentTypeEnum.fromValue(rs.getString("indentType")))
 				.inventoryType(InventoryTypeEnum.fromValue(rs.getString("inventoryType")))
 				.indentPurpose(IndentPurposeEnum.fromValue(rs.getString("indentPurpose")))
 				.indentStatus(IndentStatusEnum.fromValue(rs.getString("indentStatus")))

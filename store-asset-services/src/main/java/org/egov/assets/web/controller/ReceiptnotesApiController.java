@@ -2,6 +2,7 @@ package org.egov.assets.web.controller;
 
 import static java.util.Arrays.asList;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -45,6 +46,7 @@ public class ReceiptnotesApiController {
 	public ResponseEntity<MaterialReceiptResponse> receiptnotesSearchPost(
 			@Valid @RequestBody org.egov.common.contract.request.RequestInfo requestInfo,
 			@NotNull @RequestParam(value = "tenantId", required = true) String tenantId,
+			@NotNull @RequestParam(value = "ids", required = false) String ids,
 			@Size(max = 100) @RequestParam(value = "mrnNumber", required = false) List<String> mrnNumber,
 			@Size(max = 3) @RequestParam(value = "receiptType", required = false) List<String> receiptType,
 			@RequestParam(value = "mrnStatus", required = false) String mrnStatus,
@@ -58,9 +60,9 @@ public class ReceiptnotesApiController {
 			@RequestParam(value = "sortBy", required = false, defaultValue = "id") String sortBy) {
 		MaterialReceiptSearch materialReceiptSearch = MaterialReceiptSearch.builder().tenantId(tenantId)
 				.mrnNumber(mrnNumber).receiptType(receiptType).mrnStatus(null != mrnStatus ? asList(mrnStatus) : null)
-				.receivingStore(receivingStore).supplierCode(supplierCode).receiptDate(receiptDateFrom)
-				.receiptDate(receiptDateTo).supplierBillPaid(supplierBillPaid).pageNumber(pageNumber).pageSize(pageSize)
-				.build();
+				.ids(null != ids ? Arrays.asList(ids) : null).receivingStore(receivingStore).supplierCode(supplierCode)
+				.receiptDate(receiptDateFrom).receiptDate(receiptDateTo).supplierBillPaid(supplierBillPaid)
+				.pageNumber(pageNumber).pageSize(pageSize).build();
 		MaterialReceiptResponse materialReceiptResponse = receiptNoteService.search(materialReceiptSearch);
 		return new ResponseEntity<>(materialReceiptResponse, HttpStatus.OK);
 	}
@@ -76,7 +78,7 @@ public class ReceiptnotesApiController {
 		MaterialBalanceRateResponse materialBalanceRateResponse = receiptNoteService
 				.searchBalanceAndRate(materialReceiptSearch);
 		return new ResponseEntity<>(materialBalanceRateResponse, HttpStatus.OK);
-	} 
+	}
 
 	@PostMapping(value = "/_update", produces = { "application/json" }, consumes = { "application/json" })
 	public ResponseEntity<MaterialReceiptResponse> receiptnotesUpdatePost(
