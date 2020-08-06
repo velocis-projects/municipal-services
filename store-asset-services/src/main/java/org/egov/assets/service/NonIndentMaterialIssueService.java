@@ -539,6 +539,15 @@ public class NonIndentMaterialIssueService extends DomainService {
 				IssueTypeEnum.NONINDENTISSUE.toString());
 		if (materialIssues.getPagedData().size() > 0) {
 			for (MaterialIssue materialIssue : materialIssues.getPagedData()) {
+
+				if (materialIssue.getFromStore() != null) {
+					materialIssue.setFromStore(
+							getStore(materialIssue.getFromStore().getCode(), searchContract.getTenantId()));
+				}
+				if (materialIssue.getToStore() != null && materialIssue.getToStore().getCode() != null) {
+					materialIssue.toStore(getStore(materialIssue.getToStore().getCode(), searchContract.getTenantId()));
+				}
+
 				ObjectMapper mapper = new ObjectMapper();
 				Map<String, Uom> uoms = getUoms(materialIssue.getTenantId(), mapper, new RequestInfo());
 				Pagination<MaterialIssueDetail> materialIssueDetails = materialIssueDetailsJdbcRepository.search(
@@ -581,6 +590,20 @@ public class NonIndentMaterialIssueService extends DomainService {
 		MaterialIssueResponse materialIssueResponse = new MaterialIssueResponse();
 		materialIssueResponse.setMaterialIssues(materialIssues.getPagedData());
 		return materialIssueResponse;
+	}
+
+	private Store getStore(String storeCode, String tenantId) {
+		StoreGetRequest storeGetRequest = getStoreGetRequest(storeCode, tenantId);
+		List<Store> storeList = storeService.search(storeGetRequest).getStores();
+		if (storeList.size() == 1) {
+			return storeList.get(0);
+		} else {
+			return null;
+		}
+	}
+
+	private StoreGetRequest getStoreGetRequest(String storeCode, String tenantId) {
+		return StoreGetRequest.builder().code(Arrays.asList(storeCode)).tenantId(tenantId).active(true).build();
 	}
 
 	private List<MaterialReceiptDetail> getMaterialReceiptDetail(String ids, String tenantId) {
