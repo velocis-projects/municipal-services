@@ -9,11 +9,15 @@ import org.egov.waterconnection.constants.WCConstants;
 import org.egov.waterconnection.model.WaterConnection;
 import org.egov.waterconnection.model.WaterConnectionRequest;
 import org.egov.waterconnection.model.workflow.BusinessService;
+import org.egov.waterconnection.service.CalculationService;
 import org.egov.waterconnection.workflow.WorkflowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class ActionValidator {
 	
@@ -53,6 +57,7 @@ public class ActionValidator {
 	private void validateIds(WaterConnectionRequest request, BusinessService businessService, String applicationStatus) {
 		WaterConnection connection = request.getWaterConnection();
 		Map<String, String> errorMap = new HashMap<>();
+		//log.info("workflowService:"+workflowService+",applicationStatus:"+applicationStatus+",businessService:"+businessService);
 		if (!workflowService.isStateUpdatable(applicationStatus, businessService)) {
 			if (connection.getId() == null)
 				errorMap.put("INVALID_UPDATE", "Id of waterConnection cannot be null");

@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.egov.assets.model.MaterialReceipt;
 import org.egov.assets.model.MaterialReceiptSearch;
@@ -60,11 +61,11 @@ public class OpeningbalanceApiController {
 	public ResponseEntity<OpeningBalanceResponse> openingbalanceSearchPost(
 			@NotNull @RequestParam(value = "tenantId", required = true) String tenantId,
 			@NotNull @RequestParam(value = "ids", required = false) String ids,
+			@RequestParam(value = "receiptType", required = false) String receiptType,
 			@RequestParam(value = "storeName", required = false) String storeName,
 			@Valid @RequestBody RequestInfo requestInfo,
 			@RequestParam(value = "financialYear", required = false) String financialYear,
 			@RequestParam(value = "mrnNumber", required = false) String mrnNumber,
-			@RequestParam(value = "materialName", required = false) String receiptType,
 			@Min(0) @Max(100) @RequestParam(value = "pageSize", required = false, defaultValue = "20") Integer pageSize,
 			@RequestParam(value = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
 			@RequestParam(value = "sortBy", required = false, defaultValue = "id") String sortBy) {
@@ -79,14 +80,14 @@ public class OpeningbalanceApiController {
 		return new ResponseEntity<>(openingBalanceService.search(receiptSearch), HttpStatus.OK);
 	}
 
-	private OpeningBalanceResponse buildOpenBalanceResponse(List<MaterialReceipt> material,
-			RequestInfo requestInfo) {
+	private OpeningBalanceResponse buildOpenBalanceResponse(List<MaterialReceipt> material, RequestInfo requestInfo) {
 		return OpeningBalanceResponse.builder().responseInfo(getResponseInfo(requestInfo)).materialReceipt(material)
 				.build();
 	}
 
 	private ResponseInfo getResponseInfo(RequestInfo requestInfo) {
 		return ResponseInfo.builder().apiId(requestInfo.getApiId()).ver(requestInfo.getVer())
-				.resMsgId(requestInfo.getMsgId()).resMsgId("placeholder").status(StatusEnum.SUCCESSFUL.toString()).build();
+				.resMsgId(requestInfo.getMsgId()).resMsgId("placeholder").status(StatusEnum.SUCCESSFUL.toString())
+				.build();
 	}
 }

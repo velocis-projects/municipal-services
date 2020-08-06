@@ -150,7 +150,7 @@ public class MaterialService extends DomainService {
 							materialDb.setMaterialType(
 									materialType == null ? materialDb.getMaterialType() : materialType);
 						}
-						
+
 						List<StoreMapping> storeMappings = new ArrayList<>();
 						MaterialStoreMappingSearch materialStoreMappingSearch = MaterialStoreMappingSearch.builder()
 								.material(material.getCode()).tenantId(materialSearchRequest.getTenantId()).build();
@@ -290,12 +290,33 @@ public class MaterialService extends DomainService {
 				.oldCode(mdmsMaterial.getOldCode()).assetCategory(mdmsMaterial.getAssetCategory())
 				.description(mdmsMaterial.getDescription()).expenseAccount(mdmsMaterial.getExpenseAccount())
 				.inActiveDate(mdmsMaterial.getInActiveDate()).inventoryType(mdmsMaterial.getInventoryType())
-				.lotControl(mdmsMaterial.getLotControl()).manufacturePartNo(mdmsMaterial.getManufacturePartNo())
-				.materialClass(mdmsMaterial.getMaterialClass()).materialType(mdmsMaterial.getMaterialType())
-				.scrapable(mdmsMaterial.getScrapable()).serialNumber(mdmsMaterial.getSerialNumber())
-				.shelfLifeControl(mdmsMaterial.getShelfLifeControl()).model(mdmsMaterial.getModel())
-				.status(mdmsMaterial.getStatus()).techincalSpecs(mdmsMaterial.getTechincalSpecs())
-				.termsOfDelivery(mdmsMaterial.getTermsOfDelivery()).tenantId(mdmsMaterial.getTenantId());
+				.lotControl(mdmsMaterial.getLotControl()).materialClass(mdmsMaterial.getMaterialClass())
+				.materialType(mdmsMaterial.getMaterialType()).scrapable(mdmsMaterial.getScrapable())
+				.serialNumber(mdmsMaterial.getSerialNumber()).shelfLifeControl(mdmsMaterial.getShelfLifeControl())
+				.status(mdmsMaterial.getStatus()).tenantId(mdmsMaterial.getTenantId());
+
+		/*
+		 * material.baseUom(mdmsMaterial.getBaseUom()).purchaseUom(mdmsMaterial.
+		 * getPurchaseUom())
+		 * .stockingUom(mdmsMaterial.getStockingUom()).name(mdmsMaterial.getName())
+		 * .oldCode(mdmsMaterial.getOldCode()).assetCategory(mdmsMaterial.
+		 * getAssetCategory())
+		 * .description(mdmsMaterial.getDescription()).expenseAccount(mdmsMaterial.
+		 * getExpenseAccount())
+		 * .inActiveDate(mdmsMaterial.getInActiveDate()).inventoryType(mdmsMaterial.
+		 * getInventoryType())
+		 * .lotControl(mdmsMaterial.getLotControl()).manufacturePartNo(mdmsMaterial.
+		 * getManufacturePartNo())
+		 * .materialClass(mdmsMaterial.getMaterialClass()).materialType(mdmsMaterial.
+		 * getMaterialType())
+		 * .scrapable(mdmsMaterial.getScrapable()).serialNumber(mdmsMaterial.
+		 * getSerialNumber())
+		 * .shelfLifeControl(mdmsMaterial.getShelfLifeControl()).model(mdmsMaterial.
+		 * getModel()) .status(mdmsMaterial.getStatus()).techincalSpecs(mdmsMaterial.
+		 * getTechincalSpecs())
+		 * .termsOfDelivery(mdmsMaterial.getTermsOfDelivery()).tenantId(mdmsMaterial.
+		 * getTenantId());
+		 */
 	}
 
 	private void validateMaterial(String code, String tenantId, RequestInfo requestInfo) {

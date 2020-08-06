@@ -72,8 +72,8 @@ public class ScrapDetailEntity {
 	}
 
 	private Material buildMaterial() {
-		Material material = new Material();
-		return material.code(this.material);
+		Material materials = new Material();
+		return materials.code(this.material);
 	}
 
 	public ScrapDetailEntity toEntity(ScrapDetail scrapDetails) {

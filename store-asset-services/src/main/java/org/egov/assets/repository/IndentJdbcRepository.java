@@ -124,11 +124,13 @@ public class IndentJdbcRepository extends org.egov.assets.common.JdbcRepository 
 			orderBy = "order by " + indentSearch.getSortBy();
 		}
 
-		searchQuery = searchQuery.replace(":tablename", "indent indent,Store issueStore,indentdetail details" );
+		searchQuery = searchQuery.replace(":tablename", "indent indent inner join indentdetail details on details.indentnumber=indent.indentnumber inner join Store indentStore on indentStore.code=indent.indentStore left join Store issueStore on issueStore.code=indent.issueStore" );
 
-		searchQuery = searchQuery.replace(":selectfields", " distinct indent.*,issueStore.code as \"issueStore.code\" ,issueStore.name as \"issueStore.name\"  ");
+		searchQuery = searchQuery.replace(":selectfields", " distinct indent.*,issueStore.code as \"issueStore.code\" ,issueStore.name as \"issueStore.name\",indentStore.code as \"indentStore.code\" ,indentStore.name as \"indentStore.name\"  ");
 
-		String conditions=" and issuestore.code=indent.issuestore and details.indentnumber=indent.indentnumber";
+//		String conditions=" and issueStore.code=indent.issueStore and indentStore.code=indent.indentStore and details.indentnumber=indent.indentnumber";
+		String conditions="";
+		
 		// implement jdbc specfic search
 	 
 		if (indentSearch.getTenantId() != null) {
@@ -142,7 +144,7 @@ public class IndentJdbcRepository extends org.egov.assets.common.JdbcRepository 
 		if (indentSearch.getIds() != null) {
 			if (params.length() > 0)
 				params.append(" and ");
-			params.append("indent.indentNumber in (:ids)");
+			params.append("indent.id in (:ids)");
 			paramValues.put("ids", indentSearch.getIds());
 		}
 		
@@ -151,6 +153,13 @@ public class IndentJdbcRepository extends org.egov.assets.common.JdbcRepository 
 				params.append(" and ");
 			params.append("issueStore =:issueStore");
 			paramValues.put("issueStore", indentSearch.getIssueStore ());
+		}
+		
+		if (indentSearch.getIndentStore() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append("indentStore =:indentStore");
+			paramValues.put("indentStore", indentSearch.getIndentStore ());
 		}
 		 
 		if (indentSearch.getIndentDate() != null) {

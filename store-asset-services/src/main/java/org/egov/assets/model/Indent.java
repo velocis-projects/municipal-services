@@ -113,13 +113,15 @@ public class Indent {
 	 * MaterialTransferNote - applicable for Transfer Indent.
 	 */
 	public enum IndentPurposeEnum {
-		CONSUMPTION("Consumption"),
+		// CONSUMPTION("Consumption"),
 
-		REPAIRSANDMAINTENANCE("Repairs and Maintenance"),
+		// REPAIRSANDMAINTENANCE("Repairs and Maintenance"),
 
-		CAPITAL("Capital"),
+		// MATERIALTRANSFERNOTE("Material Transfer Note"),
 
-		MATERIALTRANSFERNOTE("Material Transfer Note");
+		REVENUE("Revenue"),
+
+		CAPITAL("Capital");
 
 		private String value;
 

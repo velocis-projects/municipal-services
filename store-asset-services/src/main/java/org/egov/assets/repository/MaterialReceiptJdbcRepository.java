@@ -39,10 +39,18 @@
  */
 package org.egov.assets.repository;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.egov.assets.common.JdbcRepository;
 import org.egov.assets.common.Pagination;
+import org.egov.assets.model.MaterialBalanceRate;
 import org.egov.assets.model.MaterialReceipt;
 import org.egov.assets.model.MaterialReceiptSearch;
+import org.egov.assets.repository.entity.MaterialBalanceRateEntity;
 import org.egov.assets.repository.entity.MaterialReceiptEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,164 +59,205 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 @Service
 public class MaterialReceiptJdbcRepository extends JdbcRepository {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MaterialReceipt.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MaterialReceipt.class);
 
-    @Autowired
-    NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+	@Autowired
+	NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    static {
-        init(MaterialReceiptEntity.class);
-    }
+	static {
+		init(MaterialReceiptEntity.class);
+	}
 
-    public Pagination<MaterialReceipt> search(MaterialReceiptSearch materialReceiptSearch) {
-        String searchQuery = "select * from materialreceipt" +
-                " :condition :orderby";
-        StringBuffer params = new StringBuffer();
-        Map<String, Object> paramValues = new HashMap<>();
+	public Pagination<MaterialReceipt> search(MaterialReceiptSearch materialReceiptSearch) {
+		String searchQuery = "select * from materialreceipt" + " :condition :orderby";
+		StringBuffer params = new StringBuffer();
+		Map<String, Object> paramValues = new HashMap<>();
 
-        if (materialReceiptSearch.getSortBy() != null && !materialReceiptSearch.getSortBy().isEmpty()) {
-            validateSortByOrder(materialReceiptSearch.getSortBy());
-            validateEntityFieldName(materialReceiptSearch.getSortBy(), MaterialReceiptSearch.class);
-        }
+		if (materialReceiptSearch.getSortBy() != null && !materialReceiptSearch.getSortBy().isEmpty()) {
+			validateSortByOrder(materialReceiptSearch.getSortBy());
+			validateEntityFieldName(materialReceiptSearch.getSortBy(), MaterialReceiptSearch.class);
+		}
 
-        String orderBy = "order by mrnnumber";
+		String orderBy = "order by mrnnumber";
 
-        if (materialReceiptSearch.getSortBy() != null && !materialReceiptSearch.getSortBy().isEmpty()) {
-            orderBy = "order by " + materialReceiptSearch.getSortBy();
-        }
+		if (materialReceiptSearch.getSortBy() != null && !materialReceiptSearch.getSortBy().isEmpty()) {
+			orderBy = "order by " + materialReceiptSearch.getSortBy();
+		}
 
-        if (materialReceiptSearch.getIds() != null) {
-            if (params.length() > 0)
-                params.append(" and ");
-            params.append("id in (:ids)");
-            paramValues.put("ids", materialReceiptSearch.getIds());
-        }
+		if (materialReceiptSearch.getIds() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append("id in (:ids)");
+			paramValues.put("ids", materialReceiptSearch.getIds());
+		}
 
-        if (materialReceiptSearch.getMrnNumber() != null) {
-            if (params.length() > 0)
-                params.append(" and ");
-            params.append("mrnnumber in (:mrnNumber)");
-            paramValues.put("mrnNumber", materialReceiptSearch.getMrnNumber());
-        }
+		if (materialReceiptSearch.getMrnNumber() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append("mrnnumber in (:mrnNumber)");
+			paramValues.put("mrnNumber", materialReceiptSearch.getMrnNumber());
+		}
 
-        if (materialReceiptSearch.getReceiptDate() != null) {
-            if (params.length() > 0)
-                params.append(" and ");
-            params.append("receiptdate = :receiptDate");
-            paramValues.put("receiptDate", materialReceiptSearch.getReceiptDate());
-        }
+		if (materialReceiptSearch.getReceiptDate() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append("receiptdate = :receiptDate");
+			paramValues.put("receiptDate", materialReceiptSearch.getReceiptDate());
+		}
 
-        if (materialReceiptSearch.getReceiptType() != null) {
-            if (params.length() > 0)
-                params.append(" and ");
-            params.append("receipttype = :receiptType");
-            paramValues.put("receiptType", materialReceiptSearch.getReceiptType());
-        }
+		if (materialReceiptSearch.getReceiptType() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append("receipttype = :receiptType");
+			paramValues.put("receiptType", materialReceiptSearch.getReceiptType());
+		}
 
-        if (materialReceiptSearch.getReceivingStore() != null) {
-            if (params.length() > 0)
-                params.append(" and ");
-            params.append("receivingstore = :receivingStore");
-            paramValues.put("receivingStore", materialReceiptSearch.getReceivingStore());
-        }
+		if (materialReceiptSearch.getReceivingStore() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append("receivingstore = :receivingStore");
+			paramValues.put("receivingStore", materialReceiptSearch.getReceivingStore());
+		}
 
-        if (materialReceiptSearch.getSupplierCode() != null) {
-            if (params.length() > 0)
-                params.append(" and ");
-            params.append("suppliercode = :supplierCode");
-            paramValues.put("supplierCode", materialReceiptSearch.getSupplierCode());
-        }
+		if (materialReceiptSearch.getSupplierCode() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append("suppliercode = :supplierCode");
+			paramValues.put("supplierCode", materialReceiptSearch.getSupplierCode());
+		}
 
-        if (materialReceiptSearch.getIssueingStore() != null) {
-            if (params.length() > 0)
-                params.append(" and ");
-            params.append("issueingstore = :issueingStore");
-            paramValues.put("issueingStore", materialReceiptSearch.getIssueingStore());
-        }
+		if (materialReceiptSearch.getIssueingStore() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append("issueingstore = :issueingStore");
+			paramValues.put("issueingStore", materialReceiptSearch.getIssueingStore());
+		}
 
-        if (materialReceiptSearch.getReceiptPurpose() != null) {
-            if (params.length() > 0)
-                params.append(" and ");
-            params.append("receiptpurpose = :receiptPurpose");
-            paramValues.put("receiptPurpose", materialReceiptSearch.getReceiptPurpose());
-        }
+		if (materialReceiptSearch.getReceiptPurpose() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append("receiptpurpose = :receiptPurpose");
+			paramValues.put("receiptPurpose", materialReceiptSearch.getReceiptPurpose());
+		}
 
-        if (materialReceiptSearch.getSupplierBillPaid() != null) {
-            if (params.length() > 0)
-                params.append(" and ");
-            params.append("supplierbillpaid = :supplierBillPaid");
-            paramValues.put("supplierBillPaid", materialReceiptSearch.getSupplierBillPaid());
-        }
+		if (materialReceiptSearch.getSupplierBillPaid() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append("supplierbillpaid = :supplierBillPaid");
+			paramValues.put("supplierBillPaid", materialReceiptSearch.getSupplierBillPaid());
+		}
 
-        if (materialReceiptSearch.getFinancialYear() != null) {
-            if (params.length() > 0)
-                params.append(" and ");
-            params.append("financialyear = :financialYear");
-            paramValues.put("financialYear", materialReceiptSearch.getFinancialYear());
-        }
+		if (materialReceiptSearch.getFinancialYear() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append("financialyear = :financialYear");
+			paramValues.put("financialYear", materialReceiptSearch.getFinancialYear());
+		}
 
-        if (materialReceiptSearch.getMrnStatus() != null) {
-            if (params.length() > 0)
-                params.append(" and ");
-            params.append("mrnStatus = :mrnStatus");
-            paramValues.put("mrnStatus", materialReceiptSearch.getMrnStatus());
-        }
+		if (materialReceiptSearch.getMrnStatus() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append("mrnStatus = :mrnStatus");
+			paramValues.put("mrnStatus", materialReceiptSearch.getMrnStatus());
+		}
 
-        if (materialReceiptSearch.getIssueNumber() != null) {
-            if (params.length() > 0)
-                params.append(" and ");
-            params.append("issueNumber = :issueNumber");
-            paramValues.put("issueNumber", materialReceiptSearch.getIssueNumber());
-        }
+		if (materialReceiptSearch.getIssueNumber() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append("issueNumber = :issueNumber");
+			paramValues.put("issueNumber", materialReceiptSearch.getIssueNumber());
+		}
 
-        if (materialReceiptSearch.getTenantId() != null) {
-            if (params.length() > 0)
-                params.append(" and ");
-            params.append("tenantId = :tenantId");
-            paramValues.put("tenantId", materialReceiptSearch.getTenantId());
-        }
+		if (materialReceiptSearch.getTenantId() != null) {
+			if (params.length() > 0)
+				params.append(" and ");
+			params.append("tenantId = :tenantId");
+			paramValues.put("tenantId", materialReceiptSearch.getTenantId());
+		}
 
-        Pagination<MaterialReceipt> page = new Pagination<>();
-        if (materialReceiptSearch.getPageSize() != null)
-            page.setPageSize(materialReceiptSearch.getPageSize());
-        if (materialReceiptSearch.getOffset() != null)
-            page.setOffset(materialReceiptSearch.getOffset());
-        if (params.length() > 0)
-            searchQuery = searchQuery.replace(":condition", " where " + params.toString());
-        else
-            searchQuery = searchQuery.replace(":condition", "");
+		Pagination<MaterialReceipt> page = new Pagination<>();
+		if (materialReceiptSearch.getPageSize() != null)
+			page.setPageSize(materialReceiptSearch.getPageSize());
+		if (materialReceiptSearch.getOffset() != null)
+			page.setOffset(materialReceiptSearch.getOffset());
+		if (params.length() > 0)
+			searchQuery = searchQuery.replace(":condition", " where " + params.toString());
+		else
+			searchQuery = searchQuery.replace(":condition", "");
 
-        searchQuery = searchQuery.replace(":orderby", orderBy);
-        page = (Pagination<MaterialReceipt>) getPagination(searchQuery, page, paramValues);
+		searchQuery = searchQuery.replace(":orderby", orderBy);
+		page = (Pagination<MaterialReceipt>) getPagination(searchQuery, page, paramValues);
 
-        searchQuery = searchQuery + " :pagination";
-        searchQuery = searchQuery.replace(":pagination", "limit " + page.getPageSize() + " offset " + page.getOffset() * page.getPageSize());
-        BeanPropertyRowMapper row = new BeanPropertyRowMapper(MaterialReceiptEntity.class);
+		searchQuery = searchQuery + " :pagination";
+		searchQuery = searchQuery.replace(":pagination",
+				"limit " + page.getPageSize() + " offset " + page.getOffset() * page.getPageSize());
+		BeanPropertyRowMapper row = new BeanPropertyRowMapper(MaterialReceiptEntity.class);
 
-        List<MaterialReceipt> materialReceipts = new ArrayList<>();
+		List<MaterialReceipt> materialReceipts = new ArrayList<>();
 
-        List<MaterialReceiptEntity> materialReceiptEntities = namedParameterJdbcTemplate
-                .query(searchQuery.toString(), paramValues, row);
+		List<MaterialReceiptEntity> materialReceiptEntities = namedParameterJdbcTemplate.query(searchQuery.toString(),
+				paramValues, row);
 
-        for (MaterialReceiptEntity materialReceiptEntity : materialReceiptEntities) {
+		for (MaterialReceiptEntity materialReceiptEntity : materialReceiptEntities) {
 
-            materialReceipts.add(materialReceiptEntity.toDomain());
-        }
+			materialReceipts.add(materialReceiptEntity.toDomain());
+		}
 
-        page.setTotalResults(materialReceipts.size());
+		page.setTotalResults(materialReceipts.size());
 
-        page.setPagedData(materialReceipts);
+		page.setPagedData(materialReceipts);
 
-        return page;
-    }
+		return page;
+	}
 
+	public Pagination<MaterialBalanceRate> searchBalanceRate(MaterialReceiptSearch materialReceiptSearch) {
+		String searchQuery = "select * from (select materialreceipt.tenantid as tenantId, materialreceipt.id as receiptId,rctdtl.id as receiptDetailId,rctdtl.mrnnumber as mrnNumber,receivingstore as issueStoreCode, material as materialCode, uomno as uomCode,\n"
+				+ "(COALESCE(addinfo.quantity,acceptedqty) - COALESCE (case when addinfo.id is not null then (select sum(issuereceipt.quantity) from materialissuedfromreceipt\n"
+				+ "issuereceipt where addinfo.id=issuereceipt.receiptdetailaddnlinfoid and issuereceipt.receiptdetailid=rctdtl.id and issuereceipt.status=true)\n"
+				+ "else (select sum(issuereceipt.quantity) from materialissuedfromreceipt issuereceipt where issuereceipt.receiptdetailid=rctdtl.id and issuereceipt.status=true) end,0)) as balance , unitRate \n"
+				+ "from materialreceipt left outer join materialreceiptdetail rctdtl on materialreceipt.mrnnumber = rctdtl.mrnnumber left outer join\n"
+				+ "materialreceiptdetailaddnlinfo  addinfo on rctdtl.id= addinfo.receiptdetailid\n"
+				+ "where  (isscrapitem IS NULL or isscrapitem=false) and (rctdtl.deleted=false or rctdtl.deleted is null ) and receivingstore= :store  and materialreceipt.tenantid= :tenantId\n"
+				+ ":materialcondition and mrnstatus in ('APPROVED') and receiptdate <= :date order by addinfo.expirydate,addinfo.receiveddate,receiptdate)as fifo where balance >0";
+
+		Map<String, Object> paramValues = new HashMap<>();
+
+		if (materialReceiptSearch.getMaterials() != null && !materialReceiptSearch.getMaterials().isEmpty()) {
+			searchQuery = searchQuery.replace(":materialcondition", "and material in (:material)");			
+			paramValues.put("material", materialReceiptSearch.getMaterials());
+		}else {
+			searchQuery = searchQuery.replace(":materialcondition", "");	
+		}
+
+		if (materialReceiptSearch.getIssueingStore() != null) {
+			paramValues.put("store", materialReceiptSearch.getIssueingStore());
+		}
+
+		if (materialReceiptSearch.getTenantId() != null) {
+			paramValues.put("tenantId", materialReceiptSearch.getTenantId());
+		}
+		paramValues.put("date", new Date().getTime());
+
+		Pagination<MaterialBalanceRate> page = new Pagination<>();
+		page = (Pagination<MaterialBalanceRate>) getPagination(searchQuery, page, paramValues);
+
+		BeanPropertyRowMapper row = new BeanPropertyRowMapper(MaterialBalanceRateEntity.class);
+
+		List<MaterialBalanceRate> materialBalanceRate = new ArrayList<>();
+
+		List<MaterialBalanceRateEntity> materialBalanceRateEntity = namedParameterJdbcTemplate
+				.query(searchQuery.toString(), paramValues, row);
+
+		for (MaterialBalanceRateEntity materialReceiptEntity : materialBalanceRateEntity) {
+			materialBalanceRate.add(materialReceiptEntity.toDomain());
+		}
+
+		page.setTotalResults(materialBalanceRate.size());
+		page.setPagedData(materialBalanceRate);
+		return page;
+	}
 
 }

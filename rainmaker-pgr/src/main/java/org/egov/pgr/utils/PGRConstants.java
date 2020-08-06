@@ -71,12 +71,18 @@ public class PGRConstants {
 	public static final String JSONPATH_DESIGNATIONS = "$.MdmsRes.common-masters.Designation";
 	public static final String JSONPATH_CATEGORY_CODES = "$.MdmsRes.RAINMAKER-PGR.ServiceDefs.*.menuPath";
 	public static final String JSONPATH_DEPARTMENT_CODES = "$.MdmsRes.RAINMAKER-PGR.ServiceDefs.*.department";
-	public static final String JSONPATH_ESCALATING_OFFICER1_CODES = "$.MdmsRes.RAINMAKER-PGR.AutoroutingEscalationMap.*.escalationOfficer1";
-	public static final String JSONPATH_ESCALATING_OFFICER2_CODES = "$.MdmsRes.RAINMAKER-PGR.AutoroutingEscalationMap.*.escalationOfficer2";
-	public static final String JSONPATH_AUTOROUTING_CODES = "$.MdmsRes.RAINMAKER-PGR.AutoroutingEscalationMap.*.autoRouting";
-	public static final String JSONPATH_AUTOROUTING_CATEGORY_CODES = "$.MdmsRes.RAINMAKER-PGR.AutoroutingEscalationMap.*.category";
-	public static final String JSONPATH_AUTOROUTING_MAP_CODES = "$.MdmsRes.RAINMAKER-PGR.AutoroutingEscalationMap";
+	//public static final String JSONPATH_ESCALATING_OFFICER1_CODES = "$.MdmsRes.RAINMAKER-PGR.AutoroutingEscalationMap.*.escalationOfficer1";
+	//public static final String JSONPATH_ESCALATING_OFFICER2_CODES = "$.MdmsRes.RAINMAKER-PGR.AutoroutingEscalationMap.*.escalationOfficer2";
+	//public static final String JSONPATH_AUTOROUTING_CODES = "$.MdmsRes.RAINMAKER-PGR.AutoroutingEscalationMap.*.autoRouting";
+	//public static final String JSONPATH_AUTOROUTING_CATEGORY_CODES = "$.MdmsRes.RAINMAKER-PGR.AutoroutingEscalationMap.*.category";
+	//public static final String JSONPATH_AUTOROUTING_MAP_CODES = "$.MdmsRes.RAINMAKER-PGR.AutoroutingEscalationMap";
 
+	public static final String JSONPATH_ESCALATING_OFFICER1_CODES_DB = "$.AutoroutingEscalationMap.*.escalationOfficer1";
+	public static final String JSONPATH_ESCALATING_OFFICER2_CODES_DB = "$.AutoroutingEscalationMap.*.escalationOfficer2";
+	public static final String JSONPATH_AUTOROUTING_CODES_DB = "$.*.autoRouting";
+	public static final String JSONPATH_AUTOROUTING_CATEGORY_CODES_DB = "$.*.category";
+	public static final String JSONPATH_AUTOROUTING_MAP_CODES_DB = "$.AutoroutingEscalationMap";
+	
 	public static final String SERVICE_NAME = "serviceName";
 	public static final String DEFAULT_COMPLAINT_TYPE = "resolution";
 	public static final String EMPLOYEE_DEPTCODES_JSONPATH = "$.Employees[0].assignments.*.department";

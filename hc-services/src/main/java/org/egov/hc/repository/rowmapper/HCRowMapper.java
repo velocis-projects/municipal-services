@@ -12,12 +12,11 @@ import org.egov.hc.model.ServiceRequestData;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
+
 
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,8 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HCRowMapper implements ResultSetExtractor<List<ServiceRequestData>> {
 
-	@Autowired
-	private ObjectMapper mapper;
 
 	@Override
 	public JSONArray extractData(ResultSet rs) throws SQLException {

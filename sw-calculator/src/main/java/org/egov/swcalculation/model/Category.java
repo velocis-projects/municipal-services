@@ -22,7 +22,9 @@ public enum Category {
 
 	FINES("FINES"),
 
-	CHARGES("CHARGES");
+	CHARGES("CHARGES"),
+	
+	FEE_BANK("FEE_BANK");
 
 	private String value;
 

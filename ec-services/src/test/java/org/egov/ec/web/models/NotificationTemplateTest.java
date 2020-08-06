@@ -26,7 +26,7 @@ public class NotificationTemplateTest {
 		assertEquals(null, result.getEmail());
 		assertEquals(null, result.getSubject());
 		assertEquals(null, result.getBody());
-		assertEquals(null, result.getAttachmentUrls());
+		assertEquals(null, result.getAttachments());
 		assertEquals(null, result.getMobileNumber());
 		assertEquals(null, result.getMessage());
 		assertEquals(null, result.getIsHTML());
@@ -45,13 +45,13 @@ public class NotificationTemplateTest {
 		String email = "";
 		String subject="";
 		String body = "";
-		List<String> attachmentUrls = null;
+		List<EmailAttachment> attachments = null;
 		Long mobileNumber = new Long(0);
 		String message = "";
 		Boolean isHTML = new Boolean(true);
 
 
-		NotificationTemplate result = new NotificationTemplate(email, subject, body, attachmentUrls, mobileNumber, message, isHTML);
+		NotificationTemplate result = new NotificationTemplate(email, subject, body, attachments, mobileNumber, message, isHTML);
 
 		
 		assertNotNull(result);
@@ -61,6 +61,7 @@ public class NotificationTemplateTest {
 		assertEquals("", result.getSubject());
 		assertEquals("", result.getBody());
 		assertEquals("", result.getMessage());
+		assertEquals(null,result.getAttachments());
 	}
 	
 	/**
@@ -78,7 +79,7 @@ public class NotificationTemplateTest {
 
 		
 		assertNotNull(result);
-		assertEquals("NotificationTemplate.NotificationTemplateBuilder(email=null, subject=null, body=null, attachmentUrls=null, mobileNumber=null, message=null, isHTML=null)", result.toString());
+		assertEquals("NotificationTemplate.NotificationTemplateBuilder(email=null, subject=null, body=null, attachments=null, mobileNumber=null, message=null, isHTML=null)", result.toString());
 	}
 	
 	/**
@@ -96,7 +97,7 @@ public class NotificationTemplateTest {
 		builder.email(null);
 		builder.subject(null);
 		builder.body(null);
-		builder.attachmentUrls(null);
+		builder.attachments(null);
 		builder.mobileNumber(null);
 		builder.message(null);
 		builder.isHTML(null);
@@ -106,7 +107,7 @@ public class NotificationTemplateTest {
 		builder2.email(null);
 		builder2.subject(null);
 		builder2.body(null);
-		builder2.attachmentUrls(null);
+		builder2.attachments(null);
 		builder2.mobileNumber(null);
 		builder2.message(null);
 		builder2.isHTML(null);
@@ -147,7 +148,7 @@ public class NotificationTemplateTest {
 		throws Exception {
 		NotificationTemplate fixture = new NotificationTemplate("","","",null,new Long(1L),"",new Boolean(true));
 
-		List<String> result = fixture.getAttachmentUrls();	
+		List<EmailAttachment> result = fixture.getAttachments();	
 		assertEquals(null, result);
 	}
 
@@ -217,8 +218,8 @@ public class NotificationTemplateTest {
 	public void testSetAttachmentUrls_1()
 		throws Exception {
 		NotificationTemplate fixture = new NotificationTemplate("","","",null,new Long(1L),"",new Boolean(true));
-		List<String> attachmentUrls =null ;		
-		fixture.setAttachmentUrls(attachmentUrls);
+		List<EmailAttachment> attachmentUrls =null ;		
+		fixture.setAttachments(attachmentUrls);
 	}
 	
 	@Test

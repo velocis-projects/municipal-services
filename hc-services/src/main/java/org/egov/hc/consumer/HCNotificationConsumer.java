@@ -119,6 +119,7 @@ public class HCNotificationConsumer {
 		String userName = null;
 
 		String allRoles = null;
+		String city = serviceReqRequest.getServices().get(0).getCity();
 
 		log.info("Get Employee data using  : "+ role + " role" );
 
@@ -161,6 +162,7 @@ public class HCNotificationConsumer {
 						serviceRequest.setEmail("");
 
 					serviceRequest.setOwnerName(userName);
+					serviceRequest.setCity(city);
 					serviceRequest.setContactNumber(mobileNumber);
 					serviceRequest.setService_request_uuid(uuid);
 					serviceRequest.setService_request_id(serviceReqRequest.getServices().get(0).getService_request_id());
@@ -320,19 +322,34 @@ public class HCNotificationConsumer {
 		toRole.add("All");
 		Recepient recepient = Recepient.builder().toUsers(toUsers).toRoles(toRole).build();
 		
+		if (actionInfo.getAction().equals(WorkFlowConfigs.ACTION_OPEN)
+			||actionInfo.getAction().equals(WorkFlowConfigs.ACTION_REJECT)
+			||actionInfo.getAction().equals(WorkFlowConfigs.ACTION_COMPLETE)
+			||actionInfo.getAction().equals(WorkFlowConfigs.ACTION_UPDATE)) {
+			Event event = Event.builder()
+					
+					.tenantId(requestInfo.getUserInfo().getTenantId())
+					.description(message).eventType(HCConstants.USREVENTS_EVENT_TYPE)
+					.name(HCConstants.USREVENTS_EVENT_NAME).postedBy(HCConstants.USREVENTS_EVENT_POSTEDBY)
+					.source(Source.WEBAPP).recepient(recepient).referenceId(serviceReq.getService_request_id())
 
-		Event event = Event.builder()
-				
-				.tenantId(requestInfo.getUserInfo().getTenantId())
-				.description(message).eventType(HCConstants.USREVENTS_EVENT_TYPE)
-				.name(HCConstants.USREVENTS_EVENT_NAME).postedBy(HCConstants.USREVENTS_EVENT_POSTEDBY)
-				.source(Source.WEBAPP).recepient(recepient).referenceId(serviceReq.getService_request_id())
+					.eventDetails(null).build();
+			events.add(event);
 
-				.eventDetails(null).build();
+		}
+		else
+		{
+			Event event = Event.builder()
+					
+					.tenantId(serviceReq.getCity())
+					.description(message).eventType(HCConstants.USREVENTS_EVENT_TYPE)
+					.name(HCConstants.USREVENTS_EVENT_NAME).postedBy(HCConstants.USREVENTS_EVENT_POSTEDBY)
+					.source(Source.WEBAPP).recepient(recepient).referenceId(null)
 
-				
+					.eventDetails(null).build();
+			events.add(event);
+		}
 
-		events.add(event);
 
 		log.info("generated user event is : " + events);
 		return EventRequest.builder().requestInfo(requestInfo).events(events).build();
@@ -439,7 +456,7 @@ public class HCNotificationConsumer {
 			break;
 			
 		case WorkFlowConfigs.ACTION_UPDATE:
-			text = messageMap.get(HCConstants.HC_CITIZEN_REQUEST_EMAIL_SUBJECT_ACTION_UPDATE);
+			text = messageMap.get(HCConstants.HC_CITIZEN_REQUEST_FOR_UPDATE_EMAIL_NOTIFICATION_SUBJECT);
 			break;
 			
 		case WorkFlowConfigs.ACTION_REJECT:
@@ -531,7 +548,7 @@ public class HCNotificationConsumer {
 		}
 		if (phoneNumberRetrived == null || message == null)
 			{
-			log.info("Sending sms message is eampty");
+			log.info("Sending sms message is empty or phonenumber not found");
 			return null;
 			}
 			
@@ -594,7 +611,7 @@ public class HCNotificationConsumer {
 
 			if(text != null)
 			{
-			text = text.replace(HCConstants.SMS_NOTIFICATION_EMP_NAME_KEY, requestInfo.getUserInfo().getName())
+			text = text.replace(HCConstants.SMS_NOTIFICATION_EMP_NAME_KEY, serviceReq.getOwnerName())
 					.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_ID, serviceReq.getService_request_id())
 					.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_TYPE, serviceReq.getServiceType())
 					.replace(HCConstants.SMS_NOTIFICATION_SERVICEREQUEST_DATE_KEY, genratedDate);
@@ -696,12 +713,12 @@ public class HCNotificationConsumer {
 		case WorkFlowConfigs.VERIFYANDFORWARD:
 
 			if (notifcationType.equals(HCConstants.SMS)) {
-				text = messageMap.get(HCConstants.HC_EMPLOYEE_CLARIFICATION_SMS_NOTIFICATION);
+				text = messageMap.get(HCConstants.HC_EMPLOYEE_REQUEST_FORWARD_SMS_NOTIFICATION);
 			} else if (notifcationType.equals(HCConstants.EMAIL)) {
 
-				text = messageMap.get(HCConstants.HC_EMPLOYEE_CLARIFICATION_EMAIL_NOTIFICATION);
+				text = messageMap.get(HCConstants.HC_EMPLOYEE_REQUEST_FORWARD_EMAIL_NOTIFICATION);
 			} else if (notifcationType.equals(HCConstants.PUSH)) {
-				text = messageMap.get(HCConstants.HC_EMPLOYEE_CLARIFICATION_PUSH_NOTIFICATION);
+				text = messageMap.get(HCConstants.HC_EMPLOYEE_REQUEST_FORWARD_PUSH_NOTIFICATION);
 			}
 			if(text != null)
 			{
@@ -791,12 +808,12 @@ public class HCNotificationConsumer {
 		case WorkFlowConfigs.ACTION_UPDATE:
 
 			if (notifcationType.equals(HCConstants.SMS)) {
-				text = messageMap.get(HCConstants.HC_CITIZEN_REQUEST_UPDATE_SMS_NOTIFICATION);
+				text = messageMap.get(HCConstants.HC_CITIZEN_REQUEST_FOR_UPDATE_SMS_NOTIFICATION);
 			} else if (notifcationType.equals(HCConstants.EMAIL)) {
 
-				text = messageMap.get(HCConstants.HC_CITIZEN_REQUEST_UPDATE_EMAIL_NOTIFICATION);
+				text = messageMap.get(HCConstants.HC_CITIZEN_REQUEST_FOR_UPDATE_EMAIL_NOTIFICATION);
 			} else if (notifcationType.equals(HCConstants.PUSH)) {
-				text = messageMap.get(HCConstants.HC_CITIZEN_REQUEST_UPDATE_PUSH_NOTIFICATION);
+				text = messageMap.get(HCConstants.HC_CITIZEN_REQUEST_FOR_UPDATE_PUSH_NOTIFICATION);
 			}
 			if(text != null)
 			{
@@ -1101,7 +1118,7 @@ public class HCNotificationConsumer {
 	             .name(HCConstants.USREVENTS_EVENT_NAME)
 	             .postedBy(HCConstants.USREVENTS_EVENT_POSTEDBY)
 	             .recepient(recepient)
-	             .referenceId(serviceReq.getService_request_id())
+	             .referenceId(null)
 
 	             .eventDetails(null).build();
 	     		 events.add(event);

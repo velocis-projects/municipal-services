@@ -13,12 +13,15 @@ import org.egov.waterconnection.model.workflow.ProcessInstance;
 import org.egov.waterconnection.model.workflow.ProcessInstanceResponse;
 import org.egov.waterconnection.model.workflow.State;
 import org.egov.waterconnection.repository.ServiceRequestRepository;
+import org.egov.waterconnection.validator.ActionValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class WorkflowService {
 
@@ -61,7 +64,7 @@ public class WorkflowService {
         url.append(config.getWfBusinessServiceSearchPath());
         url.append("?tenantId=");
         url.append(tenantId);
-        url.append("&businessservices=");
+        url.append("&businessServices=");
         url.append(config.getBusinessServiceValue());
         return url;
     }
@@ -78,7 +81,7 @@ public class WorkflowService {
            if(state.getApplicationStatus()!=null && state.getApplicationStatus().equalsIgnoreCase(stateCode))
                return state.getIsStateUpdatable();
        }
-       return null;
+       return false;
     }
     
    /**
@@ -133,7 +136,7 @@ public class WorkflowService {
 		url.append(config.getWfProcessSearchPath());
 		url.append("?tenantId=");
 		url.append(tenantId);
-		url.append("&businessservices=");
+		url.append("&businessServices=");
 		url.append(config.getBusinessServiceValue());
 		url.append("&businessIds=");
 		url.append(applicationNo);

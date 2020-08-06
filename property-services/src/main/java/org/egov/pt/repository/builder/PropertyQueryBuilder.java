@@ -161,7 +161,7 @@ public class PropertyQueryBuilder {
 			if(appendAndQuery)
 				builder.append(AND_QUERY);
 			builder.append("property.propertyid IN (").append(createQuery(propertyIds)).append(")");
-			addToPreparedStatementWithUpperCase(preparedStmtList, propertyIds);
+			addToPreparedStatement(preparedStmtList, propertyIds);
 			appendAndQuery= true;
 		}
 		
@@ -171,7 +171,7 @@ public class PropertyQueryBuilder {
 			if(appendAndQuery)
 				builder.append(AND_QUERY);
 			builder.append("property.acknowldgementnumber IN (").append(createQuery(acknowledgementIds)).append(")");
-			addToPreparedStatementWithUpperCase(preparedStmtList, acknowledgementIds);
+			addToPreparedStatement(preparedStmtList, acknowledgementIds);
 			appendAndQuery= true;
 		}
 		
