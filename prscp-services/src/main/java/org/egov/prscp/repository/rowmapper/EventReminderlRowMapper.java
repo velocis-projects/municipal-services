@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
-public class EventDetailRowMapper implements ResultSetExtractor<List<EventDetail>> {
+public class EventReminderlRowMapper implements ResultSetExtractor<List<EventDetail>> {
 
 	@Autowired
 	private ObjectMapper mapper;
@@ -59,16 +59,7 @@ public class EventDetailRowMapper implements ResultSetExtractor<List<EventDetail
 				pr.setCommitteeUuid(rs.getString("committee_uuid") == null ? "" : rs.getString("committee_uuid"));
 				pr.setTenantId(rs.getString("tenant_id") == null ? "" : rs.getString("tenant_id"));
 				pr.setModuleCode(rs.getString("module_code") == null ? "" : rs.getString("module_code"));
-				pr.setCommitteeName(rs.getString("committee_name") == null ? "" : rs.getString("committee_name"));
-
-				List<InviteGuest> inviteGuests = new ArrayList<>();
-				if (rs.getString("invitedguest") != null) {
-					inviteGuests = Arrays.asList(mapper.readValue(rs.getString("invitedguest"), InviteGuest[].class));
-				}
-				
-				pr.setInviteGuest(inviteGuests);
-
-				list.add(pr);
+			list.add(pr);
 			}
 		} catch (Exception e) {
 			throw new CustomException(CommonConstants.EVENT_EXCEPTION_CODE, e.getMessage());

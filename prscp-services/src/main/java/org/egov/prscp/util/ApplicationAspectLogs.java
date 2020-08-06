@@ -6,7 +6,11 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,115 +19,50 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ApplicationAspectLogs {
 
-	// Controller
-	@Before("execution(* org.egov.prscp.web.controllers.*.*(..))")
-	public void beforeController(JoinPoint joinPoint) {
-		long startTime = System.currentTimeMillis();
-		log.info("prscp-services logs :: beforeController = Method::{}, Execution Time::{}", joinPoint.getSignature(),
-				startTime);
-		log.debug("prscp-services logs :: beforeController = Method::{}, Execution Time::{}", joinPoint.getSignature(),
-				startTime);
+	@Autowired
+	private ObjectMapper mapper;
+
+	@Before("execution(* org.egov.prscp.service.*.*(..)) || execution(* org.egov.prscp.web.controllers.*.*(..)) || execution(* org.egov.prscp.repository.*.*(..))")
+	public void beforeService(JoinPoint joinPoint) throws JsonProcessingException {
+		log.info("Prscp-Services::Before::Method Name::{}, Executed Time::{}",
+				joinPoint.getSignature().getDeclaringTypeName(), System.currentTimeMillis());
+		log.debug("Prscp-Services::Before::Method Name::{}, Executed Time::{}, Request Parameters::{}",
+				joinPoint.getSignature().getDeclaringTypeName(), System.currentTimeMillis(),
+				joinPoint.getArgs().length > 0 ? mapper.writeValueAsString(joinPoint.getArgs()[0])
+						: "No Request Parameters");
 	}
 
-	@After("execution(* org.egov.prscp.web.controllers.*.*(..))")
-	public void afterController(JoinPoint joinPoint) {
-		long startTime = System.currentTimeMillis();
-		log.info("prscp-services logs :: afterController = Method::{}, Execution Time::{}", joinPoint.getSignature(),
-				startTime);
-		log.debug("prscp-services logs :: afterController = Method::{}, Execution Time::{}", joinPoint.getSignature(),
-				startTime);
+	@After("execution(* org.egov.prscp.service.*.*(..)) || execution(* org.egov.prscp.web.controllers.*.*(..)) || execution(* org.egov.prscp.repository.*.*(..))")
+	public void afterService(JoinPoint joinPoint) throws JsonProcessingException {
+		log.info("Prscp-Services::After::Method Name::{}, Executed Time::{}",
+				joinPoint.getSignature().getDeclaringTypeName(), System.currentTimeMillis());
+		log.debug("Prscp-Services::After::Method Name::{}, Executed Time::{}, Request Parameters::{}",
+				joinPoint.getSignature().getDeclaringTypeName(), System.currentTimeMillis(),
+				joinPoint.getArgs().length > 0 ? mapper.writeValueAsString(joinPoint.getArgs()[0])
+						: "No Request Parameters");
 	}
 
-	@AfterReturning(value = "execution(* org.egov.prscp.web.controllers.*.*(..))", returning = "result")
-	public void afterReturningController(JoinPoint joinPoint, Object result) {
-		long startTime = System.currentTimeMillis();
-		log.info("prscp-services logs :: afterReturningController = Method::{}, Execution Time::{}, Results::{}",
-				joinPoint.getSignature(), startTime, result);
-		log.debug("prscp-services logs :: afterReturningController = Method::{}, Execution Time::{}, Results::{}",
-				joinPoint.getSignature(), startTime, result);
+	@AfterReturning(value = "execution(* org.egov.prscp.service.*.*(..)) || execution(* org.egov.prscp.web.controllers.*.*(..)) || execution(* org.egov.prscp.repository.*.*(..))", returning = "result")
+	public void afterReturningService(JoinPoint joinPoint, Object result) throws JsonProcessingException {
+		log.info("Prscp-Services::AfterReturning::Method Name::{}, Executed Time::{}",
+				joinPoint.getSignature().getDeclaringTypeName(), System.currentTimeMillis());
+		log.debug(
+				"Prscp-Services::AfterReturning::Method Name::{}, Executed Time::{}, Request Parameters::{}, Response::{}",
+				joinPoint.getSignature().getDeclaringTypeName(), System.currentTimeMillis(),
+				joinPoint.getArgs().length > 0 ? mapper.writeValueAsString(joinPoint.getArgs()[0])
+						: "No Request Parameters",
+				result);
+
 	}
 
-	@AfterThrowing(value = "execution(* org.egov.prscp.web.controllers.*.*(..))", throwing = "exception")
-	public void afterThrowingController(JoinPoint joinPoint, Throwable exception) {
-		long startTime = System.currentTimeMillis();
-		log.info("prscp-services logs :: afterThrowingController = Method::{}, Execution Time::{}, Exception::{}",
-				joinPoint.getSignature(), startTime, exception.getMessage());
-		log.debug("prscp-services logs :: afterThrowingController = Method::{}, Execution Time::{}, Exception::{}",
-				joinPoint.getSignature(), startTime, exception.getMessage());
-	}
-
-	// Service
-	@Before("execution(* org.egov.prscp.service.*.*(..))")
-	public void beforeService(JoinPoint joinPoint) {
-		long startTime = System.currentTimeMillis();
-		log.info("prscp-services logs :: beforeService = Method::{}, Execution Time::{}", joinPoint.getSignature(),
-				startTime);
-		log.debug("prscp-services logs :: beforeService = Method::{}, Execution Time::{}", joinPoint.getSignature(),
-				startTime);
-	}
-
-	@After("execution(* org.egov.prscp.service.*.*(..))")
-	public void afterService(JoinPoint joinPoint) {
-		long startTime = System.currentTimeMillis();
-		log.info("prscp-services logs :: afterService = Method::{}, Execution Time::{}", joinPoint.getSignature(),
-				startTime);
-		log.debug("prscp-services logs :: afterService = Method::{}, Execution Time::{}", joinPoint.getSignature(),
-				startTime);
-	}
-
-	@AfterReturning(value = "execution(* org.egov.prscp.service.*.*(..))", returning = "result")
-	public void afterReturningService(JoinPoint joinPoint, Object result) {
-		long startTime = System.currentTimeMillis();
-		log.info("prscp-services logs :: afterReturningService = Method::{}, Execution Time::{}, Results::{}",
-				joinPoint.getSignature(), startTime, result);
-		log.debug("prscp-services logs :: afterReturningService = Method::{}, Execution Time::{}, Results::{}",
-				joinPoint.getSignature(), startTime, result);
-	}
-
-	@AfterThrowing(value = "execution(* org.egov.prscp.service.*.*(..))", throwing = "exception")
-	public void afterThrowingService(JoinPoint joinPoint, Throwable exception) {
-		long startTime = System.currentTimeMillis();
-		log.info("prscp-services logs :: afterThrowingService = Method::{}, Execution Time::{}, Exception::{}",
-				joinPoint.getSignature(), startTime, exception.getMessage());
-		log.debug("prscp-services logs :: afterThrowingService = Method::{}, Execution Time::{}, Exception::{}",
-				joinPoint.getSignature(), startTime, exception.getMessage());
-	}
-
-	// Repository
-	@Before("execution(* org.egov.prscp.repository.*.*(..))")
-	public void beforeRepository(JoinPoint joinPoint) {
-		long startTime = System.currentTimeMillis();
-		log.info("prscp-services logs :: beforeRepository = Method::{}, Execution Time::{}", joinPoint.getSignature(),
-				startTime);
-		log.debug("prscp-services logs :: beforeRepository = Method::{}, Execution Time::{}", joinPoint.getSignature(),
-				startTime);
-	}
-
-	@After("execution(* org.egov.prscp.repository.*.*(..))")
-	public void afterRepository(JoinPoint joinPoint) {
-		long startTime = System.currentTimeMillis();
-		log.info("prscp-services logs :: afterRepository = Method::{}, Execution Time::{}", joinPoint.getSignature(),
-				startTime);
-		log.debug("prscp-services logs :: afterRepository = Method::{}, Execution Time::{}", joinPoint.getSignature(),
-				startTime);
-	}
-
-	@AfterReturning(value = "execution(* org.egov.prscp.repository.*.*(..))", returning = "result")
-	public void afterReturningRepository(JoinPoint joinPoint, Object result) {
-		long startTime = System.currentTimeMillis();
-		log.info("prscp-services logs :: afterReturningRepository = Method::{}, Execution Time::{}, Results::{}",
-				joinPoint.getSignature(), startTime, result);
-		log.debug("prscp-services logs :: afterReturningRepository = Method::{}, Execution Time::{}, Results::{}",
-				joinPoint.getSignature(), startTime, result);
-	}
-
-	@AfterThrowing(value = "execution(* org.egov.prscp.repository.*.*(..))", throwing = "exception")
-	public void afterThrowingRepository(JoinPoint joinPoint, Throwable exception) {
-		long startTime = System.currentTimeMillis();
-		log.info("prscp-services logs :: afterThrowingRepository = Method::{}, Execution Time::{}, Exception::{}",
-				joinPoint.getSignature(), startTime, exception.getMessage());
-		log.debug("prscp-services logs :: afterThrowingRepository = Method::{}, Execution Time::{}, Exception::{}",
-				joinPoint.getSignature(), startTime, exception.getMessage());
+	@AfterThrowing(value = "execution(* org.egov.prscp.service.*.*(..)) || execution(* org.egov.prscp.web.controllers.*.*(..)) || execution(* org.egov.prscp.repository.*.*(..))", throwing = "exception")
+	public void afterThrowingService(JoinPoint joinPoint, Throwable exception) throws JsonProcessingException {
+		log.error(
+				"Prscp-Services::AfterFailed::Method Name::{}, Executed Time::{}, Request Parameters::{}, Error Response::{}, Exception Details::{}",
+				joinPoint.getSignature().getDeclaringTypeName(), System.currentTimeMillis(),
+				joinPoint.getArgs().length > 0 ? mapper.writeValueAsString(joinPoint.getArgs()[0])
+						: "No Request Parameters",
+				exception.getMessage(), exception.getStackTrace());
 	}
 
 }

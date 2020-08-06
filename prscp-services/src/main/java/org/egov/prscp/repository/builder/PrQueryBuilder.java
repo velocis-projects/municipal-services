@@ -134,7 +134,7 @@ public class PrQueryBuilder {
 
 	public static final String GET_INVITATION_GUEST_LIST_REMINDER = "select module_code,tenant_Id,department_name,department_uuid,user_uuid,event_guest_uuid,event_detail_uuid,guest_name, event_guest_type, guest_email, guest_mobile, COALESCE(sent_flag,false) sent_flag, is_active from egpr_event_guestlist where tenant_id=? and module_code=? and event_detail_uuid=? and is_active=true";
 	public static final String Event_Details_Reminder_QUERY = "\n"
-			+ "SELECT event_detail_uuid, event_title, event_location, sector, module_code,organizer_department_name, \n"
+			+ "SELECT event_detail_uuid, event_title, event_location,locality_name, sector, module_code,organizer_department_name, \n"
 			+ "       organizer_user_uuid, organizer_user_name, facebook_url, twitter_url, \n"
 			+ "       instagram_url, start_date, start_time, end_date, end_time, event_description, \n"
 			+ "       event_type, event_image, event_budget, committee_uuid, event_status, \n"
