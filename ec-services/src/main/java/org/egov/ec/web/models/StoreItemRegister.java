@@ -127,6 +127,11 @@ public class StoreItemRegister {
 	
 	@JsonProperty("document")
 	private List<Document> document;
+	
+	@JsonProperty("damagedQuantity")
+	@NotNull(message = "damagedQuantity should not be empty or null")
+	@NotBlank(message = "damagedQuantity should not be empty or null")
+	private Long damagedQuantity;
 
 	
 }

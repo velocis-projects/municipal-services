@@ -52,8 +52,9 @@ public class StoreItemRegisterTest {
 		assertEquals(null, result.getLastModifiedBy());
 		assertEquals(null, result.getSourceUuid());
 		assertEquals(null, result.getDocument());
+		assertEquals(null, result.getDamagedQuantity());
 	}
-
+	
 	/**
 	 * Run the StoreItemRegister(String,String,String,String,String,Long,Long,Boolean,Boolean,String,String,String,String,Boolean,String,Long,String,String,String,Long,List<StoreItemRegister>) constructor test.
 	 *
@@ -89,8 +90,9 @@ public class StoreItemRegisterTest {
 		String sourceUuid="";
 		List<StoreItemRegister> storeItemRegister = null;
 		List<Document> document = null;
+		Long damagedQuantity= new Long(1L);
 
-		StoreItemRegister result = new StoreItemRegister(storeItemUuid, tenantId, challanId, challanUuid, itemUuid, itemName, quantity, auctionedQuantity, isVerified, isAuctioned, isReturned, remark, itemStoreDepositDate, violationItemUuid, violationUuid, isActive, createdBy, createdTime, lastModifiedBy, status, paymentMode, lastModifiedTime, sourceUuid, storeItemRegister, document);
+		StoreItemRegister result = new StoreItemRegister(storeItemUuid, tenantId, challanId, challanUuid, itemUuid, itemName, quantity, auctionedQuantity, isVerified, isAuctioned, isReturned, remark, itemStoreDepositDate, violationItemUuid, violationUuid, isActive, createdBy, createdTime, lastModifiedBy, status, paymentMode, lastModifiedTime, sourceUuid, storeItemRegister, document, damagedQuantity);
 
 		assertNotNull(result);
 		assertEquals(new Long(1L), result.getLastModifiedTime());
@@ -117,6 +119,7 @@ public class StoreItemRegisterTest {
 		assertEquals("", result.getLastModifiedBy());
 		assertEquals("", result.getSourceUuid());
 		assertEquals(null, result.getDocument());
+		assertEquals(new Long(1L), result.getDamagedQuantity());
 	}
 
 	/**
@@ -134,7 +137,7 @@ public class StoreItemRegisterTest {
 
 		
 		assertNotNull(result);
-		assertEquals("StoreItemRegister.StoreItemRegisterBuilder(storeItemUuid=null, tenantId=null, challanId=null, challanUuid=null, itemUuid=null, itemName=null, quantity=null, auctionedQuantity=null, isVerified=null, isAuctioned=null, isReturned=null, remark=null, itemStoreDepositDate=null, violationItemUuid=null, violationUuid=null, isActive=null, createdBy=null, createdTime=null, lastModifiedBy=null, status=null, paymentMode=null, lastModifiedTime=null, sourceUuid=null, storeItemRegister=null, document=null)", result.toString());
+		assertEquals("StoreItemRegister.StoreItemRegisterBuilder(storeItemUuid=null, tenantId=null, challanId=null, challanUuid=null, itemUuid=null, itemName=null, quantity=null, auctionedQuantity=null, isVerified=null, isAuctioned=null, isReturned=null, remark=null, itemStoreDepositDate=null, violationItemUuid=null, violationUuid=null, isActive=null, createdBy=null, createdTime=null, lastModifiedBy=null, status=null, paymentMode=null, lastModifiedTime=null, sourceUuid=null, storeItemRegister=null, document=null, damagedQuantity=null)", result.toString());
 	}
 	
 	@Test
@@ -168,6 +171,7 @@ public class StoreItemRegisterTest {
 		builder.isReturned(null);
 		builder.sourceUuid(null);
 		builder.document(null);
+		builder.damagedQuantity(null);
 		builder.build();
 
 		StoreItemRegister.StoreItemRegisterBuilder builder2 = new StoreItemRegister.StoreItemRegisterBuilder();
@@ -197,6 +201,7 @@ public class StoreItemRegisterTest {
 		builder2.isReturned(null);
 		builder2.sourceUuid(null);
 		builder2.document(null);
+		builder2.damagedQuantity(null);
 		builder2.build();
 
 		Assert.assertEquals(builder2.toString(), builder.toString());
@@ -212,9 +217,27 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetAuctionedQuantity_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null, new Long(1L));
 
 		Long result = fixture.getAuctionedQuantity();
+
+		
+		assertNotNull(result);
+		assertEquals("1", result.toString());
+		assertEquals((byte) 1, result.byteValue());
+		assertEquals((short) 1, result.shortValue());
+		assertEquals(1, result.intValue());
+		assertEquals(1L, result.longValue());
+		assertEquals(1.0f, result.floatValue(), 1.0f);
+		assertEquals(1.0, result.doubleValue(), 1.0);
+	}
+	
+	@Test
+	public void testGetDamagedQuantity_1()
+		throws Exception {
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null, new Long(1L));
+
+		Long result = fixture.getDamagedQuantity();
 
 		
 		assertNotNull(result);
@@ -237,7 +260,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetChallanId_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		String result = fixture.getChallanId();
 
@@ -248,7 +271,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetDocument_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		List<Document> result = fixture.getDocument();
 		
 		assertEquals(null, result);
@@ -264,7 +287,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetCreatedBy_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		String result = fixture.getCreatedBy();
 
@@ -282,7 +305,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetCreatedTime_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		Long result = fixture.getCreatedTime();
 
@@ -307,7 +330,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetIsActive_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		Boolean result = fixture.getIsActive();
 
@@ -327,7 +350,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetIsAuctioned_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		Boolean result = fixture.getIsAuctioned();
 
@@ -347,7 +370,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetIsVerified_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		Boolean result = fixture.getIsVerified();
 
@@ -367,7 +390,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetItemName_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		String result = fixture.getItemName();
 
@@ -385,7 +408,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetItemStoreDepositDate_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		String result = fixture.getItemStoreDepositDate();
 
@@ -403,7 +426,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetItemUuid_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		String result = fixture.getItemUuid();
 
@@ -421,7 +444,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetLastModifiedBy_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		String result = fixture.getLastModifiedBy();
 
@@ -439,7 +462,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetLastModifiedTime_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		Long result = fixture.getLastModifiedTime();
 
@@ -464,7 +487,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetPaymentMode_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		String result = fixture.getPaymentMode();
 
@@ -482,7 +505,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetQuantity_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		Long result = fixture.getQuantity();
 
@@ -507,7 +530,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetRemark_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		String result = fixture.getRemark();
 
@@ -525,7 +548,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetStatus_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		String result = fixture.getStatus();
 
@@ -543,7 +566,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetStoreItemRegister_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		List<StoreItemRegister> result = fixture.getStoreItemRegister();
 		assertEquals(null, result);
@@ -559,7 +582,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetStoreItemUuid_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		String result = fixture.getStoreItemUuid();
 
@@ -577,7 +600,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetTenantId_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		String result = fixture.getTenantId();
 
@@ -588,7 +611,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetChallanUuid_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		String result = fixture.getChallanUuid();
 
 		assertEquals("", result);
@@ -597,7 +620,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetIsReturned_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		Boolean result = fixture.getIsReturned();
 
 		assertNotNull(result);
@@ -615,7 +638,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetViolationItemUuid_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		String result = fixture.getViolationItemUuid();
 
@@ -633,7 +656,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testGetViolationUuid_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		String result = fixture.getViolationUuid();
 
@@ -651,10 +674,21 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetAuctionedQuantity_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		Long auctionedQuantity = new Long(1L);
 
 		fixture.setAuctionedQuantity(auctionedQuantity);
+
+		
+	}
+	
+	@Test
+	public void testSetDamagedQuantity_1()
+		throws Exception {
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
+		Long damagedQuantity = new Long(1L);
+
+		fixture.setDamagedQuantity(damagedQuantity);
 
 		
 	}
@@ -669,7 +703,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetChallanId_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		String challanId = "";
 
 		fixture.setChallanId(challanId);
@@ -680,7 +714,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetChallanUuidd_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		String challanUuid = "";
 
 		fixture.setChallanUuid(challanUuid);
@@ -699,7 +733,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetCreatedBy_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		String createdBy = "";
 
 		fixture.setCreatedBy(createdBy);
@@ -717,7 +751,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetCreatedTime_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		Long createdTime = new Long(1L);
 
 		fixture.setCreatedTime(createdTime);
@@ -735,7 +769,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetIsActive_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		Boolean isActive = new Boolean(true);
 
 		fixture.setIsActive(isActive);
@@ -747,7 +781,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetIsReturned_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		Boolean isReturned = new Boolean(true);
 
 		fixture.setIsReturned(isReturned);
@@ -765,7 +799,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetIsAuctioned_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		Boolean isAuctioned = new Boolean(true);
 
 		fixture.setIsAuctioned(isAuctioned);
@@ -783,7 +817,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetIsVerified_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		Boolean isVerified = new Boolean(true);
 
 		fixture.setIsVerified(isVerified);
@@ -801,7 +835,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetItemName_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		String itemName = "";
 
 		fixture.setItemName(itemName);
@@ -819,7 +853,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetItemStoreDepositDate_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		String itemStoreDepositDate = "";
 
 		fixture.setItemStoreDepositDate(itemStoreDepositDate);
@@ -837,7 +871,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetItemUuid_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		String itemUuid = "";
 
 		fixture.setItemUuid(itemUuid);
@@ -855,7 +889,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetLastModifiedBy_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		String lastModifiedBy = "";
 
 		fixture.setLastModifiedBy(lastModifiedBy);
@@ -873,7 +907,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetLastModifiedTime_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		Long lastModifiedTime = new Long(1L);
 
 		fixture.setLastModifiedTime(lastModifiedTime);
@@ -891,7 +925,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetPaymentMode_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		String paymentMode = "";
 
 		fixture.setPaymentMode(paymentMode);
@@ -909,7 +943,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetQuantity_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		Long quantity = new Long(1L);
 
 		fixture.setQuantity(quantity);
@@ -927,7 +961,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetRemark_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		String remark = "";
 
 		fixture.setRemark(remark);
@@ -945,7 +979,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetStatus_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		String status = "";
 
 		fixture.setStatus(status);
@@ -963,7 +997,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetStoreItemRegister_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		List<StoreItemRegister> storeItemRegister = null;
 		// add mock object expectations here
 
@@ -985,7 +1019,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetStoreItemUuid_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		String storeItemUuid = "";
 
 		fixture.setStoreItemUuid(storeItemUuid);
@@ -1003,7 +1037,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetTenantId_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		String tenantId = "";
 
 		fixture.setTenantId(tenantId);
@@ -1021,7 +1055,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetViolationItemUuid_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		String violationItemUuid = "";
 
 		fixture.setViolationItemUuid(violationItemUuid);
@@ -1039,7 +1073,7 @@ public class StoreItemRegisterTest {
 	@Test
 	public void testSetViolationUuid_1()
 		throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		String violationUuid = "";
 
 		fixture.setViolationUuid(violationUuid);
@@ -1049,7 +1083,7 @@ public class StoreItemRegisterTest {
 
 	@Test
 	public void testSetSourceUuid_1() throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		String sourceUuid = "";
 		fixture.setSourceUuid(sourceUuid);
 
@@ -1057,7 +1091,7 @@ public class StoreItemRegisterTest {
 	
 	@Test
 	public void testGetSourceUuid_1() throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 
 		String result = fixture.getSourceUuid();
 
@@ -1066,7 +1100,7 @@ public class StoreItemRegisterTest {
 	
 	@Test
 	public void testSetDocumnt_1() throws Exception {
-		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null, null);
+		StoreItemRegister fixture = new StoreItemRegister("", "", "", "", "", "",new Long(1L), new Long(1L), new Boolean(true), new Boolean(true), new Boolean(true), "", "", "", "", new Boolean(true), "", new Long(1L), "", "", "", new Long(1L), "", null,null, new Long(1L));
 		List<Document> document = null;
 		fixture.setDocument(document);
 

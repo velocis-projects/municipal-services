@@ -62,7 +62,7 @@ public class ReportRepository {
 			reportList = jdbcTemplate.query(EcQueryBuilder.GET_SEIZURE_REPORT,
 					new Object[] { reportData.getFromDate(), reportData.getToDate(), reportData.getSiName(),
 							reportData.getSiName(), reportData.getEncroachmentType(), reportData.getEncroachmentType(),
-							reportData.getSector(), reportData.getSector(), reportData.getTenantId() },
+							reportData.getSector(), reportData.getSector(), reportData.getChallanStatus(), reportData.getChallanStatus(), reportData.getTenantId() },
 
 					new BeanPropertyRowMapper<Report>(Report.class));
 			return reportList;
@@ -88,6 +88,12 @@ public class ReportRepository {
 			}
 			if (reportData.getItemsAgeFrom().equalsIgnoreCase("30")) {
 				reportList = jdbcTemplate.query(EcQueryBuilder.GET_ITEM_AGING_REPORT4,
+						new Object[] { reportData.getTenantId() },
+
+						new BeanPropertyRowMapper<Report>(Report.class));
+			}
+			if (reportData.getItemsAgeFrom().equalsIgnoreCase("All")) {
+				reportList = jdbcTemplate.query(EcQueryBuilder.GET_ITEM_AGING_REPORT5,
 						new Object[] { reportData.getTenantId() },
 
 						new BeanPropertyRowMapper<Report>(Report.class));
