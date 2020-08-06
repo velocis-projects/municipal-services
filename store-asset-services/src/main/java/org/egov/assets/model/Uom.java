@@ -84,7 +84,7 @@ public class Uom {
 	 * 
 	 * @return tenantId
 	 **/
-	@Size(min = 1, max = 128)
+	@Size(min = 2, max = 128)
 	public String getTenantId() {
 		return tenantId;
 	}

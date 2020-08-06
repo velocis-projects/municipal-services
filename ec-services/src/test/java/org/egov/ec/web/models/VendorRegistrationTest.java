@@ -42,6 +42,7 @@ public class VendorRegistrationTest {
 		assertEquals(null, result.getTenantId());
 		assertEquals(null, result.getVendorRegistrationList());
 		assertEquals(null, result.getSourceUuid());
+		assertEquals(null, result.getNumberOfViolation());
 	}
 
 	/**
@@ -73,10 +74,11 @@ public class VendorRegistrationTest {
 		String tenantId = "";
 		String sourceUuid="";
 		List<VendorRegistration> vendorRegistrationList = null;
+		String numberOfViolation="";
 
 		VendorRegistration result = new VendorRegistration(vendorUuid, passNo, covNo, name, fatherSpouseName, address,
 				contactNumber, vendorCategory, streetVendorArea, transportMode, isActive, createdBy, createdTime,
-				lastModifiedBy, lastModifiedTime, vendorRegistrationList, tenantId, sourceUuid);
+				lastModifiedBy, lastModifiedTime, vendorRegistrationList, tenantId, sourceUuid, numberOfViolation);
 
 		assertNotNull(result);
 		assertEquals("", result.getVendorUuid());
@@ -98,7 +100,7 @@ public class VendorRegistrationTest {
 		assertEquals(null, result.getVendorRegistrationList());
 		assertEquals("", result.getTenantId());
 		assertEquals("", result.getSourceUuid());
-
+		assertEquals("", result.getNumberOfViolation());
 	}
 
 	/**
@@ -115,7 +117,7 @@ public class VendorRegistrationTest {
 
 		assertNotNull(result);
 		assertEquals(
-				"VendorRegistration.VendorRegistrationBuilder(vendorUuid=null, passNo=null, covNo=null, name=null, fatherSpouseName=null, address=null, contactNumber=null, vendorCategory=null, streetVendorArea=null, transportMode=null, isActive=null, createdBy=null, createdTime=null, lastModifiedBy=null, lastModifiedTime=null, vendorRegistrationList=null, tenantId=null, sourceUuid=null)",
+				"VendorRegistration.VendorRegistrationBuilder(vendorUuid=null, passNo=null, covNo=null, name=null, fatherSpouseName=null, address=null, contactNumber=null, vendorCategory=null, streetVendorArea=null, transportMode=null, isActive=null, createdBy=null, createdTime=null, lastModifiedBy=null, lastModifiedTime=null, vendorRegistrationList=null, tenantId=null, sourceUuid=null, numberOfViolation=null)",
 				result.toString());
 	}
 
@@ -148,6 +150,7 @@ public class VendorRegistrationTest {
 		builder.vendorRegistrationList(null);
 		builder.tenantId(null);
 		builder.sourceUuid(null);
+		builder.numberOfViolation(null);
 		builder.build();
 
 		VendorRegistration.VendorRegistrationBuilder builder2 = new VendorRegistration.VendorRegistrationBuilder();
@@ -169,6 +172,7 @@ public class VendorRegistrationTest {
 		builder2.vendorRegistrationList(null);
 		builder2.tenantId(null);
 		builder2.sourceUuid(null);
+		builder2.numberOfViolation(null);
 		builder2.build();
 
 		Assert.assertEquals(builder2.toString(), builder.toString());
@@ -177,7 +181,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testGetVendorUuid_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String result = fixture.getVendorUuid();
 		assertEquals("", result);
 	}
@@ -185,7 +189,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testGetPassNo_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String result = fixture.getPassNo();
 		assertEquals("", result);
 	}
@@ -193,7 +197,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testGetCovNo_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String result = fixture.getCovNo();
 		assertEquals("", result);
 	}
@@ -201,7 +205,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testGetName_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String result = fixture.getName();
 		assertEquals("", result);
 	}
@@ -209,7 +213,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testGetFatherSpouseName_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String result = fixture.getFatherSpouseName();
 		assertEquals(null, result);
 	}
@@ -217,7 +221,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testGetAddress_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String result = fixture.getAddress();
 		assertEquals(null, result);
 	}
@@ -225,7 +229,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testGetVendorCategory_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String result = fixture.getVendorCategory();
 		assertEquals(null, result);
 	}
@@ -233,7 +237,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testGetStreetVendorArea_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String result = fixture.getStreetVendorArea();
 		assertEquals(null, result);
 	}
@@ -241,7 +245,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testGetTransportMode_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String result = fixture.getTransportMode();
 		assertEquals(null, result);
 	}
@@ -249,7 +253,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testGetIsActive_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		Boolean result = fixture.getIsActive();
 
 		assertNotNull(result);
@@ -260,7 +264,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testGetCreatedBy_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 
 		String result = fixture.getCreatedBy();
 
@@ -270,7 +274,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testGetCreatedTime_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 
 		Long result = fixture.getCreatedTime();
 
@@ -287,7 +291,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testGetLastModifiedBy_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 
 		String result = fixture.getLastModifiedBy();
 
@@ -297,7 +301,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testGetLastModifiedTime_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 
 		Long result = fixture.getLastModifiedTime();
 
@@ -314,7 +318,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testGetRegistrationList_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		List<VendorRegistration> result = fixture.getVendorRegistrationList();
 		assertEquals(null, result);
 	}
@@ -322,7 +326,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testGetTenantId_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String result = fixture.getTenantId();
 		assertEquals(null, result);
 	}
@@ -331,7 +335,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testSetVendorUuid_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String vendorUuid = "";
 		fixture.setVendorUuid(vendorUuid);
 
@@ -340,7 +344,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testSetPassNo_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String passNo = "";
 		fixture.setPassNo(passNo);
 
@@ -349,7 +353,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testSetCovNo_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String covNo = "";
 		fixture.setCovNo(covNo);
 
@@ -358,7 +362,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testSetName_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String name = "";
 		fixture.setName(name);
 	}
@@ -366,7 +370,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testSetFatherSpouseName_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String fatherSpouseName = "";
 		fixture.setFatherSpouseName(fatherSpouseName);
 	}
@@ -374,7 +378,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testSetAddress_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String address = "";
 		fixture.setAddress(address);;
 	}
@@ -382,7 +386,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testSetContactNumber_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String contactNumber = "";
 		fixture.setContactNumber(contactNumber);
 	}
@@ -390,7 +394,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testSetVendorCategory_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String vendorCategory = "";
 		fixture.setVendorCategory(vendorCategory);
 	}
@@ -398,7 +402,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testSetStreetVendorArea_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String streetVendorArea = "";
 		fixture.setStreetVendorArea(streetVendorArea);
 	}
@@ -406,7 +410,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testSetTransportMode_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String transportMode = "";
 		fixture.setTransportMode(transportMode);
 	}
@@ -415,7 +419,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testSetIsActive_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		Boolean isActive = new Boolean(true);
 		fixture.setIsActive(isActive);
 
@@ -425,7 +429,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testSetCreatedBy_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String createdBy = "";
 
 		fixture.setCreatedBy(createdBy);
@@ -436,7 +440,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testSetCreatedTime_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		Long createdTime = new Long(1L);
 
 		fixture.setCreatedTime(createdTime);
@@ -447,7 +451,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testSetLastModifiedBy_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String lastModifiedBy = "";
 		fixture.setLastModifiedBy(lastModifiedBy);
 
@@ -456,7 +460,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testSetLastModifiedTime_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		Long lastModifiedTime = new Long(1L);
 		fixture.setLastModifiedTime(lastModifiedTime);
 
@@ -465,7 +469,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testSetVendorRegistrationList_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		List<VendorRegistration> vendorRegistrationList = null;
 		fixture.setVendorRegistrationList(vendorRegistrationList);
 
@@ -474,7 +478,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testSetTenantId_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String tenantId = null;
 		fixture.setTenantId(tenantId);
 
@@ -483,7 +487,7 @@ public class VendorRegistrationTest {
 	@Test
 	public void testSetSourceUuid_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 		String sourceUuid = "";
 		fixture.setSourceUuid(sourceUuid);
 
@@ -492,9 +496,28 @@ public class VendorRegistrationTest {
 	@Test
 	public void testGetSourceUuid_1() throws Exception {
 		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
-				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"");
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
 
 		String result = fixture.getSourceUuid();
+
+		assertEquals("", result);
+	}
+	
+	@Test
+	public void testSetNumberOfViolation_1() throws Exception {
+		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
+		String numberOfViolation = "";
+		fixture.setNumberOfViolation(numberOfViolation);
+
+	}
+	
+	@Test
+	public void testGetNumberOfViolation_1() throws Exception {
+		VendorRegistration fixture = new VendorRegistration("", "", "", "", null, null, null, null, null, null,
+				new Boolean(true), null, new Long(1L), "", new Long(1L), null,null,"","");
+
+		String result = fixture.getNumberOfViolation();
 
 		assertEquals("", result);
 	}

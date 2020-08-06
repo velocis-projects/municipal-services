@@ -54,6 +54,20 @@ public class ViolationControllerTest {
 
 		}
 	  
+	  @Test
+		public void testSearch() throws Exception {
+
+			Mockito.when(service.getSearchChallan(Matchers.any(RequestInfoWrapper.class)))
+					.thenReturn(new ResponseEntity<ResponseInfoWrapper>(ResponseInfoWrapper.builder().build(), HttpStatus.OK));
+
+			mockMvc.perform(
+					MockMvcRequestBuilders.post("/violation/_search").content(getFileContents("testResources/getViolationRequest.json"))
+						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+					.andExpect(status().isOk());
+
+
+		}
+	  
 	  @Test public void testAdd() throws Exception {
 		  
 		  Mockito.when(service.generateChallan(RequestInfoWrapper.builder().build(),"hsbk"))

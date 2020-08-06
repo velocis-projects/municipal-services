@@ -629,29 +629,33 @@ public class PurchaseOrderService extends DomainService {
 						}
 					indentNumbers.replaceAll(",$", "");
 
-					IndentSearch is = IndentSearch.builder()
-							.ids(new ArrayList<String>(Arrays.asList(indentNumbers.split(",")))).tenantId(tenantId)
-							.build();
-					IndentResponse isr = indentService.search(is, new RequestInfo());
-
 					if (eachPurchaseOrder.getPurchaseType() != null)
-						if (eachPurchaseOrder.getPurchaseType().toString().equals("Indent"))
-							for (Indent in : isr.getIndents()) {
-								if (in.getIndentDate().compareTo(eachPurchaseOrder.getPurchaseOrderDate()) > 0) {
-									String date = convertEpochtoDate(eachPurchaseOrder.getPurchaseOrderDate());
-									errors.addDataError(ErrorCode.DATE1_LE_DATE2.getCode(),
-											date + " at serial no." + pos.indexOf(eachPurchaseOrder));
+						if (eachPurchaseOrder.getPurchaseType().toString().equals("Indent")) {
+							if (indentNumbers.length() > 0) {
+								List<String> indentList = Arrays.asList(indentNumbers.split(","));
+								for (int i = 0; i < indentList.size(); i++) {
+									IndentSearch is = IndentSearch.builder().tenantId(tenantId)
+											.indentNumber(indentList.get(i)).build(); 
+									IndentResponse isr = indentService.search(is, new RequestInfo());
+									for (Indent in : isr.getIndents()) {
+										if (in.getIndentDate()
+												.compareTo(eachPurchaseOrder.getPurchaseOrderDate()) > 0) {
+											String date = convertEpochtoDate(eachPurchaseOrder.getPurchaseOrderDate());
+											errors.addDataError(ErrorCode.DATE1_LE_DATE2.getCode(),
+													date + " at serial no." + pos.indexOf(eachPurchaseOrder));
+										}
+									}
 								}
 							}
-
+						}
 					// Allow only material which are part of the indent only for creating PO
 					if (eachPurchaseOrder.getPurchaseType() != null)
 						if (eachPurchaseOrder.getPurchaseType().toString().equals("Indent"))
 							for (PurchaseOrderDetail poDetail : eachPurchaseOrder.getPurchaseOrderDetails()) {
 								boolean materialPresent = false;
 								IndentSearch is1 = IndentSearch.builder()
-										.ids(new ArrayList<String>(Arrays.asList(poDetail.getIndentNumber())))
-										.tenantId(tenantId).build();
+										// .ids(new ArrayList<String>(Arrays.asList(poDetail.getIndentNumber())))
+										.indentNumber(poDetail.getIndentNumber()).tenantId(tenantId).build();
 								IndentResponse isr1 = indentService.search(is1, new RequestInfo());
 
 								for (Indent ind : isr1.getIndents()) {
