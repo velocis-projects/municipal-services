@@ -70,6 +70,7 @@ public class PressNoteTest {
 		String fileNumber = "";
 		String noteContent = "";
 		JSONArray emailContent = new JSONArray();
+		JSONArray noteDocument = new JSONArray();
 		String smsContent = "";
 		List<PublicationList> publicationList = EasyMock.createMock(List.class);
 		String templateType = "";
@@ -91,7 +92,7 @@ public class PressNoteTest {
 
 		EasyMock.replay(publicationList);
 
-		PressNote result = new PressNote(pressNoteUuid, pressNoteSubject, pressNoteDate, fileNumber, noteContent, emailContent, smsContent, publicationList, templateType, publicList, isActive, tenantId, createdBy, lastModifiedBy, createdTime, lastModifiedTime, documentAttachment, notifiactionTemplateUuid, moduleCode, fromDate, toDate, defaultGrid, sourceUuid);
+		PressNote result = new PressNote(pressNoteUuid, pressNoteSubject, pressNoteDate, fileNumber, noteContent, emailContent, noteDocument, smsContent, publicationList, templateType, publicList, isActive, tenantId, createdBy, lastModifiedBy, createdTime, lastModifiedTime, documentAttachment, notifiactionTemplateUuid, moduleCode, fromDate, toDate, defaultGrid, sourceUuid);
 
 		// add additional test code here
 		EasyMock.verify(publicationList);
@@ -133,7 +134,7 @@ public class PressNoteTest {
 
 		// add additional test code here
 		assertNotNull(result);
-		assertEquals("PressNote.PressNoteBuilder(pressNoteUuid=null, pressNoteSubject=null, pressNoteDate=null, fileNumber=null, noteContent=null, emailContent=null, smsContent=null, publicationList=null, templateType=null, publicList=null, isActive=false, tenantId=null, createdBy=null, lastModifiedBy=null, createdTime=null, lastModifiedTime=null, documentAttachment=null, notifiactionTemplateUuid=null, moduleCode=null, fromDate=null, toDate=null, defaultGrid=false, sourceUuid=null)", result.toString());
+		assertEquals("PressNote.PressNoteBuilder(pressNoteUuid=null, pressNoteSubject=null, pressNoteDate=null, fileNumber=null, noteContent=null, noteDocument=null, emailContent=null, smsContent=null, publicationList=null, templateType=null, publicList=null, isActive=false, tenantId=null, createdBy=null, lastModifiedBy=null, createdTime=null, lastModifiedTime=null, documentAttachment=null, notifiactionTemplateUuid=null, moduleCode=null, fromDate=null, toDate=null, defaultGrid=false, sourceUuid=null)", result.toString());
 	}
 
 	/**
@@ -146,7 +147,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetCreatedBy_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), new JSONArray(),"", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		String result = fixture.getCreatedBy();
 
@@ -164,7 +165,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetCreatedTime_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		Long result = fixture.getCreatedTime();
 
@@ -189,7 +190,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetDocumentAttachment_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		JSONArray result = fixture.getDocumentAttachment();
 
@@ -208,7 +209,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetEmailContent_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		JSONArray result = fixture.getEmailContent();
 
@@ -227,7 +228,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetFileNumber_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), new JSONArray(),"", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		String result = fixture.getFileNumber();
 
@@ -245,7 +246,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetFromDate_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), new JSONArray(),"", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		String result = fixture.getFromDate();
 
@@ -263,7 +264,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetLastModifiedBy_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		String result = fixture.getLastModifiedBy();
 
@@ -281,7 +282,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetLastModifiedTime_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		Long result = fixture.getLastModifiedTime();
 
@@ -306,7 +307,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetModuleCode_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		String result = fixture.getModuleCode();
 
@@ -324,7 +325,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetNoteContent_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		String result = fixture.getNoteContent();
 
@@ -342,7 +343,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetNotifiactionTemplateUuid_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		String result = fixture.getNotifiactionTemplateUuid();
 
@@ -360,7 +361,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetPressNoteDate_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		String result = fixture.getPressNoteDate();
 
@@ -378,7 +379,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetPressNoteSubject_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), new JSONArray(),"", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		String result = fixture.getPressNoteSubject();
 
@@ -396,7 +397,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetPressNoteUuid_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), new JSONArray(),"", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		String result = fixture.getPressNoteUuid();
 
@@ -414,7 +415,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetPublicList_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), new JSONArray(),"", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		String result = fixture.getPublicList();
 
@@ -432,7 +433,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetPublicationList_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		List<PublicationList> result = fixture.getPublicationList();
 
@@ -451,7 +452,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetSmsContent_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		String result = fixture.getSmsContent();
 
@@ -469,7 +470,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetSourceUuid_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		String result = fixture.getSourceUuid();
 
@@ -487,7 +488,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetTemplateType_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		String result = fixture.getTemplateType();
 
@@ -505,7 +506,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetTenantId_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		String result = fixture.getTenantId();
 
@@ -523,7 +524,7 @@ public class PressNoteTest {
 	@Test
 	public void testGetToDate_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), new JSONArray(),"", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		String result = fixture.getToDate();
 
@@ -541,7 +542,7 @@ public class PressNoteTest {
 	@Test
 	public void testIsActive_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		boolean result = fixture.isActive();
 
@@ -559,7 +560,7 @@ public class PressNoteTest {
 	@Test
 	public void testIsActive_2()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", false, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), new JSONArray(),"", EasyMock.createNiceMock(List.class), "", "", false, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		boolean result = fixture.isActive();
 
@@ -577,7 +578,7 @@ public class PressNoteTest {
 	@Test
 	public void testIsDefaultGrid_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 
 		boolean result = fixture.isDefaultGrid();
 
@@ -595,7 +596,7 @@ public class PressNoteTest {
 	@Test
 	public void testIsDefaultGrid_2()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", false, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", false, "");
 
 		boolean result = fixture.isDefaultGrid();
 
@@ -613,7 +614,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetActive_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), new JSONArray(),"", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		boolean isActive = true;
 
 		fixture.setActive(isActive);
@@ -631,7 +632,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetCreatedBy_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		String createdBy = "";
 
 		fixture.setCreatedBy(createdBy);
@@ -649,7 +650,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetCreatedTime_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		Long createdTime = new Long(1L);
 
 		fixture.setCreatedTime(createdTime);
@@ -667,7 +668,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetDefaultGrid_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), new JSONArray(),"", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		boolean defaultGrid = true;
 
 		fixture.setDefaultGrid(defaultGrid);
@@ -685,7 +686,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetDocumentAttachment_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		JSONArray documentAttachment = new JSONArray();
 
 		fixture.setDocumentAttachment(documentAttachment);
@@ -703,7 +704,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetEmailContent_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		JSONArray emailContent = new JSONArray();
 
 		fixture.setEmailContent(emailContent);
@@ -721,7 +722,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetFileNumber_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		String fileNumber = "";
 
 		fixture.setFileNumber(fileNumber);
@@ -739,7 +740,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetFromDate_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		String fromDate = "";
 
 		fixture.setFromDate(fromDate);
@@ -757,7 +758,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetLastModifiedBy_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		String lastModifiedBy = "";
 
 		fixture.setLastModifiedBy(lastModifiedBy);
@@ -775,7 +776,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetLastModifiedTime_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		Long lastModifiedTime = new Long(1L);
 
 		fixture.setLastModifiedTime(lastModifiedTime);
@@ -793,7 +794,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetModuleCode_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		String moduleCode = "";
 
 		fixture.setModuleCode(moduleCode);
@@ -811,7 +812,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetNoteContent_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), new JSONArray(),"", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		String noteContent = "";
 
 		fixture.setNoteContent(noteContent);
@@ -829,7 +830,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetNotifiactionTemplateUuid_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		String notifiactionTemplateUuid = "";
 
 		fixture.setNotifiactionTemplateUuid(notifiactionTemplateUuid);
@@ -847,7 +848,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetPressNoteDate_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		String pressNoteDate = "";
 
 		fixture.setPressNoteDate(pressNoteDate);
@@ -865,7 +866,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetPressNoteSubject_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		String pressNoteSubject = "";
 
 		fixture.setPressNoteSubject(pressNoteSubject);
@@ -883,7 +884,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetPressNoteUuid_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		String pressNoteUuid = "";
 
 		fixture.setPressNoteUuid(pressNoteUuid);
@@ -901,7 +902,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetPublicList_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		String publicList = "";
 
 		fixture.setPublicList(publicList);
@@ -919,7 +920,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetPublicationList_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		List<PublicationList> publicationList = EasyMock.createMock(List.class);
 		// add mock object expectations here
 
@@ -941,7 +942,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetSmsContent_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		String smsContent = "";
 
 		fixture.setSmsContent(smsContent);
@@ -959,7 +960,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetSourceUuid_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(),"", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		String sourceUuid = "";
 
 		fixture.setSourceUuid(sourceUuid);
@@ -977,7 +978,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetTemplateType_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), new JSONArray(),"", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		String templateType = "";
 
 		fixture.setTemplateType(templateType);
@@ -995,7 +996,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetTenantId_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(),new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		String tenantId = "";
 
 		fixture.setTenantId(tenantId);
@@ -1013,7 +1014,7 @@ public class PressNoteTest {
 	@Test
 	public void testSetToDate_1()
 		throws Exception {
-		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), "", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
+		PressNote fixture = new PressNote("", "", "", "", "", new JSONArray(), new JSONArray(),"", EasyMock.createNiceMock(List.class), "", "", true, "", "", "", new Long(1L), new Long(1L), new JSONArray(), "", "", "", "", true, "");
 		String toDate = "";
 
 		fixture.setToDate(toDate);
