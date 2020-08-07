@@ -537,10 +537,10 @@ public class NonIndentMaterialIssueService extends DomainService {
 	public MaterialIssueResponse search(MaterialIssueSearchContract searchContract) {
 		Pagination<MaterialIssue> materialIssues = materialIssueJdbcRepository.search(searchContract,
 				IssueTypeEnum.NONINDENTISSUE.toString());
-		if (materialIssues.getPagedData().size() > 0) {
+		if (!materialIssues.getPagedData().isEmpty()) {
 			for (MaterialIssue materialIssue : materialIssues.getPagedData()) {
 
-				if (materialIssue.getFromStore() != null) {
+				if (materialIssue.getFromStore() != null && materialIssue.getFromStore().getCode() != null) {
 					materialIssue.setFromStore(
 							getStore(materialIssue.getFromStore().getCode(), searchContract.getTenantId()));
 				}

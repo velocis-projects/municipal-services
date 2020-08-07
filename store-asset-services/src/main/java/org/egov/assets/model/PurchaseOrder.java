@@ -76,7 +76,7 @@ public class PurchaseOrder {
 
 		ONE_TIME_TENDER("One Time Tender"),
 
-		QUOTATION("Quotation");
+		TENDER("Tender"), GEM("Gem"), QUOTATION("Quotation");
 
 		private String value;
 
