@@ -211,7 +211,7 @@ public class IndentService extends DomainService {
 			List<String> ids = new ArrayList<>();
 			validate(indentRequest.getIndents(), Constants.ACTION_CREATE);
 			for (Indent b : indentRequest.getIndents()) {
-				b.setIndentType(IndentTypeEnum.INDENTNOTE);
+				// b.setIndentType(IndentTypeEnum.INDENTNOTE);
 				if (!isEmpty(b.getAction())) {
 					updateIndentQuantity(b);
 				}
