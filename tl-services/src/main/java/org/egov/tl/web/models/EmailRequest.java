@@ -1,5 +1,6 @@
 package org.egov.tl.web.models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,5 +19,7 @@ public class EmailRequest {
     private String body;
     @JsonProperty("isHTML")
     private boolean isHTML;
-	private List<EmailAttachment> attachments;
+    
+    @Builder.Default
+	private List<EmailAttachment> attachments = new ArrayList<EmailAttachment>();
 }

@@ -7,6 +7,7 @@ import org.egov.tl.config.TLConfiguration;
 import org.egov.tl.repository.ServiceRequestRepository;
 import org.egov.tl.util.BPAConstants;
 import org.egov.tl.util.BPANotificationUtil;
+import org.egov.tl.util.CTLConstants;
 import org.egov.tl.util.NotificationUtil;
 import org.egov.tl.util.TLConstants;
 import org.egov.tl.web.models.*;
@@ -191,6 +192,10 @@ public class TLNotificationService {
 				case businessService_BOOK_SHOP:
 					localizationMessages = util.getLocalizationMessages(tenantId, request.getRequestInfo());
 					message = util.getCustomizedCTLMessage(request.getRequestInfo(), license, localizationMessages);
+					
+					//Append email signature to all outgoing messages.
+					String emailSignature = util.getMessageTemplate(CTLConstants.EMAIL_SIGNATURE, localizationMessages);
+					message = new StringBuilder(message).append("\n").append(emailSignature).toString();
 					break;
 			}
             if(message==null) continue;

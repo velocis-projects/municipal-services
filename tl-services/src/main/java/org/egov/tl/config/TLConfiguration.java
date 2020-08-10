@@ -264,5 +264,10 @@ public class TLConfiguration {
 	@Value("${egov.usr.events.ctl.pay.link}")
 	private String ctlPayLink;
 
+	//PDF service configurations
+	@Value("${egov.pdf.host}")
+	private String pdfServiceHost;
 
+	@Value("${egov.pdf.create.endpoint}")
+	private String pdfServiceCreateEndpoint;
 }

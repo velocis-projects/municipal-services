@@ -17,6 +17,7 @@ import org.springframework.util.CollectionUtils;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.egov.tl.util.TLConstants.*;
 
@@ -162,7 +163,7 @@ public class NotificationUtil {
 	 *            The localization messages
 	 * @return message for the specific code
 	 */
-	private String getMessageTemplate(String notificationCode, String localizationMessage) {
+	public String getMessageTemplate(String notificationCode, String localizationMessage) {
 		String path = "$..messages[?(@.code==\"{}\")].message";
 		path = path.replace("{}", notificationCode);
 		String message = null;
@@ -424,7 +425,7 @@ public class NotificationUtil {
 	 * @return message for completed payment for owners
 	 */
 	public String getCTLOwnerPaymentMsg(TradeLicense license, Map<String, String> valMap, String localizationMessages) {
-		String messageTemplate = getMessageTemplate(CTLConstants.CTL_NOTIFICATION_PAYMENT_OWNER, localizationMessages);
+		String messageTemplate = getMessageTemplate(CTLConstants.CTL_NOTIFICATION_PAYMENT_PAYER, localizationMessages);
 		messageTemplate = messageTemplate.replace("<3>", getMessageTemplate(license.getBusinessService(), localizationMessages));
 		messageTemplate = messageTemplate.replace("<2>", license.getApplicationNumber());
 		messageTemplate = messageTemplate.replace("<4>", license.getLicenseNumber());
@@ -497,9 +498,27 @@ public class NotificationUtil {
 			if (CollectionUtils.isEmpty(emailRequestList))
 				log.info("Messages from localization couldn't be fetched!");
 			for (EmailRequest emailRequest : emailRequestList) {
-				producer.pushEmail(config.getEmailNotifTopic(), emailRequest.getEmail(),  emailRequest.getBody(), TLConstants.EMAIL_SUBJECT, false);
+				producer.pushEmail(config.getEmailNotifTopic(), emailRequest);
 				log.info("EmailAddress: " + emailRequest.getEmail() + " Messages: " + emailRequest.getBody());
 			}
+		}
+	}
+	
+	public void sendEMAIL(List<EmailRequest> emailRequestList, boolean isEMAILEnabled, String emailSignature) {
+		if (isEMAILEnabled) {
+			this.sendEMAIL(emailRequestList.stream().map(
+				request -> {
+					String body = new StringBuilder(request.getBody()).append(emailSignature).toString();
+					body = body.replace("\\n", "<br/>");
+					return EmailRequest.builder()
+						.isHTML(true)
+						.attachments(request.getAttachments())
+						.body(body)
+						.email(request.getEmail())
+						.subject(request.getSubject())
+						.build();
+				}
+			).collect(Collectors.toList()), true);
 		}
 	}
 
