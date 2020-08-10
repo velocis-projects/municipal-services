@@ -74,6 +74,9 @@ public class PMDetail {
 	@JsonProperty("bankPerformanceRoadCut")
 	private String bankPerformanceRoadCut = null;
 
+	@JsonProperty("roadCutDivision")
+	private String roadCutDivision = null;
+
 	@NotNull
 	@JsonProperty("owners")
 	@Valid

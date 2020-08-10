@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -136,11 +137,20 @@ public class WSCalculationServiceImpl implements WSCalculationService {
 		
 		String tenantId = null != property.getTenantId() ? property.getTenantId() : criteria.getTenantId();
 
-		@SuppressWarnings("unchecked")
+		/*@SuppressWarnings("unchecked")
 		Map<String, Category> taxHeadCategoryMap = ((List<TaxHeadMaster>) masterMap
 				.get(WSCalculationConstant.TAXHEADMASTER_MASTER_KEY)).stream()
-						.collect(Collectors.toMap(TaxHeadMaster::getCode, TaxHeadMaster::getCategory, (OldValue, NewValue) -> NewValue));
-
+						.collect(Collectors.toMap(TaxHeadMaster::getCode, TaxHeadMaster::getCategory, (OldValue, NewValue) -> NewValue));*/
+		Map<String, Category> taxHeadCategoryMap = new HashMap<String, Category>();
+		for(TaxHeadMaster master : (List<TaxHeadMaster>) masterMap
+				.get(WSCalculationConstant.TAXHEADMASTER_MASTER_KEY)) {
+			if(null != master.getCategory()) {
+				taxHeadCategoryMap.put(master.getCode(), master.getCategory());
+			}else {
+				log.info("Category is null in TaxHeadMaster for code {}",master.getCategory());
+			}
+		}
+		
 		BigDecimal taxAmt = BigDecimal.ZERO;
 		BigDecimal waterCharge = BigDecimal.ZERO;
 		BigDecimal penalty = BigDecimal.ZERO;

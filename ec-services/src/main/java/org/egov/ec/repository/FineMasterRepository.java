@@ -90,7 +90,8 @@ public class FineMasterRepository {
 	/**
 	 * Fetches the list of challan applicable for store charges and adds penalty
 	 * amount to it.
-	 * @param ecSearchCriteria 
+	 * 
+	 * @param ecSearchCriteria
 	 *
 	 */
 	public void updatePenaltyAmount(EcSearchCriteria ecSearchCriteria) {

@@ -76,7 +76,7 @@ public class PurchaseOrder {
 
 		ONE_TIME_TENDER("One Time Tender"),
 
-		QUOTATION("Quotation");
+		TENDER("Tender"), GEM("Gem"), QUOTATION("Quotation");
 
 		private String value;
 
@@ -222,7 +222,7 @@ public class PurchaseOrder {
 	 * @return tenantId
 	 **/
 
-	@Size(min = 4, max = 128)
+	@Size(min = 2, max = 128)
 	public String getTenantId() {
 		return tenantId;
 	}

@@ -83,7 +83,7 @@ public class EmailSmsEventReminderInvitationService {
 					if (notificationTemplate != null) {
 
 						InviteGuest inviteGuests = InviteGuest.builder().moduleCode(eventDetail.getModuleCode())
-								.eventDetailUuid(eventDetail.getEventDetailUuid()).tenantId(eventDetail.getTenantId())
+								.eventDetailUuid(eventDetail.getEventDetailUuid()).tenantId(eventDetail.getTenantId()).sentFlag(true)
 								.build();
 						List<InviteGuest> guestsList = eventInvetationRepository.getGuestReminder(inviteGuests);
 

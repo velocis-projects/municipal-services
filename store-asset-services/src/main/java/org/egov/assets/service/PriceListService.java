@@ -321,10 +321,14 @@ public class PriceListService extends DomainService {
 					if (isEmpty(material.getCode())) {
 						errors.addDataError(ErrorCode.MATERIAL_NAME_NOT_EXIST.getCode(),
 								material.getCode() + " at serial no." + (pl.getPriceListDetails().indexOf(pld) + 1));
+					} else {
+						pld.setMaterial(material);
 					}
 					if (isEmpty(uom.getCode())) {
 						errors.addDataError(ErrorCode.UOM_CODE_NOT_EXIST.getCode(), pld.getUom().getCode()
 								+ " at serial no." + (pl.getPriceListDetails().indexOf(pld) + 1));
+					} else {
+						pld.setUom(uom);
 					}
 
 					if (pld.getRatePerUnit() <= 0) {

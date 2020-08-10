@@ -53,6 +53,8 @@ import org.egov.assets.repository.entity.IndentEntity;
 import org.egov.assets.util.InventoryUtilities;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.tracer.model.CustomException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -63,6 +65,8 @@ import org.springframework.util.StringUtils;
 @Transactional(readOnly = true)
 @SuppressWarnings("unchecked")
 public class PurchaseOrderService extends DomainService {
+
+	private static final Logger LOG = LoggerFactory.getLogger(PurchaseOrderService.class);
 
 	@Autowired
 	private PurchaseOrderJdbcRepository purchaseOrderRepository;
@@ -319,12 +323,16 @@ public class PurchaseOrderService extends DomainService {
 			if (purchaseOrders.size() > 0 && purchaseOrders.get(0).getPurchaseType() != null) {
 				if (purchaseOrders.get(0).getPurchaseType().toString()
 						.equalsIgnoreCase(PurchaseTypeEnum.INDENT.toString())) {
+					LOG.info("Purchase Order Condition 1 -> Indent Type : " + purchaseOrders);
 					kafkaQue.send(saveTopic, saveKey, purchaseOrderRequest);
 					purchaseOrderRepository.markIndentUsedForPo(purchaseOrderRequest, tenantId);
-				} else
+				} else {
+					LOG.info("Purchase Order Condition 2 -> Non Indent Type : " + purchaseOrders);
 					kafkaQue.send(saveNonIndentTopic, saveNonIndentKey, purchaseOrderRequest);
+				}
 			} else { // TODO: REMOVE BELOW, IF PURCHASE TYPE IS PROPER. oTHER WISE BY DEFAULT PASSING
 						// TO INDENT PURCHASE.
+				LOG.info("Purchase Order Condition 3 -> Indent Type : " + purchaseOrders);
 				kafkaQue.send(saveTopic, saveKey, purchaseOrderRequest);
 			}
 			PurchaseOrderResponse response = new PurchaseOrderResponse();
@@ -488,13 +496,12 @@ public class PurchaseOrderService extends DomainService {
 				purchaseOrderDetailSearch.setTenantId(purchaseOrder.getTenantId());
 				Pagination<PurchaseOrderDetail> detailPagination = purchaseOrderDetailService
 						.search(purchaseOrderDetailSearch);
+
 				purchaseOrder.setPurchaseOrderDetails(
 						!detailPagination.getPagedData().isEmpty() ? detailPagination.getPagedData()
 								: Collections.EMPTY_LIST);
 
-				for (PurchaseOrderDetail details : purchaseOrder.getPurchaseOrderDetails()) {
-					details.setMaterial(getMaterial(purchaseOrder.getTenantId(), details.getMaterial()));
-				}
+				
 			}
 		}
 
@@ -629,29 +636,33 @@ public class PurchaseOrderService extends DomainService {
 						}
 					indentNumbers.replaceAll(",$", "");
 
-					IndentSearch is = IndentSearch.builder()
-							.ids(new ArrayList<String>(Arrays.asList(indentNumbers.split(",")))).tenantId(tenantId)
-							.build();
-					IndentResponse isr = indentService.search(is, new RequestInfo());
-
 					if (eachPurchaseOrder.getPurchaseType() != null)
-						if (eachPurchaseOrder.getPurchaseType().toString().equals("Indent"))
-							for (Indent in : isr.getIndents()) {
-								if (in.getIndentDate().compareTo(eachPurchaseOrder.getPurchaseOrderDate()) > 0) {
-									String date = convertEpochtoDate(eachPurchaseOrder.getPurchaseOrderDate());
-									errors.addDataError(ErrorCode.DATE1_LE_DATE2.getCode(),
-											date + " at serial no." + pos.indexOf(eachPurchaseOrder));
+						if (eachPurchaseOrder.getPurchaseType().toString().equals("Indent")) {
+							if (indentNumbers.length() > 0) {
+								List<String> indentList = Arrays.asList(indentNumbers.split(","));
+								for (int i = 0; i < indentList.size(); i++) {
+									IndentSearch is = IndentSearch.builder().tenantId(tenantId)
+											.indentNumber(indentList.get(i)).build();
+									IndentResponse isr = indentService.search(is, new RequestInfo());
+									for (Indent in : isr.getIndents()) {
+										if (in.getIndentDate()
+												.compareTo(eachPurchaseOrder.getPurchaseOrderDate()) > 0) {
+											String date = convertEpochtoDate(eachPurchaseOrder.getPurchaseOrderDate());
+											errors.addDataError(ErrorCode.DATE1_LE_DATE2.getCode(),
+													date + " at serial no." + pos.indexOf(eachPurchaseOrder));
+										}
+									}
 								}
 							}
-
+						}
 					// Allow only material which are part of the indent only for creating PO
 					if (eachPurchaseOrder.getPurchaseType() != null)
 						if (eachPurchaseOrder.getPurchaseType().toString().equals("Indent"))
 							for (PurchaseOrderDetail poDetail : eachPurchaseOrder.getPurchaseOrderDetails()) {
 								boolean materialPresent = false;
 								IndentSearch is1 = IndentSearch.builder()
-										.ids(new ArrayList<String>(Arrays.asList(poDetail.getIndentNumber())))
-										.tenantId(tenantId).build();
+										// .ids(new ArrayList<String>(Arrays.asList(poDetail.getIndentNumber())))
+										.indentNumber(poDetail.getIndentNumber()).tenantId(tenantId).build();
 								IndentResponse isr1 = indentService.search(is1, new RequestInfo());
 
 								for (Indent ind : isr1.getIndents()) {

@@ -1,5 +1,6 @@
 package org.egov.ec.web.models;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -187,5 +188,11 @@ public class Violation {
 	
 	@JsonProperty("sourceUuid")
 	private String sourceUuid;
+	
+	@JsonProperty("fromDate")
+	private Date fromDate;
+	
+	@JsonProperty("toDate")
+	private Date toDate;
 	
 }

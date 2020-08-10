@@ -111,6 +111,15 @@ public class ReportRepositoryTest {
 	}
 	
 	@Test
+	public void testReport8() {
+		Report report = Report.builder().reportType("Item Age")
+				.toDate(new Date()).fromDate(new Date()).paymentStatus("PAID").itemsAgeFrom("All").itemsAgeTo("20").sector("").encroachmentType("test").siName("test")
+				.build();
+		System.out.println(report.toString());
+		repository.getReport(report);		
+	}
+	
+	@Test
 	public void testReportDashboard_1() {
 		DashboardDetails report = DashboardDetails.builder().roleCode("challanSI").tenantId("ch.chandigarh").build();
 		org.egov.common.contract.request.User userInfo = new org.egov.common.contract.request.User();

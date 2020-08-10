@@ -179,7 +179,8 @@ public class ViolationServiceTest {
 		List<Document> document=Arrays.asList(Document.builder().documentUuid("hbhjbhjbjb").documentType("hbhbj").build());
 		List<ViolationItem> violationItem=Arrays.asList(ViolationItem.builder().violationItemUuid("hbhjbhjbjb").itemName("hbhbj").build());
 		NotificationTemplate notification=NotificationTemplate.builder().body("hdbjbjkbkd").build();
-		Violation violation = Violation.builder().violationUuid("aasdjiasdu8ahs89asdy8a9h").encroachmentType("dbhjdbhjd").tenantId("ch").
+		Violation violation = Violation.builder().violationUuid("aasdjiasdu8ahs89asdy8a9h").encroachmentType("dbhjdbhjd").
+				violatorName("bkbk").tenantId("ch").
 				paymentDetails(ecPayment).document(document).violationItem(violationItem).penaltyAmount("145").
 				notificationTemplate(notification).build();
 		ViolationService serv=new ViolationService(wfIntegrator, objectMapper, repository, validate, echallanConfiguration, idGenRepository, producer, deviceSourceService);
@@ -283,5 +284,26 @@ public class ViolationServiceTest {
 		RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(violation).build();
 		Mockito.when(objectMapper.convertValue(infoWrapper.getRequestBody(), Violation.class)).thenReturn(violation);
 		service.addPayment(infoWrapper);
+	}
+	
+	@Test
+	public void testSearchViolationChallan() throws Exception {
+		Violation violation = Violation.builder().violationUuid("aasdjiasdu8ahs89asdy8a9h").build();
+		org.egov.common.contract.request.User userInfo = new org.egov.common.contract.request.User();
+		userInfo.setTenantId("ch.chandigarh");
+		userInfo.setRoles(Arrays.asList(Role.builder().code("challanHOD").name("challanHOD").build()));
+		RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(violation)
+				.requestInfo(RequestInfo.builder().userInfo(userInfo).build()).build();
+				
+		  Mockito.when(objectMapper.convertValue(infoWrapper.getRequestBody(),
+		  Violation.class)).thenReturn(violation);
+		 		
+		Mockito.when(repository.getSearchChallan(violation)).thenReturn(new ArrayList<Violation>());
+		Assert.assertEquals(HttpStatus.OK, service.getSearchChallan(infoWrapper).getStatusCode());
+	}
+	
+	@Test(expected = CustomException.class)
+	public void testSearchViolationChallanException() throws CustomException {
+		service.getSearchChallan(null);
 	}
 }

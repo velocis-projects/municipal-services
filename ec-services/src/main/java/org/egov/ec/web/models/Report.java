@@ -37,13 +37,11 @@ public class Report {
 	@JsonProperty("paymentAmount")
 	private Integer paymentAmount;
 	
-	@Size(max = 64)
 	@JsonProperty("fromDate")
 	@NotNull(message = "fromDate should not be empty or null")
 	@NotBlank(message = "fromDate should not be empty or null")
 	private Date fromDate;
 	
-	@Size(max = 64)
 	@JsonProperty("toDate")
 	@NotNull(message = "toDate should not be empty or null")
 	@NotBlank(message = "toDate should not be empty or null")

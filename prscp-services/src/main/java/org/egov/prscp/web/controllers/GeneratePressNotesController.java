@@ -24,10 +24,11 @@ public class GeneratePressNotesController {
 		this.generatePressNotesService = generatePressNotesService;
 	}
 
-	
 	/**
 	 * Generates press note for the given criteria
-	 * @param requestInfoWrapper to generate press note
+	 * 
+	 * @param requestInfoWrapper
+	 *            to generate press note
 	 * @return Press note Response
 	 */
 	@PostMapping(value = "/_create")
@@ -36,10 +37,12 @@ public class GeneratePressNotesController {
 		return generatePressNotesService.createPressNote(requestInfoWrapper, request);
 
 	}
-	
+
 	/**
 	 * Get press note for the given criteria
-	 * @param requestInfoWrapper to get single or all press notes
+	 * 
+	 * @param requestInfoWrapper
+	 *            to get single or all press notes
 	 * @return Press note Response
 	 */
 
@@ -48,10 +51,11 @@ public class GeneratePressNotesController {
 		return generatePressNotesService.getPressNote(requestInfoWrapper);
 	}
 
-	
 	/**
 	 * Update press note for the given criteria
-	 * @param requestInfoWrapper to update press note
+	 * 
+	 * @param requestInfoWrapper
+	 *            to update press note
 	 * @return Press note Response
 	 */
 	@PostMapping(value = "/_update")

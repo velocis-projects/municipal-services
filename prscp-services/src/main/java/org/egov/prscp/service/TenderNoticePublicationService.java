@@ -22,6 +22,9 @@ import org.egov.prscp.web.models.Template;
 import org.egov.prscp.web.models.TenderNotice;
 import org.egov.prscp.web.models.Idgen.IdGenerationResponse;
 import org.egov.tracer.model.CustomException;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,9 +51,12 @@ public class TenderNoticePublicationService {
 		this.deviceSource = deviceSource;
 		this.idgen = idgen;
 	}
+
 	/**
 	 * Creates Tender for the given criteria
-	 * @param requestInfoWrapper to create tender 
+	 * 
+	 * @param requestInfoWrapper
+	 *            to create tender
 	 * @return Tender Response
 	 */
 	public ResponseEntity<ResponseInfoWrapper> createTender(RequestInfoWrapper requestInfoWrapper,
@@ -72,7 +78,7 @@ public class TenderNoticePublicationService {
 			String tenderNoticeUuid = UUID.randomUUID().toString();
 			tenderNotice.setTenderNoticeUuid(tenderNoticeUuid);
 			tenderNotice.setTenderDocumentList(tenderNotice.getTenderDocument().toJSONString());
-    //Idgen service call to generate tender id
+			// Idgen service call to generate tender id
 			IdGenerationResponse id = idgenrepository.getId(requestInfoWrapper.getRequestInfo(),
 					tenderNotice.getTenantId(), config.getAppTenderNoticeNumberIdgenName(),
 					config.getAppTenderNoticeNumberIdgenFormat(), 1);
@@ -80,7 +86,7 @@ public class TenderNoticePublicationService {
 				tenderNotice.setTenderNoticeId(id.getIdResponses().get(0).getId());
 			else
 				throw new CustomException(CommonConstants.TENDERNOTICE_EXCEPTION_CODE, CommonConstants.ID_GENERATION);
-    //workflow service call to integrate tender workflow
+			// workflow service call to integrate tender workflow
 			workflowIntegration(requestInfoWrapper, tenderNotice);
 			repository.createTender(tenderNotice);
 
@@ -89,14 +95,16 @@ public class TenderNoticePublicationService {
 					.responseBody(tenderNotice).build(), HttpStatus.CREATED);
 
 		} catch (Exception e) {
-		
+
 			throw new CustomException(CommonConstants.TENDERNOTICE_EXCEPTION_CODE, e.getMessage());
 		}
 	}
 
 	/**
 	 * Update Tender for the given criteria
-	 * @param requestInfoWrapper to update tender 
+	 * 
+	 * @param requestInfoWrapper
+	 *            to update tender
 	 * @return Tender Response
 	 */
 	public ResponseEntity<ResponseInfoWrapper> updateTender(RequestInfoWrapper requestInfoWrapper) {
@@ -119,9 +127,12 @@ public class TenderNoticePublicationService {
 			throw new CustomException(CommonConstants.TENDERNOTICE_EXCEPTION_CODE, e.getMessage());
 		}
 	}
+
 	/**
 	 * Get Tender for the given criteria
-	 * @param requestInfoWrapper to get tender 
+	 * 
+	 * @param requestInfoWrapper
+	 *            to get tender
 	 * @return Tender Response
 	 */
 	public ResponseEntity<ResponseInfoWrapper> getTender(RequestInfoWrapper requestInfoWrapper) {
@@ -141,7 +152,9 @@ public class TenderNoticePublicationService {
 
 	/**
 	 * Publish Tender for the given criteria
-	 * @param requestInfoWrapper to publish tender 
+	 * 
+	 * @param requestInfoWrapper
+	 *            to publish tender
 	 * @return Tender Response
 	 */
 	public ResponseEntity<ResponseInfoWrapper> publish(RequestInfoWrapper requestInfoWrapper) {
@@ -153,7 +166,7 @@ public class TenderNoticePublicationService {
 			if (!existingPress.isEmpty() && existingPress.size() == 1) {
 				TenderNotice tenderExisting = existingPress.get(0);
 				repository.isValidTenderUuid(tenderNotice);
-				//workflow service call to integrate tender workflow
+				// workflow service call to integrate tender workflow
 				workflowIntegration(requestInfoWrapper, tenderNotice);
 
 				String notificationTemplateUuid = UUID.randomUUID().toString();
@@ -165,12 +178,24 @@ public class TenderNoticePublicationService {
 
 				tenderNotice.setNotificationTemplateUuid(notificationTemplateUuid);
 
+				JSONParser jsonParser = new JSONParser();
+				JSONArray docsListTemplet = (JSONArray) jsonParser.parse(
+						template.getDocumentAttachment() != null ? template.getDocumentAttachment().toString() : "");
+				if (tenderExisting.getTenderDocument() != null && !tenderExisting.getTenderDocument().isEmpty()) {
+					JSONArray docsListTe = (JSONArray) jsonParser.parse(
+							tenderExisting.getTenderDocument() != null ? tenderExisting.getTenderDocument().toString()
+									: "");
+					for (int i = 0; i < docsListTe.size(); i++) {
+						JSONObject jsonObject = (JSONObject) docsListTe.get(i);
+						docsListTemplet.add(jsonObject);
+					}
+				}
+
 				NotificationTemplate notificationTemplate = NotificationTemplate.builder()
 						.tenantId(template.getTenantId()).templateType(template.getTemplateType())
 						.moduleCode(template.getModuleCode()).notificationTemplateUuid(notificationTemplateUuid)
-						.templateMappedUuid(tenderNotice.getTenderNoticeUuid())
-						.setdoc(tenderExisting.getTenderDocument().toJSONString()).smsContent(template.getSmsContent())
-						.emailContent(template.getEmailContent().toJSONString())
+						.templateMappedUuid(tenderNotice.getTenderNoticeUuid()).setdoc(docsListTemplet.toJSONString())
+						.smsContent(template.getSmsContent()).emailContent(template.getEmailContent().toJSONString())
 						.createdBy(requestInfoWrapper.getAuditDetails().getCreatedBy())
 						.createdTime(requestInfoWrapper.getAuditDetails().getCreatedTime())
 						.lastModifiedBy(requestInfoWrapper.getAuditDetails().getLastModifiedBy())

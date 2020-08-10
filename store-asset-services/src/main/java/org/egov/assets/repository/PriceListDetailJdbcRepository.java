@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.egov.assets.common.JdbcRepository;
+import org.egov.assets.common.MdmsRepository;
 import org.egov.assets.common.Pagination;
+import org.egov.assets.model.Material;
 import org.egov.assets.model.PriceListDetails;
 import org.egov.assets.model.PriceListDetailsSearchRequest;
 import org.egov.assets.model.PriceListSearchRequest;
@@ -23,6 +25,10 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import net.minidev.json.JSONArray;
+
 @Service
 public class PriceListDetailJdbcRepository extends JdbcRepository {
 
@@ -30,6 +36,9 @@ public class PriceListDetailJdbcRepository extends JdbcRepository {
 
 	@Autowired
 	private UomService uomService;
+
+	@Autowired
+	private MdmsRepository mdmsRepository;
 
 	public PriceListDetailJdbcRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
 		this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
@@ -139,9 +148,14 @@ public class PriceListDetailJdbcRepository extends JdbcRepository {
 		List<PriceListDetails> priceListDetailsList = priceListDetailsEntities.stream()
 				.map(PriceListDetailsEntity::toDomain).collect(Collectors.toList());
 
+		ObjectMapper mapper = new ObjectMapper();
+		Map<String, Material> materialMap = getMaterial(priceListDetailsSearchRequest.getTenantId(), mapper,
+				new RequestInfo());
+
 		for (PriceListDetails pld : priceListDetailsList) {
 			pld.setUom(uomService.getUom(priceListDetailsSearchRequest.getTenantId(), pld.getUom().getCode(),
 					new RequestInfo()));
+			pld.setMaterial(materialMap.get(pld.getMaterial().getCode()));
 			if (pld.getQuantity() != null)
 				pld.setQuantity(pld.getQuantity() / pld.getUom().getConversionFactor().doubleValue());
 		}
@@ -160,6 +174,21 @@ public class PriceListDetailJdbcRepository extends JdbcRepository {
 		page.setTotalPages(totalpages);
 		page.setCurrentPage(page.getOffset());
 		return page;
+	}
+
+	private Map<String, Material> getMaterial(String tenantId, final ObjectMapper mapper, RequestInfo requestInfo) {
+		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "store-asset", "Material", null, null,
+				requestInfo);
+		Map<String, Material> materialMap = new HashMap<>();
+
+		if (responseJSONArray != null && responseJSONArray.size() > 0) {
+			for (int i = 0; i < responseJSONArray.size(); i++) {
+				Material material = mapper.convertValue(responseJSONArray.get(i), Material.class);
+				materialMap.put(material.getCode(), material);
+			}
+
+		}
+		return materialMap;
 	}
 
 	public void validateSortByOrder(final String sortBy) {
