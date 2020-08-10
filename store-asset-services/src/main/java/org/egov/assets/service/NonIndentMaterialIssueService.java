@@ -611,6 +611,13 @@ public class NonIndentMaterialIssueService extends DomainService {
 				.ids(Arrays.asList(ids)).tenantId(tenantId).build();
 		Pagination<MaterialReceiptDetail> materialReceiptDetails = materialReceiptDetailService
 				.search(materialReceiptDetailSearch);
+
+		if (!materialReceiptDetails.getPagedData().isEmpty()) {
+			Map<String, Material> materialMap = getMaterials(tenantId, new ObjectMapper(), new RequestInfo());
+			for (MaterialReceiptDetail details : materialReceiptDetails.getPagedData()) {
+				details.setMaterial(materialMap.get(details.getMaterial().getCode()));
+			}
+		}
 		return materialReceiptDetails.getPagedData().size() > 0 ? materialReceiptDetails.getPagedData()
 				: Collections.EMPTY_LIST;
 	}

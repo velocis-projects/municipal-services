@@ -501,9 +501,7 @@ public class PurchaseOrderService extends DomainService {
 						!detailPagination.getPagedData().isEmpty() ? detailPagination.getPagedData()
 								: Collections.EMPTY_LIST);
 
-				for (PurchaseOrderDetail details : purchaseOrder.getPurchaseOrderDetails()) {
-					details.setMaterial(getMaterial(purchaseOrder.getTenantId(), details.getMaterial()));
-				}
+				
 			}
 		}
 
