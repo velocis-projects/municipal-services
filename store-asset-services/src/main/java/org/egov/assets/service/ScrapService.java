@@ -100,6 +100,7 @@ public class ScrapService extends DomainService {
 				});
 			});
 			materialIssueBackUpdate(scrapReq, tenantId);
+			System.out.println("scrapReq : " + scrapReq);
 			kafkaTemplate.send(createTopic, scrapReq);
 			return scrapReq.getScraps();
 		} catch (CustomBindException e) {
@@ -153,7 +154,6 @@ public class ScrapService extends DomainService {
 	public ScrapResponse search(ScrapSearch scrapSearch) {
 		Pagination<Scrap> scrapPagination = scrapJdbcRepository.search(scrapSearch);
 		if (!scrapPagination.getPagedData().isEmpty()) {
-
 			for (Scrap scrap : scrapPagination.getPagedData()) {
 				scrap.setStore(getStore(scrapSearch.getTenantId(), scrap));
 				List<ScrapDetail> scrapDetail = getScrapDetails(scrap.getScrapNumber(), scrapSearch.getTenantId());
@@ -306,6 +306,7 @@ public class ScrapService extends DomainService {
 						scrapDetail.setUserQuantity(scrapDetails.getUserQuantity());
 						scrapDetail.setScrapReason(scrapDetail.getScrapReason());
 						scrapDetail.setScrapValue(scrapDetails.getScrapValue());
+						scrapDetail.setScrapReason(scrapDetails.getScrapReason());
 						scrapDetailList.add(scrapDetail);
 
 					}
