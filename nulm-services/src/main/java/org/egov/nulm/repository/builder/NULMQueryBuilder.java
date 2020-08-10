@@ -18,11 +18,12 @@ public class NULMQueryBuilder {
 			"        array_to_json(array_agg(json_build_object('documentType',ND.document_type,'filestoreId',ND.filestore_id,'documnetUuid',ND.document_uuid,'isActive',ND.is_active,\n" + 
 			"        'tenantId',ND.tenant_id,'applicationUuid',ND.application_uuid) ))as document \n" + 
 			"  FROM public.nulm_sep_application_detail NA inner  join nulm_sep_application_document ND on NA.application_uuid=ND.application_uuid and NA.tenant_id=ND.tenant_id\n" + 
-			"  where NA.application_id=(case when ?  <>'' then ?  else NA.application_id end) and NA.created_by=(case when ?  <>'' then ?  else NA.created_by end) AND NA.tenant_id=? AND NA.application_status=(case when ?  <>'' then ?  else NA.application_status end) \n" + 
+			"  where NA.application_id=(case when ?  <>'' then ?  else NA.application_id end) and NA.created_by=(case when ?  <>'' then ?  else NA.created_by end) AND NA.tenant_id=? "
+			+ "AND NA.application_status=(case when ?  <>'' then ?  else NA.application_status end) \n" + 
 			"  AND NA.is_active='true' AND ND.is_active='true' AND  TO_DATE(TO_CHAR(TO_TIMESTAMP(NA.created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') >= CASE WHEN ?<>'' THEN DATE(?) ELSE \n" + 
 			" TO_DATE(TO_CHAR(TO_TIMESTAMP(NA.created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') END \n" + 
 			"AND  TO_DATE(TO_CHAR(TO_TIMESTAMP(NA.created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') <= CASE WHEN ?<>'' THEN DATE(?) ELSE \n" + 
-			" TO_DATE(TO_CHAR(TO_TIMESTAMP(NA.created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') END group by NA.application_uuid    ORDER BY created_time desc";
+			" TO_DATE(TO_CHAR(TO_TIMESTAMP(NA.created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') END aR group by NA.application_uuid    ORDER BY created_time desc";
 	
 	 public static final String GET_SEP_DOCUMENT_QUERY="SELECT count(*) \n" + 
 	 		"        FROM public.nulm_sep_application_document \n" + 
@@ -32,7 +33,7 @@ public class NULMQueryBuilder {
 	 		"AND tenant_id=? AND application_status=(case when ?  <>'' then ?  else application_status end) AND is_active='true' AND  TO_DATE(TO_CHAR(TO_TIMESTAMP(created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') >= CASE WHEN ?<>'' THEN DATE(?) ELSE \n" + 
 	 		" TO_DATE(TO_CHAR(TO_TIMESTAMP(created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') END \n" + 
 	 		"AND  TO_DATE(TO_CHAR(TO_TIMESTAMP(created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') <= CASE WHEN ?<>'' THEN DATE(?) ELSE \n" + 
-	 		" TO_DATE(TO_CHAR(TO_TIMESTAMP(created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') END ORDER BY created_time desc";
+	 		" TO_DATE(TO_CHAR(TO_TIMESTAMP(created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') END  AND application_status<>?  ORDER BY created_time desc";
 	 
 	 public static final String SHG_UUID_EXIST_QUERY="select count(*) from nulm_smid_shg_detail where shg_uuid=? and tenant_id=? and is_active='true'";
 	 
@@ -45,9 +46,9 @@ public class NULMQueryBuilder {
 	 		"'bplNo',MB.bpl_no,'minority',MB.minority,'caste',MB.caste,'wardNo',MB.ward_no,'nameAsPerAdhar',MB.name_as_per_adhar,'adharAcknowledgementNo',\n" + 
 	 		"MB.adhar_acknowledgement_no,'insuranceThrough',MB.insurance_through,'documentAttachemnt',MB.document_attachemnt,'accountNo',MB.account_no,\n" + 
 	 		"'bankName',MB.bank_name,'branchName',MB.branch_name,'remark',MB.remark,'tenantId',MB.tenant_id,'isActive',MB.is_active,'createdBy',MB.created_by,'createdTime',MB.created_time\n" + 
-	 		",'lastModifiedBy',MB.last_modified_by,'lastModifiedTime',MB.last_modified_time) ))as member  from nulm_smid_shg_detail GP INNER JOIN  nulm_smid_shg_member_details MB on GP.shg_uuid=MB.shg_uuid AND GP.tenant_id=MB.tenant_id\n" + 
-	 		"  where ((GP.status='APPROVED' AND mb.application_status<>'CREATED') OR (GP.status<>'APPROVED' AND mb.application_status=mb.application_status)) AND GP.created_by=(case when ?  <>'' then ? else GP.created_by end) and GP.tenant_id=? and GP.is_active='true' AND\n" + 
-	 		"GP.status=(case when ?  <>'' then ? else GP.status end) AND GP.shg_uuid=(case when ?  <>'' then ? else GP.shg_uuid end)  \n" + 
+	 		",'lastModifiedBy',MB.last_modified_by,'lastModifiedTime',MB.last_modified_time) ))as member  from nulm_smid_shg_detail GP LEFT JOIN  nulm_smid_shg_member_details MB on GP.shg_uuid=MB.shg_uuid AND GP.tenant_id=MB.tenant_id\n" + 
+	 		"  where ((GP.status='APPROVED' AND mb.application_status<>'CREATED') OR (GP.status<>'APPROVED'  and COALESCE(mb.application_status,'')=COALESCE(mb.application_status,'')) )  AND GP.created_by=(case when ?  <>'' then ? else GP.created_by end) and GP.tenant_id=? and GP.is_active='true'AND\n" + 
+	 		"GP.status=(case when ?  <>'' then ? else GP.status end) AND GP.shg_uuid=(case when ?  <>'' then ? else GP.shg_uuid end) And GP.status<>? AND  GP.status<>?  AND  mb.application_status<>? AND  mb.application_status<>? \n" + 
 	 		" GROUP BY GP.shg_uuid";
 	 
 	 
@@ -65,4 +66,8 @@ public class NULMQueryBuilder {
 	 		" GROUP BY MB.application_uuid";
 	 
 	 public static final String GET_SHG_MEMBER_COUNT_QUERY="select count(*) from nulm_smid_shg_member_details where shg_uuid=? and tenant_id=? and is_active='true' and position_level='MEMBER'";
+	 public static final String GET_ORGANIZATION_MOBILE_NO_QUERY="select count(*) from nulm_organization where tenant_id=? and is_active='true'and mobile_no=? ";
+	 public static final String GET_ORGANIZATION_NAME_QUERY="select count(*) from nulm_organization where tenant_id=? and is_active='true'and organization_name=? ";
+	 public static final String GET_ORGANIZATION_QUERY="SELECT organization_uuid, user_id, organization_name, address, email_id,representative_name, mobile_no, registration_no, tenant_id, is_active,created_by, created_time, last_modified_by, last_modified_time\n" + 
+	 		"  FROM public.nulm_organization where tenant_id=? and is_active='true' and organization_uuid=(case when ?  <>'' then ?  else organization_uuid end)";
 }

@@ -8,6 +8,12 @@ public class CommonConstants {
 
 
 	public static final String ID_GENERATION = "ID Generation Failed";
+	public static final String ORGANIZATION_EXCEPTION_CODE="ORGANIZATION_EXCEPTION";
+	public static final String INVALID_ORGANIZATION_REQUEST="INVALID_ORGANIZATION_REQUEST";
+	public static final String INVALID_ORGANIZATION_REQUEST_MOBILE_MESSAGE="Mobile No already Exists";
+	public static final String INVALID_ORGANIZATION_REQUEST_ORG_NAME_MESSAGE="Organization Name already Exists";
+	
+	public static final String USER_CREATION = "User creation  Failed";
 	public static final String ROLE = "role may not be null";	
 	public static final String SEP_APPLICATION_EXCEPTION_CODE = "SEP_APPLICATION_EXCEPTION";
 	public static final String SMID_APPLICATION_EXCEPTION_CODE = "SMID_APPLICATION_EXCEPTION";

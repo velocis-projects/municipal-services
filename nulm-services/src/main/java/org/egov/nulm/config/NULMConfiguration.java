@@ -51,6 +51,12 @@ public class NULMConfiguration {
 
 	@Value("${egov.idgen.path}")
 	private String idGenPath;
+	
+	@Value("${egov.user.host}")
+	private String userHost;
+
+	@Value("${egov.user.path}")
+	private String userPath;
 
 	@Value("${egov.idgen.nulm.sep.idname}")
 	private String sepapplicationNumberIdgenName;
@@ -69,6 +75,11 @@ public class NULMConfiguration {
 
 	@Value("${egov.idgen.nulm.smid.shg.idformat}")
 	private String SmidShgIdgenFormat;
+	
+	//organization topic
+	
+	@Value("${persister.create.organization.topic}")
+	private String organizationCreateTopic;
 
 	// SEP Config topics
 	@Value("${persister.save.sepapplication.topic}")
@@ -90,6 +101,9 @@ public class NULMConfiguration {
 	// SEP Search parameter config
 	@Value("${egov.user.role.citizen}")
 	private String roleCitizenUser;
+	
+	@Value("${egov.user.role.employee}")
+	private String roleEmployee;
 
 	@Value("${egov.user.role.ngo}")
 	private String roleNgoUser;

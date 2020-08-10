@@ -1,8 +1,5 @@
 package org.egov.nulm.model;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -153,12 +150,6 @@ public class SmidApplication {
 	
 	@JsonProperty("dateOfOpeningAccount")
 	private String dateOfOpeningAccount ;
-	
-	@JsonProperty("accountOpenedThrough")
-	private String accountOpenedThrough ;
-	
-	@JsonProperty("roType")
-	private String roType ;
 	
 	@JsonProperty("isActive")
 	private Boolean isActive ;

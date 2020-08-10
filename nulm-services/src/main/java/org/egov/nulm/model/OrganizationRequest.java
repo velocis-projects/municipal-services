@@ -19,14 +19,14 @@ import lombok.ToString;
 @NoArgsConstructor
 @Builder
 @ToString
-public class NulmSmidRequest {
+public class OrganizationRequest {
 
 	@JsonProperty("RequestInfo")
 	private RequestInfo requestInfo;
 
 	@Valid
-	@JsonProperty("NulmSmidRequest")
-	private SmidApplication nulmSmidRequest;
+	@JsonProperty("OrganizationRequest")
+	private Organization organizationRequest;
 
 	@JsonProperty("AuditDetails")
 	AuditDetails auditDetails;
