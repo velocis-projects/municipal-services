@@ -66,7 +66,6 @@ public class ScrapDetailEntity {
 	public ScrapDetail toDomain() {
 		ScrapDetail scrapDetail = new ScrapDetail();
 		scrapDetail.setIssueDetail(new MaterialIssueDetail().id(issuedetailid));
-		System.out.println("scrapReason :" + scrapReason);
 		return scrapDetail.id(id).scrapNumber(scrapNumber).expiryDate(expiryDate).material(buildMaterial())
 				.uom(new Uom().code(uom)).lotNumber(lotNumber)
 				.scrapReason(ScrapDetail.ScrapReasonEnum.fromValue(scrapReason)).quantity(quantity)
