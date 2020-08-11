@@ -65,7 +65,7 @@ public class SepRepository {
 									sepApplication.getFromDate(), sepApplication.getFromDate(),
 									sepApplication.getToDate(), sepApplication.getToDate() ,
 									sepApplication.getApplicationStatus() == null ? SepApplication.StatusEnum.DRAFTED.toString()
-											: sepApplication.getApplicationStatus().toString()},
+											: ""},
 							seprowMapper);
 
 				}

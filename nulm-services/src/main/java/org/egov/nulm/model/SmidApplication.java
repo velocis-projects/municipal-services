@@ -163,5 +163,8 @@ public class SmidApplication {
 			
 	@JsonProperty("auditDetails")
 	private AuditDetails auditDetails ;
+	
+	@JsonProperty("remark")
+	private String remark ;
 
 }

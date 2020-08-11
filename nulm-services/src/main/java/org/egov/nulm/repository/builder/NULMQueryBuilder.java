@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class NULMQueryBuilder {
-	public static final String GET_SEP_APPLICATION_QUERY = "SELECT  NA.application_uuid,  NA.application_id,  NA.nulm_application_id,  NA.application_status, \n" + 
+	public static final String GET_SEP_APPLICATION_QUERY = "SELECT  NA.application_uuid,  NA.remark, NA.application_id,  NA.nulm_application_id,  NA.application_status, \n" + 
 			"        NA.name,  NA.gender,  NA.age,  NA.dob,  NA.adhar_no,  NA.mother_name,  NA.father_or_husband_name, \n" + 
 			"        NA.occupation,  NA.address,  NA.contact,  NA.since_how_long_in_chandigarh,  NA.qualification, \n" + 
 			"        NA.category,  NA.is_urban_poor,  NA.is_minority,  NA.is_handicapped,  NA.is_loan_from_bankinginstitute, \n" + 
@@ -23,7 +23,7 @@ public class NULMQueryBuilder {
 			"  AND NA.is_active='true' AND ND.is_active='true' AND  TO_DATE(TO_CHAR(TO_TIMESTAMP(NA.created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') >= CASE WHEN ?<>'' THEN DATE(?) ELSE \n" + 
 			" TO_DATE(TO_CHAR(TO_TIMESTAMP(NA.created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') END \n" + 
 			"AND  TO_DATE(TO_CHAR(TO_TIMESTAMP(NA.created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') <= CASE WHEN ?<>'' THEN DATE(?) ELSE \n" + 
-			" TO_DATE(TO_CHAR(TO_TIMESTAMP(NA.created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') END aR group by NA.application_uuid    ORDER BY created_time desc";
+			" TO_DATE(TO_CHAR(TO_TIMESTAMP(NA.created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') END AND  NA.application_status<>?  group by NA.application_uuid    ORDER BY created_time desc";
 	
 	 public static final String GET_SEP_DOCUMENT_QUERY="SELECT count(*) \n" + 
 	 		"        FROM public.nulm_sep_application_document \n" + 
@@ -46,9 +46,9 @@ public class NULMQueryBuilder {
 	 		"'bplNo',MB.bpl_no,'minority',MB.minority,'caste',MB.caste,'wardNo',MB.ward_no,'nameAsPerAdhar',MB.name_as_per_adhar,'adharAcknowledgementNo',\n" + 
 	 		"MB.adhar_acknowledgement_no,'insuranceThrough',MB.insurance_through,'documentAttachemnt',MB.document_attachemnt,'accountNo',MB.account_no,\n" + 
 	 		"'bankName',MB.bank_name,'branchName',MB.branch_name,'remark',MB.remark,'tenantId',MB.tenant_id,'isActive',MB.is_active,'createdBy',MB.created_by,'createdTime',MB.created_time\n" + 
-	 		",'lastModifiedBy',MB.last_modified_by,'lastModifiedTime',MB.last_modified_time) ))as member  from nulm_smid_shg_detail GP LEFT JOIN  nulm_smid_shg_member_details MB on GP.shg_uuid=MB.shg_uuid AND GP.tenant_id=MB.tenant_id\n" + 
-	 		"  where ((GP.status='APPROVED' AND mb.application_status<>'CREATED') OR (GP.status<>'APPROVED'  and COALESCE(mb.application_status,'')=COALESCE(mb.application_status,'')) )  AND GP.created_by=(case when ?  <>'' then ? else GP.created_by end) and GP.tenant_id=? and GP.is_active='true'AND\n" + 
-	 		"GP.status=(case when ?  <>'' then ? else GP.status end) AND GP.shg_uuid=(case when ?  <>'' then ? else GP.shg_uuid end) And GP.status<>? AND  GP.status<>?  AND  mb.application_status<>? AND  mb.application_status<>? \n" + 
+	 		",'lastModifiedBy',MB.last_modified_by,'lastModifiedTime',MB.last_modified_time) ))as member  from nulm_smid_shg_detail GP LEFT JOIN  nulm_smid_shg_member_details MB on GP.shg_uuid=MB.shg_uuid AND GP.tenant_id=MB.tenant_id AND (GP.status IN ('APPROVED','AWAITINGFORAPPROVAL') AND mb.application_status NOT IN ('DRAFTED','CREATED') OR (GP.status NOT IN ('APPROVED','AWAITINGFORAPPROVAL')  AND COALESCE(mb.application_status,'')=COALESCE(mb.application_status,''))) \n" + 
+	 		"  where GP.created_by=(case when :createdBy <>'' then :createdBy else GP.created_by end) and GP.tenant_id=:tenantId and GP.is_active='true'AND\n" + 
+	 		"GP.status IN (:status) AND GP.shg_uuid=(case when :shgUuid <>'' then :shgUuid else GP.shg_uuid end)  \n" + 
 	 		" GROUP BY GP.shg_uuid";
 	 
 	 

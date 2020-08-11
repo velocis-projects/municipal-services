@@ -37,6 +37,7 @@ CREATE TABLE public.nulm_smid_application_detail
   account_no character varying(255),
   bank_name character varying(255),
   branch_name character varying(255),
+  remark character varying(256),
   tenant_id character varying(256),
   is_active boolean,
   created_by character varying(64),

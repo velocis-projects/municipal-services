@@ -67,7 +67,7 @@ public class SmidRepository {
 									smidApplication.getFromDate(), smidApplication.getFromDate(),
 									smidApplication.getToDate(), smidApplication.getToDate(),
 									smidApplication.getApplicationStatus() == null ? SmidApplication.StatusEnum.DRAFTED.toString()
-											: smidApplication.getApplicationStatus().toString()},
+											: ""},
 							smidrowMapper);
 				}
 			}
