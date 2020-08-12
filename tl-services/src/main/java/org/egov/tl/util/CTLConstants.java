@@ -13,6 +13,7 @@ public class CTLConstants {
 	 public static final String CTL_NOTIFICATION_PAYMENT_PAYER = "ctl.en.counter.payment.successful.payer";
 	 public static final String CTL_NOTIFICATION_PAYMENT_OWNER = "ctl.en.counter.payment.successful.owner";
 	 public static final String STATUS_PENDINGCLARIFICATION = "PENDINGCLARIFICATION";
+	 public static final String STATUS_MODIFIED = "MODIFIED";
 	 public static final String EMAIL_SIGNATURE = "tl.email.signature";
 	 public static final String CTL_PAYMENT_EMAIL_SUBJECT = "tl.email.payment.subject";
 	 
