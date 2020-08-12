@@ -83,7 +83,8 @@ public class DemandService {
 			String applicationType = calculations.stream()
 					.map(calculation -> calculation.getOpmsDetail().getApplicationType()).findAny().orElse("");
 
-			List<Demand> demands = searchDemand(tenantId, applicationNumbers, requestInfo, applicationType);
+			List<Demand> demands = searchDemand(tenantId, applicationNumbers, requestInfo, applicationType,
+					calculations.get(0).getOpmsDetail().getRoadCutDivision());
 			Set<String> applicationNumbersFromDemands = new HashSet<>();
 			if (!CollectionUtils.isEmpty(demands))
 				applicationNumbersFromDemands = demands.stream().map(Demand::getConsumerCode)
@@ -134,8 +135,12 @@ public class DemandService {
 			Map<String, Long> taxPeriods = mdmsService.getTaxPeriods(requestInfo, pMDetail, mdmsData);
 
 			StringBuilder businessService = new StringBuilder();
+
 			businessService.append(config.getBusinessService()).append(".")
-					.append(calculation.getOpmsDetail().getApplicationType());
+					.append(calculation.getOpmsDetail().getRoadCutDivision() != null
+							? calculation.getOpmsDetail().getApplicationType() + "_"
+									+ calculation.getOpmsDetail().getRoadCutDivision()
+							: calculation.getOpmsDetail().getApplicationType());
 
 			demands.add(Demand.builder().consumerCode(consumerCode).demandDetails(demandDetails).payer(owner)
 					.minimumAmountPayable(config.getMinimumPayableAmount()).tenantId(tenantId)
@@ -152,7 +157,7 @@ public class DemandService {
 
 			List<Demand> searchResult = searchDemand(calculation.getTenantId(),
 					Collections.singleton(calculation.getOpmsDetail().getApplicationNumber()), requestInfo,
-					calculation.getOpmsDetail().getApplicationType());
+					calculation.getOpmsDetail().getApplicationType(), calculation.getOpmsDetail().getRoadCutDivision());
 
 			if (CollectionUtils.isEmpty(searchResult))
 				throw new CustomException("INVALID UPDATE", "No demand exists for applicationNumber: "
@@ -168,9 +173,12 @@ public class DemandService {
 	}
 
 	private List<Demand> searchDemand(String tenantId, Set<String> consumerCodes, RequestInfo requestInfo,
-			String applicationType) {
+			String applicationType, String division) {
 		StringBuilder businessService = new StringBuilder();
-		businessService.append(config.getBusinessService()).append(".").append(applicationType);
+		// businessService.append(config.getBusinessService()).append(".").append(applicationType);
+
+		businessService.append(config.getBusinessService()).append(".")
+				.append(division != null ? applicationType + "_" + division : applicationType);
 
 		String uri = utils.getDemandSearchURL();
 		uri = uri.replace("{1}", tenantId);

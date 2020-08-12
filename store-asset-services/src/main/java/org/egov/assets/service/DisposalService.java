@@ -157,6 +157,50 @@ public class DisposalService extends DomainService {
 					int i = 0;
 					if (!disposal.getDisposalDetails().isEmpty())
 						for (DisposalDetail disposalDetail : disposal.getDisposalDetails()) {
+
+							ScrapSearch scrapSearch = new ScrapSearch();
+							scrapSearch
+									.setScrapNumber(Arrays.asList(disposalDetail.getScrapDetails().getScrapNumber()));
+							scrapSearch.setTenantId(disposal.getTenantId());
+							ScrapResponse scrapResponse = scrapService.search(scrapSearch);
+							List<Scrap> scraps = scrapResponse.getScraps();
+
+							for (Scrap scrap : scrapResponse.getScraps()) {
+								boolean isMaterialAvail = false;
+								for (ScrapDetail scrapDetail : scrap.getScrapDetails()) {
+									if (scrapDetail.getMaterial().getCode() != null
+											&& disposalDetail.getMaterial().getCode() != null
+											&& scrapDetail.getMaterial().getCode()
+													.equals(disposalDetail.getMaterial().getCode())) {
+
+										isMaterialAvail = true;
+
+										if (disposalDetail.getDisposalQuantity()
+												.compareTo(scrapDetail.getScrapQuantity()) > 0) {
+											errors.addDataError(ErrorCode.QUANTITY1_LTE_QUANTITY2.getCode(),
+													"disposalquantity", "scrapquantity",
+													disposalDetail.getDisposalQuantity() != null
+															? disposalDetail.getDisposalQuantity().toString()
+															: null,
+													scrapDetail.getScrapQuantity() != null
+															? scrapDetail.getScrapQuantity().toString()
+															: null);
+										}
+									}
+									disposalDetail.setScrapDetails(scrapDetail);
+								}
+
+								if (!isMaterialAvail) {
+									errors.addDataError(ErrorCode.INVALID_REF_VALUE.getCode(), "disposalmaterial",
+											"scrapmeterial",
+											disposalDetail.getMaterial().getCode() != null
+													? disposalDetail.getMaterial().getCode()
+													: null,
+											null);
+								}
+
+							}
+
 							if (disposalDetail.getUserDisposalQuantity() != null && disposalDetail.getUom() != null) {
 								if (disposalDetail.getUom().getConversionFactor() != null)
 									disposalDetail.setDisposalQuantity(InventoryUtilities.getQuantityInBaseUom(
@@ -317,11 +361,11 @@ public class DisposalService extends DomainService {
 				validate(disposals, Constants.ACTION_UPDATE);
 				int i = 0;
 				for (Disposal disposal : disposals) {
-					if (disposal.getTenantId() != null)
-						disposal.setTenantId(tenantId);
+					disposal.setTenantId(tenantId);
 					DisposalSearchContract disposalSearchContract = new DisposalSearchContract();
 					disposalSearchContract.setDisposalNumber(disposal.getDisposalNumber());
 					disposalSearchContract.setTenantId(tenantId);
+					disposal.setAuditDetails(mapAuditDetailsForUpdate(disposalRequest.getRequestInfo()));
 					DisposalResponse disposalResponse = search(disposalSearchContract);
 					if (disposal.getDisposalStatus().toString().equals(DisposalStatusEnum.CANCELED.toString())) {
 						backUpdateScrapMinus(disposalResponse, tenantId);
@@ -333,7 +377,6 @@ public class DisposalService extends DomainService {
 						i++;
 						continue;
 					}
-					disposal.setAuditDetails(mapAuditDetailsForUpdate(disposalRequest.getRequestInfo()));
 					List<String> listOfDisposalDetails = new ArrayList<>();
 					BigDecimal totalDisposalValue = BigDecimal.ZERO;
 					for (DisposalDetail disposalDetail : disposal.getDisposalDetails()) {
@@ -417,7 +460,7 @@ public class DisposalService extends DomainService {
 	}
 
 	private Map<String, Uom> getUoms(String tenantId, final ObjectMapper mapper, RequestInfo requestInfo) {
-		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "common-masters", "Uom", null, null,
+		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "common-masters", "UOM", null, null,
 				requestInfo);
 		Map<String, Uom> uomMap = new HashMap<>();
 
@@ -431,7 +474,7 @@ public class DisposalService extends DomainService {
 	}
 
 	private Map<String, Material> getMaterials(String tenantId, final ObjectMapper mapper, RequestInfo requestInfo) {
-		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "inventory", "Material", null, null,
+		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "store-asset", "Material", null, null,
 				requestInfo);
 		Map<String, Material> materialMap = new HashMap<>();
 
@@ -451,13 +494,34 @@ public class DisposalService extends DomainService {
 			listOfDisposals = pageDisposal.getPagedData();
 		if (!listOfDisposals.isEmpty())
 			for (Disposal disposal : listOfDisposals) {
+
+				Store store = disposal.getStore();
+				StoreGetRequest storeGetRequest = new StoreGetRequest();
+				storeGetRequest.setCode(Arrays.asList(store.getCode()));
+				storeGetRequest.setTenantId(disposalSearchContract.getTenantId());
+				StoreResponse storeResponse = storeService.search(storeGetRequest);
+				if (storeResponse != null)
+					disposal.setStore(storeResponse.getStores().get(0));
+
 				ObjectMapper mapper = new ObjectMapper();
+				Map<String, Material> materialMap = getMaterials(disposal.getTenantId(), mapper, new RequestInfo());
 				Map<String, Uom> uoms = getUoms(disposal.getTenantId(), mapper, new RequestInfo());
+
 				Pagination<DisposalDetail> pageDisposalDetail = disposalDetailJdbcRepository
 						.search(disposal.getDisposalNumber(), disposal.getTenantId());
 				List<DisposalDetail> listOfDisposalDetails = new ArrayList<>();
 				if (pageDisposalDetail != null)
 					listOfDisposalDetails = pageDisposalDetail.getPagedData();
+
+				for (DisposalDetail disposalDetail : listOfDisposalDetails) {
+					disposalDetail.setMaterial(materialMap.get(disposalDetail.getMaterial().getCode()));
+					ScrapDetailEntity entity = new ScrapDetailEntity();
+					entity.setId(disposalDetail.getScrapDetails().getId());
+					entity.setTenantId(disposal.getTenantId());
+					disposalDetail.setScrapDetails(scrapDetailJdbcRepository.findById(entity) != null
+							? scrapDetailJdbcRepository.findById(entity).toDomain()
+							: null);
+				}
 				if (disposalSearchContract.getPurpose() != null) {
 					if (disposalSearchContract.getPurpose().equals("update")) {
 						for (DisposalDetail disposalDetail : listOfDisposalDetails) {

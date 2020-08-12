@@ -1,6 +1,10 @@
 package org.egov.pm.repository.querybuilder;
 
+import java.util.List;
+
 import org.egov.pm.config.ApplicationProperties;
+import org.egov.pm.model.RequestData;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +21,7 @@ public class QueryBuilder {
 	public static final String SELECT_APPID_QUERY = "select ED.application_uuid from egpm_noc_application ED WHERE ED.noc_number=?";
 
 	public static final String ALL_REMARKS_QUERY = "select application_uuid applicationUuid,remark,created_by,document_detail documentDetail,application_status applicationStatus, created_time createdTime from egpm_noc_application_remark WHERE application_uuid=? order by created_time DESC";
-	public static final String SELECT_VIEW_QUERY = "select EA.application_uuid applicationUuid, EA.noc_number nocNumber,EA.application_type applicationType,EA.applicant_name applicantName,ED.application_detail applicationDetail,EA.house_number houseNumber,EA.sector sector,EA.applied_date appliedDate,EA.application_status applicationStatus,EA.amount amount,EA.gst_amount gstAmount,EA.performance_bank_guarantee performanceBankGuaranteeCharges,EA.total_amount totalamount from egpm_noc_application_detail ED inner join egpm_noc_application EA on ED.application_uuid=EA.application_uuid WHERE EA.noc_number=? AND EA.is_active=TRUE AND ED.is_active=TRUE";
+	public static final String SELECT_VIEW_QUERY = "select EA.application_uuid applicationUuid, EA.noc_number nocNumber,EA.application_type applicationType,EA.applicant_name applicantName,ED.application_detail applicationDetail,EA.house_number houseNumber,EA.sector sector,EA.applied_date appliedDate,EA.application_status applicationStatus,EA.amount amount,EA.gst_amount gstAmount,EA.performance_bank_guarantee performanceBankGuaranteeCharges,EA.total_amount totalamount,EA.created_by createdby from egpm_noc_application_detail ED inner join egpm_noc_application EA on ED.application_uuid=EA.application_uuid WHERE EA.noc_number=? AND EA.is_active=TRUE AND ED.is_active=TRUE";
 	public static final String SELECT_FALLBACK_QUERY = "select EA.application_uuid as applicationUuid, EA.noc_number as nocNumber,EA.application_type as applicationType,\r\n"
 			+ "EA.applicant_name as applicantName,ED.application_detail as applicationDetail,EA.house_number as houseNumber,\r\n"
 			+ "EA.sector as sector,EA.applied_date as appliedDate,EA.application_status as applicationStatus,\r\n"
@@ -269,6 +273,71 @@ public class QueryBuilder {
 	public static String getApplicationQuery() {
 		StringBuilder petsQuery = new StringBuilder(SELECT_APPLICATION_QUERY);
 		return petsQuery.toString();
+	}
+
+	private static final String BASE_QUERY = "select noc_number \"applicationId\",applicant_name \"applicantName\",application_status \"applicationStatus\" from egpm_noc_application_detail ED inner join egpm_noc_application EA on ED.application_uuid=EA.application_uuid ";
+
+	public static String getSearchQuery(RequestData criteria, List<Object> preparedStmtList) {
+		StringBuilder builder = new StringBuilder(BASE_QUERY);
+		JSONObject dataPayload = criteria.getDataPayload();
+		// service type
+		if (criteria.getApplicationType() != null) {
+			addClauseIfRequired(preparedStmtList, builder);
+			builder.append(" EA.application_type=?");
+			preparedStmtList.add(criteria.getApplicationType());
+		}
+
+		// service request id
+		if (dataPayload.get("applicationId") != null) {
+
+			addClauseIfRequired(preparedStmtList, builder);
+			builder.append(" EA.noc_number like ?");
+			preparedStmtList.add("%" + dataPayload.get("applicationId").toString().trim() + "%");
+		}
+
+		// service request status
+		if (dataPayload.get("applicationStatus") != null) {
+
+			addClauseIfRequired(preparedStmtList, builder);
+			builder.append(" EA.application_status   = ?");
+			preparedStmtList.add(dataPayload.get("applicationStatus").toString());
+		}
+
+		// from date
+
+		if (dataPayload.get("fromDate") != null) {
+			addClauseIfRequired(preparedStmtList, builder);
+			builder.append(" EA.created_time >= ? ");
+			preparedStmtList.add(Long.parseLong(dataPayload.get("fromDate").toString()));
+		}
+
+		// to date
+		if (dataPayload.get("toDate") != null) {
+			addClauseIfRequired(preparedStmtList, builder);
+			builder.append(" EA.created_time <= ? ");
+			preparedStmtList.add(Long.parseLong(dataPayload.get("toDate").toString()));
+
+		}
+
+		builder.append(
+				" AND ED.is_active=TRUE AND EA.is_active=TRUE AND EA.application_status!='DRAFT' ORDER BY EA.created_time desc");
+		System.out.println(builder.toString());
+		return builder.toString();
+	}
+
+	// private String addPaginationWrapper(String query, List<Object>
+	// preparedStmtList, RequestData criteria) {
+	//
+	// String finalQuery = paginationWrapper.replace("{}", query);
+	// return finalQuery;
+	// }
+
+	private static void addClauseIfRequired(List<Object> values, StringBuilder queryString) {
+		if (values.isEmpty())
+			queryString.append(" WHERE ");
+		else {
+			queryString.append(" AND");
+		}
 	}
 
 }

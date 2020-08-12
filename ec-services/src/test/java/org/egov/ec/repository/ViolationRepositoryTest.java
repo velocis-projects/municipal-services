@@ -141,4 +141,10 @@ public class ViolationRepositoryTest {
 		repository.getChallanForAuctionHOD(searchCriteria);
 	}
 
+	@Test
+	public void testGetSearchChallan() {
+		
+		Violation violation = Violation.builder().tenantId("ch").build();
+		repository.getSearchChallan(violation);
+	}
 }

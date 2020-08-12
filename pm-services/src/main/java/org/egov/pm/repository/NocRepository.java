@@ -238,36 +238,34 @@ public class NocRepository {
 		List<String> queries = new ArrayList<>();
 		String requestType = requestInfo.getApplicationType();
 		String queryString = "";
-		for (Role roleName : roles) {
 
-			if (roleName.getCode() != null && tenantId != null && requestType != null) {
-				log.info("Role Is  :{} " + roleName.getCode());
-				queryString = PreApplicationRunnerImpl.getSqlQuery(tenantId, roleName.getCode(), requestType);
-				if (!queryString.equals("")) {
-					log.info("Query Found for Role :{} Application Type : {} ", roleName.getCode(), requestType);
-					queries.add(queryString);
+		// this is for citizen
+		if (requestInfo.getRequestInfo().getUserInfo().getType().equals("CITIZEN")) {
+			log.info("Citizen Login :{} " + queryString);
+			queryString = PreApplicationRunnerImpl.getSqlQuery(tenantId, "CITIZEN", requestType);
+			log.info("queryString :{} " + queryString);
+			JSONObject dataPayload = requestInfo.getDataPayload();
+			Set<String> keyList = dataPayload.keySet();
+			for (String keyName : keyList) {
+				StringBuilder values = new StringBuilder();
+				String[] strParameters = dataPayload.get(keyName).toString().split(",");
+				for (int i = 0; i < strParameters.length; i++) {
+					values.append("'" + strParameters[i] + "',");
 				}
+				queryString = queryString.replace("[:" + keyName + ":]", values.substring(0, values.length() - 1));
 			}
-		}
-
-		queryString = queries.isEmpty() ? "" : queries.get(0);
-		log.info("queryString  :{} " + queryString);
-
-		JSONObject dataPayload = requestInfo.getDataPayload();
-		Set<String> keyList = dataPayload.keySet();
-		for (String keyName : keyList) {
-			StringBuilder values = new StringBuilder();
-			String[] strParameters = dataPayload.get(keyName).toString().split(",");
-			for (int i = 0; i < strParameters.length; i++) {
-				values.append("'" + strParameters[i] + "',");
+			if (!queryString.equals("")) {
+				return jdbcTemplate.query(queryString, new Object[] {}, columnsNocRowMapper);
+			} else {
+				return new JSONArray();
 			}
-			queryString = queryString.replace("[:" + keyName + ":]", values.substring(0, values.length() - 1));
-		}
 
-		if (!queryString.equals("")) {
-			return jdbcTemplate.query(queryString, new Object[] {}, columnsNocRowMapper);
 		} else {
-			return new JSONArray();
+			List<Object> preparedStmtList = new ArrayList<>();
+
+			String query = QueryBuilder.getSearchQuery(requestInfo, preparedStmtList);
+			log.info("Query: " + query);
+			return jdbcTemplate.query(query, preparedStmtList.toArray(), columnsNocRowMapper);
 		}
 	}
 
@@ -322,11 +320,19 @@ public class NocRepository {
 
 				JSONArray actualResult = jdbcTemplate.query(QueryBuilder.SELECT_VIEW_QUERY,
 						new Object[] { requestInfo.getApplicationId() }, columnsNocRowMapper);
+
+				JSONObject applicationData = (JSONObject) actualResult.get(0);
+
+				if (requestInfo.getRequestInfo().getUserInfo().getType().equals("CITIZEN")
+						&& !applicationData.get("createdby").toString()
+								.equals(requestInfo.getRequestInfo().getUserInfo().getUuid())) {
+					return null;
+				}
+
 				JSONArray applicationList = new JSONArray();
 				String uUid = "";
 
 				JSONArray remarksDataList = new JSONArray();
-				JSONObject applicationData = (JSONObject) actualResult.get(0);
 
 				uUid = applicationData.get("applicationuuid").toString();
 				if (uUid != null && !uUid.isEmpty()) {
@@ -809,7 +815,6 @@ public class NocRepository {
 		if (actualResult.isEmpty() || actualResult.get(0) == null || actualResult == null)
 			throw new CustomException("FALLBACK DATA ERROR", "No data found");
 
-		
 		JSONObject jsonObject1 = (JSONObject) actualResult.get(0);
 		nocApplication.setNocNumber(jsonObject1.get("nocnumber").toString());
 		nocApplication.setAmount(
@@ -927,7 +932,7 @@ public class NocRepository {
 			List<NOCPriceBook> applist1 = Arrays.asList(nb);
 			data.setRequestInfo(requestData.getRequestInfo());
 			data.setNocPriceBook(applist1);
-	
+
 			producer.push(updatePriceBookdate, data);
 			NOCPriceBook app = new NOCPriceBook();
 			String applicationId = UUID.randomUUID().toString();
@@ -1069,7 +1074,7 @@ public class NocRepository {
 
 		app.setPerDayPrice(Long.parseLong(dataPayLoad.get(CommonConstants.PER_DAY_PRICE).toString()) == 0 ? 0L
 				: Long.parseLong(dataPayLoad.get(CommonConstants.PER_DAY_PRICE).toString()));
-		
+
 		app.setCreatedTime(System.currentTimeMillis());
 		List<NOCPriceBook> nocPriceBook = Arrays.asList(app);
 

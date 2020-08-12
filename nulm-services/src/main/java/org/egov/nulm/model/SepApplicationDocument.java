@@ -2,10 +2,8 @@ package org.egov.nulm.model;
 
 
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +17,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class SEPApplicationDocument {
+public class SepApplicationDocument {
 	
 	private String documnetUuid ;
 	private String filestoreId ;

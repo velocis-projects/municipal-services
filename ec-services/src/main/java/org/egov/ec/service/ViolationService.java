@@ -194,11 +194,13 @@ public class ViolationService {
 			ResponseInfo response1 = wfIntegrator.callWorkFlow(ProcessInstanceRequest.builder()
 					.processInstances(processList1).requestInfo(requestInfoWrapper.getRequestInfo()).build());
 			String strOutput = violationMaster.getNotificationTemplate().getBody()
+					.replace("<violator>",violationMaster.getViolatorName())
 					.replace("<ChallanId>", violationMaster.getChallanId())
 					.replace("<EnchroachmentType>", violationMaster.getEncroachmentType())
 					.replace("<Date and Time>",
 							violationMaster.getViolationDate() + " " + violationMaster.getViolationTime())
-					.replace("<Link>", config.getLoginUrl());
+					.replace("<Link>", config.getLoginUrl())
+					.replace("<br>","\r\n");
 			violationMaster.getNotificationTemplate().setBody(strOutput);
 			violationMaster.getNotificationTemplate().setMessage(strOutput);
 			
@@ -376,6 +378,33 @@ public class ViolationService {
 			log.error("Violation Service - Send Notification Exception"+e.getMessage());
 			throw new CustomException("VIOLATION_NOTIFICATION_EXCEPTION", e.getMessage());
 
+		}
+	}
+	
+	/**
+	*This method will fetch list of challans
+	*
+	* @param RequestInfoWrapper SearchCriteria
+	* @return ResponseInfoWrapper containing list of challans
+	* @throws CustomException VIOLATION_SEARCH_EXCEPTION
+	*/
+	public ResponseEntity<ResponseInfoWrapper> getSearchChallan(RequestInfoWrapper requestInfoWrapper) {
+		log.info("Violation Service - Get Search Challan");
+		try {
+
+			Violation violation = objectMapper.convertValue(requestInfoWrapper.getRequestBody(),Violation.class);
+
+			List<Violation> violationPage = null;
+			
+				violationPage = repository.getSearchChallan(violation);			
+
+			return new ResponseEntity<>(ResponseInfoWrapper.builder()
+					.responseInfo(ResponseInfo.builder().status(EcConstants.STATUS_SUCCESS).build()).responseBody(violationPage).build(),
+					HttpStatus.OK);
+
+		} catch (Exception e) {
+			log.error("Violation Service - Search Violation Exception"+e.getMessage());
+			throw new CustomException("VIOLATION_SEARCH_EXCEPTION", e.getMessage());
 		}
 	}
 

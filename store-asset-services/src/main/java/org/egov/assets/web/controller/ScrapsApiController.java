@@ -12,6 +12,7 @@ import org.egov.assets.model.Scrap;
 import org.egov.assets.model.ScrapRequest;
 import org.egov.assets.model.ScrapResponse;
 import org.egov.assets.model.ScrapSearch;
+import org.egov.assets.model.StatusNums.StatusEnum;
 import org.egov.assets.service.ScrapService;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
@@ -80,6 +81,8 @@ public class ScrapsApiController {
 
 	private ResponseInfo getResponseInfo(RequestInfo requestInfo) {
 		return ResponseInfo.builder().apiId(requestInfo.getApiId()).ver(requestInfo.getVer())
-				.resMsgId(requestInfo.getMsgId()).resMsgId("placeholder").build();
+				.resMsgId(requestInfo.getMsgId()).resMsgId("placeholder").status(StatusEnum.SUCCESSFUL.toString())
+				.build();
 	}
+
 }

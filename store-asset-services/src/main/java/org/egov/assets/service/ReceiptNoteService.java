@@ -669,10 +669,10 @@ public class ReceiptNoteService extends DomainService {
 	private String appendString(MaterialReceipt materialReceipt) {
 		Calendar cal = Calendar.getInstance();
 		int year = cal.get(Calendar.YEAR);
-		String code = "MRN/";
+		String code = "MRN-";
 		int id = Integer.valueOf(receiptNoteRepository.getSequence(materialReceipt));
 		String idgen = String.format("%05d", id);
-		String mrnNumber = code + idgen + "/" + year;
+		String mrnNumber = code + idgen + "-" + year;
 		return mrnNumber;
 	}
 

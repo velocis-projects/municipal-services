@@ -12,11 +12,11 @@ import org.egov.common.contract.response.ResponseInfo;
 import org.egov.nulm.common.CommonConstants;
 import org.egov.nulm.config.NULMConfiguration;
 import org.egov.nulm.idgen.model.IdGenerationResponse;
-import org.egov.nulm.model.NULMSEPRequest;
+import org.egov.nulm.model.NulmSepRequest;
 import org.egov.nulm.model.ResponseInfoWrapper;
-import org.egov.nulm.model.SEPApplication;
-import org.egov.nulm.model.SEPApplicationDocument;
-import org.egov.nulm.repository.SEPRepository;
+import org.egov.nulm.model.SepApplication;
+import org.egov.nulm.model.SepApplicationDocument;
+import org.egov.nulm.repository.SepRepository;
 import org.egov.nulm.util.AuditDetailsUtil;
 import org.egov.nulm.util.IdGenRepository;
 import org.egov.tracer.model.CustomException;
@@ -30,20 +30,20 @@ import org.springframework.util.CollectionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-public class SEPService {
+public class SepService {
 
 	private final ObjectMapper objectMapper;
 
 	private NULMConfiguration config;
 
-	private SEPRepository repository;
+	private SepRepository repository;
 
 	private IdGenRepository idgenrepository;
 	
 	private AuditDetailsUtil auditDetailsUtil;
 	
 	@Autowired
-	public SEPService(SEPRepository repository, ObjectMapper objectMapper, IdGenRepository idgenrepository,
+	public SepService(SepRepository repository, ObjectMapper objectMapper, IdGenRepository idgenrepository,
 			NULMConfiguration config,AuditDetailsUtil auditDetailsUtil) {
 		this.objectMapper = objectMapper;
 		this.repository = repository;
@@ -53,10 +53,10 @@ public class SEPService {
 
 	}
 
-	public ResponseEntity<ResponseInfoWrapper> createSEPApplication(NULMSEPRequest seprequest) {
+	public ResponseEntity<ResponseInfoWrapper> createSEPApplication(NulmSepRequest seprequest) {
 		try {
-			SEPApplication sepapplication = objectMapper.convertValue(seprequest.getNulmSepRequest(),
-					SEPApplication.class);
+			SepApplication sepapplication = objectMapper.convertValue(seprequest.getNulmSepRequest(),
+					SepApplication.class);
 			checkValidation(sepapplication);
 			String sepid = UUID.randomUUID().toString();
 			sepapplication.setApplicationUuid(sepid);
@@ -71,9 +71,9 @@ public class SEPService {
 				throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR.toString(), CommonConstants.ID_GENERATION);
 
 			// save document to nulm_sep_application_document table
-			List<SEPApplicationDocument> sepdoc = new ArrayList<>();
-			for (SEPApplicationDocument docobj : sepapplication.getApplicationDocument()) {
-				SEPApplicationDocument documnet = new SEPApplicationDocument();
+			List<SepApplicationDocument> sepdoc = new ArrayList<>();
+			for (SepApplicationDocument docobj : sepapplication.getApplicationDocument()) {
+				SepApplicationDocument documnet = new SepApplicationDocument();
 				documnet.setDocumnetUuid(UUID.randomUUID().toString());
 				documnet.setApplicationUuid(sepid);
 				documnet.setDocumentType(docobj.getDocumentType());
@@ -96,7 +96,7 @@ public class SEPService {
 		}
 	}
 
-	private void checkValidation(SEPApplication sepapplication) {
+	private void checkValidation(SepApplication sepapplication) {
 		Map<String, String> errorMap = new HashMap<>();
 		if (sepapplication != null) {
 			if (sepapplication.getIsMinority() == true
@@ -120,13 +120,13 @@ public class SEPService {
 
 	}
 
-	public ResponseEntity<ResponseInfoWrapper> getSEPApplication(NULMSEPRequest seprequest) {
+	public ResponseEntity<ResponseInfoWrapper> getSEPApplication(NulmSepRequest seprequest) {
 		try {
 
-			SEPApplication SEPApplication = objectMapper.convertValue(seprequest.getNulmSepRequest(),
-					SEPApplication.class);
+			SepApplication SEPApplication = objectMapper.convertValue(seprequest.getNulmSepRequest(),
+					SepApplication.class);
 			List<Role> role=seprequest.getRequestInfo().getUserInfo().getRoles();
-			List<SEPApplication> SEPApplicationresult = repository.getSEPApplication(SEPApplication,role,seprequest.getRequestInfo().getUserInfo().getId());
+			List<SepApplication> SEPApplicationresult = repository.getSEPApplication(SEPApplication,role,seprequest.getRequestInfo().getUserInfo().getId());
 			return new ResponseEntity<>(ResponseInfoWrapper.builder()
 					.responseInfo(ResponseInfo.builder().status(CommonConstants.SUCCESS).build())
 					.responseBody(SEPApplicationresult).build(), HttpStatus.OK);
@@ -135,20 +135,20 @@ public class SEPService {
 			throw new CustomException(CommonConstants.SEP_APPLICATION_EXCEPTION_CODE, e.getMessage());
 		}
 	}
-	public ResponseEntity<ResponseInfoWrapper> updateSEPApplication(NULMSEPRequest seprequest) {
+	public ResponseEntity<ResponseInfoWrapper> updateSEPApplication(NulmSepRequest seprequest) {
 		try {
-			SEPApplication sepapplication = objectMapper.convertValue(seprequest.getNulmSepRequest(),
-					SEPApplication.class);
+			SepApplication sepapplication = objectMapper.convertValue(seprequest.getNulmSepRequest(),
+					SepApplication.class);
 			int i=0;
 			checkValidation(sepapplication);
 			sepapplication.setIsActive(true);
 			sepapplication.setAuditDetails(auditDetailsUtil.getAuditDetails(seprequest.getRequestInfo(), CommonConstants.ACTION_UPDATE));
 		   // update document to nulm_sep_application_document table
-			List<SEPApplicationDocument> sepdoc = new ArrayList<>();
-			for (SEPApplicationDocument docobj : sepapplication.getApplicationDocument()) {
+			List<SepApplicationDocument> sepdoc = new ArrayList<>();
+			for (SepApplicationDocument docobj : sepapplication.getApplicationDocument()) {
 				i=repository.checkDocExist(docobj,sepapplication.getApplicationUuid(),sepapplication.getTenantId());
 				if(i==0) {
-				SEPApplicationDocument document = new SEPApplicationDocument();
+				SepApplicationDocument document = new SepApplicationDocument();
 				document.setDocumnetUuid(UUID.randomUUID().toString());
 				document.setApplicationUuid(sepapplication.getApplicationUuid());
 				document.setDocumentType(docobj.getDocumentType());
@@ -171,21 +171,21 @@ public class SEPService {
 			throw new CustomException(CommonConstants.SEP_APPLICATION_EXCEPTION_CODE, e.getMessage());
 		}
 	}
-	public ResponseEntity<ResponseInfoWrapper> updateSEPApplicationStatus(NULMSEPRequest seprequest) {
+	public ResponseEntity<ResponseInfoWrapper> updateSEPApplicationStatus(NulmSepRequest seprequest) {
 		try {
-			SEPApplication sepapplication = objectMapper.convertValue(seprequest.getNulmSepRequest(),
-					SEPApplication.class);
+			SepApplication sepapplication = objectMapper.convertValue(seprequest.getNulmSepRequest(),
+					SepApplication.class);
 			
 		 if(sepapplication.getApplicationStatus() != null  && sepapplication.getApplicationStatus().toString().equalsIgnoreCase(config.getApproved()))
 		 {
-			 sepapplication.setApplicationStatus(SEPApplication.StatusEnum.fromValue(sepapplication.getApplicationStatus().toString()));
+			 sepapplication.setApplicationStatus(SepApplication.StatusEnum.fromValue(sepapplication.getApplicationStatus().toString()));
 			 sepapplication.setNulmApplicationId(UUID.randomUUID().toString());
 			 sepapplication.setAuditDetails(auditDetailsUtil.getAuditDetails(seprequest.getRequestInfo(), CommonConstants.ACTION_UPDATE));
 		 }
 		 else if(sepapplication.getApplicationStatus() != null  && sepapplication.getApplicationStatus().toString().equalsIgnoreCase(config.getRejected()))
 			 
 		 {
-			 sepapplication.setApplicationStatus(SEPApplication.StatusEnum.fromValue(sepapplication.getApplicationStatus().toString()));
+			 sepapplication.setApplicationStatus(SepApplication.StatusEnum.fromValue(sepapplication.getApplicationStatus().toString()));
 			 sepapplication.setAuditDetails(auditDetailsUtil.getAuditDetails(seprequest.getRequestInfo(), CommonConstants.ACTION_UPDATE));
 			 sepapplication.setNulmApplicationId(UUID.randomUUID().toString());
 		 }

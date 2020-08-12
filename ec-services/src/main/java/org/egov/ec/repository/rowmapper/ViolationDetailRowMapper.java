@@ -81,9 +81,10 @@ public class ViolationDetailRowMapper implements ResultSetExtractor<List<Violati
 					ecPayment.setPaymentGateway(rs.getString("payment_gateway"));
 
 					String docUuid = rs.getString("document_uuid");
+					if(docUuid != null) 
+					{
 					List<Document> listRedundantDoc = listtoaddDoc.stream()
 							.filter(p -> p.getDocumentUuid().equals(docUuid)).collect(Collectors.toList());
-
 					if (listRedundantDoc.isEmpty()) {
 						Document doc = new Document();
 						doc.setChallanId(rs.getString("challan_id"));
@@ -100,6 +101,9 @@ public class ViolationDetailRowMapper implements ResultSetExtractor<List<Violati
 
 						listtoaddDoc.add(doc);
 					}
+					}
+
+					
 
 					String violationItemUuid = rs.getString("violation_item_uuid");
 					List<ViolationItem> listRedundantItem = listtoaddItem.stream()

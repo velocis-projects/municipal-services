@@ -94,5 +94,8 @@ public class VendorRegistration {
 	
 	@JsonProperty("sourceUuid")
 	private String sourceUuid;
+	
+	@JsonProperty("numberOfViolation")
+	private String numberOfViolation;
 }
 

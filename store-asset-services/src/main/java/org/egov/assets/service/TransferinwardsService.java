@@ -95,11 +95,14 @@ public class TransferinwardsService extends DomainService {
 				materialReceipt
 						.setMrnNumber(getInwardNumber(materialReceipt, inwardRequest.getRequestInfo(), tenantId));
 				materialReceipt.setReceiptType(ReceiptTypeEnum.INWARD_RECEIPT);
-				materialReceipt.setAuditDetails(getAuditDetails(inwardRequest.getRequestInfo(), tenantId));
+				materialReceipt
+						.setAuditDetails(getAuditDetails(inwardRequest.getRequestInfo(), Constants.ACTION_CREATE));
 				if (StringUtils.isEmpty(materialReceipt.getTenantId())) {
 					materialReceipt.setTenantId(tenantId);
 				}
 				materialReceipt.getReceiptDetails().forEach(materialReceiptDetail -> {
+					materialReceiptDetail
+							.setAuditDetails(getAuditDetails(inwardRequest.getRequestInfo(), Constants.ACTION_CREATE));
 					materialReceiptDetail.setId(transferInwardRepository.getSequence("seq_materialreceiptdetail"));
 					materialReceiptDetail.setTenantId(tenantId);
 					materialReceiptDetail.getReceiptDetailsAddnInfo().stream().forEach(addinfo -> {
@@ -133,8 +136,12 @@ public class TransferinwardsService extends DomainService {
 				if (StringUtils.isEmpty(materialReceipt.getTenantId())) {
 					materialReceipt.setTenantId(tenantId);
 				}
+				materialReceipt
+						.setAuditDetails(getAuditDetails(inwardsRequest.getRequestInfo(), Constants.ACTION_UPDATE));
 
 				materialReceipt.getReceiptDetails().forEach(materialReceiptDetail -> {
+					materialReceiptDetail
+							.setAuditDetails(getAuditDetails(inwardsRequest.getRequestInfo(), Constants.ACTION_UPDATE));
 					if (isEmpty(materialReceiptDetail.getTenantId())) {
 						materialReceiptDetail.setTenantId(tenantId);
 					}
@@ -231,8 +238,8 @@ public class TransferinwardsService extends DomainService {
 			throw errors;
 		}
 
-		String seq = "MRN/" + tenant.getCity().getCode() + "/" + finYearRange;
-		return seq + "/" + numberGenerator.getNextNumber(seq, 5);
+		String seq = "MRN-" + tenant.getCity().getCode() + "-" + finYearRange;
+		return seq + "-" + numberGenerator.getNextNumber(seq, 5);
 	}
 
 	// fetching material issue and building with receipt data

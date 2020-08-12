@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,6 +38,7 @@ import org.egov.assets.model.MaterialIssueResponse;
 import org.egov.assets.model.MaterialIssueSearchContract;
 import org.egov.assets.model.MaterialIssuedFromReceipt;
 import org.egov.assets.model.MaterialReceiptDetail;
+import org.egov.assets.model.MaterialReceiptDetailSearch;
 import org.egov.assets.model.Store;
 import org.egov.assets.model.StoreGetRequest;
 import org.egov.assets.model.Uom;
@@ -76,6 +78,9 @@ public class MaterialIssueService extends DomainService {
 
 	@Autowired
 	private MdmsRepository mdmsRepository;
+
+	@Autowired
+	private MaterialReceiptDetailService materialReceiptDetailService;
 
 	@Autowired
 	private StoreService storeService;
@@ -806,10 +811,43 @@ public class MaterialIssueService extends DomainService {
 		}
 	}
 
+	private Store getStore(String storeCode, String tenantId) {
+		StoreGetRequest storeGetRequest = getStoreGetRequest(storeCode, tenantId);
+		List<Store> storeList = storeService.search(storeGetRequest).getStores();
+		if (storeList.size() == 1) {
+			return storeList.get(0);
+		} else {
+			return null;
+		}
+	}
+
+	private StoreGetRequest getStoreGetRequest(String storeCode, String tenantId) {
+		return StoreGetRequest.builder().code(Arrays.asList(storeCode)).tenantId(tenantId).active(true).build();
+	}
+
 	public MaterialIssueResponse search(final MaterialIssueSearchContract searchContract, String type) {
 		Pagination<MaterialIssue> materialIssues = materialIssueJdbcRepository.search(searchContract, type);
 		if (materialIssues.getPagedData().size() > 0)
 			for (MaterialIssue materialIssue : materialIssues.getPagedData()) {
+
+				if (materialIssue.getFromStore() != null) {
+					materialIssue.setFromStore(
+							getStore(materialIssue.getFromStore().getCode(), searchContract.getTenantId()));
+				}
+				if (materialIssue.getToStore() != null && materialIssue.getToStore().getCode() != null) {
+					materialIssue.toStore(getStore(materialIssue.getToStore().getCode(), searchContract.getTenantId()));
+				}
+
+				if (materialIssue.getIndent() != null && materialIssue.getIndent().getIndentNumber() != null) {
+					IndentSearch indentSearch = new IndentSearch();
+					indentSearch.setIndentNumber(materialIssue.getIndent().getIndentNumber());
+					indentSearch.setTenantId(searchContract.getTenantId());
+					IndentResponse indentResponse = indentService.search(indentSearch, new RequestInfo());
+
+					if (!indentResponse.getIndents().isEmpty())
+						materialIssue.setIndent(indentResponse.getIndents().get(0));
+
+				}
 				ObjectMapper mapper = new ObjectMapper();
 				Map<String, Uom> uoms = getUoms(materialIssue.getTenantId(), mapper, new RequestInfo());
 				Pagination<MaterialIssueDetail> materialIssueDetails = materialIssueDetailsJdbcRepository
@@ -851,6 +889,13 @@ public class MaterialIssueService extends DomainService {
 								BigDecimal quantity = getSearchConvertedQuantity(mifr.getQuantity(),
 										uoms.get(materialIssueDetail.getUom().getCode()).getConversionFactor());
 								mifr.setQuantity(quantity);
+
+								List<MaterialReceiptDetail> materialReceiptDetail = getMaterialReceiptDetail(
+										mifr.getMaterialReceiptDetail().getId(), materialIssueDetail.getTenantId());
+
+								mifr.setMaterialReceiptDetail(
+										materialReceiptDetail.isEmpty() ? mifr.getMaterialReceiptDetail()
+												: materialReceiptDetail.get(0));
 							}
 						}
 						materialIssueDetail.setMaterialIssuedFromReceipts(materialIssuedFromReceipts.getPagedData());
@@ -861,6 +906,15 @@ public class MaterialIssueService extends DomainService {
 		MaterialIssueResponse materialIssueResponse = new MaterialIssueResponse();
 		materialIssueResponse.setMaterialIssues(materialIssues.getPagedData());
 		return materialIssueResponse;
+	}
+
+	private List<MaterialReceiptDetail> getMaterialReceiptDetail(String ids, String tenantId) {
+		MaterialReceiptDetailSearch materialReceiptDetailSearch = MaterialReceiptDetailSearch.builder()
+				.ids(Arrays.asList(ids)).tenantId(tenantId).build();
+		Pagination<MaterialReceiptDetail> materialReceiptDetails = materialReceiptDetailService
+				.search(materialReceiptDetailSearch);
+		return materialReceiptDetails.getPagedData().size() > 0 ? materialReceiptDetails.getPagedData()
+				: Collections.EMPTY_LIST;
 	}
 
 	public MaterialIssueResponse prepareMIFromIndents(MaterialIssueRequest materialIssueRequest, String tenantId) {

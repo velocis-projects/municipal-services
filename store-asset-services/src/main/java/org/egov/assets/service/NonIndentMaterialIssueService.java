@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,6 +34,7 @@ import org.egov.assets.model.MaterialIssueResponse;
 import org.egov.assets.model.MaterialIssueSearchContract;
 import org.egov.assets.model.MaterialIssuedFromReceipt;
 import org.egov.assets.model.MaterialReceiptDetail;
+import org.egov.assets.model.MaterialReceiptDetailSearch;
 import org.egov.assets.model.Store;
 import org.egov.assets.model.StoreGetRequest;
 import org.egov.assets.model.Uom;
@@ -71,6 +73,9 @@ public class NonIndentMaterialIssueService extends DomainService {
 
 	@Autowired
 	private MdmsRepository mdmsRepository;
+
+	@Autowired
+	private MaterialReceiptDetailService materialReceiptDetailService;
 
 	@Autowired
 	private MaterialIssueReceiptFifoLogic materialIssueReceiptFifoLogic;
@@ -272,6 +277,7 @@ public class NonIndentMaterialIssueService extends DomainService {
 							fifo.setMaterial(materialIssueDetail.getMaterial());
 							fifo.setIssueDate(materialIssue.getIssueDate());
 							fifo.setTenantId(materialIssue.getTenantId());
+							fifo.setMrnNumber(materialIssueDetail.getMrnNumber());
 							fifoRequest.setFifo(fifo);
 							FifoResponse fifoResponse = materialIssueReceiptFifoLogic
 									.getTotalStockAsPerMaterial(fifoRequest);
@@ -531,10 +537,21 @@ public class NonIndentMaterialIssueService extends DomainService {
 	public MaterialIssueResponse search(MaterialIssueSearchContract searchContract) {
 		Pagination<MaterialIssue> materialIssues = materialIssueJdbcRepository.search(searchContract,
 				IssueTypeEnum.NONINDENTISSUE.toString());
-		if (materialIssues.getPagedData().size() > 0) {
+		if (!materialIssues.getPagedData().isEmpty()) {
+			ObjectMapper mapper = new ObjectMapper();
+			Map<String, Material> materialMap = getMaterials(searchContract.getTenantId(), mapper, new RequestInfo());
+			Map<String, Uom> uoms = getUoms(searchContract.getTenantId(), mapper, new RequestInfo());
+
 			for (MaterialIssue materialIssue : materialIssues.getPagedData()) {
-				ObjectMapper mapper = new ObjectMapper();
-				Map<String, Uom> uoms = getUoms(materialIssue.getTenantId(), mapper, new RequestInfo());
+
+				if (materialIssue.getFromStore() != null && materialIssue.getFromStore().getCode() != null) {
+					materialIssue.setFromStore(
+							getStore(materialIssue.getFromStore().getCode(), searchContract.getTenantId()));
+				}
+				if (materialIssue.getToStore() != null && materialIssue.getToStore().getCode() != null) {
+					materialIssue.toStore(getStore(materialIssue.getToStore().getCode(), searchContract.getTenantId()));
+				}
+
 				Pagination<MaterialIssueDetail> materialIssueDetails = materialIssueDetailsJdbcRepository.search(
 						materialIssue.getIssueNumber(), materialIssue.getTenantId(),
 						IssueTypeEnum.NONINDENTISSUE.toString());
@@ -557,8 +574,21 @@ public class NonIndentMaterialIssueService extends DomainService {
 								BigDecimal quantity = getSearchConvertedQuantity(mifr.getQuantity(),
 										uoms.get(materialIssueDetail.getUom().getCode()).getConversionFactor());
 								mifr.setQuantity(quantity);
+
+								List<MaterialReceiptDetail> materialReceiptDetail = getMaterialReceiptDetail(
+										mifr.getMaterialReceiptDetail().getId(), materialIssueDetail.getTenantId());
+
+								mifr.setMaterialReceiptDetail(
+										materialReceiptDetail.isEmpty() ? mifr.getMaterialReceiptDetail()
+												: materialReceiptDetail.get(0));
 							}
 						}
+						if (materialIssueDetail.getMaterial() != null
+								&& materialIssueDetail.getMaterial().getCode() != null) {
+							materialIssueDetail
+									.setMaterial(materialMap.get(materialIssueDetail.getMaterial().getCode()));
+						}
+
 						materialIssueDetail.setMaterialIssuedFromReceipts(materialIssuedFromReceipts.getPagedData());
 					}
 					materialIssue.setMaterialIssueDetails(materialIssueDetails.getPagedData());
@@ -568,6 +598,36 @@ public class NonIndentMaterialIssueService extends DomainService {
 		MaterialIssueResponse materialIssueResponse = new MaterialIssueResponse();
 		materialIssueResponse.setMaterialIssues(materialIssues.getPagedData());
 		return materialIssueResponse;
+	}
+
+	private Store getStore(String storeCode, String tenantId) {
+		StoreGetRequest storeGetRequest = getStoreGetRequest(storeCode, tenantId);
+		List<Store> storeList = storeService.search(storeGetRequest).getStores();
+		if (storeList.size() == 1) {
+			return storeList.get(0);
+		} else {
+			return null;
+		}
+	}
+
+	private StoreGetRequest getStoreGetRequest(String storeCode, String tenantId) {
+		return StoreGetRequest.builder().code(Arrays.asList(storeCode)).tenantId(tenantId).active(true).build();
+	}
+
+	private List<MaterialReceiptDetail> getMaterialReceiptDetail(String ids, String tenantId) {
+		MaterialReceiptDetailSearch materialReceiptDetailSearch = MaterialReceiptDetailSearch.builder()
+				.ids(Arrays.asList(ids)).tenantId(tenantId).build();
+		Pagination<MaterialReceiptDetail> materialReceiptDetails = materialReceiptDetailService
+				.search(materialReceiptDetailSearch);
+
+		if (!materialReceiptDetails.getPagedData().isEmpty()) {
+			Map<String, Material> materialMap = getMaterials(tenantId, new ObjectMapper(), new RequestInfo());
+			for (MaterialReceiptDetail details : materialReceiptDetails.getPagedData()) {
+				details.setMaterial(materialMap.get(details.getMaterial().getCode()));
+			}
+		}
+		return materialReceiptDetails.getPagedData().size() > 0 ? materialReceiptDetails.getPagedData()
+				: Collections.EMPTY_LIST;
 	}
 
 	private Map<String, Uom> getUoms(String tenantId, final ObjectMapper mapper, RequestInfo requestInfo) {

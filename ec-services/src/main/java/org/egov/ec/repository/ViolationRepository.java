@@ -74,17 +74,21 @@ public class ViolationRepository {
 
 	public List<Violation> getChallan(EcSearchCriteria searchCriteria) {
 		log.info("Violation Repository - getChallan Method");
-
-		List<Violation> violationDetailList;
-
+		
+		List<Violation> violationDetailList = null;
+		
 		String parameter = "%" + searchCriteria.getSearchText() + "%";
 
 		if (null != searchCriteria.getSearchText() && !searchCriteria.getSearchText().isEmpty()) {
-
+			try {
 			violationDetailList = jdbcTemplate.query(EcQueryBuilder.GET_VIOLATION_MASTER_SEARCH,
 					new Object[] { parameter, parameter, parameter, parameter, parameter, parameter, parameter,
 							searchCriteria.getTenantId() },
 					rowMapper);
+			}catch(Exception e)
+			{
+				log.error("Violation Service - Get Violation Exception"+e.getMessage());
+			}
 
 			if (violationDetailList.size() >= searchCriteria.getLimit()) {
 
@@ -114,9 +118,8 @@ public class ViolationRepository {
 
 			} else {
 				return violationDetailList;
-			}
+			}		
 		}
-
 	}
 
 	/**
@@ -184,6 +187,28 @@ public class ViolationRepository {
 		List<Violation> violationDetailList = jdbcTemplate.query(EcQueryBuilder.GET_VIOLATION_MASTER_AUCTION_HOD,
 				new Object[] { searchCriteria.getTenantId() }, rowMapper);
 		return violationDetailList;
+	}
+	
+	/**
+     * fetches the list of challans on the basis of search criterias
+     *
+     * @param searchCriteria EcSearchCriteria model
+     * @return Returns the list of challans
+     */
+	public List<Violation> getSearchChallan(Violation violation) {
+		log.info("Violation Repository - getSearchChallan Method");
+
+		List<Violation> violationDetailList;
+		
+		violationDetailList = jdbcTemplate.query(EcQueryBuilder.SEARCH_VIOLATION_MASTER,
+				new Object[] { violation.getFromDate(), violation.getToDate(), violation.getSiName(),
+						violation.getSiName(), violation.getEncroachmentType(), violation.getEncroachmentType(),
+						violation.getSector(), violation.getSector(),violation.getStatus(), violation.getStatus(),
+						violation.getTenantId() },
+				rowMapper);
+		
+			return violationDetailList;
+
 	}
 
 }
