@@ -238,7 +238,7 @@ public class PaymentUpdateService {
         
         String customizedMsg = message.replace("<1>", owner.getName());
         EmailRequest emailRequest = EmailRequest.builder()
-        								.subject("Your license is generated")
+        								.subject(EMAIL_SUBJECT)
         								.isHTML(true)
         								.email(owner.getEmailId())
         								.body(customizedMsg)

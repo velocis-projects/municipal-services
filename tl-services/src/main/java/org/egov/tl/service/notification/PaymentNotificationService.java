@@ -23,6 +23,7 @@ import org.egov.tl.service.TradeLicenseService;
 import org.egov.tl.util.BPANotificationUtil;
 import org.egov.tl.util.CTLConstants;
 import org.egov.tl.util.NotificationUtil;
+import org.egov.tl.util.TLConstants;
 import org.egov.tl.web.models.EmailAttachment;
 import org.egov.tl.web.models.EmailRequest;
 import org.egov.tl.web.models.EventRequest;
@@ -236,9 +237,10 @@ public class PaymentNotificationService {
 	        
 		   String subject = util.getMessageTemplate(CTLConstants.CTL_PAYMENT_EMAIL_SUBJECT, localizationMessages);
 		   if (subject == null) {
-			   subject = "Payment acknowledgement for application <1>";
+			   subject = TLConstants.EMAIL_SUBJECT;
+		   } else {
+			   subject = subject.replace("<1>", license.getApplicationNumber());			   
 		   }
-		   subject = subject.replace("<1>", license.getApplicationNumber());
 	        String customizedMsg = message.replace("<1>",valMap.get(payerName));
 	        EmailRequest emailRequest = EmailRequest.builder()
 	        								.subject(subject)
