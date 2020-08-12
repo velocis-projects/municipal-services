@@ -193,9 +193,11 @@ public class TLNotificationService {
 					localizationMessages = util.getLocalizationMessages(tenantId, request.getRequestInfo());
 					message = util.getCustomizedCTLMessage(request.getRequestInfo(), license, localizationMessages);
 					
-					//Append email signature to all outgoing messages.
-					String emailSignature = util.getMessageTemplate(CTLConstants.EMAIL_SIGNATURE, localizationMessages);
-					message = new StringBuilder(message).append("\n").append(emailSignature).toString();
+					if (message != null) {						
+						//Append email signature to all outgoing messages.
+						String emailSignature = util.getMessageTemplate(CTLConstants.EMAIL_SIGNATURE, localizationMessages);
+						message = new StringBuilder(message).append("\n").append(emailSignature).toString();
+					}
 					break;
 			}
             if(message==null) continue;

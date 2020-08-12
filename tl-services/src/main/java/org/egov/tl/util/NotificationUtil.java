@@ -425,7 +425,7 @@ public class NotificationUtil {
 	 * @return message for completed payment for owners
 	 */
 	public String getCTLOwnerPaymentMsg(TradeLicense license, Map<String, String> valMap, String localizationMessages) {
-		String messageTemplate = getMessageTemplate(CTLConstants.CTL_NOTIFICATION_PAYMENT_PAYER, localizationMessages);
+		String messageTemplate = getMessageTemplate(CTLConstants.CTL_NOTIFICATION_PAYMENT_OWNER, localizationMessages);
 		messageTemplate = messageTemplate.replace("<3>", getMessageTemplate(license.getBusinessService(), localizationMessages));
 		messageTemplate = messageTemplate.replace("<2>", license.getApplicationNumber());
 		messageTemplate = messageTemplate.replace("<4>", license.getLicenseNumber());
