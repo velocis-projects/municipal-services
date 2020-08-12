@@ -1,8 +1,5 @@
 package org.egov.nulm.model;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -23,7 +20,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 
-public class SMIDApplication {
+public class SmidApplication {
 	
 	private String applicationUuid ;
 	
@@ -36,7 +33,7 @@ public class SMIDApplication {
 	private StatusEnum applicationStatus ;
 
 	public enum StatusEnum {
-	    DRAFT("DRAFT"),
+	    DRAFTED("DRAFTED"),
 	    CREATED("CREATED"),
 	    APPROVED("APPROVED"),
 		REJECTED("REJECTED");
@@ -70,9 +67,6 @@ public class SMIDApplication {
 	@JsonProperty("name")
 	private String name ;
 	
-	@JsonProperty("positionLevel")
-	private String positionLevel ;
-		
 	@JsonProperty("isUrbanPoor")
 	private Boolean isUrbanPoor ;
 	
@@ -157,16 +151,20 @@ public class SMIDApplication {
 	@JsonProperty("dateOfOpeningAccount")
 	private String dateOfOpeningAccount ;
 	
-	@JsonProperty("accountOpenedThrough")
-	private String accountOpenedThrough ;
-	
-	@JsonProperty("roType")
-	private String roType ;
-	
 	@JsonProperty("isActive")
 	private Boolean isActive ;
+	
+	@JsonProperty("fromDate")
+	private String fromDate;
+
+	@JsonProperty("toDate")
+	private String toDate;
+
 			
 	@JsonProperty("auditDetails")
 	private AuditDetails auditDetails ;
+	
+	@JsonProperty("remark")
+	private String remark ;
 
 }

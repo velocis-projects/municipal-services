@@ -1,6 +1,5 @@
 package org.egov.nulm.model;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -23,22 +22,28 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 
-public class SEPApplication {
-	
+public class SmidShgMemberApplication {
 	private String applicationUuid ;
 	
 	private String applicationId ;
 	
+	
+	@JsonProperty("shgUuid")
+	private String shgUuid ;
+	
 	private String nulmApplicationId ;
 	
-	@NotNull
+	
 	@JsonProperty("applicationStatus")
 	private StatusEnum applicationStatus ;
 
 	public enum StatusEnum {
-	    DRAFT("DRAFT"),
+		DRAFTED("DRAFTED"),
 	    CREATED("CREATED"),
 	    APPROVED("APPROVED"),
+	    AWAITINGFORAPPROVAL("AWAITINGFORAPPROVAL"),
+	    UPDATED("UPDATED"),
+	    DELETED("DELETED"),
 		REJECTED("REJECTED");
 
 	    private String value;
@@ -66,139 +71,114 @@ public class SEPApplication {
 	@NotNull
 	@JsonProperty("tenantId")
 	private String tenantId ;
-	
-	
+		
 	@JsonProperty("name")
 	private String name ;
 	
 	
+	@JsonProperty("positionLevel")
+	private String positionLevel ;
+		
 	@JsonProperty("gender")
 	private String gender ;
-	
-	
-	@JsonProperty("age")
-	private Integer age ;
-	
 	
 	@JsonProperty("dob")
 	private String dob ;
 	
+	@JsonProperty("dateOfOpeningAccount")
+	private String dateOfOpeningAccount ;
 	
 	@JsonProperty("adharNo")
 	private String adharNo ;
 	
+	@JsonProperty("fatherOrHusbandName")
+	private String fatherOrHusbandName ;
 	
 	@JsonProperty("motherName")
 	private String motherName ;
 	
-	
-	@JsonProperty("fatherOrHusbandName")
-	private String fatherOrHusbandName ;
-	
-	
-	@JsonProperty("occupation")
-	private String occupation ;
-	
-	
 	@JsonProperty("address")
 	private String address ;
 	
+	@JsonProperty("mobileNo")
+	private String mobileNo ;
 	
-	@JsonProperty("contact")
-	private String contact ;
-	
-	
-	@JsonProperty("sinceHowLongInChandigarh")
-	private String sinceHowLongInChandigarh ;
-	
-	
-	@JsonProperty("qualification")
-	private String qualification ;	
-	
-	
-	@JsonProperty("category")
-	private String category ;
-	
+	@JsonProperty("phoneNo")
+	private String phoneNo ;
+
+	@JsonProperty("emailId")
+	private String emailId ;
 	
 	@JsonProperty("isUrbanPoor")
 	private Boolean isUrbanPoor ;
 	
+	@JsonProperty("isMinority")
+	private Boolean isMinority ;
+	
+	@JsonProperty("isPwd")
+	private Boolean isPwd ;
+	
+	@JsonProperty("isStreetVendor")
+	private Boolean isStreetVendor ;
+	
+	@JsonProperty("isInsurance")
+	private Boolean isInsurance ;
+	
+	@JsonProperty("isHomeless")
+	private Boolean isHomeless ;
+	
+	
 	@JsonProperty("bplNo")
 	private String bplNo ;	
 	
-	
-	@JsonProperty("isMinority")
-	private Boolean isMinority ;
+	@JsonProperty("caste")
+	private String caste ;
 	
 	@JsonProperty("minority")
 	private String minority ;
 	
+	@JsonProperty("wardNo")
+	private String wardNo ;
 	
-	@JsonProperty("isHandicapped")
-	private Boolean isHandicapped ;
+	@JsonProperty("nameAsPerAdhar")
+	private String nameAsPerAdhar ;
 	
+	@JsonProperty("adharAcknowledgementNo")
+	private String adharAcknowledgementNo ;
 	
-	@JsonProperty("typeOfBusinessToBeStarted")
-	private String typeOfBusinessToBeStarted ;
+	@JsonProperty("insuranceThrough")
+	private String insuranceThrough ;
+
 	
+	@JsonProperty("qualification")
+	private String qualification ;	 
 	
-	@JsonProperty("previousExperience")
-	private String previousExperience ;
+	@JsonProperty("documentAttachemnt")
+	private String documentAttachemnt ;
 	
+	@JsonProperty("accountNo")
+	private String accountNo ;
 	
-	@JsonProperty("placeOfWork")
-	private String placeOfWork ;
+	@JsonProperty("bankName")
+	private String bankName;
 	
+	@JsonProperty("branchName")
+	private String branchName;
 	
-	@JsonProperty("bankDetails")
-	private String bankDetails ;
-	
-	
-	@JsonProperty("noOfFamilyMembers")
-	private String noOfFamilyMembers ;	
-	
-	@JsonProperty("projectCost")
-	private BigDecimal projectCost ;
-	
-	
-	@JsonProperty("loanAmount")
-	private BigDecimal loanAmount ;
-	
-	
-	@JsonProperty("recommendedAmount")
-	private BigDecimal recommendedAmount ;
-	
-	
-	@JsonProperty("isLoanFromBankinginstitute")
-	private Boolean isLoanFromBankinginstitute ;
-	
-	
-	@JsonProperty("isRepaymentMade")
-	private Boolean isRepaymentMade ;
-	
-	@JsonProperty("recommendedBy")
-	private String recommendedBy ;
-	
-	@JsonProperty("representativeName")
-	private String representativeName ;
-	
-	@JsonProperty("representativeAddress")
-	private String representativeAddress ;
+	@JsonProperty("remark")
+	private String remark ;
 	
 	@JsonProperty("isActive")
 	private Boolean isActive ;
 	
-	@JsonProperty("applicationDocument")
-	private List<SEPApplicationDocument> applicationDocument;
-	
+	@JsonProperty("fromDate")
+	private String fromDate;
+
+	@JsonProperty("toDate")
+	private String toDate;
+
+	private List<SmidShgGroup> smidShgGroup;
+			
 	@JsonProperty("auditDetails")
 	private AuditDetails auditDetails ;
-
-	
-	
-	
-	
-	
-
-
 }

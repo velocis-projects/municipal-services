@@ -811,10 +811,43 @@ public class MaterialIssueService extends DomainService {
 		}
 	}
 
+	private Store getStore(String storeCode, String tenantId) {
+		StoreGetRequest storeGetRequest = getStoreGetRequest(storeCode, tenantId);
+		List<Store> storeList = storeService.search(storeGetRequest).getStores();
+		if (storeList.size() == 1) {
+			return storeList.get(0);
+		} else {
+			return null;
+		}
+	}
+
+	private StoreGetRequest getStoreGetRequest(String storeCode, String tenantId) {
+		return StoreGetRequest.builder().code(Arrays.asList(storeCode)).tenantId(tenantId).active(true).build();
+	}
+
 	public MaterialIssueResponse search(final MaterialIssueSearchContract searchContract, String type) {
 		Pagination<MaterialIssue> materialIssues = materialIssueJdbcRepository.search(searchContract, type);
 		if (materialIssues.getPagedData().size() > 0)
 			for (MaterialIssue materialIssue : materialIssues.getPagedData()) {
+
+				if (materialIssue.getFromStore() != null) {
+					materialIssue.setFromStore(
+							getStore(materialIssue.getFromStore().getCode(), searchContract.getTenantId()));
+				}
+				if (materialIssue.getToStore() != null && materialIssue.getToStore().getCode() != null) {
+					materialIssue.toStore(getStore(materialIssue.getToStore().getCode(), searchContract.getTenantId()));
+				}
+
+				if (materialIssue.getIndent() != null && materialIssue.getIndent().getIndentNumber() != null) {
+					IndentSearch indentSearch = new IndentSearch();
+					indentSearch.setIndentNumber(materialIssue.getIndent().getIndentNumber());
+					indentSearch.setTenantId(searchContract.getTenantId());
+					IndentResponse indentResponse = indentService.search(indentSearch, new RequestInfo());
+
+					if (!indentResponse.getIndents().isEmpty())
+						materialIssue.setIndent(indentResponse.getIndents().get(0));
+
+				}
 				ObjectMapper mapper = new ObjectMapper();
 				Map<String, Uom> uoms = getUoms(materialIssue.getTenantId(), mapper, new RequestInfo());
 				Pagination<MaterialIssueDetail> materialIssueDetails = materialIssueDetailsJdbcRepository

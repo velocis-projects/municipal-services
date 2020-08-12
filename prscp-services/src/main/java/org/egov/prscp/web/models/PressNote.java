@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
 /**
  * A Object holds the basic data for a Press Note
  */
@@ -39,6 +40,9 @@ public class PressNote {
 
 	@JsonProperty("noteContent")
 	private String noteContent;
+
+	@JsonProperty("noteDocument")
+	private JSONArray noteDocument;
 
 	@JsonProperty("emailContent")
 	private JSONArray emailContent;

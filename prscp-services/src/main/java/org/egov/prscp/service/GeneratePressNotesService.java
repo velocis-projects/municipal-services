@@ -18,7 +18,9 @@ import org.egov.prscp.web.models.PublicationList;
 import org.egov.prscp.web.models.RequestInfoWrapper;
 import org.egov.prscp.web.models.ResponseInfoWrapper;
 import org.egov.tracer.model.CustomException;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,12 +43,14 @@ public class GeneratePressNotesService {
 		this.repository = repository;
 	}
 
-	 /**
-     * Generates press note for the given for the given request
-     * @param requestInfoWrapper to generate press note
-     * @return The object of generated press note
-     */
-	
+	/**
+	 * Generates press note for the given for the given request
+	 * 
+	 * @param requestInfoWrapper
+	 *            to generate press note
+	 * @return The object of generated press note
+	 */
+
 	public ResponseEntity<ResponseInfoWrapper> createPressNote(RequestInfoWrapper requestInfoWrapper,
 			String requestHeader) {
 		try {
@@ -60,6 +64,18 @@ public class GeneratePressNotesService {
 			String templateid = UUID.randomUUID().toString();
 			String pressid = UUID.randomUUID().toString();
 
+			JSONParser jsonParser = new JSONParser();
+			JSONArray docsListTemplet = (JSONArray) jsonParser.parse(
+					pressNote.getDocumentAttachment() != null ? pressNote.getDocumentAttachment().toString() : "");
+			if (pressNote.getNoteDocument() != null && !pressNote.getNoteDocument().isEmpty()) {
+				JSONArray docsListTe = (JSONArray) jsonParser
+						.parse(pressNote.getNoteDocument() != null ? pressNote.getNoteDocument().toString() : "");
+				for (int i = 0; i < docsListTe.size(); i++) {
+					JSONObject jsonObject = (JSONObject) docsListTe.get(i);
+					docsListTemplet.add(jsonObject);
+				}
+			}
+
 			// save notification_Template
 			NotificationTemplate notify = NotificationTemplate.builder().build();
 
@@ -72,7 +88,7 @@ public class GeneratePressNotesService {
 			notify.setCreatedBy(pressNote.getCreatedBy());
 			notify.setCreatedTime(pressNote.getCreatedTime());
 			notify.setModuleCode(pressNote.getModuleCode());
-			notify.setSetdoc(pressNote.getDocumentAttachment().toJSONString());
+			notify.setSetdoc(docsListTemplet.toJSONString());
 
 			// save pressnote
 			pressNote.setNotifiactionTemplateUuid(templateid);
@@ -117,7 +133,9 @@ public class GeneratePressNotesService {
 
 	/**
 	 * Get press note for the given criteria
-	 * @param requestInfoWrapper to get single or all press notes
+	 * 
+	 * @param requestInfoWrapper
+	 *            to get single or all press notes
 	 * @return list of Press notes
 	 */
 	public ResponseEntity<ResponseInfoWrapper> getPressNote(RequestInfoWrapper requestInfoWrapper) {
@@ -136,8 +154,10 @@ public class GeneratePressNotesService {
 
 	/**
 	 * Update press note for the given criteria
-	 * @param requestInfoWrapper to update press note
-	 * @return object of Press note 
+	 * 
+	 * @param requestInfoWrapper
+	 *            to update press note
+	 * @return object of Press note
 	 */
 	public ResponseEntity<ResponseInfoWrapper> updatePressNote(RequestInfoWrapper requestInfoWrapper) {
 		try {
@@ -150,7 +170,7 @@ public class GeneratePressNotesService {
 				pressNote.setLastModifiedBy(requestInfoWrapper.getAuditDetails().getLastModifiedBy());
 				pressNote.setLastModifiedTime(requestInfoWrapper.getAuditDetails().getLastModifiedTime());
 				pressNote.setCreatedTime(requestInfoWrapper.getAuditDetails().getCreatedTime());
-				
+
 				// save notification_Template
 				NotificationTemplate notify = NotificationTemplate.builder().build();
 
@@ -163,7 +183,7 @@ public class GeneratePressNotesService {
 				notify.setTenantId(pressNote.getTenantId());
 				notify.setSetdoc(pressNote.getDocumentAttachment().toJSONString());
 				notify.setCreatedTime(requestInfoWrapper.getAuditDetails().getCreatedTime());
-				
+
 				// map to delete
 				PressNoteMap map = new PressNoteMap();
 				map.setPressNoteUuid(pressNote.getPressNoteUuid());

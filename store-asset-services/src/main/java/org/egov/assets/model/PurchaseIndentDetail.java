@@ -58,7 +58,7 @@ public class PurchaseIndentDetail {
 	 * 
 	 * @return tenantId
 	 **/
-	@Size(min = 4, max = 128)
+	@Size(min = 2, max = 128)
 	public String getTenantId() {
 		return tenantId;
 	}

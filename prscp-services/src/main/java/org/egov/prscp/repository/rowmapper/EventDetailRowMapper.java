@@ -65,6 +65,7 @@ public class EventDetailRowMapper implements ResultSetExtractor<List<EventDetail
 				if (rs.getString("invitedguest") != null) {
 					inviteGuests = Arrays.asList(mapper.readValue(rs.getString("invitedguest"), InviteGuest[].class));
 				}
+				
 				pr.setInviteGuest(inviteGuests);
 
 				list.add(pr);

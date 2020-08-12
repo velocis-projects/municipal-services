@@ -376,7 +376,7 @@ public class DisposalService extends DomainService {
 						disposals.set(i, dpsl);
 						i++;
 						continue;
-					}					
+					}
 					List<String> listOfDisposalDetails = new ArrayList<>();
 					BigDecimal totalDisposalValue = BigDecimal.ZERO;
 					for (DisposalDetail disposalDetail : disposal.getDisposalDetails()) {
@@ -494,13 +494,34 @@ public class DisposalService extends DomainService {
 			listOfDisposals = pageDisposal.getPagedData();
 		if (!listOfDisposals.isEmpty())
 			for (Disposal disposal : listOfDisposals) {
+
+				Store store = disposal.getStore();
+				StoreGetRequest storeGetRequest = new StoreGetRequest();
+				storeGetRequest.setCode(Arrays.asList(store.getCode()));
+				storeGetRequest.setTenantId(disposalSearchContract.getTenantId());
+				StoreResponse storeResponse = storeService.search(storeGetRequest);
+				if (storeResponse != null)
+					disposal.setStore(storeResponse.getStores().get(0));
+
 				ObjectMapper mapper = new ObjectMapper();
+				Map<String, Material> materialMap = getMaterials(disposal.getTenantId(), mapper, new RequestInfo());
 				Map<String, Uom> uoms = getUoms(disposal.getTenantId(), mapper, new RequestInfo());
+
 				Pagination<DisposalDetail> pageDisposalDetail = disposalDetailJdbcRepository
 						.search(disposal.getDisposalNumber(), disposal.getTenantId());
 				List<DisposalDetail> listOfDisposalDetails = new ArrayList<>();
 				if (pageDisposalDetail != null)
 					listOfDisposalDetails = pageDisposalDetail.getPagedData();
+
+				for (DisposalDetail disposalDetail : listOfDisposalDetails) {
+					disposalDetail.setMaterial(materialMap.get(disposalDetail.getMaterial().getCode()));
+					ScrapDetailEntity entity = new ScrapDetailEntity();
+					entity.setId(disposalDetail.getScrapDetails().getId());
+					entity.setTenantId(disposal.getTenantId());
+					disposalDetail.setScrapDetails(scrapDetailJdbcRepository.findById(entity) != null
+							? scrapDetailJdbcRepository.findById(entity).toDomain()
+							: null);
+				}
 				if (disposalSearchContract.getPurpose() != null) {
 					if (disposalSearchContract.getPurpose().equals("update")) {
 						for (DisposalDetail disposalDetail : listOfDisposalDetails) {
