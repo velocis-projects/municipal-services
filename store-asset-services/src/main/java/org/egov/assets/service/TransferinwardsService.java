@@ -238,8 +238,8 @@ public class TransferinwardsService extends DomainService {
 			throw errors;
 		}
 
-		String seq = "MRN/" + tenant.getCity().getCode() + "/" + finYearRange;
-		return seq + "/" + numberGenerator.getNextNumber(seq, 5);
+		String seq = "MRN-" + tenant.getCity().getCode() + "-" + finYearRange;
+		return seq + "-" + numberGenerator.getNextNumber(seq, 5);
 	}
 
 	// fetching material issue and building with receipt data

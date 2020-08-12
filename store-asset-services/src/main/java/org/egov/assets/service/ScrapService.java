@@ -272,8 +272,8 @@ public class ScrapService extends DomainService {
 			throw errors;
 		}
 
-		String seq = "SCRP/" + tenant.getCity().getCode() + "/" + finYearRange;
-		return seq + "/" + numberGenerator.getNextNumber(seq, 5);
+		String seq = "SCRP-" + tenant.getCity().getCode() + "-" + finYearRange;
+		return seq + "-" + numberGenerator.getNextNumber(seq, 5);
 	}
 
 	private void fetchRelated(ScrapRequest request, String tenantId) {

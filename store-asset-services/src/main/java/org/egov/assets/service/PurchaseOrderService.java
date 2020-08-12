@@ -1082,10 +1082,10 @@ public class PurchaseOrderService extends DomainService {
 	private String appendString(PurchaseOrder poOrder) {
 		Calendar cal = Calendar.getInstance();
 		int year = cal.get(Calendar.YEAR);
-		String code = "PO/";
+		String code = "PO-";
 		int id = Integer.valueOf(materialJdbcRepository.getSequence(poOrder));
 		String idgen = String.format("%05d", id);
-		String purchaseOrderNumber = code + idgen + "/" + year;
+		String purchaseOrderNumber = code + idgen + "-" + year;
 		return purchaseOrderNumber;
 	}
 

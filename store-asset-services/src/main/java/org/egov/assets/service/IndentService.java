@@ -196,8 +196,8 @@ public class IndentService extends DomainService {
 			throw errors;
 		}
 
-		String seq = "IND/" + tenant.getCity().getCode() + "/" + b.getIndentStore().getCode() + "/" + finYearRange;
-		return seq + "/" + numberGenerator.getNextNumber(seq, 5);
+		String seq = "IND-" + tenant.getCity().getCode() + "-" + b.getIndentStore().getCode() + "-" + finYearRange;
+		return seq + "-" + numberGenerator.getNextNumber(seq, 5);
 	}
 
 	@Transactional
