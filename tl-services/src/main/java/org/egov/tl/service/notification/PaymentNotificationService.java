@@ -1,39 +1,52 @@
 package org.egov.tl.service.notification;
 
-import com.jayway.jsonpath.DocumentContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.JsonPath;
-import net.minidev.json.JSONArray;
+import static org.egov.tl.util.BPAConstants.NOTIFICATION_PENDINGDOCVERIFICATION;
+import static org.egov.tl.util.CTLConstants.businessService_BOOK_SHOP;
+import static org.egov.tl.util.CTLConstants.businessService_DHOBI_GHAT;
+import static org.egov.tl.util.CTLConstants.businessService_REHRI_DL;
+import static org.egov.tl.util.CTLConstants.businessService_REHRI_RC;
+import static org.egov.tl.util.TLConstants.businessService_BPA;
+import static org.egov.tl.util.TLConstants.businessService_TL;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.tl.config.TLConfiguration;
-import org.egov.tl.repository.TLRepository;
+import org.egov.tl.service.TLPDFGenerationService;
 import org.egov.tl.service.TradeLicenseService;
 import org.egov.tl.util.BPANotificationUtil;
+import org.egov.tl.util.CTLConstants;
 import org.egov.tl.util.NotificationUtil;
-import org.egov.tl.web.models.*;
-import org.egov.tl.web.models.collection.PaymentDetail;
+import org.egov.tl.util.TLConstants;
+import org.egov.tl.web.models.EmailAttachment;
+import org.egov.tl.web.models.EmailRequest;
+import org.egov.tl.web.models.EventRequest;
+import org.egov.tl.web.models.SMSRequest;
+import org.egov.tl.web.models.TradeLicense;
+import org.egov.tl.web.models.TradeLicenseRequest;
+import org.egov.tl.web.models.TradeLicenseSearchCriteria;
 import org.egov.tl.web.models.collection.PaymentRequest;
 import org.egov.tracer.model.CustomException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
 
-import static org.egov.tl.util.BPAConstants.NOTIFICATION_APPROVED;
-import static org.egov.tl.util.BPAConstants.NOTIFICATION_PENDINGDOCVERIFICATION;
-import static org.egov.tl.util.TLConstants.businessService_BPA;
-import static org.egov.tl.util.TLConstants.businessService_TL;
-import static org.egov.tl.util.CTLConstants.businessService_REHRI_RC;
-import static org.egov.tl.util.CTLConstants.businessService_REHRI_DL;
-import static org.egov.tl.util.CTLConstants.businessService_DHOBI_GHAT;
-import static org.egov.tl.util.CTLConstants.businessService_BOOK_SHOP;
+import lombok.extern.slf4j.Slf4j;
 
 
 @Service
+@Slf4j
 public class PaymentNotificationService {
 
 
@@ -48,9 +61,11 @@ public class PaymentNotificationService {
     private BPANotificationUtil bpaNotificationUtil;
 
     private TLNotificationService tlNotificationService;
+    
+    private TLPDFGenerationService tlPDFGenerationService; 
 
     @Autowired
-    public PaymentNotificationService(TLConfiguration config, TradeLicenseService tradeLicenseService,
+    public PaymentNotificationService(TLConfiguration config, TradeLicenseService tradeLicenseService, TLPDFGenerationService tlPDFGenerationService,
                                       NotificationUtil util, ObjectMapper mapper, BPANotificationUtil bpaNotificationUtil,TLNotificationService tlNotificationService) {
         this.config = config;
         this.tradeLicenseService = tradeLicenseService;
@@ -58,6 +73,7 @@ public class PaymentNotificationService {
         this.mapper = mapper;
         this.bpaNotificationUtil = bpaNotificationUtil;
         this.tlNotificationService = tlNotificationService;
+        this.tlPDFGenerationService = tlPDFGenerationService;
     }
 
 
@@ -114,15 +130,16 @@ public class PaymentNotificationService {
 	    			case businessService_REHRI_DL:
 	    			case businessService_DHOBI_GHAT:
 	    			case businessService_BOOK_SHOP:
-	    				 String clt_localizationMessages = util.getLocalizationMessages(license.getTenantId(), requestInfo);
-	                        List<SMSRequest> ctl_smsRequests = getCTLSMSRequests(license, valMap, clt_localizationMessages);
+	    				 String ctlLocalizationMessages = util.getLocalizationMessages(license.getTenantId(), requestInfo);
+	                        List<SMSRequest> ctl_smsRequests = getCTLPayerSMSRequests(license, valMap, ctlLocalizationMessages);
 	                        util.sendSMS(ctl_smsRequests, config.getIsTLSMSEnabled());
 	                        
 	                     if (config.getIsTLEMAILEnabled()) {
-	                    	 List<EmailRequest> ctlEmailRequests = getCTLEmailRequests(license, valMap, clt_localizationMessages);
-	                    	 util.sendEMAIL(ctlEmailRequests,true);
+	                    	 List<EmailRequest> ctlEmailRequests = getCTLPayerEmailRequests(license, documentContext, valMap, ctlLocalizationMessages);
+	                    	 String emailSignature = util.getMessageTemplate(CTLConstants.EMAIL_SIGNATURE, ctlLocalizationMessages);
+	                    	 util.sendEMAIL(ctlEmailRequests,true, emailSignature);
 	                     }
-	                        break;
+	                     break;
                     case businessService_TL:
                         String localizationMessages = util.getLocalizationMessages(license.getTenantId(), requestInfo);
                         List<SMSRequest> smsRequests = getSMSRequests(license, valMap, localizationMessages);
@@ -156,6 +173,7 @@ public class PaymentNotificationService {
                 }
         }
         catch (Exception e){
+        	log.error("Failed to notify the payment information to payer");
             e.printStackTrace();
         }
     }
@@ -185,28 +203,56 @@ public class PaymentNotificationService {
      * @param localizationMessages The localization message to be sent
      * @return
      */
-    private List<SMSRequest> getCTLSMSRequests(TradeLicense license, Map<String,String> valMap,String localizationMessages){
-            SMSRequest ownersSMSRequest = getCTLOwnerSMSRequest(license,valMap,localizationMessages);
+    private List<SMSRequest> getCTLPayerSMSRequests(TradeLicense license, Map<String,String> valMap,String localizationMessages){
             SMSRequest payerSMSRequest = getCTLPayerSMSRequest(license,valMap,localizationMessages);
 
             List<SMSRequest> totalSMS = new LinkedList<>();
             totalSMS.add(payerSMSRequest);
-            totalSMS.add(ownersSMSRequest);
 
             return totalSMS;
     }
-    
-    private List<EmailRequest> getCTLEmailRequests(TradeLicense license, Map<String,String> valMap,String localizationMessages){
-        EmailRequest ownersSMSRequest = getCTLOwnerEmailRequest(license,valMap,localizationMessages);
-//        EmailRequest payerSMSRequest = getCTLPayerEmailRequest(license,valMap,localizationMessages);
 
-        List<EmailRequest> totalEmails = new LinkedList<>();
-//        totalEmails.add(ownersSMSRequest);
-//        totalEmails.add(payerSMSRequest);
+    private List<EmailRequest> getCTLPayerEmailRequests(TradeLicense license, DocumentContext documentContext, Map<String,String> valMap,String localizationMessages) throws Exception{
+    	
+    	ArrayList<String> emailIdToOwner = new ArrayList<String>(1);
+    	license.getTradeLicenseDetail().getOwners().forEach(owner -> {
+            if(owner.getEmailId()!=null) {
+            	emailIdToOwner.add(owner.getEmailId());
+            }
+        });
+    	if (emailIdToOwner.isEmpty()) {
+    		return java.util.Arrays.asList(new EmailRequest[] {});
+    	}
+		String attachmentUrl = this.tlPDFGenerationService.generatePaymentReceiptPDF(documentContext, license);
+		List<EmailAttachment> attachments = new ArrayList<EmailAttachment>(1);
+		   if (attachmentUrl != null) {
+		           attachments.add(EmailAttachment.builder()
+		                           .mimeType("application/pdf")
+		                           .name(license.getApplicationNumber()+"-PaymentReceipt.pdf")
+		                           .url(attachmentUrl)
+		                           .build());
+		   }
 
-        return totalEmails;
+		   String message = util.getCTLPayerPaymentMsg(license,valMap,localizationMessages);
+	        
+		   String subject = util.getMessageTemplate(CTLConstants.CTL_PAYMENT_EMAIL_SUBJECT, localizationMessages);
+		   if (subject == null) {
+			   subject = TLConstants.EMAIL_SUBJECT;
+		   } else {
+			   subject = subject.replace("<1>", license.getApplicationNumber());			   
+		   }
+	        String customizedMsg = message.replace("<1>",valMap.get(payerName));
+	        EmailRequest emailRequest = EmailRequest.builder()
+	        								.subject(subject)
+	        								.isHTML(true)
+	        								.email(emailIdToOwner.get(0))
+	        								.body(customizedMsg)
+	        								.attachments(attachments)
+	        								.build();
+	        		
+	        return java.util.Arrays.asList(emailRequest);
     }
-
+    
     /**
      * Creates SMSRequest for the owners
      * @param license The tradeLicense for which the receipt is created
@@ -233,21 +279,6 @@ public class PaymentNotificationService {
     }
     
     /**
-     * Creates SMSRequest for the owners
-     * @param license The tradeLicense for which the receipt is created
-     * @param valMap The Map containing the values from receipt
-     * @param localizationMessages The localization message to be sent
-     * @return The list of the SMS Requests
-     */
-    private SMSRequest getCTLOwnerSMSRequest(TradeLicense license, Map<String,String> valMap,String localizationMessages){
-        String message = util.getCTLOwnerPaymentMsg(license,valMap,localizationMessages);
-        String customizedMsg = message.replace("<1>",valMap.get(payerName));
-        SMSRequest smsRequest = new SMSRequest(valMap.get(payerMobileNumberKey),customizedMsg);
-        return smsRequest;
-    }
-
-
-    /**
      * Creates SMSRequest to be send to the payer
      * @param valMap The Map containing the values from receipt
      * @param localizationMessages The localization message to be sent
@@ -258,27 +289,6 @@ public class PaymentNotificationService {
         String customizedMsg = message.replace("<1>",valMap.get(paidByKey));
         SMSRequest smsRequest = new SMSRequest(valMap.get(payerMobileNumberKey),customizedMsg);
         return smsRequest;
-    }
-    
-    /**
-     * Creates SMSRequest for the owners
-     * @param license The tradeLicense for which the receipt is created
-     * @param valMap The Map containing the values from receipt
-     * @param localizationMessages The localization message to be sent
-     * @return The list of the SMS Requests
-     */
-    private EmailRequest getCTLOwnerEmailRequest(TradeLicense license, Map<String,String> valMap,String localizationMessages){
-        String message = util.getCTLOwnerPaymentMsg(license,valMap,localizationMessages);
-        
-        String customizedMsg = message.replace("<1>",valMap.get(payerName));
-        EmailRequest emailRequest = EmailRequest.builder()
-        								.subject("Your license is generated")
-        								.isHTML(true)
-        								.email(valMap.get("ownerEmail"))
-        								.body(customizedMsg)
-        								.build();
-        		
-        return emailRequest;
     }
     
     /**

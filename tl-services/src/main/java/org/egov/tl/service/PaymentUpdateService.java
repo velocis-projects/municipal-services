@@ -11,6 +11,11 @@ import org.egov.common.contract.request.Role;
 import org.egov.tl.config.TLConfiguration;
 import org.egov.tl.repository.TLRepository;
 import org.egov.tl.util.TradeUtil;
+import org.egov.tl.util.CTLConstants;
+import org.egov.tl.util.NotificationUtil;
+import org.egov.tl.web.models.EmailRequest;
+import org.egov.tl.web.models.OwnerInfo;
+import org.egov.tl.web.models.SMSRequest;
 import org.egov.tl.web.models.TradeLicense;
 import org.egov.tl.web.models.TradeLicenseRequest;
 import org.egov.tl.web.models.TradeLicenseSearchCriteria;
@@ -31,6 +36,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.egov.tl.util.TLConstants.*;
 import static org.egov.tl.util.CTLConstants.*;
@@ -55,6 +61,8 @@ public class PaymentUpdateService {
 	private WorkflowService workflowService;
 
 	private TradeUtil util;
+	
+	private NotificationUtil notificationUtil;
 
 	@Value("${workflow.bpa.businessServiceCode.fallback_enabled}")
 	private Boolean pickWFServiceNameFromTradeTypeOnly;
@@ -65,7 +73,7 @@ public class PaymentUpdateService {
 	@Autowired
 	public PaymentUpdateService(TradeLicenseService tradeLicenseService, TLConfiguration config, TLRepository repository,
 								WorkflowIntegrator wfIntegrator, EnrichmentService enrichmentService, ObjectMapper mapper,
-								WorkflowService workflowService,TradeUtil util) {
+								WorkflowService workflowService,TradeUtil util, NotificationUtil notificationUtil) {
 		this.tradeLicenseService = tradeLicenseService;
 		this.config = config;
 		this.repository = repository;
@@ -74,6 +82,7 @@ public class PaymentUpdateService {
 		this.mapper = mapper;
 		this.workflowService = workflowService;
 		this.util = util;
+		this.notificationUtil = notificationUtil;
 	}
 
 
@@ -161,6 +170,12 @@ public class PaymentUpdateService {
 					 */
 					Map<String,Boolean> idToIsStateUpdatableMap = util.getIdToIsStateUpdatableMap(businessService,licenses);
 					repository.update(updateRequest,idToIsStateUpdatableMap);
+					
+					try {
+						notifyUser(updateRequest);						
+					} catch (Exception exception) {
+						log.error("Failed to notify users after with the certificate number.");
+					}
 			}
 		 }
 		} catch (Exception e) {
@@ -168,7 +183,69 @@ public class PaymentUpdateService {
 		}
 
 	}
+	 
+	private void notifyUser(TradeLicenseRequest updateRequest) {
+		List<TradeLicense> licenses = updateRequest.getLicenses();
+		licenses.parallelStream().forEach(license -> {
+			Optional<OwnerInfo> filteredOwnerInfo = license.getTradeLicenseDetail().getOwners().stream()
+	        		.filter(o -> o!=null && o.getMobileNumber() != null && o.getName() != null)
+	        		.findFirst();
+	        
+	        if (!filteredOwnerInfo.isPresent()) {
+	        	return;
+	        }
+	        
+	        OwnerInfo owner = filteredOwnerInfo.get();	
+	        String ctlLocalizationMessages = notificationUtil.getLocalizationMessages(license.getTenantId(), updateRequest.getRequestInfo());
+	        
+	        //Post an SMS request.
+	        SMSRequest smsRequest = getCTLOwnerSMSRequest(license, owner, ctlLocalizationMessages);
+	        notificationUtil.sendSMS(Arrays.asList(smsRequest), config.getIsTLSMSEnabled());
+	        
+	        if (owner.getEmailId() != null) {
+	        	EmailRequest emailRequest = getCTLOwnerEmailRequest(license, owner, ctlLocalizationMessages);
+	        	String emailSignature = notificationUtil.getMessageTemplate(CTLConstants.EMAIL_SIGNATURE, ctlLocalizationMessages);
+	        	notificationUtil.sendEMAIL(Arrays.asList(emailRequest),true, emailSignature);
+	        }
+		});
+		
 
+	}
+    /**
+     * Creates SMSRequest for the owners
+     * @param license The tradeLicense for which the receipt is created
+     * @param owner The owner who we will be receiving SMS notifications
+     * @param localizationMessages The localization message to be sent
+     * @return The list of the SMS Requests
+     */
+    private SMSRequest getCTLOwnerSMSRequest(TradeLicense license, OwnerInfo owner, String localizationMessages){
+        String message = notificationUtil.getCTLOwnerPaymentMsg(license, new HashMap<String, String>(), localizationMessages);
+        String customizedMsg = message.replace("<1>", owner.getName());
+        SMSRequest smsRequest = new SMSRequest(owner.getMobileNumber(),customizedMsg);
+        return smsRequest;
+    }
+
+
+    /**
+     * Creates SMSRequest for the owners
+     * @param license The tradeLicense for which the receipt is created
+     * @param owner The owner who will be receiving email notifications
+     * @param localizationMessages The localization message to be sent
+     * @return The list of the SMS Requests
+     */
+    private EmailRequest getCTLOwnerEmailRequest(TradeLicense license, OwnerInfo owner,String localizationMessages){
+        String message = notificationUtil.getCTLOwnerPaymentMsg(license, new HashMap<String, String>(), localizationMessages);
+        
+        String customizedMsg = message.replace("<1>", owner.getName());
+        EmailRequest emailRequest = EmailRequest.builder()
+        								.subject(EMAIL_SUBJECT)
+        								.isHTML(true)
+        								.email(owner.getEmailId())
+        								.body(customizedMsg)
+        								.build();
+        return emailRequest;
+    }
+    
 	/**
 	 * Extracts the required fields as map
 	 * 

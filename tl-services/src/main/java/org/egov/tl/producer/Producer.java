@@ -19,6 +19,10 @@ public class Producer {
         kafkaTemplate.send(topic, value);
     }
     
+    public void pushEmail(String emailTopic, EmailRequest request) {
+    	kafkaTemplate.send(emailTopic, request);
+    }
+    
     public void pushEmail(String emailTopic, String emailAddress, String message, String subject, Boolean isHTML) {
         //kafkaTemplate.send(topic, value);
     	final EmailRequest emailMessage = EmailRequest.builder()
