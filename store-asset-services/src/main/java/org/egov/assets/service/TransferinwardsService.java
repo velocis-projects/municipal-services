@@ -112,7 +112,7 @@ public class TransferinwardsService extends DomainService {
 						}
 					});
 				});
-				updateStatusAsReceipted(materialReceipt.getIssueNumber(), tenantId);
+				// Consider for workflow updateStatusAsReceipted(materialReceipt.getIssueNumber(), tenantId);
 			});
 			kafkaTemplate.send(createTopic, createTopicKey, inwardRequest);
 			TransferInwardResponse response = new TransferInwardResponse();
@@ -159,7 +159,7 @@ public class TransferinwardsService extends DomainService {
 					transferInwardRepository.markDeleted(materialReceiptDetailIds, tenantId, "materialreceiptdetail",
 							"mrnNumber", materialReceipt.getMrnNumber());
 				});
-				updateStatusAsReceipted(materialReceipt.getIssueNumber(), tenantId);
+				// Consider for workflow updateStatusAsReceipted(materialReceipt.getIssueNumber(), tenantId);
 			});
 			kafkaTemplate.send(updateTopic, updateTopicKey, inwardsRequest);
 			TransferInwardResponse response = new TransferInwardResponse();
