@@ -324,6 +324,7 @@ public class PurchaseOrderService extends DomainService {
 			if (purchaseOrders.size() > 0 && purchaseOrders.get(0).getPurchaseType() != null) {
 				if (purchaseOrders.get(0).getPurchaseType().toString()
 						.equalsIgnoreCase(PurchaseTypeEnum.INDENT.toString())) {
+			
 					kafkaQue.send(saveTopic, saveKey, purchaseOrderRequest);
 					purchaseOrderRepository.markIndentUsedForPo(purchaseOrderRequest, tenantId);
 				} else {
