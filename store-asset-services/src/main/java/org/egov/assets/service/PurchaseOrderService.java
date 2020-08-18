@@ -28,6 +28,8 @@ import org.egov.assets.model.IndentSearch;
 import org.egov.assets.model.Material;
 import org.egov.assets.model.PriceList;
 import org.egov.assets.model.PriceListDetails;
+import org.egov.assets.model.PriceListRequest;
+import org.egov.assets.model.PriceListResponse;
 import org.egov.assets.model.PriceListSearchRequest;
 import org.egov.assets.model.PurchaseIndentDetail;
 import org.egov.assets.model.PurchaseOrder;
@@ -321,10 +323,17 @@ public class PurchaseOrderService extends DomainService {
 			if (errors.getValidationErrors().size() > 0)
 				throw errors;
 
+			for (PurchaseOrder po : purchaseOrderRequest.getPurchaseOrders()) {
+				if (po.getRateType() != null
+						&& po.getRateType().toString().equalsIgnoreCase(RateTypeEnum.GEM.toString())) {
+					saveRateContractForGem(purchaseOrderRequest, tenantId);
+				}
+			}
+
 			if (purchaseOrders.size() > 0 && purchaseOrders.get(0).getPurchaseType() != null) {
 				if (purchaseOrders.get(0).getPurchaseType().toString()
 						.equalsIgnoreCase(PurchaseTypeEnum.INDENT.toString())) {
-			
+
 					kafkaQue.send(saveTopic, saveKey, purchaseOrderRequest);
 					purchaseOrderRepository.markIndentUsedForPo(purchaseOrderRequest, tenantId);
 				} else {
@@ -342,6 +351,87 @@ public class PurchaseOrderService extends DomainService {
 			throw e;
 		}
 
+	}
+
+	private void saveRateContractForGem(PurchaseOrderRequest purchaseOrderRequest, String tenantId) {
+
+		PriceListRequest priceListRequest = new PriceListRequest();
+		priceListRequest.setRequestInfo(purchaseOrderRequest.getRequestInfo());
+
+		for (PurchaseOrder po : purchaseOrderRequest.getPurchaseOrders()) {
+
+			PriceList priceList = null;
+			List<PriceListDetails> priceListDetails = new ArrayList<>();
+			for (PurchaseOrderDetail detail : po.getPurchaseOrderDetails()) {
+
+				if (priceList == null) {
+					priceList = detail.getPriceList();
+					priceList.setFileStoreId((priceList.getFileStoreId() != null ? priceList.getFileStoreId() : ""));
+					priceList.setActive(true);
+					priceList.setTenantId(tenantId);
+				}
+
+				PriceListDetails listDetail = new PriceListDetails();
+				listDetail.setMaterial(detail.getMaterial());
+				listDetail.setUom(detail.getUom());
+				listDetail.setRatePerUnit(Double.parseDouble(detail.getUnitPrice().toString()));
+				listDetail.quantity(Double.parseDouble(detail.getOrderQuantity().toString()));
+				listDetail.active(true);
+				priceListDetails.add(listDetail);
+			}
+			if (priceList != null)
+				priceList.setPriceListDetails(priceListDetails);
+
+			List<PriceList> priceLists = new ArrayList<>();
+			priceLists.add(priceList);
+
+			priceListRequest.setPriceLists(priceLists);
+			PriceListResponse priceListResponse = priceListService.save(priceListRequest, tenantId);
+
+			for (PurchaseOrderDetail detail : po.getPurchaseOrderDetails()) {
+				if (!priceListResponse.getPriceLists().isEmpty())
+					detail.setPriceList(priceListResponse.getPriceLists().get(0));
+			}
+		}
+	}
+
+	private void updateRateContractForGem(PurchaseOrderRequest purchaseOrderRequest, String tenantId) {
+
+		PriceListRequest priceListRequest = new PriceListRequest();
+		priceListRequest.setRequestInfo(purchaseOrderRequest.getRequestInfo());
+
+		for (PurchaseOrder po : purchaseOrderRequest.getPurchaseOrders()) {
+			PriceList requestObj = po.getPurchaseOrderDetails().get(0).getPriceList();
+			PriceList priceList = requestObj;
+			List<PriceListDetails> priceListDetails = new ArrayList<>();
+			for (PurchaseOrderDetail detail : po.getPurchaseOrderDetails()) {
+				for (PriceListDetails pd : requestObj.getPriceListDetails()) {
+					PriceListDetails listDetail = new PriceListDetails();
+					if (pd.getMaterial().getCode().equalsIgnoreCase(detail.getMaterial().getCode())) {
+						listDetail.setId(pd.getId());
+					}
+					listDetail.setMaterial(detail.getMaterial());
+					listDetail.setUom(detail.getUom());
+					listDetail.setRatePerUnit(Double.parseDouble(detail.getUnitPrice().toString()));
+					listDetail.quantity(Double.parseDouble(detail.getOrderQuantity().toString()));
+					listDetail.active(true);
+					priceListDetails.add(listDetail);
+				}
+			}
+			if (priceList != null)
+				priceList.setPriceListDetails(priceListDetails);
+
+			List<PriceList> priceLists = new ArrayList<>();
+			priceLists.add(priceList);
+
+			priceListRequest.setPriceLists(priceLists);
+			PriceListResponse priceListResponse = priceListService.update(priceListRequest, tenantId);
+
+			for (PurchaseOrderDetail detail : po.getPurchaseOrderDetails()) {
+				if (!priceListResponse.getPriceLists().isEmpty())
+					detail.setPriceList(priceListResponse.getPriceLists().get(0));
+			}
+		}
 	}
 
 	@Transactional
@@ -460,6 +550,13 @@ public class PurchaseOrderService extends DomainService {
 
 			if (errors.getValidationErrors().size() > 0)
 				throw errors;
+
+			for (PurchaseOrder po : purchaseOrderRequest.getPurchaseOrders()) {
+				if (po.getRateType() != null
+						&& po.getRateType().toString().equalsIgnoreCase(RateTypeEnum.GEM.toString())) {
+					updateRateContractForGem(purchaseOrderRequest, tenantId);
+				}
+			}
 
 			if (purchaseOrder.size() > 0 && purchaseOrder.get(0).getPurchaseType() != null) {
 				if (purchaseOrder.get(0).getPurchaseType().toString()

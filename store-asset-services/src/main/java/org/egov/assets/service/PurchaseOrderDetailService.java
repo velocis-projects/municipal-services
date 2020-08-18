@@ -7,6 +7,8 @@ import org.egov.assets.common.DomainService;
 import org.egov.assets.common.MdmsRepository;
 import org.egov.assets.common.Pagination;
 import org.egov.assets.model.Material;
+import org.egov.assets.model.PriceListResponse;
+import org.egov.assets.model.PriceListSearchRequest;
 import org.egov.assets.model.PurchaseOrderDetail;
 import org.egov.assets.model.PurchaseOrderDetailSearch;
 import org.egov.assets.repository.PurchaseOrderDetailJdbcRepository;
@@ -32,6 +34,9 @@ public class PurchaseOrderDetailService extends DomainService {
 	@Autowired
 	private MdmsRepository mdmsRepository;
 
+	@Autowired
+	private PriceListService priceListService;
+
 	public Pagination<PurchaseOrderDetail> search(PurchaseOrderDetailSearch purchaseOrderDetailSearch) {
 		Pagination<PurchaseOrderDetail> detailPagination = purchaseOrderDetailJdbcRepository
 				.search(purchaseOrderDetailSearch);
@@ -41,6 +46,14 @@ public class PurchaseOrderDetailService extends DomainService {
 					new RequestInfo());
 			for (PurchaseOrderDetail details : detailPagination.getPagedData()) {
 				details.setMaterial(materialMap.get(details.getMaterial().getCode()));
+
+				PriceListSearchRequest priceListSearchRequest = new PriceListSearchRequest();
+				priceListSearchRequest.setId(details.getPriceList().getId());
+				priceListSearchRequest.setTenantId(purchaseOrderDetailSearch.getTenantId());
+				PriceListResponse listResponse = priceListService.search(priceListSearchRequest, new RequestInfo());
+				if (!listResponse.getPriceLists().isEmpty()) {
+					details.setPriceList(listResponse.getPriceLists().get(0));
+				}
 			}
 		}
 		return detailPagination;

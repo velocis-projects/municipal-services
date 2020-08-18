@@ -504,7 +504,6 @@ public class IndentService extends DomainService {
 			 */
 
 		}
-		LOG.info("8888888888888888");
 		return indentRequest;
 	}
 
@@ -564,7 +563,6 @@ public class IndentService extends DomainService {
 		if (!indentResponse.getIndents().isEmpty() && indentResponse.getIndents().size() == 1) {
 			JSONObject requestMain = new JSONObject();
 			DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
 			ObjectMapper mapper = new ObjectMapper();
 			try {
 				JSONObject reqInfo = (JSONObject) new JSONParser().parse(mapper.writeValueAsString(requestInfo));
@@ -578,11 +576,18 @@ public class IndentService extends DomainService {
 				JSONObject indent = new JSONObject();
 				indent.put("indentNumber", in.getIndentNumber());
 				indent.put("storeName", in.getIndentStore().getName());
+				indent.put("indentingStoreName", in.getIndentStore().getName());
+				indent.put("indentingStoreDept", in.getIndentStore().getDepartment().getName());
 				if (in.getIndentDate() != null) {
 					Instant indentDate = Instant.ofEpochMilli(in.getIndentDate());
 					indent.put("indentDate", fmt.format(indentDate.atZone(ZoneId.systemDefault())));
 				} else {
 					indent.put("indentDate", in.getIndentDate());
+				}
+
+				if (in.getIssueStore() != null && in.getIssueStore().getCode() != null) {
+					indent.put("issuingStoreName", in.getIssueStore().getName());
+					indent.put("issuingStoreDept", in.getIssueStore().getDepartment().getName());
 				}
 				indent.put("indentStatus", in.getIndentStatus());
 				indent.put("indentPurpose", in.getIndentPurpose());
@@ -597,6 +602,7 @@ public class IndentService extends DomainService {
 				for (IndentDetail detail : in.getIndentDetails()) {
 					JSONObject indentDetail = new JSONObject();
 					indentDetail.put("srNo", i++);
+					indentDetail.put("materialName", detail.getMaterial().getCode());
 					indentDetail.put("materialName", detail.getMaterial().getName());
 					indentDetail.put("materialDescription", detail.getMaterial().getDescription());
 					indentDetail.put("uomName", detail.getUom().getCode());
@@ -621,10 +627,16 @@ public class IndentService extends DomainService {
 				indent.put("workflowDetails", workflows);
 
 				indents.add(indent);
-				requestMain.put("IndentNote", indents);
+				if (is.getIndentType().equals(IndentTypeEnum.INDENTNOTE.toString()))
+					requestMain.put("IndentNote", indents);
+				if (is.getIndentType().equals(IndentTypeEnum.TRANSFERINDENT.toString()))
+					requestMain.put("IndentNoteTransfer", indents);
 			}
+			if (is.getIndentType().equals(IndentTypeEnum.INDENTNOTE.toString()))
+				return pdfServiceReposistory.getPrint(requestMain, "store-asset-indent-note", is.getTenantId());
+			if (is.getIndentType().equals(IndentTypeEnum.TRANSFERINDENT.toString()))
+				return pdfServiceReposistory.getPrint(requestMain, "store-asset-indent-transfer", is.getTenantId());
 
-			return pdfServiceReposistory.getPrint(requestMain, "store-asset-indent-note", is.getTenantId());
 		}
 		return PDFPrintData.builder()
 				.responseInfo(ResponseInfo.builder().status("Failed").resMsgId("No data found").build()).build();

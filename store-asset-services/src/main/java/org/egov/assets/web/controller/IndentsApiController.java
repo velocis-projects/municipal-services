@@ -70,8 +70,10 @@ public class IndentsApiController {
 	@PostMapping(value = "/_print", produces = { "application/json" }, consumes = { "application/json" })
 	public ResponseEntity<PDFPrintData> indentsPrintPost(@Valid @RequestBody PDFRequest pdfRequest,
 			@NotNull @RequestParam(value = "tenantId", required = true) String tenantId,
-			@RequestParam(value = "indentNumber", required = false) String indentNumber) {
-		IndentSearch is = new IndentSearch().builder().tenantId(tenantId).indentNumber(indentNumber).build();
+			@RequestParam(value = "indentNumber", required = true) String indentNumber,
+			@RequestParam(value = "indentType", required = true) String indentType) {
+		IndentSearch is = new IndentSearch().builder().tenantId(tenantId).indentNumber(indentNumber)
+				.indentType(indentType).build();
 		PDFPrintData response = indentService.printPdf(is, pdfRequest.getRequestInfo());
 		return new ResponseEntity(response, HttpStatus.OK);
 	}
