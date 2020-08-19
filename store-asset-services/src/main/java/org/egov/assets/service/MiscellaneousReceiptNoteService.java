@@ -306,7 +306,7 @@ public class MiscellaneousReceiptNoteService extends DomainService {
 		return s2;
 	}
 
-	public PDFPrintData printPdf(MaterialReceiptSearch materialReceiptSearch, RequestInfo requestInfo) {
+	public PDFResponse printPdf(MaterialReceiptSearch materialReceiptSearch, RequestInfo requestInfo) {
 		MaterialReceiptResponse materialReceiptResponse = search(materialReceiptSearch);
 
 		if (!materialReceiptResponse.getMaterialReceipt().isEmpty()
@@ -376,7 +376,7 @@ public class MiscellaneousReceiptNoteService extends DomainService {
 			return pdfServiceReposistory.getPrint(requestMain, "store-asset-misc-material-note",
 					materialReceiptSearch.getTenantId());
 		}
-		return PDFPrintData.builder()
+		return PDFResponse.builder()
 				.responseInfo(ResponseInfo.builder().status("Failed").resMsgId("No data found").build()).build();
 	}
 

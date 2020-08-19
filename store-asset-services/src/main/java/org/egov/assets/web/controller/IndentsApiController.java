@@ -12,7 +12,7 @@ import javax.validation.constraints.Size;
 import org.egov.assets.model.IndentRequest;
 import org.egov.assets.model.IndentResponse;
 import org.egov.assets.model.IndentSearch;
-import org.egov.assets.model.PDFPrintData;
+import org.egov.assets.model.PDFResponse;
 import org.egov.assets.model.PDFRequest;
 import org.egov.assets.service.IndentService;
 import org.egov.common.contract.request.RequestInfo;
@@ -68,13 +68,13 @@ public class IndentsApiController {
 	}
 
 	@PostMapping(value = "/_print", produces = { "application/json" }, consumes = { "application/json" })
-	public ResponseEntity<PDFPrintData> indentsPrintPost(@Valid @RequestBody PDFRequest pdfRequest,
+	public ResponseEntity<PDFResponse> indentsPrintPost(@Valid @RequestBody PDFRequest pdfRequest,
 			@NotNull @RequestParam(value = "tenantId", required = true) String tenantId,
 			@RequestParam(value = "indentNumber", required = true) String indentNumber,
 			@RequestParam(value = "indentType", required = true) String indentType) {
 		IndentSearch is = new IndentSearch().builder().tenantId(tenantId).indentNumber(indentNumber)
 				.indentType(indentType).build();
-		PDFPrintData response = indentService.printPdf(is, pdfRequest.getRequestInfo());
+		PDFResponse response = indentService.printPdf(is, pdfRequest.getRequestInfo());
 		return new ResponseEntity(response, HttpStatus.OK);
 	}
 

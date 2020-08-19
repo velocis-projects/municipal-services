@@ -16,7 +16,7 @@ import org.egov.assets.model.MaterialBalanceRateResponse;
 import org.egov.assets.model.MaterialReceiptRequest;
 import org.egov.assets.model.MaterialReceiptResponse;
 import org.egov.assets.model.MaterialReceiptSearch;
-import org.egov.assets.model.PDFPrintData;
+import org.egov.assets.model.PDFResponse;
 import org.egov.assets.model.PDFRequest;
 import org.egov.assets.service.ReceiptNoteService;
 import org.springframework.http.HttpStatus;
@@ -71,12 +71,12 @@ public class ReceiptnotesApiController {
 	}
 
 	@PostMapping(value = "/_print", produces = { "application/json" }, consumes = { "application/json" })
-	public ResponseEntity<PDFPrintData> receiptnotesPrintPost(@Valid @RequestBody PDFRequest pdfRequest,
+	public ResponseEntity<PDFResponse> receiptnotesPrintPost(@Valid @RequestBody PDFRequest pdfRequest,
 			@NotNull @RequestParam(value = "tenantId", required = true) String tenantId,
 			@RequestParam(value = "mrnNumber", required = false) String mrnNumber) {
 		MaterialReceiptSearch materialReceiptSearch = MaterialReceiptSearch.builder().tenantId(tenantId)
 				.mrnNumber(Arrays.asList(mrnNumber)).build();
-		PDFPrintData response = receiptNoteService.printPdf(materialReceiptSearch, pdfRequest.getRequestInfo());
+		PDFResponse response = receiptNoteService.printPdf(materialReceiptSearch, pdfRequest.getRequestInfo());
 		return new ResponseEntity(response, HttpStatus.OK);
 	}
 

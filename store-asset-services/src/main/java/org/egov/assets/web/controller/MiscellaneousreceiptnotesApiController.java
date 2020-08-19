@@ -14,7 +14,7 @@ import javax.validation.constraints.Size;
 import org.egov.assets.model.MaterialReceiptRequest;
 import org.egov.assets.model.MaterialReceiptResponse;
 import org.egov.assets.model.MaterialReceiptSearch;
-import org.egov.assets.model.PDFPrintData;
+import org.egov.assets.model.PDFResponse;
 import org.egov.assets.model.PDFRequest;
 import org.egov.assets.service.MiscellaneousReceiptNoteService;
 import org.springframework.http.HttpStatus;
@@ -71,13 +71,13 @@ public class MiscellaneousreceiptnotesApiController {
 	}
 
 	@PostMapping(value = "/_print", produces = { "application/json" }, consumes = { "application/json" })
-	public ResponseEntity<PDFPrintData> miscellaneousreceiptnotesPrintPost(@Valid @RequestBody PDFRequest pdfRequest,
+	public ResponseEntity<PDFResponse> miscellaneousreceiptnotesPrintPost(@Valid @RequestBody PDFRequest pdfRequest,
 			@NotNull @RequestParam(value = "tenantId", required = true) String tenantId,
 			@NotNull @RequestParam(value = "ids", required = false) String ids,
 			@Size(max = 100) @RequestParam(value = "mrnNumber", required = true) String mrnNumber) {
 		MaterialReceiptSearch materialReceiptSearch = MaterialReceiptSearch.builder().tenantId(tenantId)
 				.mrnNumber(Arrays.asList(mrnNumber)).build();
-		PDFPrintData materialReceiptResponse = miscellaneousReceiptNoteService.printPdf(materialReceiptSearch,
+		PDFResponse materialReceiptResponse = miscellaneousReceiptNoteService.printPdf(materialReceiptSearch,
 				pdfRequest.getRequestInfo());
 		return new ResponseEntity<>(materialReceiptResponse, HttpStatus.OK);
 	}

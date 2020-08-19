@@ -31,7 +31,7 @@ import org.egov.assets.model.MaterialReceiptDetailAddnlinfo;
 import org.egov.assets.model.MaterialReceiptRequest;
 import org.egov.assets.model.MaterialReceiptResponse;
 import org.egov.assets.model.MaterialReceiptSearch;
-import org.egov.assets.model.PDFPrintData;
+import org.egov.assets.model.PDFResponse;
 import org.egov.assets.model.PurchaseOrderDetail;
 import org.egov.assets.model.PurchaseOrderDetailSearch;
 import org.egov.assets.model.PurchaseOrderSearch;
@@ -730,7 +730,7 @@ public class ReceiptNoteService extends DomainService {
 		}
 	}
 
-	public PDFPrintData printPdf(MaterialReceiptSearch materialReceiptSearch, RequestInfo requestInfo) {
+	public PDFResponse printPdf(MaterialReceiptSearch materialReceiptSearch, RequestInfo requestInfo) {
 		MaterialReceiptResponse materialReceiptResponse = search(materialReceiptSearch);
 		if (!materialReceiptResponse.getMaterialReceipt().isEmpty()
 				&& materialReceiptResponse.getMaterialReceipt().size() == 1) {
@@ -827,7 +827,7 @@ public class ReceiptNoteService extends DomainService {
 			return pdfServiceReposistory.getPrint(requestMain, "store-asset-mrn-receipt",
 					materialReceiptSearch.getTenantId());
 		}
-		return PDFPrintData.builder()
+		return PDFResponse.builder()
 				.responseInfo(ResponseInfo.builder().status("Failed").resMsgId("No data found").build()).build();
 
 	}

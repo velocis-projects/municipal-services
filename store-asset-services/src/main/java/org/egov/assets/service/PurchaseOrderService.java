@@ -5,6 +5,9 @@ import static org.springframework.util.StringUtils.isEmpty;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -26,6 +29,7 @@ import org.egov.assets.model.IndentDetail;
 import org.egov.assets.model.IndentResponse;
 import org.egov.assets.model.IndentSearch;
 import org.egov.assets.model.Material;
+import org.egov.assets.model.PDFResponse;
 import org.egov.assets.model.PriceList;
 import org.egov.assets.model.PriceListDetails;
 import org.egov.assets.model.PriceListRequest;
@@ -46,8 +50,10 @@ import org.egov.assets.model.StoreGetRequest;
 import org.egov.assets.model.Supplier;
 import org.egov.assets.model.SupplierGetRequest;
 import org.egov.assets.model.Uom;
+import org.egov.assets.model.Indent.IndentTypeEnum;
 import org.egov.assets.repository.IndentJdbcRepository;
 import org.egov.assets.repository.MaterialReceiptJdbcRepository;
+import org.egov.assets.repository.PDFServiceReposistory;
 import org.egov.assets.repository.PriceListJdbcRepository;
 import org.egov.assets.repository.PurchaseOrderJdbcRepository;
 import org.egov.assets.repository.StoreJdbcRepository;
@@ -55,7 +61,11 @@ import org.egov.assets.repository.SupplierJdbcRepository;
 import org.egov.assets.repository.entity.IndentEntity;
 import org.egov.assets.util.InventoryUtilities;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.response.ResponseInfo;
 import org.egov.tracer.model.CustomException;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +73,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 @Transactional(readOnly = true)
@@ -79,6 +91,9 @@ public class PurchaseOrderService extends DomainService {
 
 	@Autowired
 	private PriceListJdbcRepository priceListjdbcRepository;
+
+	@Autowired
+	private PDFServiceReposistory pdfServiceReposistory;
 
 	@Autowired
 	private IndentJdbcRepository indentJdbcRepository;
@@ -1214,6 +1229,104 @@ public class PurchaseOrderService extends DomainService {
 				throw errors;
 			}
 		}
+	}
+
+	public PDFResponse printPdf(PurchaseOrderSearch purchaseOrderSearch, RequestInfo requestInfo) {
+		PurchaseOrderResponse orderResponse = search(purchaseOrderSearch);
+
+		if (!orderResponse.getPurchaseOrders().isEmpty() && orderResponse.getPurchaseOrders().size() == 1) {
+			JSONObject requestMain = new JSONObject();
+			DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				JSONObject reqInfo = (JSONObject) new JSONParser().parse(mapper.writeValueAsString(requestInfo));
+				requestMain.put("RequestInfo", reqInfo);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+
+			JSONArray purchaseOrders = new JSONArray();
+			for (PurchaseOrder po : orderResponse.getPurchaseOrders()) {
+				JSONObject purchaseOrder = new JSONObject();
+				purchaseOrder.put("poNumber", po.getPurchaseOrderNumber());
+				purchaseOrder.put("storeName", po.getStore().getName());
+				purchaseOrder.put("poStatus", po.getStatus());
+				purchaseOrder.put("rateType", po.getRateType());
+				purchaseOrder.put("supplierName", po.getSupplier().getName());
+				purchaseOrder.put("advancePercentage", po.getAdvancePercentage());
+				purchaseOrder.put("advanceAmount", po.getAdvanceAmount());
+				if (po.getPurchaseOrderDate() != null) {
+					Instant poDate = Instant.ofEpochMilli(po.getPurchaseOrderDate());
+					purchaseOrder.put("poDate", fmt.format(poDate.atZone(ZoneId.systemDefault())));
+				} else {
+					purchaseOrder.put("poDate", po.getPurchaseOrderDate());
+				}
+
+				if (po.getExpectedDeliveryDate() != null) {
+					Instant expectedDate = Instant.ofEpochMilli(po.getExpectedDeliveryDate());
+					purchaseOrder.put("deliveryDate", fmt.format(expectedDate.atZone(ZoneId.systemDefault())));
+				} else {
+					purchaseOrder.put("deliveryDate", po.getExpectedDeliveryDate());
+				}
+
+				purchaseOrder.put("remark", po.getRemarks());
+				purchaseOrder.put("paymentTerms", po.getPaymentTerms());
+				purchaseOrder.put("deliveryTerms", po.getDeliveryTerms());
+				purchaseOrder.put("createdBy", po.getPoCreatedBy());
+				purchaseOrder.put("designation", po.getDesignation());
+
+				JSONArray purchaseOrderDetails = new JSONArray();
+				int i = 1;
+				for (PurchaseOrderDetail poDetails : po.getPurchaseOrderDetails()) {
+					JSONObject poDets = new JSONObject();
+					poDets.put("srNo", i++);
+					poDets.put("materialCode", poDetails.getMaterial().getCode());
+					poDets.put("materialName", poDetails.getMaterial().getName());
+					poDets.put("uomName", poDetails.getUom().getCode());
+					poDets.put("indentNumber", poDetails.getIndentNumber());
+					poDets.put("indentQuantity", poDetails.getIndentQuantity());
+					poDets.put("orderQuantity", poDetails.getOrderQuantity());
+					poDets.put("poPurpose", poDetails.getPurchaseOrderPurpose());
+					poDets.put("unitRate", poDetails.getUnitPrice());
+					poDets.put("totalValue", poDetails.getOrderQuantity().multiply(poDetails.getUnitPrice()));
+					poDets.put("workDetailsRemark", poDetails.getWorkDetailRemarks());
+
+					purchaseOrder.put("rateContractNumber", poDetails.getPriceList().getRateContractNumber());
+					if (poDetails.getPriceList().getRateContractDate() != null) {
+						Instant rateDate = Instant.ofEpochMilli(poDetails.getPriceList().getRateContractDate());
+						purchaseOrder.put("rateContractDate", fmt.format(rateDate.atZone(ZoneId.systemDefault())));
+					} else {
+						purchaseOrder.put("rateContractDate", poDetails.getPriceList().getRateContractDate());
+					}
+
+					purchaseOrderDetails.add(poDets);
+				}
+				purchaseOrder.put("materialDetails", purchaseOrderDetails);
+
+				// Need to integrate Workflow
+
+				JSONArray workflows = new JSONArray();
+				JSONObject jsonWork = new JSONObject();
+				jsonWork.put("reviewApprovalDate", "02-05-2020");
+				jsonWork.put("reviewerApproverName", "Aniket");
+				jsonWork.put("designation", "MD");
+				jsonWork.put("action", "Forwarded");
+				jsonWork.put("sendTo", "Prakash");
+				jsonWork.put("approvalStatus", "APPROVED");
+				workflows.add(jsonWork);
+				purchaseOrder.put("workflowDetails", workflows);
+
+				purchaseOrders.add(purchaseOrder);
+
+				requestMain.put("PurchaseOrder", purchaseOrders);
+			}
+			return pdfServiceReposistory.getPrint(requestMain, "store-asset-purchase-order",
+					purchaseOrderSearch.getTenantId());
+
+		}
+		return PDFResponse.builder()
+				.responseInfo(ResponseInfo.builder().status("Failed").resMsgId("No data found").build()).build();
+
 	}
 
 }

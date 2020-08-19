@@ -1,6 +1,6 @@
 package org.egov.assets.repository;
 
-import org.egov.assets.model.PDFPrintData;
+import org.egov.assets.model.PDFResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,12 +20,12 @@ public class PDFServiceReposistory {
 		this.pdfServiceUrls = hostName + path;
 	}
 
-	public PDFPrintData getPrint(Object request, String key, String tenantId) {
+	public PDFResponse getPrint(Object request, String key, String tenantId) {
 		StringBuilder pathString = new StringBuilder(pdfServiceUrls);
 		pathString.append("?key=");
 		pathString.append(key);
 		pathString.append("&tenantId=");
 		pathString.append(tenantId);
-		return restTemplate.postForObject(pathString.toString(), request, PDFPrintData.class);
+		return restTemplate.postForObject(pathString.toString(), request, PDFResponse.class);
 	}
 }

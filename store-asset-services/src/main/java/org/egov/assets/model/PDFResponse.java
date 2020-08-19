@@ -18,7 +18,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PDFPrintData {
+public class PDFResponse {
 
 	@JsonProperty("responseInfo")
 	private ResponseInfo responseInfo;

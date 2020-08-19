@@ -30,7 +30,7 @@ import org.egov.assets.model.IndentRequest;
 import org.egov.assets.model.IndentResponse;
 import org.egov.assets.model.IndentSearch;
 import org.egov.assets.model.Material;
-import org.egov.assets.model.PDFPrintData;
+import org.egov.assets.model.PDFResponse;
 import org.egov.assets.model.Store;
 import org.egov.assets.model.StoreGetRequest;
 import org.egov.assets.model.Tenant;
@@ -558,7 +558,7 @@ public class IndentService extends DomainService {
 		return s2;
 	}
 
-	public PDFPrintData printPdf(IndentSearch is, RequestInfo requestInfo) {
+	public PDFResponse printPdf(IndentSearch is, RequestInfo requestInfo) {
 		IndentResponse indentResponse = search(is, requestInfo);
 		if (!indentResponse.getIndents().isEmpty() && indentResponse.getIndents().size() == 1) {
 			JSONObject requestMain = new JSONObject();
@@ -602,7 +602,7 @@ public class IndentService extends DomainService {
 				for (IndentDetail detail : in.getIndentDetails()) {
 					JSONObject indentDetail = new JSONObject();
 					indentDetail.put("srNo", i++);
-					indentDetail.put("materialName", detail.getMaterial().getCode());
+					indentDetail.put("materialCode", detail.getMaterial().getCode());
 					indentDetail.put("materialName", detail.getMaterial().getName());
 					indentDetail.put("materialDescription", detail.getMaterial().getDescription());
 					indentDetail.put("uomName", detail.getUom().getCode());
@@ -638,7 +638,7 @@ public class IndentService extends DomainService {
 				return pdfServiceReposistory.getPrint(requestMain, "store-asset-indent-transfer", is.getTenantId());
 
 		}
-		return PDFPrintData.builder()
+		return PDFResponse.builder()
 				.responseInfo(ResponseInfo.builder().status("Failed").resMsgId("No data found").build()).build();
 	}
 }
