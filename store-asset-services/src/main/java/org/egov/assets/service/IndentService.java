@@ -203,8 +203,11 @@ public class IndentService extends DomainService {
 		if (errors.getValidationErrors().size() > 0) {
 			throw errors;
 		}
-
-		String seq = "IND-" + tenant.getCity().getCode() + "-" + b.getIndentStore().getCode() + "-" + finYearRange;
+		String seq = "";
+		if (b.getIndentType().equals(IndentTypeEnum.INDENTNOTE))
+			seq = "IND-" + tenant.getCity().getCode() + "-" + b.getIndentStore().getCode() + "-" + finYearRange;
+		else
+			seq = "TRIN-" + tenant.getCity().getCode() + "-" + b.getIndentStore().getCode() + "-" + finYearRange;
 		return seq + "-" + numberGenerator.getNextNumber(seq, 5);
 	}
 

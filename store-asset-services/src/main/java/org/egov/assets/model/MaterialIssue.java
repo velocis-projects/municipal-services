@@ -88,6 +88,10 @@ public class MaterialIssue {
 
 		CANCELED("CANCELED"),
 
+		REASSIGNTOJE("REASSIGNTOJE"),
+
+		REVIEWOFSDO("REVIEWOFSDO"),
+
 		RECEIPTED("RECEIPTED");
 
 		private String value;

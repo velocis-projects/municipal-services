@@ -12,6 +12,8 @@ import javax.validation.constraints.Size;
 import org.egov.assets.model.MaterialIssueRequest;
 import org.egov.assets.model.MaterialIssueResponse;
 import org.egov.assets.model.MaterialIssueSearchContract;
+import org.egov.assets.model.PDFRequest;
+import org.egov.assets.model.PDFResponse;
 import org.egov.assets.service.NonIndentMaterialIssueService;
 import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +62,18 @@ public class MaterialIssueNonIndentApiController {
 				issueNoteNumber, issuePurpose, issueDate, null, materialIssueStatus, description, totalIssueValue, null,
 				pageNumber, sortBy, pageSize, purpose);
 		MaterialIssueResponse materialIssueResponse = nonIndentMaterialIssueService.search(searchContract);
+		return new ResponseEntity(materialIssueResponse, HttpStatus.OK);
+	}
+
+	@PostMapping(value = "/_print", produces = { "application/json" }, consumes = { "application/json" })
+	public ResponseEntity<PDFResponse> materialissuesNonIndentSearchPost(
+			@NotNull @RequestParam(value = "tenantId", required = true) String tenantId,
+			@Valid @RequestBody PDFRequest pdfRequest,
+			@RequestParam(value = "issueNoteNumber", required = false) String issueNoteNumber) {
+		MaterialIssueSearchContract searchContract = new MaterialIssueSearchContract(tenantId, null, null, null,
+				issueNoteNumber, null, null, null, null, null, null, null, null, null, null, null);
+		PDFResponse materialIssueResponse = nonIndentMaterialIssueService.printPdf(searchContract,
+				pdfRequest.getRequestInfo());
 		return new ResponseEntity(materialIssueResponse, HttpStatus.OK);
 	}
 

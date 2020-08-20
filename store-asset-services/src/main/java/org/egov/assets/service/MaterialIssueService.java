@@ -303,8 +303,14 @@ public class MaterialIssueService extends DomainService {
 			materialIssue.setIssuedToDesignation(materialIssue.getIndent().getDesignation());
 		if (action.equals(Constants.ACTION_CREATE)) {
 			int year = Calendar.getInstance().get(Calendar.YEAR);
-			materialIssue.setIssueNumber("MRIN-" + String.valueOf(year) + "-" + seqNo);
+
 			materialIssue.setMaterialIssueStatus(MaterialIssueStatusEnum.CREATED);
+
+			if (type.equals(IssueTypeEnum.INDENTISSUE.toString())) {
+				materialIssue.setIssueNumber("MRIN-" + String.valueOf(year) + "-" + seqNo);
+			} else {
+				materialIssue.setIssueNumber("MROW-" + String.valueOf(year) + "-" + seqNo);
+			}
 		}
 	}
 
@@ -1111,6 +1117,15 @@ public class MaterialIssueService extends DomainService {
 				} else {
 					indent.put("outwardDate", in.getIssueDate());
 				}
+
+				indent.put("issueNumber", in.getIssueNumber());
+				if (in.getIssueDate() != null) {
+					Instant issueDate = Instant.ofEpochMilli(in.getIssueDate());
+					indent.put("issueDate", fmt.format(issueDate.atZone(ZoneId.systemDefault())));
+				} else {
+					indent.put("issueDate", in.getIssueDate());
+				}
+
 				indent.put("issuingStoreName", in.getFromStore().getName());
 				indent.put("issuingStoreDept", in.getFromStore().getDepartment().getName());
 
@@ -1123,7 +1138,7 @@ public class MaterialIssueService extends DomainService {
 				} else {
 					indent.put("indentDate", in.getIndent().getIndentDate());
 				}
-
+				indent.put("issueStatus", in.getMaterialIssueStatus());
 				indent.put("outwardStatus", in.getMaterialIssueStatus());
 				indent.put("indentPurpose", in.getIndent().getIndentPurpose());
 				indent.put("issuedToEmployee", in.getIssuedToEmployee());
@@ -1136,6 +1151,7 @@ public class MaterialIssueService extends DomainService {
 
 				JSONArray indentDetails = new JSONArray();
 				int i = 1;
+				BigDecimal totalIssueAmount = BigDecimal.ZERO;
 				for (MaterialIssueDetail detail : in.getMaterialIssueDetails()) {
 					JSONObject indentDetail = new JSONObject();
 					indentDetail.put("srNo", i++);
@@ -1159,7 +1175,9 @@ public class MaterialIssueService extends DomainService {
 					indentDetail.put("unitRate", totalUnitRate);
 					indentDetail.put("remark", detail.getDescription());
 					indentDetails.add(indentDetail);
+					totalIssueAmount = totalIssueAmount.add(total);
 				}
+				indent.put("issueTotalAmount", totalIssueAmount);
 				indent.put("materialDetails", indentDetails);
 
 				// Need to integrate Workflow
@@ -1175,11 +1193,21 @@ public class MaterialIssueService extends DomainService {
 				workflows.add(jsonWork);
 				indent.put("workflowDetails", workflows);
 				indents.add(indent);
-				requestMain.put("IndentOutwardTransfer", indents);
+
+				if (type.equals(IssueTypeEnum.MATERIALOUTWARD.toString())) {
+					requestMain.put("IndentOutwardTransfer", indents);
+				} else if (type.equals(IssueTypeEnum.INDENTISSUE.toString())) {
+					requestMain.put("IndentIssueNote", indents);
+				}
 			}
 
-			return pdfServiceReposistory.getPrint(requestMain, "store-asset-indent-outward",
-					searchContract.getTenantId());
+			if (type.equals(IssueTypeEnum.MATERIALOUTWARD.toString())) {
+				return pdfServiceReposistory.getPrint(requestMain, "store-asset-indent-outward",
+						searchContract.getTenantId());
+			} else if (type.equals(IssueTypeEnum.INDENTISSUE.toString())) {
+				return pdfServiceReposistory.getPrint(requestMain, "store-asset-indent-issue-note",
+						searchContract.getTenantId());
+			}
 
 		}
 		return PDFResponse.builder()
