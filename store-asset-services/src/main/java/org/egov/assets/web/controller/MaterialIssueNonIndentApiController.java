@@ -37,7 +37,7 @@ public class MaterialIssueNonIndentApiController {
 	public ResponseEntity<MaterialIssueResponse> materialissuesNonIndentCreatePost(
 			@NotNull @RequestParam(value = "tenantId", required = true) String tenantId,
 			@Valid @RequestBody MaterialIssueRequest nonIndentIssueRequest) {
-		MaterialIssueResponse materialIssueResponse = nonIndentMaterialIssueService.create(nonIndentIssueRequest);
+		MaterialIssueResponse materialIssueResponse = nonIndentMaterialIssueService.create(nonIndentIssueRequest,tenantId);
 		return new ResponseEntity(materialIssueResponse, HttpStatus.OK);
 	}
 

@@ -11,11 +11,14 @@ import org.egov.common.contract.request.RequestInfo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import lombok.ToString;
+
 /**
  * Contract class for web request. Array of MaterialIssue items are used in case
  * of create or update
  */
 
+@ToString
 public class MaterialIssueRequest {
 	@JsonProperty("RequestInfo")
 	private RequestInfo requestInfo = null;
