@@ -58,5 +58,11 @@ public class Organization {
 
 	@JsonProperty("auditDetails")
 	private AuditDetails auditDetails;
+	
+	@JsonProperty("fromDate")
+	private String fromDate;
+
+	@JsonProperty("toDate")
+	private String toDate;
 
 }

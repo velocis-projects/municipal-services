@@ -3,6 +3,9 @@ package org.egov.assets.service;
 import static org.springframework.util.StringUtils.isEmpty;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,9 +19,12 @@ import org.egov.assets.common.exception.CustomBindException;
 import org.egov.assets.common.exception.ErrorCode;
 import org.egov.assets.common.exception.InvalidDataException;
 import org.egov.assets.model.FinancialYear;
+import org.egov.assets.model.IndentDetail;
 import org.egov.assets.model.MaterialIssue;
+import org.egov.assets.model.MaterialIssue.IssueTypeEnum;
 import org.egov.assets.model.MaterialIssue.MaterialIssueStatusEnum;
 import org.egov.assets.model.MaterialIssueDetail;
+import org.egov.assets.model.MaterialIssueResponse;
 import org.egov.assets.model.MaterialIssueSearchContract;
 import org.egov.assets.model.MaterialIssuedFromReceipt;
 import org.egov.assets.model.MaterialReceipt;
@@ -27,15 +33,20 @@ import org.egov.assets.model.MaterialReceiptAddInfoSearch;
 import org.egov.assets.model.MaterialReceiptDetail;
 import org.egov.assets.model.MaterialReceiptDetailAddnlinfo;
 import org.egov.assets.model.MaterialReceiptSearch;
+import org.egov.assets.model.PDFResponse;
 import org.egov.assets.model.Tenant;
 import org.egov.assets.model.TransferInwardRequest;
 import org.egov.assets.model.TransferInwardResponse;
 import org.egov.assets.model.Uom;
 import org.egov.assets.repository.MaterialIssueJdbcRepository;
 import org.egov.assets.repository.MaterialReceiptDetailAddInfoJdbcRepository;
+import org.egov.assets.repository.PDFServiceReposistory;
 import org.egov.assets.repository.TransferInwardRepository;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.response.ResponseInfo;
 import org.egov.tracer.kafka.LogAwareKafkaTemplate;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -56,6 +67,9 @@ public class TransferinwardsService extends DomainService {
 
 	@Autowired
 	private MaterialIssueService materialIssuesService;
+
+	@Autowired
+	private PDFServiceReposistory pdfServiceReposistory;
 
 	@Autowired
 	private MaterialReceiptService materialReceiptService;
@@ -112,6 +126,8 @@ public class TransferinwardsService extends DomainService {
 						}
 					});
 				});
+				// Consider for workflow
+				// updateStatusAsReceipted(materialReceipt.getIssueNumber(), tenantId);
 			});
 			kafkaTemplate.send(createTopic, createTopicKey, inwardRequest);
 			TransferInwardResponse response = new TransferInwardResponse();
@@ -158,6 +174,8 @@ public class TransferinwardsService extends DomainService {
 					transferInwardRepository.markDeleted(materialReceiptDetailIds, tenantId, "materialreceiptdetail",
 							"mrnNumber", materialReceipt.getMrnNumber());
 				});
+				// Consider for workflow
+				// updateStatusAsReceipted(materialReceipt.getIssueNumber(), tenantId);
 			});
 			kafkaTemplate.send(updateTopic, updateTopicKey, inwardsRequest);
 			TransferInwardResponse response = new TransferInwardResponse();
@@ -238,7 +256,7 @@ public class TransferinwardsService extends DomainService {
 			throw errors;
 		}
 
-		String seq = "MRN-" + tenant.getCity().getCode() + "-" + finYearRange;
+		String seq = "MRNIW-" + tenant.getCity().getCode() + "-" + finYearRange;
 		return seq + "-" + numberGenerator.getNextNumber(seq, 5);
 	}
 
@@ -269,9 +287,11 @@ public class TransferinwardsService extends DomainService {
 						// converting and validating userReceivedqty with issuedqty
 						if (setConvertedQuantity(tenantId, detail, issuedQuantity, request.getRequestInfo())) {
 							errors.addDataError(ErrorCode.QTY1_EQ_QTY2.getCode(), "Received Qty", "Issued Qty", null);
-						} else
-							// updating material issue table status
-							updateStatusAsReceipted(receipt.getIssueNumber(), tenantId);
+						}
+						/*
+						 * else // updating material issue table status
+						 * updateStatusAsReceipted(receipt.getIssueNumber(), tenantId);
+						 */
 
 						for (MaterialReceiptDetailAddnlinfo info : detail.getReceiptDetailsAddnInfo()) {
 							if (info.getReceivedDate() <= issueDate) {
@@ -345,6 +365,123 @@ public class TransferinwardsService extends DomainService {
 			}
 		}
 		return false;
+
+	}
+
+	public PDFResponse printPdf(MaterialReceiptSearch materialReceiptSearch, String tenantId, RequestInfo requestInfo) {
+		TransferInwardResponse transferInwardResponse = search(materialReceiptSearch, tenantId);
+		if (!transferInwardResponse.getTransferInwards().isEmpty()
+				&& transferInwardResponse.getTransferInwards().size() == 1) {
+			JSONObject requestMain = new JSONObject();
+			DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				JSONObject reqInfo = (JSONObject) new JSONParser().parse(mapper.writeValueAsString(requestInfo));
+				requestMain.put("RequestInfo", reqInfo);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+
+			JSONArray indents = new JSONArray();
+			for (MaterialReceipt in : transferInwardResponse.getTransferInwards()) {
+				JSONObject indent = new JSONObject();
+
+				MaterialIssueSearchContract searchContract = new MaterialIssueSearchContract(tenantId, null, null, null,
+						in.getIssueNumber(), null, null, null, null, null, null, null, null, null, null, null);
+				MaterialIssueResponse materialIssueResponse = materialIssuesService.search(searchContract,
+						IssueTypeEnum.MATERIALOUTWARD.toString());
+				List<MaterialIssueDetail> materialIssueDetail = null;
+
+				indent.put("inwardNumber", in.getMrnNumber());
+				if (in.getReceiptDate() != null) {
+					Instant receiptDate = Instant.ofEpochMilli(in.getReceiptDate());
+					indent.put("inwardDate", fmt.format(receiptDate.atZone(ZoneId.systemDefault())));
+				} else {
+					indent.put("inwardDate", in.getReceiptDate());
+				}
+				indent.put("outwardNumber", in.getIssueNumber());
+
+				if (!materialIssueResponse.getMaterialIssues().isEmpty()
+						&& materialIssueResponse.getMaterialIssues().size() == 1) {
+					materialIssueDetail = materialIssueResponse.getMaterialIssues().get(0).getMaterialIssueDetails();
+					indent.put("indentPurpose",
+							materialIssueResponse.getMaterialIssues().get(0).getIndent().getIndentPurpose());
+					if (materialIssueResponse.getMaterialIssues().get(0).getIssueDate() != null) {
+						Instant issueDate = Instant
+								.ofEpochMilli(materialIssueResponse.getMaterialIssues().get(0).getIssueDate());
+						indent.put("outwardDate", fmt.format(issueDate.atZone(ZoneId.systemDefault())));
+					} else {
+						indent.put("outwardDate", materialIssueResponse.getMaterialIssues().get(0).getIssueDate());
+					}
+				} else {
+					indent.put("outwardDate", "");
+					indent.put("indentPurpose", "");
+				}
+
+				indent.put("issuingStoreName", in.getIssueingStore().getName());
+				indent.put("issuingStoreDept", in.getIssueingStore().getDepartment().getName());
+				indent.put("indentingStoreName", in.getReceivingStore().getName());
+				indent.put("indentingStoreDept", in.getReceivingStore().getDepartment().getName());
+				indent.put("inwardStatus", in.getMrnStatus());
+
+				indent.put("remark", in.getDescription());
+				// indent.put("createdBy", in.get);
+				indent.put("designation", in.getDesignation());
+
+				JSONArray indentDetails = new JSONArray();
+				int i = 1;
+				BigDecimal receiptTotalValue = BigDecimal.ZERO;
+				for (MaterialReceiptDetail detail : in.getReceiptDetails()) {
+					JSONObject indentDetail = new JSONObject();
+					indentDetail.put("srNo", i++);
+					indentDetail.put("materialCode", detail.getMaterial().getCode());
+					indentDetail.put("materialName", detail.getMaterial().getName());
+					indentDetail.put("materialDescription", detail.getMaterial().getDescription());
+					indentDetail.put("uomName", detail.getUom().getCode());
+					indentDetail.put("receivedQuantity", detail.getReceivedQty());
+
+					if (materialIssueDetail != null) {
+						MaterialIssueDetail materialIssue = materialIssueDetail.stream().filter(
+								predicate -> predicate.getMaterial().getCode().equals(detail.getMaterial().getCode()))
+								.findAny().orElse(null);
+						if (materialIssue != null)
+							indentDetail.put("quantityIssued", materialIssue.getQuantityIssued());
+						else
+							indentDetail.put("quantityIssued", "");
+					} else {
+						indentDetail.put("quantityIssued", "");
+					}
+					indentDetail.put("totalValue", detail.getUnitRate().multiply(detail.getReceivedQty()));
+					indentDetail.put("unitRate", detail.getUnitRate());
+					indentDetail.put("remark", detail.getRemarks());
+					indentDetails.add(indentDetail);
+					receiptTotalValue = receiptTotalValue.add(detail.getUnitRate().multiply(detail.getReceivedQty()));
+				}
+				indent.put("receiptTotalValue", receiptTotalValue);
+				indent.put("materialDetails", indentDetails);
+
+				// Need to integrate Workflow
+
+				JSONArray workflows = new JSONArray();
+				JSONObject jsonWork = new JSONObject();
+				jsonWork.put("reviewApprovalDate", "02-05-2020");
+				jsonWork.put("reviewerApproverName", "Aniket");
+				jsonWork.put("designation", "MD");
+				jsonWork.put("action", "Forwarded");
+				jsonWork.put("sendTo", "Prakash");
+				jsonWork.put("approvalStatus", "APPROVED");
+				workflows.add(jsonWork);
+				indent.put("workflowDetails", workflows);
+				indents.add(indent);
+				requestMain.put("IndentInwardTransfer", indents);
+			}
+
+			return pdfServiceReposistory.getPrint(requestMain, "store-asset-indent-inward",
+					materialReceiptSearch.getTenantId());
+
+		}
+		return PDFResponse.builder()
+				.responseInfo(ResponseInfo.builder().status("Failed").resMsgId("No data found").build()).build();
 
 	}
 

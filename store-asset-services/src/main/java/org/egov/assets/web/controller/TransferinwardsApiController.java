@@ -10,6 +10,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.egov.assets.model.MaterialReceiptSearch;
+import org.egov.assets.model.PDFRequest;
+import org.egov.assets.model.PDFResponse;
 import org.egov.assets.model.TransferInwardRequest;
 import org.egov.assets.model.TransferInwardResponse;
 import org.egov.assets.service.TransferinwardsService;
@@ -56,6 +58,18 @@ public class TransferinwardsApiController {
 				.receiptType(receiptType).mrnNumber(mrnNumber).receiptDate(receiptDate).issueNumber(issueNumber)
 				.mrnStatus(status).pageNumber(pageNumber).pageSize(pageSize).build();
 		TransferInwardResponse response = transferinwardsService.search(materialReceiptSearch, tenantId);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	@PostMapping(value = "/_print", produces = { "application/json" }, consumes = { "application/json" })
+	public ResponseEntity<PDFResponse> transferinwardsPrintPost(
+			@NotNull @RequestParam(value = "tenantId", required = true) String tenantId,
+			@Valid @RequestBody PDFRequest pdfRequest,
+			@RequestParam(value = "mrnNumber", required = false) List<String> mrnNumber) {
+		MaterialReceiptSearch materialReceiptSearch = MaterialReceiptSearch.builder().tenantId(tenantId)
+				.mrnNumber(mrnNumber).build();
+		PDFResponse response = transferinwardsService.printPdf(materialReceiptSearch, tenantId,
+				pdfRequest.getRequestInfo());
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 

@@ -56,42 +56,37 @@ public class SmidShgRepository {
 		List<SmidShgGroup> smid = new ArrayList<>();
 		Map<String, Object> paramValues = new HashMap<>();
 		paramValues.put("tenantId", shg.getTenantId());
-
-		
-		
-
 		try {
 			for (Role roleobj : role) {
 				if ((roleobj.getCode()).equalsIgnoreCase(config.getRoleEmployee())) {
 					List<Object> statusEmplyee = new ArrayList<>();
-					if(shg.getStatus() == null) {
+					if (shg.getStatus() == null) {
 						statusEmplyee.add(SmidShgGroup.StatusEnum.APPROVED.toString());
 						statusEmplyee.add(SmidShgGroup.StatusEnum.AWAITINGFORAPPROVAL.toString());
 						statusEmplyee.add(SmidShgGroup.StatusEnum.DELETED.toString());
-					}else {
+					} else {
 						statusEmplyee.add(shg.getStatus().toString());
 					}
-					paramValues.put("status", statusEmplyee);				
-					paramValues.put("createdBy", "");					
+					paramValues.put("status", statusEmplyee);
+					paramValues.put("createdBy", "");
 					paramValues.put("shgUuid", shg.getShgUuid());
-					
+
 					return smid = namedParameterJdbcTemplate.query(NULMQueryBuilder.GET_SHG_QUERY, paramValues,
 							shgrowMapper);
-
 
 				}
 			}
 			List<Object> statusCitizen = new ArrayList<>();
-			if(shg.getStatus() == null) {
+			if (shg.getStatus() == null) {
 				statusCitizen.add(SmidShgGroup.StatusEnum.CREATED.toString());
 				statusCitizen.add(SmidShgGroup.StatusEnum.DRAFTED.toString());
 				statusCitizen.add(SmidShgGroup.StatusEnum.APPROVED.toString());
 				statusCitizen.add(SmidShgGroup.StatusEnum.AWAITINGFORAPPROVAL.toString());
 				statusCitizen.add(SmidShgGroup.StatusEnum.DELETED.toString());
-			}else {
+			} else {
 				statusCitizen.add(shg.getStatus().toString());
 			}
-			statusCitizen.add(shg.getStatus()==null ?"" : shg.getStatus().toString());
+			statusCitizen.add(shg.getStatus() == null ? "" : shg.getStatus().toString());
 			paramValues.put("status", statusCitizen);
 			paramValues.put("createdBy", userId.toString());
 			paramValues.put("shgUuid", shg.getShgUuid());
