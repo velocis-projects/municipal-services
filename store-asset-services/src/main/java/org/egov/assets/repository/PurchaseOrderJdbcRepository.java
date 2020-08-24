@@ -388,9 +388,11 @@ public class PurchaseOrderJdbcRepository extends org.egov.assets.common.JdbcRepo
         	for(PurchaseOrderDetail purchaseOrderDetail : purchaseOrder.getPurchaseOrderDetails()) {
         		for(PurchaseIndentDetail purchaseIndentDetail : purchaseOrderDetail.getPurchaseIndentDetails()) {
         			Map<String, Object> paramValues = new HashMap<>();
-        			String query = "update indentdetail set poorderedquantity = indentquantity where id = :id and tenantid = :tenantId and (deleted is not true or deleted is null)";
+        			
+        			String query = "update indentdetail set poorderedquantity = :indentquantity where id = :id and tenantid = :tenantId and (deleted is not true or deleted is null)";
         	        paramValues.put("id", purchaseIndentDetail.getIndentDetail().getId());
         	        paramValues.put("tenantId", tenantId);
+        	        paramValues.put("indentquantity", purchaseOrderDetail.getUserQuantity());
         	        namedParameterJdbcTemplate.update(query.toString(), paramValues);
         		}
         	}
