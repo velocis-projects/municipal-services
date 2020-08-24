@@ -83,7 +83,7 @@ public class EmailSmsEventReminderInvitationService {
 					if (notificationTemplate != null) {
 
 						InviteGuest inviteGuests = InviteGuest.builder().moduleCode(eventDetail.getModuleCode())
-								.eventDetailUuid(eventDetail.getEventDetailUuid()).tenantId(eventDetail.getTenantId())
+								.eventDetailUuid(eventDetail.getEventDetailUuid()).tenantId(eventDetail.getTenantId()).sentFlag(true)
 								.build();
 						List<InviteGuest> guestsList = eventInvetationRepository.getGuestReminder(inviteGuests);
 
@@ -138,18 +138,34 @@ public class EmailSmsEventReminderInvitationService {
 									builderSms.append(smsTemplate);
 
 									// Email
-									EmailRequest emailRequest = EmailRequest.builder().email(guest.getGuestEmail())
-											.subject(emailSubject).body(builderEmail.toString()).isHTML(true)
-											// .attachmentUrls(listOfAttachments)
-											.build();
-									producer.push(config.getNotificationEmailTopic(), emailRequest);
+									
+									if (config.getIsEmailNotificationEnabled()) 
+									 {
+									
+										if (config.getIsReminderInvitationSendEmailNotificationEnabled()) 
+										{
+											EmailRequest emailRequest = EmailRequest.builder().email(guest.getGuestEmail())
+												.subject(emailSubject).body(builderEmail.toString()).isHTML(true)
+												// .attachmentUrls(listOfAttachments)
+												.build();
+											producer.push(config.getNotificationEmailTopic(), emailRequest);
+										}
+									 }
 
 									// SMS
-									if (notificationTemplate.getSmsContent() != null) {
-										SMSRequest smsRequest = SMSRequest.builder()
-												.mobileNumber(guest.getGuestMobile()).message(builderSms.toString())
-												.build();
-										producer.push(config.getNotificationSmsTopic(), smsRequest);
+									
+									if (config.getIsSMSNotificationEnabled()) 
+									 {
+									
+										if (config.getIsReminderInvitationSendSmsNotificationEnabled()) 
+										{
+										 if (notificationTemplate.getSmsContent() != null) {
+											SMSRequest smsRequest = SMSRequest.builder()
+													.mobileNumber(guest.getGuestMobile()).message(builderSms.toString())
+													.build();
+											producer.push(config.getNotificationSmsTopic(), smsRequest);
+										}
+										}
 									}
 									log.info("Success : Send Notification reminderInvitation()");
 								}

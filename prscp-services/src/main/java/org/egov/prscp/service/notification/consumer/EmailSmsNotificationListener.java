@@ -1,6 +1,10 @@
 package org.egov.prscp.service.notification.consumer;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.egov.prscp.config.PrScpConfiguration;
 import org.egov.prscp.service.notification.EmailSmsEventInvitationService;
 import org.egov.prscp.service.notification.EmailSmsEventReminderInvitationService;
 import org.egov.prscp.service.notification.LibraryNotificationService;
@@ -9,7 +13,6 @@ import org.egov.prscp.web.models.Library;
 import org.egov.prscp.web.models.NotificationReceiver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,6 +28,8 @@ public class EmailSmsNotificationListener {
 	private LibraryNotificationService libraryNotificationService;
 	private ObjectMapper objectMapper;
 	private ResendEmailSmsEventInvitationService resendEmailSmsEventInvitationService;
+	
+	private PrScpConfiguration config;
 
 	@Autowired
 	public EmailSmsNotificationListener(EmailSmsEventInvitationService emailSmsService,
@@ -39,8 +44,10 @@ public class EmailSmsNotificationListener {
 	}
 
 	/**
-	 * Consumer for event,press note, tender notification 
-	 * @param notificationreceiver to send notification 
+	 * Consumer for event,press note, tender notification
+	 * 
+	 * @param notificationreceiver
+	 *            to send notification
 	 * @return email and sms notification
 	 */
 	@KafkaListener(topics = "${persister.events.notification.send.topic}")
@@ -49,12 +56,17 @@ public class EmailSmsNotificationListener {
 		log.info("Send Notofication Kafka Topic : " + data);
 		NotificationReceiver notificationReceiver = objectMapper.convertValue(data.value(), NotificationReceiver.class);
 		log.info("Send Notofication Kafka Topic : " + notificationReceiver.toString());
+		
 		emailSmsService.sendEmailAndSMS(notificationReceiver);
+		
 	}
 
+
 	/**
-	 * Consumer for event,press note, tender re-send notification 
-	 * @param notificationreceiver to send notification 
+	 * Consumer for event,press note, tender re-send notification
+	 * 
+	 * @param notificationreceiver
+	 *            to send notification
 	 * @return email and sms notification
 	 */
 	@KafkaListener(topics = "${persister.events.notification.resend.topic}")
@@ -67,18 +79,20 @@ public class EmailSmsNotificationListener {
 	}
 
 	/**
-	 * Scheduler for event remainder notification 
+	 * Scheduler for event remainder notification
+	 * 
 	 * @param event
 	 * @return email and sms notification
-	 */
-	@Scheduled(cron = "0 0 6 * * ?")
-	public void invitationsEventReminder() {
-		emailSmsEventReminderInvitationService.reminderInvitation();
-	}
+	 *//*
+		 * //@Scheduled(cron = "0 0 6 * * ?") public void invitationsEventReminder() {
+		 * emailSmsEventReminderInvitationService.reminderInvitation(); }
+		 */
 
 	/**
-	 * Consumer for upload library notification 
-	 * @param library to send notification 
+	 * Consumer for upload library notification
+	 * 
+	 * @param library
+	 *            to send notification
 	 * @return email and sms notification
 	 */
 	@KafkaListener(topics = "${persister.notification.upload.library.topic}")

@@ -76,7 +76,7 @@ public class PurchaseOrder {
 
 		ONE_TIME_TENDER("One Time Tender"),
 
-		QUOTATION("Quotation");
+		TENDER("Tender"), GEM("Gem"), QUOTATION("Quotation");
 
 		private String value;
 
@@ -182,6 +182,9 @@ public class PurchaseOrder {
 
 	@JsonProperty("fileStoreId")
 	private String fileStoreId = null;
+
+	@JsonProperty("poCreatedBy")
+	private String poCreatedBy = null;
 
 	@JsonProperty("designation")
 	private String designation = null;
@@ -595,6 +598,19 @@ public class PurchaseOrder {
 	public PurchaseOrder designation(String designation) {
 		this.designation = designation;
 		return this;
+	}
+
+	public PurchaseOrder poCreatedBy(String poCreatedBy) {
+		this.poCreatedBy = poCreatedBy;
+		return this;
+	}
+
+	public String getPoCreatedBy() {
+		return poCreatedBy;
+	}
+
+	public void setPoCreatedBy(String poCreatedBy) {
+		this.poCreatedBy = poCreatedBy;
 	}
 
 	/**

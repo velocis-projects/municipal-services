@@ -77,9 +77,12 @@ public class ResendEmailSmsEventInvitationService {
 		this.fileStoreUtils = fileStoreUtils;
 		this.mdmsService = mdmsService;
 	}
+
 	/**
 	 * Re-send notification for event, press note tender notice
-	 * @param notificationreceiver to send notification 
+	 * 
+	 * @param notificationreceiver
+	 *            to send notification
 	 * @return email and sms notification
 	 */
 	public void sendEmailAndSMS(NotificationReceiver notificationReceiver) {
@@ -95,9 +98,12 @@ public class ResendEmailSmsEventInvitationService {
 			}
 		}
 	}
+
 	/**
 	 * Send notification for event invitation
-	 * @param notificationreceiver to send notification 
+	 * 
+	 * @param notificationreceiver
+	 *            to send notification
 	 * @return email and sms notification
 	 */
 	private void sendEventInvitation(NotificationReceiver notificationReceiver) {
@@ -184,17 +190,32 @@ public class ResendEmailSmsEventInvitationService {
 							builderSms.append(smsTemplate);
 
 							// Email
-							EmailRequest emailRequest = EmailRequest.builder().email(guest.getReceiverEmail())
-									.subject(emailSubject).body(builderEmail.toString()).isHTML(true)
-									.attachments(listOfAttachments).build();
-							producer.push(config.getNotificationEmailTopic(), emailRequest);
-
+							
+							if (config.getIsEmailNotificationEnabled()) 
+							 {
+							
+								if (config.getIsEventResendEmailNotificationEnabled()) 
+								{
+									EmailRequest emailRequest = EmailRequest.builder().email(guest.getReceiverEmail())
+											.subject(emailSubject).body(builderEmail.toString()).isHTML(true)
+											.attachments(listOfAttachments).build();
+									producer.push(config.getNotificationEmailTopic(), emailRequest);
+								}
+							 }
+							
 							// SMS
-							if (notificationTemplate.getSmsContent() != null) {
-								SMSRequest smsRequest = SMSRequest.builder().mobileNumber(guest.getReceiverMobile())
-										.message(builderSms.toString()).build();
-								producer.push(config.getNotificationSmsTopic(), smsRequest);
-							}
+							
+							if (config.getIsSMSNotificationEnabled()) 
+							 {
+								if (config.getIsEventResendSmsNotificationEnabled()) 
+								{
+									if (notificationTemplate.getSmsContent() != null) {
+										SMSRequest smsRequest = SMSRequest.builder().mobileNumber(guest.getReceiverMobile())
+												.message(builderSms.toString()).build();
+										producer.push(config.getNotificationSmsTopic(), smsRequest);
+									}
+								}
+							 }
 						}
 						insertResendHistory(contactDetails);
 						log.info("Success : Sent Notification sendEventInvitation(): "
@@ -202,7 +223,7 @@ public class ResendEmailSmsEventInvitationService {
 					}
 				}
 			} else {
-				log.info("Failed : Sent Notification sendEventInvitation(): No Template found :: "
+				log.error("Failed : Sent Notification sendEventInvitation(): No Template found :: "
 						+ notificationReceiver.toString());
 			}
 		} catch (Exception e) {
@@ -211,9 +232,12 @@ public class ResendEmailSmsEventInvitationService {
 			throw new CustomException(CommonConstants.NOTIFICATION_EVENT_RESEND_EXCEPTION_CODE, e.getMessage());
 		}
 	}
+
 	/**
-	 * Re Send notification for press note  
-	 * @param notificationreceiver to send notification 
+	 * Re Send notification for press note
+	 * 
+	 * @param notificationreceiver
+	 *            to send notification
 	 * @return email and sms notification
 	 */
 	private void sendPressNoteNotification(NotificationReceiver notificationReceiver) {
@@ -272,17 +296,31 @@ public class ResendEmailSmsEventInvitationService {
 								builderSms.append(smsTemplate);
 
 								// Email
-								EmailRequest emailRequest = EmailRequest.builder().email(press.getReceiverEmail())
-										.subject(emailSubject).body(builderEmail.toString()).isHTML(true)
-										.attachments(listOfAttachments).build();
-								producer.push(config.getNotificationEmailTopic(), emailRequest);
-
-								// SMS
-								if (notificationTemplate.getSmsContent() != null) {
-									SMSRequest smsRequest = SMSRequest.builder().mobileNumber(press.getReceiverMobile())
-											.message(builderSms.toString()).build();
-									producer.push(config.getNotificationSmsTopic(), smsRequest);
-								}
+								
+								if (config.getIsEmailNotificationEnabled()) 
+								 {
+									if (config.getIsPressnoteResendEmailNotificationEnabled()) 
+									{
+										EmailRequest emailRequest = EmailRequest.builder().email(press.getReceiverEmail())
+												.subject(emailSubject).body(builderEmail.toString()).isHTML(true)
+												.attachments(listOfAttachments).build();
+										producer.push(config.getNotificationEmailTopic(), emailRequest);
+									}
+								 }
+								
+									// SMS
+								
+								if (config.getIsSMSNotificationEnabled()) 
+								 {
+									if (config.getIsPressnoteResendSmsNotificationEnabled()) 
+									{
+										if (notificationTemplate.getSmsContent() != null) {
+											SMSRequest smsRequest = SMSRequest.builder().mobileNumber(press.getReceiverMobile())
+													.message(builderSms.toString()).build();
+											producer.push(config.getNotificationSmsTopic(), smsRequest);
+										}
+									}
+								 }
 							}
 							insertResendHistory(contactDetails);
 							log.info("Success : Sent Notification sendPressNoteNotification(): "
@@ -300,9 +338,12 @@ public class ResendEmailSmsEventInvitationService {
 			throw new CustomException(CommonConstants.NOTIFICATION_PRESSNOTE_RESEND_EXCEPTION_CODE, e.getMessage());
 		}
 	}
+
 	/**
-	 * Re Send notification for tender notice  
-	 * @param notificationreceiver to send notification 
+	 * Re Send notification for tender notice
+	 * 
+	 * @param notificationreceiver
+	 *            to send notification
 	 * @return email and sms notification
 	 */
 
@@ -370,17 +411,31 @@ public class ResendEmailSmsEventInvitationService {
 								builderSms.append(smsTemplate);
 
 								// Email
-								EmailRequest emailRequest = EmailRequest.builder().email(press.getReceiverEmail())
-										.subject(emailSubject).body(builderEmail.toString()).isHTML(true)
-										.attachments(listOfAttachments).build();
-								producer.push(config.getNotificationEmailTopic(), emailRequest);
-
+								
+								if (config.getIsEmailNotificationEnabled()) 
+								 {
+									if (config.getIsTenderResendEmailNotificationEnabled()) 
+									{
+										EmailRequest emailRequest = EmailRequest.builder().email(press.getReceiverEmail())
+												.subject(emailSubject).body(builderEmail.toString()).isHTML(true)
+												.attachments(listOfAttachments).build();
+										producer.push(config.getNotificationEmailTopic(), emailRequest);
+									}
+								 }
+								
 								// SMS
-								if (notificationTemplate.getSmsContent() != null) {
-									SMSRequest smsRequest = SMSRequest.builder().mobileNumber(press.getReceiverMobile())
-											.message(builderSms.toString()).build();
-									producer.push(config.getNotificationSmsTopic(), smsRequest);
+								
+								if (config.getIsSMSNotificationEnabled()) 
+								 {
+									if (config.getIsTenderResendSmsNotificationEnabled()) 
+									{
+										if (notificationTemplate.getSmsContent() != null) {
+											SMSRequest smsRequest = SMSRequest.builder().mobileNumber(press.getReceiverMobile())
+													.message(builderSms.toString()).build();
+											producer.push(config.getNotificationSmsTopic(), smsRequest);
+									}
 								}
+							 }
 							}
 							insertResendHistory(contactDetails);
 							log.info("Success : Sent Notification sendTenderNoticeNotification(): "
@@ -403,10 +458,12 @@ public class ResendEmailSmsEventInvitationService {
 		RequestInfoWrapper infoWrapper = RequestInfoWrapper.builder().requestBody(contactDetails).build();
 		producer.push(config.getPersistResendHistoryTopic(), infoWrapper);
 	}
-	
+
 	/**
-	 * Get email attachments 
-	 * @param filestore paths 
+	 * Get email attachments
+	 * 
+	 * @param filestore
+	 *            paths
 	 * @return list of email attachments
 	 */
 	public List<EmailAttachment> attachmentsEmail(List<Files> attachmentsUrls) {

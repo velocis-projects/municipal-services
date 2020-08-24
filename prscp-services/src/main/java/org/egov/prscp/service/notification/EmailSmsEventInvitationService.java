@@ -84,7 +84,9 @@ public class EmailSmsEventInvitationService {
 
 	/**
 	 * Send notification for event, press note tender notice
-	 * @param notificationreceiver to send notification 
+	 * 
+	 * @param notificationreceiver
+	 *            to send notification
 	 * @return email and sms notification
 	 */
 	public void sendEmailAndSMS(NotificationReceiver notificationReceiver) {
@@ -107,7 +109,9 @@ public class EmailSmsEventInvitationService {
 
 	/**
 	 * Send notification for event invitation
-	 * @param notificationreceiver to send notification 
+	 * 
+	 * @param notificationreceiver
+	 *            to send notification
 	 * @return email and sms notification
 	 */
 	private void sendEventInvitation(NotificationReceiver notificationReceiver) {
@@ -134,8 +138,9 @@ public class EmailSmsEventInvitationService {
 				}
 
 				InviteGuest inviteGuests = InviteGuest.builder().moduleCode(notificationReceiver.getModuleCode())
-						.eventDetailUuid(notificationReceiver.getReceiverUuid()).sentFlag(false).createdBy(notificationReceiver.getSenderUuid())
-						.tenantId(notificationReceiver.getTenantId()).build();
+						.eventDetailUuid(notificationReceiver.getReceiverUuid()).sentFlag(false)
+						.createdBy(notificationReceiver.getSenderUuid()).tenantId(notificationReceiver.getTenantId())
+						.build();
 				List<InviteGuest> guestsList = eventInvetationRepository.getGuest(inviteGuests);
 
 				// Sending
@@ -192,16 +197,35 @@ public class EmailSmsEventInvitationService {
 							builderSms.append(smsTemplate);
 
 							// Email
-							EmailRequest emailRequest = EmailRequest.builder().email(guest.getGuestEmail())
-									.subject(emailSubject).body(builderEmail.toString()).isHTML(true)
-									.attachments(listOfAttachments).build();
-							producer.push(config.getNotificationEmailTopic(), emailRequest);
-
-							// SMS
-							if (notificationTemplate.getSmsContent() != null) {
-								SMSRequest smsRequest = SMSRequest.builder().mobileNumber(guest.getGuestMobile())
-										.message(builderSms.toString()).build();
-								producer.push(config.getNotificationSmsTopic(), smsRequest);
+							if (config.getIsEmailNotificationEnabled()) 
+							 {
+							
+								if (config.getIsEventSendEmailNotificationEnabled()) 
+								 {
+								
+									EmailRequest emailRequest = EmailRequest.builder().email(guest.getGuestEmail())
+											.subject(emailSubject).body(builderEmail.toString()).isHTML(true)
+											.attachments(listOfAttachments).build();
+									
+										producer.push(config.getNotificationEmailTopic(), emailRequest);
+									}
+							 }
+							
+						// SMS
+							
+							if (config.getIsSMSNotificationEnabled()) 
+							 {
+								
+								if (config.getIsEventSendSmsNotificationEnabled()) 
+								{
+									if (notificationTemplate.getSmsContent() != null) 
+									{
+										SMSRequest smsRequest = SMSRequest.builder().mobileNumber(guest.getGuestMobile())
+												.message(builderSms.toString()).build();
+										
+											producer.push(config.getNotificationSmsTopic(), smsRequest);
+									}
+								}
 							}
 						}
 
@@ -223,11 +247,11 @@ public class EmailSmsEventInvitationService {
 								+ notificationReceiver.toString());
 					}
 				} else {
-					log.info("Failed : Sent Notification sendEventInvitation(): No Event Details found :: "
+					log.error("Failed : Sent Notification sendEventInvitation(): No Event Details found :: "
 							+ notificationReceiver.toString());
 				}
 			} else {
-				log.info("Failed : Sent Notification sendEventInvitation(): No Template found :: "
+				log.error("Failed : Sent Notification sendEventInvitation(): No Template found :: "
 						+ notificationReceiver.toString());
 			}
 		} catch (Exception e) {
@@ -236,9 +260,13 @@ public class EmailSmsEventInvitationService {
 			throw new CustomException(CommonConstants.NOTIFICATION_EVENT_SEND_EXCEPTION_CODE, e.getMessage());
 		}
 	}
+
+
 	/**
-	 * Send notification for press note  
-	 * @param notificationreceiver to send notification 
+	 * Send notification for press note
+	 * 
+	 * @param notificationreceiver
+	 *            to send notification
 	 * @return email and sms notification
 	 */
 	private void sendPressNoteNotification(NotificationReceiver notificationReceiver) {
@@ -291,17 +319,34 @@ public class EmailSmsEventInvitationService {
 							builderSms.append(smsTemplate);
 
 							// Email
-							EmailRequest emailRequest = EmailRequest.builder().email(press.getEmail())
-									.subject(emailSubject).body(builderEmail.toString()).isHTML(true)
-									.attachments(listOfAttachments).build();
-							producer.push(config.getNotificationEmailTopic(), emailRequest);
+							
+							if (config.getIsEmailNotificationEnabled()) 
+							 {
+							
+								if (config.getIsPressnoteSendEmailNotificationEnabled()) 
+								{
+									EmailRequest emailRequest = EmailRequest.builder().email(press.getEmail())
+											.subject(emailSubject).body(builderEmail.toString()).isHTML(true)
+											.attachments(listOfAttachments).build();
+									producer.push(config.getNotificationEmailTopic(), emailRequest);
+								}
+							 }
+								
+								// SMS
+							
+							if (config.getIsSMSNotificationEnabled()) 
+							 {
+								if (config.getIsPressnoteSendSmsNotificationEnabled()) 
+								{
+									if (notificationTemplate.getSmsContent() != null)
+									{
+										SMSRequest smsRequest = SMSRequest.builder().mobileNumber(press.getMobile())
+												.message(builderSms.toString()).build();
+										producer.push(config.getNotificationSmsTopic(), smsRequest);
+									}
+								}
+							 }
 
-							// SMS
-							if (notificationTemplate.getSmsContent() != null) {
-								SMSRequest smsRequest = SMSRequest.builder().mobileNumber(press.getMobile())
-										.message(builderSms.toString()).build();
-								producer.push(config.getNotificationSmsTopic(), smsRequest);
-							}
 
 						}
 
@@ -321,11 +366,11 @@ public class EmailSmsEventInvitationService {
 								+ notificationReceiver.toString());
 					}
 				} else {
-					log.info("Failed : Sent Notification sendPressNoteNotification(): No Press Note found :: "
+					log.error("Failed : Sent Notification sendPressNoteNotification(): No Press Note found :: "
 							+ notificationReceiver.toString());
 				}
 			} else {
-				log.info("Failed : Sent Notification sendPressNoteNotification(): No Template found :: "
+				log.error("Failed : Sent Notification sendPressNoteNotification(): No Template found :: "
 						+ notificationReceiver.toString());
 			}
 		} catch (Exception e) {
@@ -334,9 +379,12 @@ public class EmailSmsEventInvitationService {
 			throw new CustomException(CommonConstants.NOTIFICATION_PRESSNOTE_SEND_EXCEPTION_CODE, e.getMessage());
 		}
 	}
+
 	/**
-	 * Send notification for tender notice  
-	 * @param notificationreceiver to send notification 
+	 * Send notification for tender notice
+	 * 
+	 * @param notificationreceiver
+	 *            to send notification
 	 * @return email and sms notification
 	 */
 	private void sendTenderNoticeNotification(NotificationReceiver notificationReceiver) {
@@ -385,11 +433,10 @@ public class EmailSmsEventInvitationService {
 
 						emailBody = emailBody == null ? ""
 								: emailBody.replace("[:tenderNotice:]", tenderNoticeDetail.getNoteContent());
-					
 
 						smsTemplate = smsTemplate == null ? ""
 								: smsTemplate.replace("[:tenderNotice:]", tenderNoticeDetail.getNoteContent());
-					
+
 						for (PublicationList press : publicationLists) {
 
 							StringBuilder builderEmail = new StringBuilder(
@@ -401,16 +448,32 @@ public class EmailSmsEventInvitationService {
 							builderSms.append(smsTemplate);
 
 							// Email
-							EmailRequest emailRequest = EmailRequest.builder().email(press.getEmail())
-									.subject(emailSubject).body(builderEmail.toString()).isHTML(true)
-									.attachments(listOfAttachments).build();
-							producer.push(config.getNotificationEmailTopic(), emailRequest);
-
-							// SMS
-							if (notificationTemplate.getSmsContent() != null) {
-								SMSRequest smsRequest = SMSRequest.builder().mobileNumber(press.getMobile())
-										.message(builderSms.toString()).build();
-								producer.push(config.getNotificationSmsTopic(), smsRequest);
+							
+							if (config.getIsEmailNotificationEnabled()) 
+							 {
+							
+								if (config.getIsTenderSendEmailNotificationEnabled()) 
+								{
+									EmailRequest emailRequest = EmailRequest.builder().email(press.getEmail())
+											.subject(emailSubject).body(builderEmail.toString()).isHTML(true)
+											.attachments(listOfAttachments).build();
+									producer.push(config.getNotificationEmailTopic(), emailRequest);
+								}
+							 }
+	
+								// SMS
+							
+							if (config.getIsSMSNotificationEnabled()) 
+							 {
+								if (config.getIsTenderSendSmsNotificationEnabled()) 
+								{
+									if (notificationTemplate.getSmsContent() != null) 
+									{
+										SMSRequest smsRequest = SMSRequest.builder().mobileNumber(press.getMobile())
+												.message(builderSms.toString()).build();
+										producer.push(config.getNotificationSmsTopic(), smsRequest);
+									}
+								}
 							}
 						}
 						MapTenderPress mapTenderPress = MapTenderPress.builder()
@@ -429,11 +492,11 @@ public class EmailSmsEventInvitationService {
 								+ notificationReceiver.toString());
 					}
 				} else {
-					log.info("Failed : Sent Notification sendTenderNoticeNotification(): No Tender found :: "
+					log.error("Failed : Sent Notification sendTenderNoticeNotification(): No Tender found :: "
 							+ notificationReceiver.toString());
 				}
 			} else {
-				log.info("Failed : Sent Notification sendTenderNoticeNotification(): No Template found :: "
+				log.error("Failed : Sent Notification sendTenderNoticeNotification(): No Template found :: "
 						+ notificationReceiver.toString());
 			}
 		} catch (Exception e) {
@@ -442,10 +505,12 @@ public class EmailSmsEventInvitationService {
 			throw new CustomException(CommonConstants.NOTIFICATION_TENDER_SEND_EXCEPTION_CODE, e.getMessage());
 		}
 	}
-	
+
 	/**
-	 * Send notification for update event  
-	 * @param notificationreceiver to send notification 
+	 * Send notification for update event
+	 * 
+	 * @param notificationreceiver
+	 *            to send notification
 	 * @return email and sms notification
 	 */
 	private void sendEventUpdateNotification(NotificationReceiver notificationReceiver) {
@@ -533,17 +598,37 @@ public class EmailSmsEventInvitationService {
 									config.getEmailGuestGreet().replace("[:contactName:]", guest.getGuestName()));
 							builderSms.append(smsTemplate);
 
-							// Email
-							EmailRequest emailRequest = EmailRequest.builder().email(guest.getGuestEmail())
-									.subject(emailSubject).body(builderEmail.toString()).isHTML(true)
-									.attachments(listOfAttachments).build();
-							producer.push(config.getNotificationEmailTopic(), emailRequest);
-
+							
+							
+								// Email
+							
+							if (config.getIsEmailNotificationEnabled()) 
+							 {
+								
+								if (config.getIsEventUpdateSendEmailNotificationEnabled()) 
+								{
+									EmailRequest emailRequest = EmailRequest.builder().email(guest.getGuestEmail())
+											.subject(emailSubject).body(builderEmail.toString()).isHTML(true)
+											.attachments(listOfAttachments).build();
+									producer.push(config.getNotificationEmailTopic(), emailRequest);
+								}
+							 }
+							
 							// SMS
-							if (notificationTemplate.getSmsContent() != null) {
-								SMSRequest smsRequest = SMSRequest.builder().mobileNumber(guest.getGuestMobile())
-										.message(builderSms.toString()).build();
-								producer.push(config.getNotificationSmsTopic(), smsRequest);
+							
+							if (config.getIsSMSNotificationEnabled()) 
+							 {
+								
+								if (config.getIsEventUpdateSendSmsNotificationEnabled()) 
+								{
+									if (notificationTemplate.getSmsContent() != null)
+									{
+									SMSRequest smsRequest = SMSRequest.builder().mobileNumber(guest.getGuestMobile())
+											.message(builderSms.toString()).build();
+									producer.push(config.getNotificationSmsTopic(), smsRequest);
+									
+									}
+								}
 							}
 						}
 
@@ -578,9 +663,12 @@ public class EmailSmsEventInvitationService {
 			throw new CustomException(CommonConstants.NOTIFICATION_EVENT_SEND_UPDATE_EXCEPTION_CODE, e.getMessage());
 		}
 	}
+
 	/**
-	 * Send notification for cancel event  
-	 * @param notificationreceiver to send notification 
+	 * Send notification for cancel event
+	 * 
+	 * @param notificationreceiver
+	 *            to send notification
 	 * @return email and sms notification
 	 */
 	private void sendEventCancelNotification(NotificationReceiver notificationReceiver) {
@@ -653,27 +741,42 @@ public class EmailSmsEventInvitationService {
 							builderSms.append(smsTemplate);
 
 							// Email
-							EmailRequest emailRequest = EmailRequest.builder().email(guest.getGuestEmail())
-									.subject(emailSubject).body(builderEmail.toString()).isHTML(true)
-									.attachments(listOfAttachments).build();
-							producer.push(config.getNotificationEmailTopic(), emailRequest);
-
+							
+								if (config.getIsEmailNotificationEnabled()) 
+								 {
+									if (config.getIsEventCancelSendEmailNotificationEnabled()) 
+									{
+										EmailRequest emailRequest = EmailRequest.builder().email(guest.getGuestEmail())
+												.subject(emailSubject).body(builderEmail.toString()).isHTML(true)
+												.attachments(listOfAttachments).build();
+										producer.push(config.getNotificationEmailTopic(), emailRequest);
+									}
+								 }
+							
 							// SMS
-							if (notificationTemplate.getSmsContent() != null) {
-								SMSRequest smsRequest = SMSRequest.builder().mobileNumber(guest.getGuestMobile())
-										.message(builderSms.toString()).build();
-								producer.push(config.getNotificationSmsTopic(), smsRequest);
-							}
-							log.info("Success : Sent Notification sendEventCancelNotification(): "
-									+ notificationReceiver.toString());
+							
+							if (config.getIsSMSNotificationEnabled()) 
+							 {
+								if (config.getIsEventCancelSendSmsNotificationEnabled()) 
+									{
+									if (notificationTemplate.getSmsContent() != null) {
+										SMSRequest smsRequest = SMSRequest.builder().mobileNumber(guest.getGuestMobile())
+												.message(builderSms.toString()).build();
+										producer.push(config.getNotificationSmsTopic(), smsRequest);
+									}
+									}
+									log.info("Success : Sent Notification sendEventCancelNotification(): "
+											+ notificationReceiver.toString());
+								 }
+							 
 						}
 					} else {
-						log.info("Failed : Sent Notification sendEventCancelNotification(): No Event found :: "
+						log.error("Failed : Sent Notification sendEventCancelNotification(): No Event found :: "
 								+ notificationReceiver.toString());
 					}
 				}
 			} else {
-				log.info("Failed : Sent Notification sendEventCancelNotification(): No Template found :: "
+				log.error("Failed : Sent Notification sendEventCancelNotification(): No Template found :: "
 						+ notificationReceiver.toString());
 			}
 		} catch (Exception e) {
@@ -682,9 +785,12 @@ public class EmailSmsEventInvitationService {
 			throw new CustomException(CommonConstants.NOTIFICATION_EVENT_SEND_CANCEL_EXCEPTION_CODE, e.getMessage());
 		}
 	}
+
 	/**
-	 * Get email attachments 
-	 * @param filestore paths 
+	 * Get email attachments
+	 * 
+	 * @param filestore
+	 *            paths
 	 * @return list of email attachments
 	 */
 	public List<EmailAttachment> attachmentsEmail(List<Files> attachmentsUrls) {

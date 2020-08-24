@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.egov.assets.common.Constants;
 import org.egov.assets.common.DomainService;
@@ -15,11 +16,16 @@ import org.egov.assets.common.exception.CustomBindException;
 import org.egov.assets.common.exception.ErrorCode;
 import org.egov.assets.common.exception.InvalidDataException;
 import org.egov.assets.model.FinancialYear;
+import org.egov.assets.model.Material;
 import org.egov.assets.model.MaterialIssue;
+import org.egov.assets.model.MaterialIssue.IssueTypeEnum;
 import org.egov.assets.model.MaterialIssue.MaterialIssueStatusEnum;
 import org.egov.assets.model.MaterialIssueDetail;
 import org.egov.assets.model.MaterialIssueResponse;
 import org.egov.assets.model.MaterialIssueSearchContract;
+import org.egov.assets.model.MaterialIssuedFromReceipt;
+import org.egov.assets.model.MaterialReceiptDetail;
+import org.egov.assets.model.MaterialReceiptDetailSearch;
 import org.egov.assets.model.Scrap;
 import org.egov.assets.model.Scrap.ScrapStatusEnum;
 import org.egov.assets.model.ScrapDetail;
@@ -31,6 +37,8 @@ import org.egov.assets.model.Store;
 import org.egov.assets.model.StoreGetRequest;
 import org.egov.assets.model.Tenant;
 import org.egov.assets.model.Uom;
+import org.egov.assets.repository.MaterialIssueDetailJdbcRepository;
+import org.egov.assets.repository.MaterialIssuedFromReceiptJdbcRepository;
 import org.egov.assets.repository.ScrapDetailJdbcRepository;
 import org.egov.assets.repository.ScrapJdbcRepository;
 import org.egov.assets.repository.StoreJdbcRepository;
@@ -57,7 +65,16 @@ public class ScrapService extends DomainService {
 	private NonIndentMaterialIssueService nonIndentMaterialIssueService;
 
 	@Autowired
+	private MaterialIssueDetailJdbcRepository materialIssueDetailsJdbcRepository;
+
+	@Autowired
+	private MaterialIssuedFromReceiptJdbcRepository materialIssuedFromReceiptsJdbcRepository;
+
+	@Autowired
 	private ScrapJdbcRepository scrapJdbcRepository;
+
+	@Autowired
+	private MaterialReceiptDetailService materialReceiptDetailService;
 
 	@Autowired
 	private MdmsRepository mdmsRepository;
@@ -79,6 +96,7 @@ public class ScrapService extends DomainService {
 
 	public List<Scrap> create(ScrapRequest scrapReq, String tenantId) {
 		try {
+
 			fetchRelated(scrapReq, tenantId);
 			List<Scrap> scrap = scrapReq.getScraps();
 			validate(scrapReq.getScraps(), Constants.ACTION_CREATE, tenantId, scrapReq.getRequestInfo());
@@ -125,12 +143,12 @@ public class ScrapService extends DomainService {
 						scrapDetails.setId(scrapJdbcRepository.getSequence("seq_scrapDetail"));
 					}
 					scrapDetails.setUpdatedScrapedQty(scrapDetails.getScrapQuantity());
-					List<ScrapDetail> scrapDetail = getScrapDetails(scrapDetails.getScrapNumber(),
-							scrapData.getTenantId());
-					if (!scrapDetail.isEmpty() && scrapDetail.size() == 1) {
-						scrapDetails.setScrapQuantity(
-								scrapDetails.getScrapQuantity().subtract(scrapDetail.get(0).getScrapQuantity()));
-					}
+//					List<ScrapDetail> scrapDetail = getScrapDetails(scrapDetails.getScrapNumber(),
+//							scrapData.getTenantId());
+//					if (!scrapDetail.isEmpty() && scrapDetail.size() == 1) {
+//						scrapDetails.setScrapQuantity(
+//								scrapDetails.getScrapQuantity().subtract(scrapDetail.get(0).getScrapQuantity()));
+//					}
 					scrapDetails.setAuditDetails(getAuditDetails(scrapReq.getRequestInfo(), Constants.ACTION_UPDATE));
 
 					if (StringUtils.isEmpty(scrapDetails.getTenantId())) {
@@ -149,14 +167,15 @@ public class ScrapService extends DomainService {
 	}
 
 	public ScrapResponse search(ScrapSearch scrapSearch) {
+		
 		Pagination<Scrap> scrapPagination = scrapJdbcRepository.search(scrapSearch);
-		if (scrapPagination.getPagedData().size() > 0) {
+		if (!scrapPagination.getPagedData().isEmpty()) {
 			for (Scrap scrap : scrapPagination.getPagedData()) {
+				scrap.setStore(getStore(scrapSearch.getTenantId(), scrap));
 				List<ScrapDetail> scrapDetail = getScrapDetails(scrap.getScrapNumber(), scrapSearch.getTenantId());
 				scrap.setScrapDetails(scrapDetail);
 			}
 		}
-
 		ScrapResponse response = new ScrapResponse();
 		return response.responseInfo(null).scraps(
 				scrapPagination.getPagedData().size() > 0 ? scrapPagination.getPagedData() : Collections.EMPTY_LIST);
@@ -213,8 +232,10 @@ public class ScrapService extends DomainService {
 						errors.addDataError(ErrorCode.UNIT_PRICE_GT_ZERO.getCode());
 
 					}
+
 					BigDecimal remainQuantity = scrapDetail.getQuantity()
 							.subtract(scrapDetail.getIssueDetail().getScrapedQuantity());
+
 					if ((scrapDetail.getScrapQuantity().compareTo(remainQuantity)) == 1) {
 						errors.addDataError(ErrorCode.QTY1_LE_QTY2.getCode(),
 								"Scrap Quantity  " + scrapDetail.getScrapQuantity(),
@@ -255,77 +276,167 @@ public class ScrapService extends DomainService {
 			throw errors;
 		}
 
-		String seq = "SCRP/" + tenant.getCity().getCode() + "/" + finYearRange;
-		return seq + "/" + numberGenerator.getNextNumber(seq, 5);
+		String seq = "SCRP-" + tenant.getCity().getCode() + "-" + finYearRange;
+		return seq + "-" + numberGenerator.getNextNumber(seq, 5);
 	}
+
+	// private void fetchRelated(ScrapRequest request, String tenantId) {
+	// InvalidDataException errors = new InvalidDataException();
+	// List<ScrapDetail> scrapDetailList = new ArrayList<>();
+	// for (Scrap scrap : request.getScraps()) {
+	// for (ScrapDetail scrapDetails : scrap.getScrapDetails()) {
+	// MaterialIssueSearchContract searchContract =
+	// MaterialIssueSearchContract.builder()
+	// .id(Arrays.asList(scrapDetails.getIssueDetail().getId()))
+	// .issuePurpose(MaterialIssue.IssuePurposeEnum.WRITEOFFORSCRAP.toString())
+	// .materialIssueStatus(MaterialIssueStatusEnum.APPROVED.toString()).scrapCreated(false)
+	// .tenantId(tenantId).build();
+	//
+	// MaterialIssueResponse response =
+	// nonIndentMaterialIssueService.search(searchContract);
+	// if (response.getMaterialIssues().size() <= 0) {
+	// errors.addDataError(ErrorCode.NO_DATA_FOUND.getCode(), "Scrap Process");
+	// }
+	// for (MaterialIssue issue : response.getMaterialIssues()) {
+	// for (MaterialIssueDetail issueDetail : issue.getMaterialIssueDetails()) {
+	// ScrapDetail scrapDetail = new ScrapDetail();
+	// MaterialIssueDetail matIssueDetail = new MaterialIssueDetail();
+	// matIssueDetail.setId(issueDetail.getId());
+	// matIssueDetail.setScrapedQuantity(issueDetail.getScrapedQuantity());
+	// if (issue == null)
+	// errors.addDataError(ErrorCode.NO_DATA_FOUND.getCode(), "Scrap Process",
+	// null);
+	//
+	// else
+	// scrapDetail.setId(scrapDetails.getId());
+	// scrapDetail.setIssueDetail(matIssueDetail);
+	// scrapDetail.setTenantId(tenantId);
+	// scrapDetail.setUom(issueDetail.getUom());
+	// scrapDetail.setMaterial(issueDetail.getMaterial());
+	// scrapDetail.setExistingValue(issueDetail.getValue());
+	// scrapDetail.setQuantity(issueDetail.getQuantityIssued());
+	//
+	// if (scrapDetails.getUserQuantity() != null) {
+	// setConvertedScrapQuantity(tenantId, scrapDetails, issueDetail,
+	// request.getRequestInfo());
+	// }
+	//
+	// if (scrapDetails.getScrapValue() != null) {
+	// setConvertedScrapRate(tenantId, scrapDetails, issueDetail,
+	// request.getRequestInfo());
+	// }
+	// scrapDetail.setScrapQuantity(scrapDetails.getScrapQuantity());
+	// scrapDetail.setUserQuantity(scrapDetails.getUserQuantity());
+	// scrapDetail.setScrapReason(scrapDetail.getScrapReason());
+	// scrapDetail.setScrapValue(scrapDetails.getScrapValue());
+	// scrapDetail.setScrapReason(scrapDetails.getScrapReason());
+	// scrapDetailList.add(scrapDetail);
+	//
+	// }
+	// }
+	// scrap.setScrapDetails(scrapDetailList);
+	// }
+	// }
+	// if (errors.getValidationErrors().size() > 0)
+	// throw errors;
+	// }
 
 	private void fetchRelated(ScrapRequest request, String tenantId) {
 		InvalidDataException errors = new InvalidDataException();
 		List<ScrapDetail> scrapDetailList = new ArrayList<>();
 		for (Scrap scrap : request.getScraps()) {
 			for (ScrapDetail scrapDetails : scrap.getScrapDetails()) {
-				MaterialIssueSearchContract searchContract = MaterialIssueSearchContract.builder()
-						.id(Arrays.asList(scrapDetails.getIssueDetail().getId()))
-						.issuePurpose(MaterialIssue.IssuePurposeEnum.WRITEOFFORSCRAP.toString())
-						.materialIssueStatus(MaterialIssueStatusEnum.APPROVED.toString()).scrapCreated(false)
-						.tenantId(tenantId).build();
-
-				MaterialIssueResponse response = nonIndentMaterialIssueService.search(searchContract);
-				if (response.getMaterialIssues().size() <= 0) {
-					errors.addDataError(ErrorCode.NO_DATA_FOUND.getCode(), "Scrap Process");
+				if (scrapDetails.getUserQuantity() != null) {
+					setConvertedScrapQuantity(tenantId, scrapDetails, request.getRequestInfo());
 				}
-				for (MaterialIssue issue : response.getMaterialIssues()) {
-					for (MaterialIssueDetail issueDetail : issue.getMaterialIssueDetails()) {
-						ScrapDetail scrapDetail = new ScrapDetail();
-						MaterialIssueDetail matIssueDetail = new MaterialIssueDetail();
-						matIssueDetail.setId(issueDetail.getId());
-						matIssueDetail.setScrapedQuantity(issueDetail.getScrapedQuantity());
-						if (issue == null)
-							errors.addDataError(ErrorCode.NO_DATA_FOUND.getCode(), "Scrap Process", null);
 
-						else
-							scrapDetail.setId(scrapDetails.getId());
-						scrapDetail.setIssueDetail(matIssueDetail);
-						scrapDetail.setTenantId(tenantId);
-						scrapDetail.setUom(issueDetail.getUom());
-						scrapDetail.setMaterial(issueDetail.getMaterial());
-						scrapDetail.setExistingValue(issueDetail.getValue());
-						scrapDetail.setQuantity(issueDetail.getQuantityIssued());
-
-						if (scrapDetails.getUserQuantity() != null) {
-							setConvertedScrapQuantity(tenantId, scrapDetails, issueDetail, request.getRequestInfo());
-						}
-
-						if (scrapDetails.getScrapValue() != null) {
-							setConvertedScrapRate(tenantId, scrapDetails, issueDetail, request.getRequestInfo());
-						}
-						scrapDetail.setScrapQuantity(scrapDetails.getScrapQuantity());
-						scrapDetail.setUserQuantity(scrapDetails.getUserQuantity());
-						scrapDetail.setScrapReason(scrapDetail.getScrapReason());
-						scrapDetail.setScrapValue(scrapDetails.getScrapValue());
-						scrapDetailList.add(scrapDetail);
-
-					}
+				if (scrapDetails.getScrapValue() != null) {
+					setConvertedScrapRate(tenantId, scrapDetails, request.getRequestInfo());
 				}
+				scrapDetailList.add(scrapDetails);
 				scrap.setScrapDetails(scrapDetailList);
 			}
 		}
-		if (errors.getValidationErrors().size() > 0)
-			throw errors;
 	}
 
 	private List<ScrapDetail> getScrapDetails(String scrapNumber, String tenantId) {
 		ScrapDetailSearch scrapDetailSearch = ScrapDetailSearch.builder().ScrapNumber(scrapNumber).tenantId(tenantId)
 				.build();
 		Pagination<ScrapDetail> scrapDetails = scrapDetailJdbcRepository.search(scrapDetailSearch);
-		return scrapDetails.getPagedData().size() > 0 ? scrapDetails.getPagedData() : Collections.EMPTY_LIST;
+
+		if (!scrapDetails.getPagedData().isEmpty()) {
+			ObjectMapper mapper = new ObjectMapper();
+			Map<String, Material> materialMap = getMaterials(tenantId, mapper, new RequestInfo());
+			for (ScrapDetail detail : scrapDetails.getPagedData()) {
+				Pagination<MaterialIssueDetail> materialIssueDetails = materialIssueDetailsJdbcRepository
+						.searchById(detail.getIssueDetail().getId(), tenantId, IssueTypeEnum.NONINDENTISSUE.toString());
+
+				if (!materialIssueDetails.getPagedData().isEmpty()) {
+					Map<String, Uom> uoms = getUoms(tenantId, mapper, new RequestInfo());
+					for (MaterialIssueDetail details : materialIssueDetails.getPagedData()) {
+						Pagination<MaterialIssuedFromReceipt> materialIssuedFromReceipts = materialIssuedFromReceiptsJdbcRepository
+								.search(details.getId(), tenantId);
+						if (details.getUom() != null && details.getUom().getCode() != null) {
+							for (MaterialIssuedFromReceipt mifr : materialIssuedFromReceipts.getPagedData()) {
+								BigDecimal quantity = getSearchConvertedQuantity(mifr.getQuantity(),
+										uoms.get(details.getUom().getCode()).getConversionFactor());
+								mifr.setQuantity(quantity);
+
+								List<MaterialReceiptDetail> materialReceiptDetail = getMaterialReceiptDetail(
+										mifr.getMaterialReceiptDetail().getId(), tenantId);
+
+								mifr.setMaterialReceiptDetail(
+										materialReceiptDetail.isEmpty() ? mifr.getMaterialReceiptDetail()
+												: materialReceiptDetail.get(0));
+							}
+						}
+						details.setMaterialIssuedFromReceipts(materialIssuedFromReceipts.getPagedData());
+					}
+				}
+
+				detail.issueDetail(materialIssueDetails.getPagedData().isEmpty() ? null
+						: materialIssueDetails.getPagedData().get(0));
+				detail.setMaterial(materialMap.get(detail.getMaterial().getCode()));
+			}
+		}
+		return !scrapDetails.getPagedData().isEmpty() ? scrapDetails.getPagedData() : Collections.EMPTY_LIST;
 	}
 
-	private void setConvertedScrapRate(String tenantId, ScrapDetail detail, MaterialIssueDetail issueDetail,
-			RequestInfo requestInfo) {
-		Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "UOM", "code",
-				issueDetail.getUom().getCode(), Uom.class, requestInfo);
-		issueDetail.setUom(uom);
+	private List<MaterialReceiptDetail> getMaterialReceiptDetail(String ids, String tenantId) {
+		MaterialReceiptDetailSearch materialReceiptDetailSearch = MaterialReceiptDetailSearch.builder()
+				.ids(Arrays.asList(ids)).tenantId(tenantId).build();
+		Pagination<MaterialReceiptDetail> materialReceiptDetails = materialReceiptDetailService
+				.search(materialReceiptDetailSearch);
+
+		if (!materialReceiptDetails.getPagedData().isEmpty()) {
+			Map<String, Material> materialMap = getMaterials(tenantId, new ObjectMapper(), new RequestInfo());
+			for (MaterialReceiptDetail details : materialReceiptDetails.getPagedData()) {
+				details.setMaterial(materialMap.get(details.getMaterial().getCode()));
+			}
+		}
+		return materialReceiptDetails.getPagedData().size() > 0 ? materialReceiptDetails.getPagedData()
+				: Collections.EMPTY_LIST;
+	}
+
+	private Map<String, Uom> getUoms(String tenantId, final ObjectMapper mapper, RequestInfo requestInfo) {
+		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "common-masters", "UOM", null, null,
+				requestInfo);
+		Map<String, Uom> uomMap = new HashMap<>();
+
+		if (responseJSONArray != null && responseJSONArray.size() > 0) {
+			for (int i = 0; i < responseJSONArray.size(); i++) {
+				Uom uom = mapper.convertValue(responseJSONArray.get(i), Uom.class);
+				uomMap.put(uom.getCode(), uom);
+			}
+
+		}
+		return uomMap;
+	}
+
+	private void setConvertedScrapRate(String tenantId, ScrapDetail detail, RequestInfo requestInfo) {
+		Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "UOM", "code", detail.getUom().getCode(),
+				Uom.class, requestInfo);
+		detail.setUom(uom);
 
 		if (null != detail.getScrapValue() && null != uom.getConversionFactor()) {
 			BigDecimal convertedRate = getSaveConvertedRate(detail.getScrapValue(), uom.getConversionFactor());
@@ -334,26 +445,26 @@ public class ScrapService extends DomainService {
 
 	}
 
-	private void setConvertedScrapQuantity(String tenantId, ScrapDetail detail, MaterialIssueDetail issueDetail,
-			RequestInfo requestInfo) {
+	private void setConvertedScrapQuantity(String tenantId, ScrapDetail detail, RequestInfo requestInfo) {
 		InvalidDataException errors = new InvalidDataException();
-		Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "UOM", "code",
-				issueDetail.getUom().getCode(), Uom.class, requestInfo);
-		issueDetail.setUom(uom);
+		Uom uom = (Uom) mdmsRepository.fetchObject(tenantId, "common-masters", "UOM", "code", detail.getUom().getCode(),
+				Uom.class, requestInfo);
+		detail.setUom(uom);
 
 		if (null != detail.getUserQuantity() && null != uom.getConversionFactor()) {
 			BigDecimal convertedUserQuantity = getSaveConvertedQuantity(detail.getUserQuantity(),
 					uom.getConversionFactor());
 			detail.setScrapQuantity(convertedUserQuantity);
-			int res = convertedUserQuantity.compareTo(issueDetail.getQuantityIssued());
-			if (res == 1) {
-				errors.addDataError(ErrorCode.QTY1_LE_QTY2.getCode(), "Scrap Quantity ", "Issued Quantity ", null);
-  
-			}
+			// int res = convertedUserQuantity.compareTo(detail.getQuantityIssued());
+			// if (res == 1) {
+			// errors.addDataError(ErrorCode.QTY1_LE_QTY2.getCode(), "Scrap Quantity ",
+			// "Issued Quantity ", null);
+			//
+			// }
 		}
 
-		if (errors.getValidationErrors().size() > 0)
-			throw errors;
+		// if (errors.getValidationErrors().size() > 0)
+		// throw errors;
 
 	}
 
@@ -365,6 +476,16 @@ public class ScrapService extends DomainService {
 			return false;
 		}
 		return true;
+	}
+
+	private Store getStore(String tenantId, Scrap scrap) {
+		StoreGetRequest storeEntity = StoreGetRequest.builder()
+				.code(Collections.singletonList(scrap.getStore().getCode())).tenantId(tenantId).active(true).build();
+		Pagination<Store> store = storeJdbcRepository.search(storeEntity);
+		if (!store.getPagedData().isEmpty()) {
+			return store.getPagedData().get(0);
+		}
+		return null;
 	}
 
 	private Long getCurrentDate() {
@@ -394,5 +515,20 @@ public class ScrapService extends DomainService {
 				}
 			}
 		}
+	}
+
+	private Map<String, Material> getMaterials(String tenantId, final ObjectMapper mapper, RequestInfo requestInfo) {
+		JSONArray responseJSONArray = mdmsRepository.getByCriteria(tenantId, "store-asset", "Material", null, null,
+				requestInfo);
+		Map<String, Material> materialMap = new HashMap<>();
+
+		if (responseJSONArray != null && responseJSONArray.size() > 0) {
+			for (int i = 0; i < responseJSONArray.size(); i++) {
+				Material material = mapper.convertValue(responseJSONArray.get(i), Material.class);
+				materialMap.put(material.getCode(), material);
+			}
+
+		}
+		return materialMap;
 	}
 }

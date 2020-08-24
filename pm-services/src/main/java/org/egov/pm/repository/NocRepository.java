@@ -320,11 +320,19 @@ public class NocRepository {
 
 				JSONArray actualResult = jdbcTemplate.query(QueryBuilder.SELECT_VIEW_QUERY,
 						new Object[] { requestInfo.getApplicationId() }, columnsNocRowMapper);
+
+				JSONObject applicationData = (JSONObject) actualResult.get(0);
+
+				if (requestInfo.getRequestInfo().getUserInfo().getType().equals("CITIZEN")
+						&& !applicationData.get("createdby").toString()
+								.equals(requestInfo.getRequestInfo().getUserInfo().getUuid())) {
+					return null;
+				}
+
 				JSONArray applicationList = new JSONArray();
 				String uUid = "";
 
 				JSONArray remarksDataList = new JSONArray();
-				JSONObject applicationData = (JSONObject) actualResult.get(0);
 
 				uUid = applicationData.get("applicationuuid").toString();
 				if (uUid != null && !uUid.isEmpty()) {

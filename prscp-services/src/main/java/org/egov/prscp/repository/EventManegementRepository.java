@@ -10,11 +10,11 @@ import org.egov.prscp.config.PrScpConfiguration;
 import org.egov.prscp.producer.Producer;
 import org.egov.prscp.repository.builder.PrQueryBuilder;
 import org.egov.prscp.repository.rowmapper.EventDetailRowMapper;
+import org.egov.prscp.repository.rowmapper.EventReminderlRowMapper;
 import org.egov.prscp.util.ErrorConstants;
 import org.egov.prscp.web.models.EventDetail;
 import org.egov.prscp.web.models.NotificationReceiver;
 import org.egov.prscp.web.models.RequestInfoWrapper;
-import org.egov.prscp.web.models.TenderNotice;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,18 +29,21 @@ public class EventManegementRepository {
 	private JdbcTemplate jdbcTemplate;
 
 	private EventDetailRowMapper eventRowMapper;
-
+	
+	private EventReminderlRowMapper eventReminderlRowMapper;
+	
 	private Producer producer;
 
 	private PrScpConfiguration config;
 
 	@Autowired
 	public EventManegementRepository(JdbcTemplate jdbcTemplate, EventDetailRowMapper eventRowMapper, Producer producer,
-			PrScpConfiguration config) {
+			PrScpConfiguration config,EventReminderlRowMapper eventReminderlRowMapper) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.eventRowMapper = eventRowMapper;
 		this.producer = producer;
 		this.config = config;
+		this.eventReminderlRowMapper=eventReminderlRowMapper;
 	}
 	
 	
@@ -89,7 +92,7 @@ public class EventManegementRepository {
 		List<Object> preparedStmtList = new ArrayList<>();
 		preparedStmtList.add(status);
 		return jdbcTemplate.query(PrQueryBuilder.Event_Details_Reminder_QUERY, preparedStmtList.toArray(),
-				eventRowMapper);
+				eventReminderlRowMapper);
 	}
 
 	

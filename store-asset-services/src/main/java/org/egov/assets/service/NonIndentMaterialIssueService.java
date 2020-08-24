@@ -2,6 +2,9 @@ package org.egov.assets.service;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -35,18 +38,31 @@ import org.egov.assets.model.MaterialIssueSearchContract;
 import org.egov.assets.model.MaterialIssuedFromReceipt;
 import org.egov.assets.model.MaterialReceiptDetail;
 import org.egov.assets.model.MaterialReceiptDetailSearch;
+import org.egov.assets.model.PDFResponse;
+import org.egov.assets.model.Scrap;
+import org.egov.assets.model.Scrap.ScrapStatusEnum;
+import org.egov.assets.model.ScrapDetail;
+import org.egov.assets.model.ScrapRequest;
+import org.egov.assets.model.ScrapResponse;
+import org.egov.assets.model.ScrapSearch;
 import org.egov.assets.model.Store;
 import org.egov.assets.model.StoreGetRequest;
+import org.egov.assets.model.SupplierGetRequest;
+import org.egov.assets.model.SupplierResponse;
 import org.egov.assets.model.Uom;
 import org.egov.assets.repository.MaterialIssueDetailJdbcRepository;
 import org.egov.assets.repository.MaterialIssueJdbcRepository;
 import org.egov.assets.repository.MaterialIssuedFromReceiptJdbcRepository;
+import org.egov.assets.repository.PDFServiceReposistory;
 import org.egov.assets.repository.entity.FifoEntity;
 import org.egov.assets.repository.entity.MaterialIssueEntity;
 import org.egov.assets.util.InventoryUtilities;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.response.ResponseInfo;
 import org.egov.tracer.kafka.LogAwareKafkaTemplate;
 import org.egov.tracer.model.CustomException;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +88,16 @@ public class NonIndentMaterialIssueService extends DomainService {
 	private MaterialIssuedFromReceiptJdbcRepository materialIssuedFromReceiptsJdbcRepository;
 
 	@Autowired
+	private PDFServiceReposistory pdfServiceReposistory;
+
+	@Autowired
+	private ScrapService scrapService;
+
+	@Autowired
 	private MdmsRepository mdmsRepository;
+
+	@Autowired
+	private SupplierService supplierService;
 
 	@Autowired
 	private MaterialReceiptDetailService materialReceiptDetailService;
@@ -98,14 +123,19 @@ public class NonIndentMaterialIssueService extends DomainService {
 	@Autowired
 	private LogAwareKafkaTemplate<String, Object> kafkaTemplate;
 
-	public MaterialIssueResponse create(MaterialIssueRequest nonIndentIssueRequest) {
+	public MaterialIssueResponse create(MaterialIssueRequest nonIndentIssueRequest, String tenantId) {
 		try {
+
 			fetchRelated(nonIndentIssueRequest);
 			validate(nonIndentIssueRequest.getMaterialIssues(), Constants.ACTION_CREATE);
 			List<String> sequenceNos = materialIssueJdbcRepository.getSequence(MaterialIssue.class.getSimpleName(),
 					nonIndentIssueRequest.getMaterialIssues().size());
 			int i = 0;
+			String issuePurpose = "";
 			for (MaterialIssue materialIssue : nonIndentIssueRequest.getMaterialIssues()) {
+				if (materialIssue.getIssuePurpose() != null)
+					issuePurpose = materialIssue.getIssuePurpose().toString();
+
 				String seqNo = sequenceNos.get(i);
 				materialIssue.setId(seqNo);
 				setMaterialIssueValues(materialIssue, seqNo, Constants.ACTION_CREATE);
@@ -134,10 +164,268 @@ public class NonIndentMaterialIssueService extends DomainService {
 			MaterialIssueResponse response = new MaterialIssueResponse();
 			response.setMaterialIssues(nonIndentIssueRequest.getMaterialIssues());
 			response.setResponseInfo(getResponseInfo(nonIndentIssueRequest.getRequestInfo()));
+
+			if ((issuePurpose != null && !issuePurpose.isEmpty())
+					&& issuePurpose.equals(IssuePurposeEnum.WRITEOFFORSCRAP.toString())) {
+				addScrapDetails(nonIndentIssueRequest, tenantId);
+			}
+
 			return response;
 		} catch (CustomBindException e) {
 			throw e;
 		}
+	}
+
+	// public void addScrapDetails(MaterialIssueRequest nonIndentIssueRequest,
+	// String tenantId) {
+	// ScrapRequest scrapRequest = new ScrapRequest();
+	// List<Scrap> scrapList = new ArrayList<>();
+	// for (MaterialIssue materialIssue : nonIndentIssueRequest.getMaterialIssues())
+	// {
+	// Scrap scrap = new Scrap();
+	// scrap.setIssueNumber(materialIssue.getIssueNumber());
+	// scrap.setScrapStatus(ScrapStatusEnum.fromValue(materialIssue.getMaterialIssueStatus().toString()));
+	// scrap.setStore(materialIssue.getFromStore());
+	// scrap.description(materialIssue.getDescription());
+	// scrap.setDesignation(materialIssue.getDesignation());
+	// scrap.setScrapDate(materialIssue.getIssueDate());
+	//
+	// List<ScrapDetail> listScrapDetail = new ArrayList<>();
+	// for (MaterialIssueDetail materialIssueDetail :
+	// materialIssue.getMaterialIssueDetails()) {
+	// materialIssueDetail.setScrapedQuantity(
+	// materialIssueDetail.getScrapedQuantity() != null ?
+	// materialIssueDetail.getScrapedQuantity()
+	// : BigDecimal.ZERO);
+	//
+	// ScrapDetail scrapDetail = new ScrapDetail();
+	// scrapDetail.setTenantId(tenantId);
+	// scrapDetail.setIssueDetail(materialIssueDetail);
+	// scrapDetail.setMaterial(materialIssueDetail.getMaterial());
+	// scrapDetail.setUom(materialIssueDetail.getUom());
+	// scrapDetail.setLotNumber("0");
+	// scrapDetail.setUserQuantity(materialIssueDetail.getUserQuantityIssued());
+	// scrapDetail.setScrapQuantity(materialIssueDetail.getUserQuantityIssued());
+	// scrapDetail.setScrapValue(materialIssueDetail.getScrapValue());
+	// scrapDetail.setExistingValue(materialIssueDetail.getValue());
+	// scrapDetail.setQuantity(
+	// materialIssueDetail.getQuantityIssued() != null ?
+	// materialIssueDetail.getQuantityIssued()
+	// : BigDecimal.ZERO);
+	//
+	// listScrapDetail.add(scrapDetail);
+	// }
+	// scrap.setScrapDetails(listScrapDetail);
+	// scrapList.add(scrap);
+	// }
+	// scrapRequest.setRequestInfo(nonIndentIssueRequest.getRequestInfo());
+	// scrapRequest.setScraps(scrapList);
+	// scrapService.create(scrapRequest, tenantId);
+	// }
+
+	public void addScrapDetails(MaterialIssueRequest nonIndentIssueRequest, String tenantId) {
+		ScrapRequest scrapRequest = new ScrapRequest();
+		List<Scrap> scrapList = new ArrayList<>();
+		boolean isUpdate = false;
+		for (MaterialIssue materialIssue : nonIndentIssueRequest.getMaterialIssues()) {
+			ScrapSearch scrapSearch = new ScrapSearch();
+			scrapSearch.setTenantId(tenantId);
+			scrapSearch.setIssueNumber(materialIssue.getIssueNumber());
+			ScrapResponse scrapResponse = scrapService.search(scrapSearch);
+			if (!scrapResponse.getScraps().isEmpty()) {
+				isUpdate = true;
+				for (Scrap d : scrapResponse.getScraps()) {
+					Scrap scrap = new Scrap();
+					scrap.setId(d.getId());
+					scrap.setScrapNumber(d.getScrapNumber());
+					scrap.setIssueNumber(materialIssue.getIssueNumber());
+					scrap.setScrapStatus(ScrapStatusEnum.fromValue(materialIssue.getMaterialIssueStatus().toString()));
+					scrap.setStore(materialIssue.getFromStore());
+					scrap.description(materialIssue.getDescription());
+					scrap.setDesignation(materialIssue.getDesignation());
+					scrap.setScrapDate(materialIssue.getIssueDate());
+
+					List<ScrapDetail> dd = d.getScrapDetails();
+					List<ScrapDetail> listScrapDetail = new ArrayList<>();
+					for (MaterialIssueDetail materialIssueDetail : materialIssue.getMaterialIssueDetails()) {
+						ScrapDetail scrapDetail = new ScrapDetail();
+
+						ScrapDetail e = dd.stream().filter(predicate -> predicate.getMaterial().getCode()
+								.equals(materialIssueDetail.getMaterial().getCode())).findAny().orElse(null);
+
+						if (e != null) {
+							scrapDetail.setId(e.getId());
+						}
+
+						scrapDetail.setScrapNumber(d.getScrapNumber());
+						materialIssueDetail.setScrapedQuantity(materialIssueDetail.getScrapedQuantity() != null
+								? materialIssueDetail.getScrapedQuantity()
+								: BigDecimal.ZERO);
+
+						scrapDetail.setTenantId(tenantId);
+						scrapDetail.setIssueDetail(materialIssueDetail);
+						scrapDetail.setMaterial(materialIssueDetail.getMaterial());
+						scrapDetail.setUom(materialIssueDetail.getUom());
+						scrapDetail.setLotNumber("0");
+						scrapDetail.setUserQuantity(
+								e != null ? e.getUserQuantity().add(materialIssueDetail.getUserQuantityIssued())
+										: materialIssueDetail.getUserQuantityIssued());
+						scrapDetail.setScrapQuantity(
+								e != null ? e.getScrapQuantity().add(materialIssueDetail.getUserQuantityIssued())
+										: materialIssueDetail.getUserQuantityIssued());
+						scrapDetail.setScrapValue(e != null ? e.getScrapValue().add(materialIssueDetail.getScrapValue())
+								: materialIssueDetail.getScrapValue());
+						scrapDetail
+								.setExistingValue(e != null ? e.getExistingValue().add(materialIssueDetail.getValue())
+										: materialIssueDetail.getValue());
+						scrapDetail.setQuantity(e != null ? e.getQuantity().add(materialIssueDetail.getQuantityIssued())
+								: materialIssueDetail.getQuantityIssued());
+
+						listScrapDetail.add(scrapDetail);
+					}
+					scrap.setScrapDetails(listScrapDetail);
+					scrapList.add(scrap);
+				}
+			} else {
+				Scrap scrap = new Scrap();
+				scrap.setIssueNumber(materialIssue.getIssueNumber());
+				scrap.setScrapStatus(ScrapStatusEnum.fromValue(materialIssue.getMaterialIssueStatus().toString()));
+				scrap.setStore(materialIssue.getFromStore());
+				scrap.description(materialIssue.getDescription());
+				scrap.setDesignation(materialIssue.getDesignation());
+				scrap.setScrapDate(materialIssue.getIssueDate());
+				List<ScrapDetail> listScrapDetail = new ArrayList<>();
+				for (MaterialIssueDetail materialIssueDetail : materialIssue.getMaterialIssueDetails()) {
+					ScrapDetail scrapDetail = new ScrapDetail();
+
+					materialIssueDetail.setScrapedQuantity(
+							materialIssueDetail.getScrapedQuantity() != null ? materialIssueDetail.getScrapedQuantity()
+									: BigDecimal.ZERO);
+
+					scrapDetail.setTenantId(tenantId);
+					scrapDetail.setIssueDetail(materialIssueDetail);
+					scrapDetail.setMaterial(materialIssueDetail.getMaterial());
+					scrapDetail.setUom(materialIssueDetail.getUom());
+					scrapDetail.setLotNumber("0");
+					scrapDetail.setUserQuantity(materialIssueDetail.getUserQuantityIssued());
+					scrapDetail.setScrapQuantity(materialIssueDetail.getUserQuantityIssued());
+					scrapDetail.setScrapValue(materialIssueDetail.getScrapValue());
+					scrapDetail.setExistingValue(materialIssueDetail.getValue());
+					scrapDetail.setQuantity(
+							materialIssueDetail.getQuantityIssued() != null ? materialIssueDetail.getQuantityIssued()
+									: BigDecimal.ZERO);
+
+					listScrapDetail.add(scrapDetail);
+				}
+				scrap.setScrapDetails(listScrapDetail);
+				scrapList.add(scrap);
+			}
+		}
+		scrapRequest.setRequestInfo(nonIndentIssueRequest.getRequestInfo());
+		scrapRequest.setScraps(scrapList);
+		if (isUpdate)
+			scrapService.update(scrapRequest, tenantId);
+		else
+			scrapService.create(scrapRequest, tenantId);
+	}
+
+	public void updateScrapDetails(MaterialIssueRequest nonIndentIssueRequest, String tenantId,
+			List<MaterialIssue> existingMaterialIssue) {
+		ScrapRequest scrapRequest = new ScrapRequest();
+		List<Scrap> scrapList = new ArrayList<>();
+		for (MaterialIssue materialIssue : nonIndentIssueRequest.getMaterialIssues()) {
+			MaterialIssue materialIssueExisting = existingMaterialIssue.stream()
+					.filter(predicate -> predicate.getIssueNumber().equals(materialIssue.getIssueNumber())).findAny()
+					.orElse(null);
+
+			ScrapSearch scrapSearch = new ScrapSearch();
+			scrapSearch.setTenantId(tenantId);
+			scrapSearch.setIssueNumber(materialIssue.getIssueNumber());
+			ScrapResponse scrapResponse = scrapService.search(scrapSearch);
+			if (!scrapResponse.getScraps().isEmpty()) {
+				for (Scrap d : scrapResponse.getScraps()) {
+					Scrap scrap = new Scrap();
+					scrap.setId(d.getId());
+					scrap.setScrapNumber(d.getScrapNumber());
+					scrap.setIssueNumber(materialIssue.getIssueNumber());
+					scrap.setScrapStatus(ScrapStatusEnum.fromValue(materialIssue.getMaterialIssueStatus().toString()));
+					scrap.setStore(materialIssue.getFromStore());
+					scrap.description(materialIssue.getDescription());
+					scrap.setDesignation(materialIssue.getDesignation());
+					scrap.setScrapDate(materialIssue.getIssueDate());
+
+					List<ScrapDetail> dd = d.getScrapDetails();
+					List<ScrapDetail> listScrapDetail = new ArrayList<>();
+
+					List<MaterialIssueDetail> listOfExistingIssue = materialIssueExisting != null
+							? materialIssueExisting.getMaterialIssueDetails()
+							: new ArrayList();
+							
+					for (MaterialIssueDetail materialIssueDetail : materialIssue.getMaterialIssueDetails()) {
+						ScrapDetail scrapDetail = new ScrapDetail();
+
+						MaterialIssueDetail materialIssueDetailExisting = listOfExistingIssue.stream()
+								.filter(predicate -> predicate.getId().equalsIgnoreCase(materialIssueDetail.getId())
+										&& predicate.getMaterial().getCode()
+												.equals(materialIssueDetail.getMaterial().getCode()))
+								.findAny().orElse(null);
+
+						ScrapDetail e = dd.stream().filter(predicate -> predicate.getMaterial().getCode()
+								.equals(materialIssueDetail.getMaterial().getCode())).findAny().orElse(null);
+
+						if (e != null) {
+							scrapDetail.setId(e.getId());
+						}
+
+						scrapDetail.setScrapNumber(d.getScrapNumber());
+						materialIssueDetail.setScrapedQuantity(materialIssueDetail.getScrapedQuantity() != null
+								? materialIssueDetail.getScrapedQuantity()
+								: BigDecimal.ZERO);
+
+						scrapDetail.setTenantId(tenantId);
+						scrapDetail.setIssueDetail(materialIssueDetail);
+						scrapDetail.setMaterial(materialIssueDetail.getMaterial());
+						scrapDetail.setUom(materialIssueDetail.getUom());
+						scrapDetail.setLotNumber("0");
+
+						BigDecimal userQty = (materialIssueDetailExisting != null && e != null
+								? e.getScrapQuantity().subtract(materialIssueDetailExisting.getUserQuantityIssued())
+										.add(materialIssueDetail.getUserQuantityIssued())
+								: materialIssueDetail.getUserQuantityIssued());
+
+						scrapDetail.setUserQuantity(userQty);
+						scrapDetail.setScrapQuantity(userQty);
+
+						BigDecimal scrapValue = (materialIssueDetailExisting != null && e != null
+								? e.getScrapValue().subtract(materialIssueDetailExisting.getScrapValue()).add(
+										materialIssueDetail.getScrapValue())
+								: materialIssueDetail.getScrapValue());
+
+						scrapDetail.setScrapValue(scrapValue);
+
+						BigDecimal scrapValueExisting = (materialIssueDetailExisting != null && e != null
+								? e.getExistingValue().subtract(materialIssueDetailExisting.getValue()).add(
+										materialIssueDetail.getValue())
+								: materialIssueDetail.getValue());
+
+						scrapDetail.setExistingValue(scrapValueExisting);
+
+						BigDecimal quanity = (materialIssueDetailExisting != null && e != null
+								? e.getQuantity().subtract(materialIssueDetailExisting.getQuantityIssued())
+										.add(materialIssueDetail.getQuantityIssued())
+								: materialIssueDetail.getQuantityIssued());
+
+						scrapDetail.setQuantity(quanity);
+						listScrapDetail.add(scrapDetail);
+					}
+					scrap.setScrapDetails(listScrapDetail);
+					scrapList.add(scrap);
+				}
+			}
+		}
+		scrapRequest.setRequestInfo(nonIndentIssueRequest.getRequestInfo());
+		scrapRequest.setScraps(scrapList);
+		scrapService.update(scrapRequest, tenantId);
 	}
 
 	private BigDecimal getMaterialIssuedFromReceiptData(Store store, Material material, Long issueDate, String tenantId,
@@ -454,7 +742,7 @@ public class NonIndentMaterialIssueService extends DomainService {
 		materialIssue.setIssueType(IssueTypeEnum.NONINDENTISSUE);
 		if (action.equals(Constants.ACTION_CREATE)) {
 			int year = Calendar.getInstance().get(Calendar.YEAR);
-			materialIssue.setIssueNumber("MRIN-" + String.valueOf(year) + "-" + seqNo);
+			materialIssue.setIssueNumber("MRNIN-" + String.valueOf(year) + "-" + seqNo);
 			materialIssue.setMaterialIssueStatus(MaterialIssueStatusEnum.CREATED);
 		}
 
@@ -465,7 +753,13 @@ public class NonIndentMaterialIssueService extends DomainService {
 		validate(materialIssueRequest.getMaterialIssues(), Constants.ACTION_UPDATE);
 		List<MaterialIssue> materialIssues = materialIssueRequest.getMaterialIssues();
 		int i = 0;
+		String issuePurpose = "";
+
+		List<MaterialIssue> existingMaterialIssue = new ArrayList<>();
 		for (MaterialIssue materialIssue : materialIssues) {
+			if (materialIssue.getIssuePurpose() != null)
+				issuePurpose = materialIssue.getIssuePurpose().toString();
+
 			if (StringUtils.isEmpty(materialIssue.getTenantId()))
 				materialIssue.setTenantId(tenantId);
 			MaterialIssueSearchContract searchContract = new MaterialIssueSearchContract();
@@ -474,6 +768,8 @@ public class NonIndentMaterialIssueService extends DomainService {
 			MaterialIssueResponse issueResponse = search(searchContract);
 			List<MaterialIssueDetail> materialIssueDetails = issueResponse.getMaterialIssues().get(0)
 					.getMaterialIssueDetails();
+
+			existingMaterialIssue.addAll(issueResponse.getMaterialIssues());
 			List<String> materialIssuedFromReceiptsIds = new ArrayList<>();
 			ObjectMapper objectMapper = new ObjectMapper();
 			Map<String, Uom> uoms = getUoms(tenantId, objectMapper, new RequestInfo());
@@ -525,6 +821,12 @@ public class NonIndentMaterialIssueService extends DomainService {
 		MaterialIssueResponse response = new MaterialIssueResponse();
 		response.setMaterialIssues(materialIssueRequest.getMaterialIssues());
 		response.setResponseInfo(getResponseInfo(materialIssueRequest.getRequestInfo()));
+
+		if ((issuePurpose != null && !issuePurpose.isEmpty())
+				&& issuePurpose.equals(IssuePurposeEnum.WRITEOFFORSCRAP.toString())) {
+			updateScrapDetails(materialIssueRequest, tenantId, existingMaterialIssue);
+		}
+
 		return response;
 	}
 
@@ -537,10 +839,14 @@ public class NonIndentMaterialIssueService extends DomainService {
 	public MaterialIssueResponse search(MaterialIssueSearchContract searchContract) {
 		Pagination<MaterialIssue> materialIssues = materialIssueJdbcRepository.search(searchContract,
 				IssueTypeEnum.NONINDENTISSUE.toString());
-		if (materialIssues.getPagedData().size() > 0) {
+		if (!materialIssues.getPagedData().isEmpty()) {
+			ObjectMapper mapper = new ObjectMapper();
+			Map<String, Material> materialMap = getMaterials(searchContract.getTenantId(), mapper, new RequestInfo());
+			Map<String, Uom> uoms = getUoms(searchContract.getTenantId(), mapper, new RequestInfo());
+
 			for (MaterialIssue materialIssue : materialIssues.getPagedData()) {
 
-				if (materialIssue.getFromStore() != null) {
+				if (materialIssue.getFromStore() != null && materialIssue.getFromStore().getCode() != null) {
 					materialIssue.setFromStore(
 							getStore(materialIssue.getFromStore().getCode(), searchContract.getTenantId()));
 				}
@@ -548,8 +854,14 @@ public class NonIndentMaterialIssueService extends DomainService {
 					materialIssue.toStore(getStore(materialIssue.getToStore().getCode(), searchContract.getTenantId()));
 				}
 
-				ObjectMapper mapper = new ObjectMapper();
-				Map<String, Uom> uoms = getUoms(materialIssue.getTenantId(), mapper, new RequestInfo());
+				if (materialIssue.getSupplier() != null && materialIssue.getSupplier().getCode() != null) {
+					SupplierGetRequest supplierGetRequest = new SupplierGetRequest();
+					supplierGetRequest.setTenantId(searchContract.getTenantId());
+					supplierGetRequest.setCode(Arrays.asList(materialIssue.getSupplier().getCode()));
+					SupplierResponse response = supplierService.search(supplierGetRequest);
+					materialIssue.setSupplier(response.getSuppliers().isEmpty() ? materialIssue.getSupplier()
+							: response.getSuppliers().get(0));
+				}
 				Pagination<MaterialIssueDetail> materialIssueDetails = materialIssueDetailsJdbcRepository.search(
 						materialIssue.getIssueNumber(), materialIssue.getTenantId(),
 						IssueTypeEnum.NONINDENTISSUE.toString());
@@ -581,6 +893,12 @@ public class NonIndentMaterialIssueService extends DomainService {
 												: materialReceiptDetail.get(0));
 							}
 						}
+						if (materialIssueDetail.getMaterial() != null
+								&& materialIssueDetail.getMaterial().getCode() != null) {
+							materialIssueDetail
+									.setMaterial(materialMap.get(materialIssueDetail.getMaterial().getCode()));
+						}
+
 						materialIssueDetail.setMaterialIssuedFromReceipts(materialIssuedFromReceipts.getPagedData());
 					}
 					materialIssue.setMaterialIssueDetails(materialIssueDetails.getPagedData());
@@ -611,6 +929,13 @@ public class NonIndentMaterialIssueService extends DomainService {
 				.ids(Arrays.asList(ids)).tenantId(tenantId).build();
 		Pagination<MaterialReceiptDetail> materialReceiptDetails = materialReceiptDetailService
 				.search(materialReceiptDetailSearch);
+
+		if (!materialReceiptDetails.getPagedData().isEmpty()) {
+			Map<String, Material> materialMap = getMaterials(tenantId, new ObjectMapper(), new RequestInfo());
+			for (MaterialReceiptDetail details : materialReceiptDetails.getPagedData()) {
+				details.setMaterial(materialMap.get(details.getMaterial().getCode()));
+			}
+		}
 		return materialReceiptDetails.getPagedData().size() > 0 ? materialReceiptDetails.getPagedData()
 				: Collections.EMPTY_LIST;
 	}
@@ -681,5 +1006,90 @@ public class NonIndentMaterialIssueService extends DomainService {
 		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
 		String s2 = format.format(epoch);
 		return s2;
+	}
+
+	public PDFResponse printPdf(MaterialIssueSearchContract searchContract, RequestInfo requestInfo) {
+		MaterialIssueResponse materialIssueResponse = search(searchContract);
+		if (!materialIssueResponse.getMaterialIssues().isEmpty()
+				&& materialIssueResponse.getMaterialIssues().size() == 1) {
+			JSONObject requestMain = new JSONObject();
+			DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				JSONObject reqInfo = (JSONObject) new JSONParser().parse(mapper.writeValueAsString(requestInfo));
+				requestMain.put("RequestInfo", reqInfo);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+
+			JSONArray indents = new JSONArray();
+			for (MaterialIssue in : materialIssueResponse.getMaterialIssues()) {
+				JSONObject indent = new JSONObject();
+				indent.put("issueNumber", in.getIssueNumber());
+				if (in.getIssueDate() != null) {
+					Instant issueDate = Instant.ofEpochMilli(in.getIssueDate());
+					indent.put("issueDate", fmt.format(issueDate.atZone(ZoneId.systemDefault())));
+				} else {
+					indent.put("issueDate", in.getIssueDate());
+				}
+
+				indent.put("issuingStoreName", in.getFromStore().getName());
+				indent.put("issuingStoreDept", in.getFromStore().getDepartment().getName());
+				indent.put("issueStatus", in.getMaterialIssueStatus());
+				indent.put("indentPurpose", in.getIssuePurpose());
+				indent.put("supplierName", in.getSupplier().getName());
+				indent.put("remark", in.getDescription());
+				indent.put("createdBy", in.getCreatedByName());
+				indent.put("designation", in.getDesignation());
+
+				JSONArray indentDetails = new JSONArray();
+				int i = 1;
+				BigDecimal totalIssueAmount = BigDecimal.ZERO;
+				for (MaterialIssueDetail detail : in.getMaterialIssueDetails()) {
+					JSONObject indentDetail = new JSONObject();
+					indentDetail.put("srNo", i++);
+					indentDetail.put("materialCode", detail.getMaterial().getCode());
+					indentDetail.put("materialName", detail.getMaterial().getName());
+					indentDetail.put("materialDescription", detail.getMaterial().getDescription());
+					indentDetail.put("uomName", detail.getUom().getCode());
+					indentDetail.put("quantityIssued", detail.getQuantityIssued());
+
+					BigDecimal totalUnitRate = BigDecimal.ZERO;
+					BigDecimal total = BigDecimal.ZERO;
+					for (MaterialIssuedFromReceipt rec : detail.getMaterialIssuedFromReceipts()) {
+						total = total.add(rec.getQuantity().multiply(rec.getMaterialReceiptDetail().getUnitRate()));
+						totalUnitRate = totalUnitRate.add(rec.getMaterialReceiptDetail().getUnitRate());
+					}
+					indentDetail.put("totalValue", total);
+					indentDetail.put("unitRate", totalUnitRate);
+					indentDetail.put("remark", detail.getDescription());
+					indentDetails.add(indentDetail);
+					totalIssueAmount = totalIssueAmount.add(total);
+				}
+				indent.put("issueTotalAmount", totalIssueAmount);
+				indent.put("materialDetails", indentDetails);
+
+				// Need to integrate Workflow
+				JSONArray workflows = new JSONArray();
+				JSONObject jsonWork = new JSONObject();
+				jsonWork.put("reviewApprovalDate", "02-05-2020");
+				jsonWork.put("reviewerApproverName", "Aniket");
+				jsonWork.put("designation", "MD");
+				jsonWork.put("action", "Forwarded");
+				jsonWork.put("sendTo", "Prakash");
+				jsonWork.put("approvalStatus", "APPROVED");
+				workflows.add(jsonWork);
+				indent.put("workflowDetails", workflows);
+				indents.add(indent);
+
+				requestMain.put("NonIndentIssueNote", indents);
+			}
+
+			return pdfServiceReposistory.getPrint(requestMain, "store-asset-non-indent-issue-note",
+					searchContract.getTenantId());
+		}
+		return PDFResponse.builder()
+				.responseInfo(ResponseInfo.builder().status("Failed").resMsgId("No data found").build()).build();
+
 	}
 }

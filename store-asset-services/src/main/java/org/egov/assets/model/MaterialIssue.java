@@ -88,6 +88,10 @@ public class MaterialIssue {
 
 		CANCELED("CANCELED"),
 
+		REASSIGNTOJE("REASSIGNTOJE"),
+
+		REVIEWOFSDO("REVIEWOFSDO"),
+
 		RECEIPTED("RECEIPTED");
 
 		private String value;
@@ -124,6 +128,9 @@ public class MaterialIssue {
 
 	@JsonProperty("fileStoreId")
 	private String fileStoreId = null;
+
+	@JsonProperty("createdByName")
+	private String createdByName = null;
 
 	@JsonProperty("designation")
 	private String designation = null;
@@ -426,6 +433,19 @@ public class MaterialIssue {
 		return this;
 	}
 
+	public MaterialIssue createdByName(String createdByName) {
+		this.createdByName = createdByName;
+		return this;
+	}
+
+	public String getCreatedByName() {
+		return createdByName;
+	}
+
+	public void setCreatedByName(String createdByName) {
+		this.createdByName = createdByName;
+	}
+
 	/**
 	 * Designation of the created by user at the time of Indent Issue/Non Indent
 	 * Issue created.
@@ -529,7 +549,6 @@ public class MaterialIssue {
 	 * 
 	 * @return supplier
 	 **/
-	@Valid
 
 	public Supplier getSupplier() {
 		return supplier;

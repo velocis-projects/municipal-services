@@ -244,7 +244,8 @@ public class PriceListService extends DomainService {
 			PriceListRequest priceListRequest) {
 		InvalidDataException errors = new InvalidDataException();
 		try {
-
+			String rateType = null;;
+			
 			switch (method) {
 			case Constants.ACTION_CREATE: {
 				if (priceLists == null) {
@@ -301,6 +302,8 @@ public class PriceListService extends DomainService {
 			Long currentMilllis = System.currentTimeMillis();
 
 			for (PriceList pl : priceLists) {
+				
+				rateType = pl.getRateType().toString();
 
 				if (!Arrays.stream(PriceList.RateTypeEnum.values())
 						.anyMatch((t) -> t.equals(PriceList.RateTypeEnum.fromValue(pl.getRateType().toString())))) {
@@ -321,10 +324,14 @@ public class PriceListService extends DomainService {
 					if (isEmpty(material.getCode())) {
 						errors.addDataError(ErrorCode.MATERIAL_NAME_NOT_EXIST.getCode(),
 								material.getCode() + " at serial no." + (pl.getPriceListDetails().indexOf(pld) + 1));
+					} else {
+						pld.setMaterial(material);
 					}
 					if (isEmpty(uom.getCode())) {
 						errors.addDataError(ErrorCode.UOM_CODE_NOT_EXIST.getCode(), pld.getUom().getCode()
 								+ " at serial no." + (pl.getPriceListDetails().indexOf(pld) + 1));
+					} else {
+						pld.setUom(uom);
 					}
 
 					if (pld.getRatePerUnit() <= 0) {
@@ -416,7 +423,8 @@ public class PriceListService extends DomainService {
 
 			}
 			// TODO: CHECK IN CASE OF UPDATE..
-
+//			(PriceList.RateTypeEnum.fromValue(pl.getRateType().toString()))
+			
 			if (priceListJdbcRepository.isDuplicateContract(priceLists, method)) {
 				throw new CustomException("inv.0011",
 						"A ratecontract already exists in the system for the given material in the specified time duration. Please select alternate duration for the contract.");
