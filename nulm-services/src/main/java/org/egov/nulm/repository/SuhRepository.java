@@ -81,6 +81,8 @@ public class SuhRepository {
 		paramValues.put("tenantId", suh.getTenantId());
 		paramValues.put("fromDate", suh.getFromDate());
 		paramValues.put("toDate", suh.getToDate());
+		paramValues.put("nameOfShelter", suh.getNameOfShelter());
+		
 		try {
 			for (Role roleobj : role) {
 				if ((roleobj.getCode()).equalsIgnoreCase(config.getRoleEmployee())) {
