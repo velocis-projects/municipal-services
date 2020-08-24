@@ -50,6 +50,7 @@ import org.egov.assets.model.StoreGetRequest;
 import org.egov.assets.model.SupplierGetRequest;
 import org.egov.assets.model.SupplierResponse;
 import org.egov.assets.model.Uom;
+import org.egov.assets.model.WorkFlowDetails;
 import org.egov.assets.repository.MaterialIssueDetailJdbcRepository;
 import org.egov.assets.repository.MaterialIssueJdbcRepository;
 import org.egov.assets.repository.MaterialIssuedFromReceiptJdbcRepository;
@@ -57,6 +58,7 @@ import org.egov.assets.repository.PDFServiceReposistory;
 import org.egov.assets.repository.entity.FifoEntity;
 import org.egov.assets.repository.entity.MaterialIssueEntity;
 import org.egov.assets.util.InventoryUtilities;
+import org.egov.assets.wf.WorkflowIntegrator;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.tracer.kafka.LogAwareKafkaTemplate;
@@ -68,6 +70,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -119,6 +122,15 @@ public class NonIndentMaterialIssueService extends DomainService {
 
 	@Value("${inv.issues.update.key}")
 	private String updateKey;
+	
+	@Value("${inv.issues.updatestatus.topic}")
+	private String updateStatusTopic;
+
+	@Value("${inv.issues.updatestatus.key}")
+	private String updateStatusKey;
+
+	@Autowired
+	WorkflowIntegrator workflowIntegrator;
 
 	@Autowired
 	private LogAwareKafkaTemplate<String, Object> kafkaTemplate;
@@ -158,6 +170,10 @@ public class NonIndentMaterialIssueService extends DomainService {
 					}
 				}
 				materialIssue.setTotalIssueValue(totalIssueValue);
+				WorkFlowDetails workFlowDetails = nonIndentIssueRequest.getWorkFlowDetails();
+				workFlowDetails.setBusinessId(materialIssue.getIssueNumber());
+				workflowIntegrator.callWorkFlow(nonIndentIssueRequest.getRequestInfo(), workFlowDetails,
+						materialIssue.getTenantId());
 			}
 
 			kafkaTemplate.send(createTopic, createKey, nonIndentIssueRequest);
@@ -360,7 +376,7 @@ public class NonIndentMaterialIssueService extends DomainService {
 					List<MaterialIssueDetail> listOfExistingIssue = materialIssueExisting != null
 							? materialIssueExisting.getMaterialIssueDetails()
 							: new ArrayList();
-							
+
 					for (MaterialIssueDetail materialIssueDetail : materialIssue.getMaterialIssueDetails()) {
 						ScrapDetail scrapDetail = new ScrapDetail();
 
@@ -1091,5 +1107,21 @@ public class NonIndentMaterialIssueService extends DomainService {
 		return PDFResponse.builder()
 				.responseInfo(ResponseInfo.builder().status("Failed").resMsgId("No data found").build()).build();
 
+	}
+
+	@Transactional
+	public MaterialIssueResponse updateStatus(MaterialIssueRequest indentIssueRequest) {
+
+		try {
+			workflowIntegrator.callWorkFlow(indentIssueRequest.getRequestInfo(),
+					indentIssueRequest.getWorkFlowDetails(), indentIssueRequest.getWorkFlowDetails().getTenantId());
+			kafkaQue.send(updateStatusTopic, updateStatusKey, indentIssueRequest);
+			MaterialIssueResponse response = new MaterialIssueResponse();
+			response.setMaterialIssues(indentIssueRequest.getMaterialIssues());
+			response.setResponseInfo(getResponseInfo(indentIssueRequest.getRequestInfo()));
+			return response;
+		} catch (CustomBindException e) {
+			throw e;
+		}
 	}
 }
