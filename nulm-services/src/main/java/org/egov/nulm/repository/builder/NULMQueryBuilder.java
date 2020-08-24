@@ -110,7 +110,7 @@ public class NULMQueryBuilder {
 	 		"'isSecurityStaff',is_security_staff,'securityStaffRemark',security_staff_remark,'isCleaner',is_cleaner,'cleanerRemark',cleaner_remark,'tenant_id',tenant_id,'is_active',is_active,'created_by',created_by,'created_time',created_time\n" + 
 	 		",'last_modified_by',last_modified_by,'last_modified_time',last_modified_time) ))as staff FROM nulm_suh_staff_maintenance GROUP BY suh_uuid ) SM\n" + 
 	 		"ON NA.suh_uuid=SM.suh_uuid and NA.tenant_id=SM.tenant_id \n" + 
-	 		"where NA.suh_uuid=(case when :suhUuid  <>'' then :suhUuid   else NA.suh_uuid end) and NA.created_by=(case when :createdBy  <>'' then :createdBy  else NA.created_by end) AND NA.tenant_id=:tenantId  AND NA.application_status IN (:status) \n" + 
+	 		"where NA.suh_id=(case when :suhId  <>'' then :suhId   else NA.suh_id end) and NA.created_by=(case when :createdBy  <>'' then :createdBy  else NA.created_by end) AND NA.tenant_id=:tenantId  AND NA.application_status IN (:status) \n" + 
 	 		"AND NA.is_active='true'  AND TO_DATE(TO_CHAR(TO_TIMESTAMP(NA.created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') >= CASE WHEN :fromDate<>'' THEN DATE(:fromDate) ELSE\n" + 
 	 		"TO_DATE(TO_CHAR(TO_TIMESTAMP(NA.created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') END AND  TO_DATE(TO_CHAR(TO_TIMESTAMP(NA.created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') <= CASE WHEN :toDate<>'' THEN DATE(:toDate) ELSE \n" + 
 	 		" TO_DATE(TO_CHAR(TO_TIMESTAMP(NA.created_time / 1000), 'YYYY-MM-DD'),'YYYY-MM-DD') END AND UPPER(na.name_of_shelter) like concat('%',case when UPPER(:nameOfShelter)<>'' then UPPER(:nameOfShelter) else UPPER(na.name_of_shelter) end,'%') ORDER BY created_time desc";
