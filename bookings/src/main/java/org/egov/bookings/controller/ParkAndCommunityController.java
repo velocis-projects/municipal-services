@@ -9,6 +9,8 @@ import javax.validation.Valid;
 import org.egov.bookings.common.model.ResponseModel;
 import org.egov.bookings.contract.AvailabilityResponse;
 import org.egov.bookings.contract.ParkAndCommunitySearchCriteria;
+import org.egov.bookings.contract.ParkCommunityFeeMasterRequest;
+import org.egov.bookings.contract.ParkCommunityFeeMasterResponse;
 import org.egov.bookings.contract.RequestInfoWrapper;
 import org.egov.bookings.model.BookingsModel;
 import org.egov.bookings.model.ParkCommunityHallV1MasterModel;
@@ -105,10 +107,13 @@ public class ParkAndCommunityController {
 	 * @return the response entity
 	 */
 	@PostMapping("/master/_fetch")
-	private ResponseEntity<?> fetchParkCommunityMaster(@Valid @RequestBody RequestInfoWrapper requestInfoWrapper) {
+	private ResponseEntity<?> fetchParkCommunityMaster(@RequestBody ParkCommunityFeeMasterRequest parkCommunityFeeMasterRequest) {
 
+		bookingsFieldsValidator.validateParkAndCommunityMasterRequest(parkCommunityFeeMasterRequest);
+		
 		List<ParkCommunityHallV1MasterModel> parkCommunityHallV1MasterList = parkAndCommunityService
-				.fetchParkCommunityMaster();
+				.fetchParkCommunityMaster(parkCommunityFeeMasterRequest);
+
 		ResponseModel rs = new ResponseModel();
 		if (parkCommunityHallV1MasterList == null) {
 			rs.setStatus("400");
@@ -161,6 +166,22 @@ public class ParkAndCommunityController {
 		return ResponseEntity.ok(rs);
 	}
 
+	
+	@PostMapping("/amount/_fetch")
+	private ResponseEntity<?> fetchAmount(
+			@RequestBody ParkCommunityFeeMasterRequest parkCommunityFeeMasterRequest) {
+		
+		//bookingsFieldsValidator.validateGrndAvailabilityRequest(bookingsRequest);
+		
+		
+		ParkCommunityFeeMasterResponse res = parkAndCommunityService.fetchAmount(parkCommunityFeeMasterRequest);
+		ResponseModel rs = new ResponseModel();
+		rs.setStatus("200");
+		rs.setMessage("Amount Fetched");
+		rs.setData(res);
+		
+		return ResponseEntity.ok(rs);
+	}
 	
 	
 }
