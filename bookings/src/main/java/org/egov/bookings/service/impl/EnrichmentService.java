@@ -412,6 +412,7 @@ public class EnrichmentService {
 
 
 	public void enrichBookingsAssignee(BookingsRequest bookingsRequest) {
+		String businessService = bookingsRequest.getBookingsModel().getBusinessService();
 		SearchCriteriaFieldsDTO searchCriteriaFieldsDTO = new SearchCriteriaFieldsDTO();
 			searchCriteriaFieldsDTO.setApplicationNumber(bookingsRequest.getBookingsModel().getBkApplicationNumber());
 			searchCriteriaFieldsDTO.setAction(BookingsConstants.ACTION_INITIATE);
