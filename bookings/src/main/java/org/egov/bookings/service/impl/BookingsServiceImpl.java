@@ -16,7 +16,9 @@ import org.apache.log4j.Logger;
 import org.egov.bookings.config.BookingsConfiguration;
 import org.egov.bookings.contract.Booking;
 import org.egov.bookings.contract.BookingApprover;
+import org.egov.bookings.contract.BookingsRequestKafka;
 import org.egov.bookings.contract.MdmsJsonFields;
+import org.egov.bookings.contract.Message;
 import org.egov.bookings.contract.MessagesResponse;
 import org.egov.bookings.contract.ProcessInstanceSearchCriteria;
 import org.egov.bookings.contract.RequestInfoWrapper;
@@ -24,6 +26,7 @@ import org.egov.bookings.contract.UserDetails;
 import org.egov.bookings.dto.SearchCriteriaFieldsDTO;
 import org.egov.bookings.model.BookingsModel;
 import org.egov.bookings.model.OsbmApproverModel;
+import org.egov.bookings.producer.BookingsProducer;
 import org.egov.bookings.repository.BookingsRepository;
 import org.egov.bookings.repository.CommonRepository;
 import org.egov.bookings.repository.OsbmApproverRepository;
@@ -59,11 +62,7 @@ public class BookingsServiceImpl implements BookingsService {
 	/** The bookings repository. */
 	@Autowired
 	private BookingsRepository bookingsRepository;
-
-	/** The save topic. */
-	@Value("${kafka.topics.save.service}")
-	private String saveTopic;
-
+	
 	/** The config. */
 	@Autowired
 	private BookingsConfiguration config;
@@ -100,6 +99,9 @@ public class BookingsServiceImpl implements BookingsService {
 	@Autowired
 	private SMSNotificationService smsNotificationService;
 	
+	@Autowired
+	private BookingsProducer bookingsProducer;
+	
 	/** The mail notification service. */
 	/*@Autowired
 	private MailNotificationService mailNotificationService;
@@ -117,7 +119,6 @@ public class BookingsServiceImpl implements BookingsService {
 	 */
 	@Override
 	public BookingsModel save(BookingsRequest bookingsRequest) {
-		BookingsModel bookingsModel = null;
 			boolean flag = isBookingExists(bookingsRequest.getBookingsModel().getBkApplicationNumber());
 
 			if (!flag)
@@ -132,28 +133,77 @@ public class BookingsServiceImpl implements BookingsService {
 				if (!flag)
 					workflowIntegrator.callWorkFlow(bookingsRequest);
 			}
-			// bookingsProducer.push(saveTopic, bookingsRequest.getBookingsModel());
 			enrichmentService.enrichBookingsDetails(bookingsRequest);
-			bookingsModel = bookingsRepository.save(bookingsRequest.getBookingsModel());
-			bookingsRequest.setBookingsModel(bookingsModel);
-
-		/*if (!BookingsFieldsValidator.isNullOrEmpty(bookingsModel)
-				&& !"INITIATED".equals(bookingsModel.getBkApplicationStatus())) {
 			try {
-				Map<String, MdmsJsonFields> mdmsJsonFieldsMap = mdmsJsonField(bookingsRequest);
-				String notificationMsg = prepareSMSNotifMsgForCreate(bookingsModel, mdmsJsonFieldsMap);
-				smsNotificationService.sendSMS(notificationMsg);
-				String mailSubject = prepareMailSubjectForCreate(bookingsModel, mdmsJsonFieldsMap);
-				notificationMsg = prepareMailNotifMsgForCreate(bookingsModel, mdmsJsonFieldsMap);
-				mailNotificationService.sendMail(bookingsModel.getBkEmail(), notificationMsg, mailSubject);
-			} catch (Exception e) {
-				throw new CustomException("NOTIFICATION_ERROR", e.getMessage());
+			BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
+			bookingsProducer.push(config.getSaveBookingTopic(), kafkaBookingRequest);
+			}catch (Exception e) {
+				throw new IllegalArgumentException(e.getLocalizedMessage());
 			}
-		}
-*/
-		return bookingsModel;
+			//bookingsModel = bookingsRepository.save(bookingsRequest.getBookingsModel());
+			//bookingsRequest.setBookingsModel(bookingsModel);
+
+			if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel())) {
+				Map<String, MdmsJsonFields> mdmsJsonFieldsMap = mdmsJsonField(bookingsRequest);
+				if (!BookingsFieldsValidator.isNullOrEmpty(mdmsJsonFieldsMap)) {
+					bookingsRequest.getBookingsModel().setBkBookingType(mdmsJsonFieldsMap.get(bookingsRequest.getBookingsModel().getBkBookingType()).getName());
+					//bookingsProducer.push(config.getSaveTopic(), bookingsRequest);
+				}
+			}
+
+			
+		return bookingsRequest.getBookingsModel();
 
 	}
+	
+	
+	
+	/**
+	 * Prepare application status.
+	 *
+	 * @param requestInfo the request info
+	 * @param bookingsModel the bookings model
+	 * @return the string
+	 */
+	public String prepareApplicationStatus(RequestInfo requestInfo, BookingsModel bookingsModel) {
+		MessagesResponse messageResponse = getLocalizationMessage(requestInfo);
+		String applicationStatus = "";
+		String status = "";
+		if(!BookingsFieldsValidator.isNullOrEmpty(messageResponse))
+		{
+			if (BookingsConstants.BUSINESS_SERVICE_OSBM.equals(bookingsModel.getBusinessService())) {
+				applicationStatus = "BK_WF_OSBM_" + bookingsModel.getBkApplicationStatus();
+			}
+			else if(BookingsConstants.BUSINESS_SERVICE_BWT.equals(bookingsModel.getBusinessService())) {
+				applicationStatus = "BK_WF_BWT_" + bookingsModel.getBkApplicationStatus();
+			}
+			else if(BookingsConstants.BUSINESS_SERVICE_GFCP.equals(bookingsModel.getBusinessService())) {
+				if(BookingsConstants.INITIATED.equals(bookingsModel.getBkApplicationStatus())) {
+					applicationStatus = "BK_" + bookingsModel.getBkApplicationStatus();
+				}
+				else {
+					applicationStatus = "BK_CGB_" + bookingsModel.getBkApplicationStatus();
+				}
+			}
+			else if(BookingsConstants.BUSINESS_SERVICE_OSUJM.equals(bookingsModel.getBusinessService())) {
+				applicationStatus = "BK_WF_OSUJM_" + bookingsModel.getBkApplicationStatus();
+			}
+			else if(BookingsConstants.BUSINESS_SERVICE_PACC.equals(bookingsModel.getBusinessService())) {
+				applicationStatus = "BK_WF_PACC_" + bookingsModel.getBkApplicationStatus();
+			}
+			else if(BookingsConstants.BUSINESS_SERVICE_NLUJM.equals(bookingsModel.getBusinessService())) {
+				applicationStatus = "BK_WF_NLUJM_" + bookingsModel.getBkApplicationStatus();
+			}
+			for (Message message : messageResponse.getMessages()) {
+				if(message.getCode().equals(applicationStatus)){
+					status = message.getMessage();
+				}
+			}
+		}
+		return status;
+	}
+	
+	
 	
 	/**
 	 * Gets the localization message.
@@ -579,14 +629,15 @@ public class BookingsServiceImpl implements BookingsService {
 		if (config.getIsExternalWorkFlowEnabled())
 			workflowIntegrator.callWorkFlow(bookingsRequest);
 
-		// bookingsProducer.push(saveTopic, bookingsRequest.getBookingsModel());
-		// bookingsRequest.getBookingsModel().setUuid(bookingsRequest.getRequestInfo().getUserInfo().getUuid());
 		BookingsModel bookingsModel = null;
 			if (!BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())
 					&& BookingsConstants.BUSINESS_SERVICE_OSBM.equals(businessService)) {
 
 				bookingsModel = enrichmentService.enrichOsbmDetails(bookingsRequest);
-				bookingsModel = bookingsRepository.save(bookingsModel);
+				bookingsRequest.setBookingsModel(bookingsModel);
+				BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
+				bookingsProducer.push(config.getUpdateBookingTopic(), kafkaBookingRequest);
+				//bookingsModel = bookingsRepository.save(bookingsModel);
 
 			}
 
@@ -594,52 +645,40 @@ public class BookingsServiceImpl implements BookingsService {
 					&& BookingsConstants.BUSINESS_SERVICE_BWT.equals(businessService)) {
 
 				bookingsModel = enrichmentService.enrichBwtDetails(bookingsRequest);
-				bookingsModel = bookingsRepository.save(bookingsModel);
+				bookingsRequest.setBookingsModel(bookingsModel);
+				BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
+				bookingsProducer.push(config.getUpdateBookingTopic(), kafkaBookingRequest);
+				//bookingsModel = bookingsRepository.save(bookingsModel);
 
 			}
 			else if(!BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())
 					&& BookingsConstants.BUSINESS_SERVICE_OSUJM.equals(businessService)){
 				bookingsModel = enrichmentService.enrichOsujmDetails(bookingsRequest);
-				bookingsModel = bookingsRepository.save(bookingsModel);
+				bookingsRequest.setBookingsModel(bookingsModel);
+				BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
+				bookingsProducer.push(config.getUpdateBookingTopic(), kafkaBookingRequest);
+				//bookingsModel = bookingsRepository.save(bookingsModel);
 				if(BookingsConstants.PAY.equals(bookingsRequest.getBookingsModel().getBkAction())){
 					config.setJurisdictionLock(true);
 				}
 			}
 			else {
-				bookingsModel = bookingsRepository.save(bookingsRequest.getBookingsModel());
+				BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
+				bookingsProducer.push(config.getUpdateBookingTopic(), kafkaBookingRequest);
+				//bookingsModel = bookingsRepository.save(bookingsRequest.getBookingsModel());
 				if(BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction()) && BookingsConstants.BUSINESS_SERVICE_GFCP.equals(businessService)){
 					config.setCommercialLock(true);
 				}
 			}
 		
-		
-			/*MessagesResponse messageResponse = getLocalizationMessage(bookingsRequest.getRequestInfo());
-
-			String bkApplicationStatus = "";
-			if(!BookingsFieldsValidator.isNullOrEmpty(messageResponse))
-			{
-				for (Message message : messageResponse.getMessages()) {
-					if(bookingsModel.getBkApplicationStatus().equals(message.getCode()))
-					{
-						bkApplicationStatus = message.getMessage();
-						break;
-					}
+			if (!BookingsFieldsValidator.isNullOrEmpty(bookingsModel)) {
+				Map<String, MdmsJsonFields> mdmsJsonFieldsMap = mdmsJsonField(bookingsRequest);
+				if (!BookingsFieldsValidator.isNullOrEmpty(mdmsJsonFieldsMap)) {
+					bookingsRequest.getBookingsModel().setBkBookingType(mdmsJsonFieldsMap.get(bookingsModel.getBkBookingType()).getName());
+					//bookingsProducer.push(config.getUpdateTopic(), bookingsRequest);
 				}
 			}
-			if(!BookingsFieldsValidator.isNullOrEmpty(bookingsModel))
-			{
-				try {
-					Map<String, MdmsJsonFields> mdmsJsonFieldsMap = mdmsJsonField(bookingsRequest);
-					String notificationMsg = prepareSMSNotifMsgForUpdate(bookingsModel, mdmsJsonFieldsMap, bkApplicationStatus);
-					smsNotificationService.sendSMS(notificationMsg);
-					String mailSubject = prepareMailSubjectForUpdate(bookingsModel, mdmsJsonFieldsMap);
-					notificationMsg = prepareMailNotifMsgForUpdate(bookingsModel, mdmsJsonFieldsMap, bkApplicationStatus);
-//					mailNotificationService.sendMail(bookingsModel.getBkEmail(), notificationMsg, mailSubject);
-				} catch (Exception e) {
-					throw new CustomException("NOTIFICATION_ERROR", e.getMessage());
-				}
-			}
-*/		return bookingsModel;
+					return bookingsRequest.getBookingsModel();
 	}
 
 	/**
