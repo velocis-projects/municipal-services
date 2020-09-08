@@ -478,7 +478,13 @@ VALUES(9, 451, 1000, 30, 'SECTOR-22', '3rd');
 
 
 
-
+CREATE TABLE public.tl_timeslots (
+	id varchar(255) NOT NULL,
+	application_number varchar(255) NULL,
+	slot varchar(255) NULL,
+	CONSTRAINT tl_timeslots_pkey PRIMARY KEY (id),
+	CONSTRAINT fkq3y7wk83280jbvrdb63hltxrv FOREIGN KEY (application_number) REFERENCES public.tt_bookings(bk_application_number)
+);
 
 
 
