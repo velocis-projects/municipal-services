@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -89,11 +90,10 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 	 */
 	@Override
 	public BookingsModel createParkAndCommunityBooking(BookingsRequest bookingsRequest) {
-		try {
 		boolean flag = bookingService.isBookingExists(bookingsRequest.getBookingsModel().getBkApplicationNumber());
-
+		
 		if (!flag)
-			enrichmentService.enrichBookingsCreateRequest(bookingsRequest);
+			enrichmentService.enrichParkCommunityCreateRequest(bookingsRequest);
 		enrichmentService.generateDemand(bookingsRequest);
 
 		if (config.getIsExternalWorkFlowEnabled()) {
@@ -101,14 +101,15 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 				workflowIntegrator.callWorkFlow(bookingsRequest);
 		}
 		enrichmentService.enrichBookingsDetails(bookingsRequest);
-		
+		try {
 		BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
 		bookingsProducer.push(config.getSaveBookingTopic(), kafkaBookingRequest);
-		//bookingsModel = parkAndCommunityRepository.save(bookingsRequest.getBookingsModel());
+		}catch (Exception e) {
+			throw new CustomException("PARK_COMMUNITY_CREATE_ERROR",e.getLocalizedMessage());
+		}
+		//parkAndCommunityRepository.save(bookingsRequest.getBookingsModel());
 		if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel())) {
-			//bookingsProducer.push(config.getUpdateTopic(), bookingsRequest);
-		}}catch (Exception e) {
-			throw new CustomException("PARK_COOMUNITY_CREATE_ERROR", e.getLocalizedMessage());
+			bookingsProducer.push(config.getSaveBookingSMSTopic(), bookingsRequest);
 		}
 		return bookingsRequest.getBookingsModel();
 	}
@@ -149,7 +150,7 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 			//bookingsModel = parkAndCommunityRepository.save(bookingsRequest.getBookingsModel());
 		}
 		if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel())) {
-			//bookingsProducer.push(config.getUpdateTopic(), bookingsRequest);
+			bookingsProducer.push(config.getUpdateBookingSMSTopic(), bookingsRequest);
 		}
 		return bookingsRequest.getBookingsModel();
 	}
@@ -188,7 +189,7 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 		if (null != bookingsModel) {
 			for (BookingsModel bkModel : bookingsModel) {
 				bookedDates.add(AvailabilityResponse.builder().fromDate(bkModel.getBkFromDate())
-						.toDate(bkModel.getBkToDate()).build());
+						.toDate(bkModel.getBkToDate()).timeslots(bkModel.getTimeslots()).build());
 			}
 		}
 		return bookedDates;
