@@ -3,6 +3,7 @@ package org.egov.bookings.model;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -47,6 +48,10 @@ public class BookingsModel {
 	@Column(name = "BK_HOUSE_NO")
 	private String bkHouseNo;
 
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name = "application_number")
+	private List<TimeslotsModel> timeslots;
+	
 	@JsonProperty("bkAddress")
 	@Column(name = "BK_ADDRESS")
 	private String bkAddress;
@@ -391,6 +396,13 @@ public class BookingsModel {
     @Size(max=64)
     @JsonProperty("financialYear")
     private String financialYear = null;
+    
+    @Column(name = "BK_TO_TIME")
+	private String bkToTime;
+	
+	@Column(name = "BK_FROM_TIME")
+	private String bkFromTime;
+    
 	
 
 }
