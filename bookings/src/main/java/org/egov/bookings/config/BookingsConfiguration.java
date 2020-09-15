@@ -86,6 +86,18 @@ public class BookingsConfiguration {
 
 	@Value("${kafka.topics.update.approver.service}")
 	private String updateApproverTopic;
+	
+	@Value("${kafka.topics.save.osbm.fee.service}")
+	private String saveOsbmFeeTopic;
+
+	@Value("${kafka.topics.update.osbm.fee.service}")
+	private String updateOsbmFeeTopic;
+	
+	@Value("${kafka.topics.save.osujm.fee.service}")
+	private String saveOsujmFeeTopic;
+
+	@Value("${kafka.topics.update.osujm.fee.service}")
+	private String updateOsujmFeeTopic;
 
 	@Value("${kafka.topics.notification.sms}")
 	private String smsNotifTopic;
@@ -169,8 +181,8 @@ public class BookingsConfiguration {
 	@Value("${egov.lock.commercial.payment}")
 	private boolean commercialLock;
 
-	@Value("${egov.lock.park.and.commercial.payment}")
-	private boolean parkAndCommercialLock;
+	@Value("${egov.lock.park.and.community.payment}")
+	private boolean parkAndCommunityLock;
 
 	@Value("${kafka.topics.save.service}")
 	private String saveBookingTopic;
