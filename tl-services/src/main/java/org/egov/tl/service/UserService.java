@@ -353,8 +353,10 @@ public class UserService{
         try {
             d = f.parse(date);
         } catch (ParseException e) {
-            e.printStackTrace();
+            log.error("Error: "+e);
         }
+        if(d == null)
+        	throw new CustomException("DATE PARSING ERROR", String.format("Can not Parse the date  %s", date));
         return  d.getTime();
     }
 
