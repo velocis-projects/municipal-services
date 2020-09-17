@@ -373,18 +373,19 @@ public class BookingsServiceImpl implements BookingsService {
 			Date toDate = searchCriteriaFieldsDTO.getToDate();
 			String uuid = searchCriteriaFieldsDTO.getUuid();
 			String bookingType = searchCriteriaFieldsDTO.getBookingType();
-			if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO.getRequestInfo()) 
-					|| BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO.getRequestInfo().getUserInfo())) {
-				throw new IllegalArgumentException("Invalid request info details");
+			if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO.getRequestInfo())) {
+				throw new IllegalArgumentException("Invalid RequestInfo");
 			}
-			List< Role > roles = searchCriteriaFieldsDTO.getRequestInfo().getUserInfo().getRoles();
+			if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO.getRequestInfo().getUserInfo())) {
+				throw new IllegalArgumentException("Invalid UserInfo");
+			}
 			if (BookingsFieldsValidator.isNullOrEmpty(tenantId)) {
 				throw new IllegalArgumentException("Invalid tentantId");
 			}
 			if (BookingsFieldsValidator.isNullOrEmpty(uuid)) {
 				throw new IllegalArgumentException("Invalid uuId");
 			}
-			
+			List< Role > roles = searchCriteriaFieldsDTO.getRequestInfo().getUserInfo().getRoles();
 			if (BookingsFieldsValidator.isNullOrEmpty(roles)) {
 				throw new IllegalArgumentException("Invalid roles");
 			}
