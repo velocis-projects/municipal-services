@@ -173,7 +173,7 @@ public class PaymentNotificationService {
                 }
         }
         catch (Exception e){
-        	log.error("Failed to notify the payment information to payer:"+e);
+        	log.error("Failed to notify the payment information to payer ",e);
         }
     }
     /**
@@ -328,7 +328,7 @@ public class PaymentNotificationService {
             valMap.put(payerName,context.read("$.Payment.payerName"));
         }
         catch (Exception e){
-        	log.error("Error:"+e);
+        	log.error("Error while fetching payment reciept values ",e);
             throw new CustomException("RECEIPT ERROR","Unable to fetch values from receipt");
         }
         return valMap;
