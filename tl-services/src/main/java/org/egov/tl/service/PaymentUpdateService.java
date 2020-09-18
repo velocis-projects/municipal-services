@@ -179,7 +179,7 @@ public class PaymentUpdateService {
 			}
 		 }
 		} catch (Exception e) {
-			log.error("Error:"+e);
+			log.error("Error while processing the payment ",e);
 		}
 
 	}
@@ -259,7 +259,7 @@ public class PaymentUpdateService {
 			valMap.put(consumerCode, context.read("$.Payments.*.paymentDetails[?(@.businessService=='TL')].bill.consumerCode"));
 			valMap.put(tenantId, context.read("$.Payments[0].tenantId"));
 		} catch (Exception e) {
-			log.error("Error:"+e);
+			log.error("Error while reading document context ",e);
 			throw new CustomException("PAYMENT ERROR", "Unable to fetch values from payment");
 		}
 		return valMap;
