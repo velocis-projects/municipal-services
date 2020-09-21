@@ -40,13 +40,13 @@ public class BookingsQueryBuilder {
 			+ " where businessid = :applicationNumber";
 	
 	/** The Constant CHECK_COMMERCIAL_GROUND_AVAILABILITY. */
-	public static final String CHECK_COMMERCIAL_GROUND_AVAILABILITY = "select * from tt_bookings where bk_booking_venue =:bookingVenue and bk_Booking_Type =:bookingType  and bk_to_date >= :date and bk_action =:APPLY";
+	public static final String CHECK_COMMERCIAL_GROUND_AVAILABILITY = "select * from bk_bookings where bk_booking_venue =:bookingVenue and bk_Booking_Type =:bookingType  and bk_to_date >= :date and bk_action =:APPLY";
 	
 	/** The Constant FIND_JURISDICTION_AMOUNT. */
 	public static final String FIND_JURISDICTION_AMOUNT = "select * from bk_osujm_fee where area_from <= :area and area_to >= :area and sector = :sector";
 	
 	/** The Constant CHECK_JURISDICTION_AVAILABILITY. */
-	public static final String CHECK_JURISDICTION_AVAILABILITY = "select * from tt_bookings where bk_booking_venue =:bookingVenue and bk_Booking_Type =:bookingType  and bk_sector = :bkSector  and bk_to_date >= :date and bk_action =:PAY";
+	public static final String CHECK_JURISDICTION_AVAILABILITY = "select * from bk_bookings where bk_booking_venue =:bookingVenue and bk_Booking_Type =:bookingType  and bk_sector = :bkSector  and bk_to_date >= :date and bk_action =:PAY";
 	/** The Constant FIND_DOCUMENTS. */
 	public static final String FIND_DOCUMENTS = "select distinct ef.filestoreid, ef.filename, ewd.documenttype from eg_filestoremap as ef"
 			+ " inner join eg_wf_document_v2 as ewd on ewd.filestoreid = ef.filestoreid"
@@ -70,5 +70,5 @@ public class BookingsQueryBuilder {
 	/** The Constant CHECK_PARK_AND_COMMUNITY_AVAILABILITY. */
 
 	/** The Constant CHECK_PARK_AND_COMMUNITY_AVAILABILITY. */
-	public static final String CHECK_PARK_AND_COMMUNITY_AVAILABILITY = "select * from tt_bookings where bk_booking_venue =:bookingVenue and bk_Booking_Type =:bookingType and bk_sector =:sector and bk_to_date >= :date and bk_action =:APPLY";
+	public static final String CHECK_PARK_AND_COMMUNITY_AVAILABILITY = "select * from bk_bookings where bk_booking_venue =:bookingVenue and bk_Booking_Type =:bookingType and bk_sector =:sector and bk_to_date >= :date and bk_action =:APPLY";
 }
