@@ -451,8 +451,13 @@ public class NotificationUtil {
 	 *            Message from localization
 	 * @return message for completed payment for owners
 	 */
-	public String getCTLOwnerPaymentMsg(TradeLicense license, Map<String, String> valMap, String localizationMessages) {
-		String messageTemplate = getMessageTemplate(CTLConstants.CTL_NOTIFICATION_PAYMENT_OWNER, localizationMessages);
+	public String getCTLOwnerPaymentMsg(TradeLicense license, Map<String, String> valMap, String localizationMessages,String notificationType) {
+		String messageTemplate=null;
+		if(notificationType.equalsIgnoreCase(CTLConstants.MAIL_NOTIFICATION)){
+			 messageTemplate = getMessageTemplate(CTLConstants.CTL_NOTIFICATION_PAYMENT_OWNER_EMAIL, localizationMessages);
+		}else{
+			 messageTemplate = getMessageTemplate(CTLConstants.CTL_NOTIFICATION_PAYMENT_OWNER, localizationMessages);
+		}
 		messageTemplate = messageTemplate.replace("<3>", getMessageTemplate(license.getBusinessService(), localizationMessages));
 		messageTemplate = messageTemplate.replace("<2>", license.getApplicationNumber());
 		messageTemplate = messageTemplate.replace("<4>", license.getLicenseNumber());
@@ -540,8 +545,7 @@ public class NotificationUtil {
 		if (isEMAILEnabled) {
 			this.sendEMAIL(emailRequestList.stream().map(
 				request -> {
-					String body = new StringBuilder(request.getBody()).append(emailSignature).toString();
-					body = body.replace("\\n", "<br/>");
+					String body = request.getBody();
 					return EmailRequest.builder()
 						.isHTML(true)
 						.attachments(request.getAttachments())
