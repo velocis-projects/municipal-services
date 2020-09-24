@@ -124,7 +124,7 @@ public class DemandServiceImpl implements DemandService {
 		List<Demand> demands = new LinkedList<>();
 		List<DemandDetail> demandDetails = new LinkedList<>();
 		try {
-			String tenantId = bookingsRequest.getRequestInfo().getUserInfo().getTenantId();
+			String tenantId = bookingsRequest.getBookingsModel().getTenantId();
 
 			String taxHeadCode1 = BookingsCalculatorConstants.PACC_TAX_CODE_1;
 
@@ -154,7 +154,7 @@ public class DemandServiceImpl implements DemandService {
 					.consumerCode(bookingsRequest.getBookingsModel().getBkApplicationNumber())
 					.demandDetails(demandDetails).payer(bookingsRequest.getRequestInfo().getUserInfo())
 					.minimumAmountPayable(config.getMinimumPayableAmount())
-					.tenantId(bookingsRequest.getRequestInfo().getUserInfo().getTenantId()).taxPeriodFrom(taxPeriodFrom)
+					.tenantId(tenantId).taxPeriodFrom(taxPeriodFrom)
 					.taxPeriodTo(taxPeriodTo).consumerType("bookings")
 					.businessService(bookingsRequest.getBookingsModel().getBusinessService())
 					.additionalDetails(Collections.singletonMap("calculationDes1cription", combinedBillingSlabs))
@@ -174,7 +174,7 @@ public class DemandServiceImpl implements DemandService {
 		List<Demand> demands = new LinkedList<>();
 		List<DemandDetail> demandDetails = new LinkedList<>();
 		try {
-			String tenantId = bookingsRequest.getRequestInfo().getUserInfo().getTenantId();
+			String tenantId = bookingsRequest.getBookingsModel().getTenantId();
 
 			String taxHeadCode1 = BookingsCalculatorConstants.OSUJM_TAX_CODE_1;
 
@@ -206,7 +206,7 @@ public class DemandServiceImpl implements DemandService {
 					.consumerCode(bookingsRequest.getBookingsModel().getBkApplicationNumber())
 					.demandDetails(demandDetails).payer(bookingsRequest.getRequestInfo().getUserInfo())
 					.minimumAmountPayable(config.getMinimumPayableAmount())
-					.tenantId(bookingsRequest.getRequestInfo().getUserInfo().getTenantId()).taxPeriodFrom(taxPeriodFrom)
+					.tenantId(tenantId).taxPeriodFrom(taxPeriodFrom)
 					.taxPeriodTo(taxPeriodTo).consumerType("bookings")
 					.businessService(bookingsRequest.getBookingsModel().getBusinessService())
 					.additionalDetails(Collections.singletonMap("calculationDes1cription", combinedBillingSlabs))
@@ -231,7 +231,7 @@ public class DemandServiceImpl implements DemandService {
 		List<Demand> demands = new LinkedList<>();
 		List<DemandDetail> demandDetails = new LinkedList<>();
 		try {
-			String tenantId = bookingsRequest.getRequestInfo().getUserInfo().getTenantId();
+			String tenantId = bookingsRequest.getBookingsModel().getTenantId();
 
 			String taxHeadCode1 = BookingsCalculatorConstants.OSBM_TAXHEAD_CODE_1;
 
@@ -265,7 +265,7 @@ public class DemandServiceImpl implements DemandService {
 					.consumerCode(bookingsRequest.getBookingsModel().getBkApplicationNumber())
 					.demandDetails(demandDetails).payer(bookingsRequest.getRequestInfo().getUserInfo())
 					.minimumAmountPayable(config.getMinimumPayableAmount())
-					.tenantId(bookingsRequest.getRequestInfo().getUserInfo().getTenantId()).taxPeriodFrom(taxPeriodFrom)
+					.tenantId(tenantId).taxPeriodFrom(taxPeriodFrom)
 					.taxPeriodTo(taxPeriodTo).consumerType("bookings")
 					.businessService(bookingsRequest.getBookingsModel().getBusinessService())
 					.additionalDetails(Collections.singletonMap("calculationDes1cription", combinedBillingSlabs))
@@ -290,7 +290,7 @@ public class DemandServiceImpl implements DemandService {
 		List<Demand> demands = new LinkedList<>();
 		List<DemandDetail> demandDetails = new LinkedList<>();
 		try {
-			String tenantId = bookingsRequest.getRequestInfo().getUserInfo().getTenantId();
+			String tenantId = bookingsRequest.getBookingsModel().getTenantId();
 
 			String taxHeadCode1 = BookingsCalculatorConstants.BWT_TAXHEAD_CODE_1;
 
@@ -322,7 +322,7 @@ public class DemandServiceImpl implements DemandService {
 					.consumerCode(bookingsRequest.getBookingsModel().getBkApplicationNumber())
 					.demandDetails(demandDetails).payer(bookingsRequest.getRequestInfo().getUserInfo())
 					.minimumAmountPayable(config.getMinimumPayableAmount())
-					.tenantId(bookingsRequest.getRequestInfo().getUserInfo().getTenantId()).taxPeriodFrom(taxPeriodFrom)
+					.tenantId(tenantId).taxPeriodFrom(taxPeriodFrom)
 					.taxPeriodTo(taxPeriodTo).consumerType("bookings")
 					.businessService(bookingsRequest.getBookingsModel().getBusinessService())
 					.additionalDetails(Collections.singletonMap("calculationDes1cription", combinedBillingSlabs))
@@ -341,7 +341,7 @@ public class DemandServiceImpl implements DemandService {
 		List<Demand> demands = new LinkedList<>();
 		List<DemandDetail> demandDetails = new LinkedList<>();
 		try {
-			String tenantId = bookingsRequest.getRequestInfo().getUserInfo().getTenantId();
+			String tenantId = bookingsRequest.getBookingsModel().getTenantId();
 
 			String taxHeadCode1 = BookingsCalculatorConstants.GFCP_TAX_CODE_1;
 
@@ -374,7 +374,7 @@ public class DemandServiceImpl implements DemandService {
 					.consumerCode(bookingsRequest.getBookingsModel().getBkApplicationNumber())
 					.demandDetails(demandDetails).payer(bookingsRequest.getRequestInfo().getUserInfo())
 					.minimumAmountPayable(config.getMinimumPayableAmount())
-					.tenantId(bookingsRequest.getRequestInfo().getUserInfo().getTenantId()).taxPeriodFrom(taxPeriodFrom)
+					.tenantId(tenantId).taxPeriodFrom(taxPeriodFrom)
 					.taxPeriodTo(taxPeriodTo).consumerType("bookings")
 					.businessService(bookingsRequest.getBookingsModel().getBusinessService())
 					.additionalDetails(Collections.singletonMap("calculationDes1cription", combinedBillingSlabs))
@@ -488,7 +488,7 @@ public class DemandServiceImpl implements DemandService {
 
 		RequestInfo requestInfo = bookingsRequest.getRequestInfo();
 
-		List<Demand> searchResult = searchDemand(requestInfo.getUserInfo().getTenantId(),
+		List<Demand> searchResult = searchDemand(bookingsRequest.getBookingsModel().getTenantId(),
 				Collections.singleton(bookingsRequest.getBookingsModel().getBkApplicationNumber()), requestInfo,
 				bookingsRequest.getBookingsModel().getBusinessService());
 
@@ -527,7 +527,7 @@ public class DemandServiceImpl implements DemandService {
 
 		RequestInfo requestInfo = bookingsRequest.getRequestInfo();
 
-		List<Demand> searchResult = searchDemand(requestInfo.getUserInfo().getTenantId(),
+		List<Demand> searchResult = searchDemand(bookingsRequest.getBookingsModel().getTenantId(),
 				Collections.singleton(bookingsRequest.getBookingsModel().getBkApplicationNumber()), requestInfo,
 				bookingsRequest.getBookingsModel().getBusinessService());
 
@@ -556,7 +556,7 @@ public class DemandServiceImpl implements DemandService {
 
 	private List<Demand> updateDemandsForOsbm(BookingsRequest bookingsRequest) {
 		List<Demand> demands = new LinkedList<>();
-		String tenantId = bookingsRequest.getRequestInfo().getUserInfo().getTenantId();
+		String tenantId = bookingsRequest.getBookingsModel().getTenantId();
 
 		String taxHeadCode1 = BookingsCalculatorConstants.OSBM_TAXHEAD_CODE_1;
 
@@ -606,7 +606,7 @@ public class DemandServiceImpl implements DemandService {
 
 		RequestInfo requestInfo = bookingsRequest.getRequestInfo();
 
-		List<Demand> searchResult = searchDemand(requestInfo.getUserInfo().getTenantId(),
+		List<Demand> searchResult = searchDemand(bookingsRequest.getBookingsModel().getTenantId(),
 				Collections.singleton(bookingsRequest.getBookingsModel().getBkApplicationNumber()), requestInfo,
 				bookingsRequest.getBookingsModel().getBusinessService());
 
@@ -662,7 +662,7 @@ public class DemandServiceImpl implements DemandService {
 		for (TaxHeadEstimate taxHeadEstimate : taxHeadEstimate1) {
 			if (!taxHeadToDemandDetail.containsKey(taxHeadEstimate.getTaxHeadCode()))
 				newDemandDetails.add(DemandDetail.builder().taxAmount(taxHeadEstimate.getEstimateAmount())
-						.taxHeadMasterCode(taxHeadEstimate.getTaxHeadCode()).tenantId("ch")
+						.taxHeadMasterCode(taxHeadEstimate.getTaxHeadCode()).tenantId(demandDetails.get(0).getTenantId())
 						.collectionAmount(BigDecimal.ZERO).build());
 			else {
 				demandDetailList = taxHeadToDemandDetail.get(taxHeadEstimate.getTaxHeadCode());
@@ -671,7 +671,7 @@ public class DemandServiceImpl implements DemandService {
 				diffInTaxAmount = taxHeadEstimate.getEstimateAmount().subtract(total);
 				if (diffInTaxAmount.compareTo(BigDecimal.ZERO) != 0) {
 					newDemandDetails.add(DemandDetail.builder().taxAmount(diffInTaxAmount)
-							.taxHeadMasterCode(taxHeadEstimate.getTaxHeadCode()).tenantId("ch")
+							.taxHeadMasterCode(taxHeadEstimate.getTaxHeadCode()).tenantId(demandDetails.get(0).getTenantId())
 							.collectionAmount(BigDecimal.ZERO).build());
 				}
 			}
