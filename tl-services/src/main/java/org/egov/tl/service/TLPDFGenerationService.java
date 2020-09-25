@@ -64,7 +64,7 @@ public class TLPDFGenerationService {
 		);
 		
 		//Transform the tax head codes that start with TL_ for localisation.
-        JSONArray lineItems = documentContext.read("$.Payment.paymentDetails[?(@.businessService=='CTL.REHRI_REGISTRATION')].bill.billDetails[0].billAccountDetails[?(@.order >= 0)]");
+        JSONArray lineItems = documentContext.read("$.Payment.paymentDetails[?(@.businessService=='"+license.getBusinessService()+"')].bill.billDetails[0].billAccountDetails[?(@.order >= 0)]");
         
         for (int i = 0; i < lineItems.size(); i++) {
         	Map<String, Object> map = (Map<String, Object>) lineItems.get(i);
