@@ -136,7 +136,7 @@ public class BookingsServiceImpl implements BookingsService {
 			}
 			//bookingsModel = bookingsRepository.save(bookingsRequest.getBookingsModel());
 			//bookingsRequest.setBookingsModel(bookingsModel);
-
+			String applicationStatus = bookingsRequest.getBookingsModel().getBkBookingType();
 			if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel())) {
 				Map<String, MdmsJsonFields> mdmsJsonFieldsMap = mdmsJsonField(bookingsRequest);
 				if (!BookingsFieldsValidator.isNullOrEmpty(mdmsJsonFieldsMap)) {
@@ -146,6 +146,7 @@ public class BookingsServiceImpl implements BookingsService {
 					bookingsProducer.push(config.getSaveBookingSMSTopic(), bookingsRequest);
 				}
 			}
+		bookingsRequest.getBookingsModel().setBkBookingType(applicationStatus);
 		return bookingsRequest.getBookingsModel();
 
 	}
@@ -557,6 +558,7 @@ public class BookingsServiceImpl implements BookingsService {
 					config.setCommercialLock(true);
 				}
 			}
+			String applicationStatus = bookingsRequest.getBookingsModel().getBkBookingType();
 			if (!BookingsFieldsValidator.isNullOrEmpty(bookingsModel)) {
 				Map<String, MdmsJsonFields> mdmsJsonFieldsMap = mdmsJsonField(bookingsRequest);
 				if (!BookingsFieldsValidator.isNullOrEmpty(mdmsJsonFieldsMap)) {
@@ -564,6 +566,7 @@ public class BookingsServiceImpl implements BookingsService {
 					bookingsProducer.push(config.getUpdateBookingSMSTopic(), bookingsRequest);
 				}
 			}
+		bookingsRequest.getBookingsModel().setBkBookingType(applicationStatus);	
 		return bookingsRequest.getBookingsModel();
 	}
 
@@ -792,14 +795,14 @@ public class BookingsServiceImpl implements BookingsService {
 				if (!BookingsFieldsValidator.isNullOrEmpty(approverArray)) {
 					for (String approver : approverArray) {
 						if (!BookingsConstants.CITIZEN.equals(approver)) {
-							userId = commonRepository.findUserId(approver);
-							if (!BookingsFieldsValidator.isNullOrEmpty(userId)) {
-								userList = commonRepository.findUserList(userId);
-							}
-							if (!BookingsFieldsValidator.isNullOrEmpty(userList)) {
-								userDetailsList = prepareUserList(userList, sector);
-							}
+							userId.addAll(commonRepository.findUserId(approver));
 						}
+					}
+					if (!BookingsFieldsValidator.isNullOrEmpty(userId)) {
+						userList = commonRepository.findUserList(userId);
+					}
+					if (!BookingsFieldsValidator.isNullOrEmpty(userList)) {
+						userDetailsList = prepareUserList(userList, sector);
 					}
 				}
 			}
