@@ -136,7 +136,7 @@ public class BookingsServiceImpl implements BookingsService {
 			}
 			//bookingsModel = bookingsRepository.save(bookingsRequest.getBookingsModel());
 			//bookingsRequest.setBookingsModel(bookingsModel);
-			String applicationStatus = bookingsRequest.getBookingsModel().getBkBookingType();
+			String bookingType = bookingsRequest.getBookingsModel().getBkBookingType();
 			if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel())) {
 				Map<String, MdmsJsonFields> mdmsJsonFieldsMap = mdmsJsonField(bookingsRequest);
 				if (!BookingsFieldsValidator.isNullOrEmpty(mdmsJsonFieldsMap)) {
@@ -146,7 +146,7 @@ public class BookingsServiceImpl implements BookingsService {
 					bookingsProducer.push(config.getSaveBookingSMSTopic(), bookingsRequest);
 				}
 			}
-		bookingsRequest.getBookingsModel().setBkBookingType(applicationStatus);
+		bookingsRequest.getBookingsModel().setBkBookingType(bookingType);
 		return bookingsRequest.getBookingsModel();
 
 	}
@@ -558,7 +558,7 @@ public class BookingsServiceImpl implements BookingsService {
 					config.setCommercialLock(true);
 				}
 			}
-			String applicationStatus = bookingsRequest.getBookingsModel().getBkBookingType();
+			String bookingType = bookingsRequest.getBookingsModel().getBkBookingType();
 			if (!BookingsFieldsValidator.isNullOrEmpty(bookingsModel)) {
 				Map<String, MdmsJsonFields> mdmsJsonFieldsMap = mdmsJsonField(bookingsRequest);
 				if (!BookingsFieldsValidator.isNullOrEmpty(mdmsJsonFieldsMap)) {
@@ -566,7 +566,7 @@ public class BookingsServiceImpl implements BookingsService {
 					bookingsProducer.push(config.getUpdateBookingSMSTopic(), bookingsRequest);
 				}
 			}
-		bookingsRequest.getBookingsModel().setBkBookingType(applicationStatus);	
+		bookingsRequest.getBookingsModel().setBkBookingType(bookingType);	
 		return bookingsRequest.getBookingsModel();
 	}
 
