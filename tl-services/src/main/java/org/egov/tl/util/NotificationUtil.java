@@ -693,12 +693,6 @@ public class NotificationUtil {
 	 *            Message from localization for field change
 	 * @return customized message for field change
 	 */
-	private String getEditMsg(TradeLicense license, List<String> list, String message) {
-		message = message.replace("<APPLICATION_NUMBER>", license.getApplicationNumber());
-		message = message.replace("<FIELDS>", StringUtils.join(list, ","));
-		return message;
-	}
-
 	private String getEditMsg(TradeLicense license, String message) {
 		message = message.replace("<APPLICATION_NUMBER>", license.getApplicationNumber());
 		return message;
