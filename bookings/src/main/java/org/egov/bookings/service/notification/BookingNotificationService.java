@@ -114,7 +114,7 @@ public class BookingNotificationService {
 		BookingsModel bookingsModel = request.getBookingsModel();
 		String businessService = bookingsModel.getBusinessService();
 		String message = null;
-		String localizationMessages;
+		String localizationMessages = "";
 		switch (businessService) {
 		case BUSINESS_SERVICE_OSBM:
 		case BUSINESS_SERVICE_BWT:
@@ -127,8 +127,15 @@ public class BookingNotificationService {
 		Map<String, String> mobileNumberToOwner = new HashMap<>();
 		if (bookingsModel.getBkMobileNumber() != null)
 			mobileNumberToOwner.put(bookingsModel.getBkMobileNumber(), bookingsModel.getBkApplicantName());
-
+		
 		smsRequests.addAll(util.createSMSRequest(message, mobileNumberToOwner));
+		mobileNumberToOwner.remove(bookingsModel.getBkMobileNumber());
+		if(BookingsConstants.BUSINESS_SERVICE_BWT.equals(bookingsModel.getBusinessService()) 
+				&& BookingsConstants.ACTION_STATUS_PENDINGUPDATE.equals((bookingsModel.getBkAction() + "_" + bookingsModel.getBkApplicationStatus()))) {
+			message = util.getCustomizedMsgForDriver(request.getRequestInfo(), bookingsModel, localizationMessages);
+			mobileNumberToOwner.put(bookingsModel.getBkContactNo(), bookingsModel.getBkDriverName());
+			smsRequests.addAll(util.createSMSRequest(message, mobileNumberToOwner));
+		}
 	}
     
 	/**
@@ -153,7 +160,7 @@ public class BookingNotificationService {
 		case BUSINESS_SERVICE_OSUJM:
 		case BUSINESS_SERVICE_PACC:
 			localizationMessages = util.getLocalizationMessages(tenantId, request.getRequestInfo());
-			message = util.getCustomizedMsg(request.getRequestInfo(), bookingsModel, localizationMessages);
+			message = util.getMailCustomizedMsg(request.getRequestInfo(), bookingsModel, localizationMessages);
 			break;
 		}
 		message = message.replace("\\n", "\n");

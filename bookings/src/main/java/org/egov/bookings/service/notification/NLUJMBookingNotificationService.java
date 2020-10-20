@@ -121,7 +121,7 @@ public class NLUJMBookingNotificationService {
 		switch (businessService) {
 		case BUSINESS_SERVICE_NLUJM:
 			localizationMessages = util.getLocalizationMessages(tenantId, request.getRequestInfo());
-			message = util.getCustomizedMsg(request.getRequestInfo(), osujmNewLocationModel, localizationMessages);
+			message = util.getMailCustomizedMsg(request.getRequestInfo(), osujmNewLocationModel, localizationMessages);
 			break;
 		}
 		message = message.replace("\\n", "\n");

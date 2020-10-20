@@ -571,5 +571,32 @@ public class BookingsConstants {
     public static final String BK_CGB = "BK_CGB_";
     public static final String BK_WF_OSUJM = "bk.en.counter.update";
     public static final String BK_WF_PACC = "bk.en.counter.update";
+    public static final String MAIL_NOTIFICATION_INITIATED = "bk.m.counter.initiate";
+	
+	public static final String MAIL_NOTIFICATION_PENDINGAPPROVAL = "bk.m.counter.apply";
+	
+	public static final String MAIL_NOTIFICATION_PENDINGPAYMENT = "bk.m.counter.approved";
+	
+	public static final String MAIL_NOTIFICATION_REJECTED = "bk.m.counter.rejected";
+	
+	public static final String MAIL_NOTIFICATION_APPROVED = "bk.m.counter.pay";
+	
+	public static final String MAIL_NOTIFICATION_PENDINGASSIGNMENTDRIVER = "bk.m.counter.paidapply";
+	
+	public static final String MAIL_NOTIFICATION_PENDINGUPDATE = "bk.m.counter.assigndriver";
+	
+	public static final String MAIL_NOTIFICATION_APPLIED = "bk.m.counter.apply";
+	
+	public static final String MAIL_NOTIFICATION_UPDATE = "bk.m.counter.update";
+	
+    public static final String NOTIFICATION_DRIVER = "bk.en.counter.driver";
     
+    public static final String HOUSE_NO = "House No.";
+    
+    /** The Constant BOOKING_MDMS_MODULE_NAME. */
+	public static final String BOOKING_MDMS_MODULE_NAME = "Booking";
+	
+	public static final String BOOKING_MDMS_FILE_NAME = "Booking_Config";
+	
+	public static final String BK_WATER_TANKER_DELIVER_ACTION_KEY = "BK_WATER_TANKER_DELIVER_ACTION";
 }
