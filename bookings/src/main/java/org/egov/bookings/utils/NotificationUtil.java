@@ -162,7 +162,97 @@ public class NotificationUtil {
 		return message;
 	}
 	
+	/**
+	 * Gets the customized msg for driver.
+	 *
+	 * @param requestInfo the request info
+	 * @param bookingsModel the bookings model
+	 * @param localizationMessage the localization message
+	 * @return the customized msg for driver
+	 */
+	public String getCustomizedMsgForDriver(RequestInfo requestInfo, BookingsModel bookingsModel, String localizationMessage) {
+		String message = null, messageTemplate;
+		messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_DRIVER, localizationMessage);
+		message = getDriverMsg(bookingsModel, messageTemplate);
+		return message;
+	}
 	
+	
+	/**
+	 * Gets the mail customized msg.
+	 *
+	 * @param requestInfo the request info
+	 * @param bookingsModel the bookings model
+	 * @param localizationMessage the localization message
+	 * @return the mail customized msg
+	 */
+	public String getMailCustomizedMsg(RequestInfo requestInfo, BookingsModel bookingsModel, String localizationMessage) {
+		String message = null, messageTemplate;
+		String ACTION_STATUS = bookingsModel.getBkAction() + "_" + bookingsModel.getBkApplicationStatus();
+		String applicationStatus = bookingsServiceImpl.prepareApplicationStatus(requestInfo, bookingsModel);
+		switch (ACTION_STATUS) {
+		//OSBM,OSUJM,NLUJM
+		case ACTION_STATUS_INITIATED:
+			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_INITIATED, localizationMessage);
+			message = getInitiatedMsg(bookingsModel, messageTemplate);
+			break;
+			
+		case ACTION_STATUS_PENDINGAPPROVAL:
+			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_PENDINGAPPROVAL, localizationMessage);
+			message = getAppliedMsg(bookingsModel, messageTemplate);
+			break;
+			
+		case ACTION_STATUS_PENDINGPAYMENT:
+			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_PENDINGPAYMENT, localizationMessage);
+			message = getPendingPaymentMsg(bookingsModel, messageTemplate);
+			break;
+			
+		case ACTION_STATUS_REJECTED:
+			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_REJECTED, localizationMessage);
+			message = getRejectedMsg(bookingsModel, messageTemplate);
+			break;
+			
+		case ACTION_STATUS_APPROVED:
+			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_APPROVED, localizationMessage);
+			message = getPaymentMsg(bookingsModel, messageTemplate);
+			break;
+			
+		//BWT
+		case ACTION_STATUS_SPECIALAPPLY_DELIVERED:
+		case ACTION_STATUS_PENDINGUPDATE:
+		case ACTION_STATUS_DELIVERED:
+		case ACTION_STATUS_NOTDELIVERED:
+			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_PENDINGUPDATE, localizationMessage);
+			message = getUpdatedMsg(bookingsModel, messageTemplate, applicationStatus);
+			break;
+			
+		case ACTION_STATUS_PAIDAPPLY_PENDINGASSIGNMENTDRIVER:	
+			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_PENDINGASSIGNMENTDRIVER, localizationMessage);
+			message = getPendingAssignmentDriverMsg(bookingsModel, messageTemplate);
+			break;
+		
+		case ACTION_STATUS_FAILUREAPPLY_PENDINGASSIGNMENTDRIVER:
+			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_PENDINGASSIGNMENTDRIVER, localizationMessage);
+			message = getPendingAssignmentDriverMsg(bookingsModel, messageTemplate);
+			break;
+			
+		//GFCP
+		case ACTION_STATUS_APPLIED:
+			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_APPLIED, localizationMessage);
+			message = getAppliedMsg(bookingsModel, messageTemplate);
+			break;
+		}
+		return message;
+	}
+	
+	/**
+	 * Gets the customized msg.
+	 *
+	 * @param requestInfo the request info
+	 * @param osujmNewLocationModel the osujm new location model
+	 * @param localizationMessage the localization message
+	 * @return the customized msg
+	 */
 	public String getCustomizedMsg(RequestInfo requestInfo, OsujmNewLocationModel osujmNewLocationModel, String localizationMessage) {
 		String message = null, messageTemplate;
 		String ACTION_STATUS = osujmNewLocationModel.getAction() + "_" + osujmNewLocationModel.getApplicationStatus();
@@ -194,6 +284,46 @@ public class NotificationUtil {
 		}
 		return message;
 	}
+	
+	/**
+	 * Gets the mail customized msg.
+	 *
+	 * @param requestInfo the request info
+	 * @param osujmNewLocationModel the osujm new location model
+	 * @param localizationMessage the localization message
+	 * @return the mail customized msg
+	 */
+	public String getMailCustomizedMsg(RequestInfo requestInfo, OsujmNewLocationModel osujmNewLocationModel, String localizationMessage) {
+		String message = null, messageTemplate;
+		String ACTION_STATUS = osujmNewLocationModel.getAction() + "_" + osujmNewLocationModel.getApplicationStatus();
+		String applicationStatus = osujmNewLocationServiceImpl.prepareApplicationStatus(requestInfo, osujmNewLocationModel);
+		switch (ACTION_STATUS) {
+		//NLUJM
+		case ACTION_STATUS_INITIATED:
+			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_INITIATED, localizationMessage);
+			message = getNLUJMInitiatedMsg(osujmNewLocationModel, messageTemplate);
+			break;
+			
+		case ACTION_STATUS_PENDINGAPPROVAL:
+			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_PENDINGAPPROVAL, localizationMessage);
+			message = getNLUJMAppliedMsg(osujmNewLocationModel, messageTemplate);
+			break;
+			
+		case ACTION_STATUS_REJECTED:
+			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_REJECTED, localizationMessage);
+			message = getNLUJMRejectedMsg(osujmNewLocationModel, messageTemplate);
+			break;
+			
+		case ACTION_STATUS_PENDINGAPPROVALOSD:
+		case ACTION_STATUS_PENDINGPUBLISH:
+		case ACTION_STATUS_PUBLISH:
+			messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_UPDATE, localizationMessage);
+			message = getNLUJMUpdatedMsg(osujmNewLocationModel, messageTemplate, applicationStatus);
+			break;
+		}
+		return message;
+	}
+	
 	/**
 	 * Creates customized message based on tradelicense.
 	 *
@@ -457,6 +587,21 @@ public class NotificationUtil {
 		message = message.replace("<3>", bookingsModel.getBkBookingType());
 		message = message.replace("<4>", bookingsModel.getBkStatus());
 		message = message.replace("<5>", applicationStatus);
+		return message;
+	}
+	
+	/**
+	 * Gets the driver msg.
+	 *
+	 * @param bookingsModel the bookings model
+	 * @param message the message
+	 * @return the driver msg
+	 */
+	private String getDriverMsg(BookingsModel bookingsModel, String message) {
+		String address = bookingsModel.getBkCompleteAddress() + ", " + BookingsConstants.HOUSE_NO + bookingsModel.getBkHouseNo();
+		message = message.replace("<1>",bookingsModel.getBkDriverName());
+		message = message.replace("<2>", address);
+		message = message.replace("<3>", bookingsModel.getBkMobileNumber());
 		return message;
 	}
 	

@@ -24,6 +24,12 @@ public class BookingsQueryBuilder {
 			+ "inner join eg_wf_state_v2 as ewsv on ewsv.uuid = ewpv.status " 
 			+ "inner join eg_wf_action_v2 as ewav on ewav.currentstate = ewsv.uuid "
 			+ "and ewav.roles = :roles";
+	
+	/** The Constant FIND_BUSINESS_ID. */
+	public static final String FIND_BUSINESS_ID = "select ewpv.businessid from eg_wf_processinstance_v2 as ewpv "
+			+ "inner join eg_wf_state_v2 as ewsv on ewsv.uuid = ewpv.status " 
+			+ "inner join eg_wf_action_v2 as ewav on ewav.currentstate = ewsv.uuid "
+			+ "and ewav.roles like (%:roles%)";
 	//where ewpv.action != 'INITIATE'
 	//inner join eg_wf_action_v2 as ewav on ewav.currentstate = ewsv.uuid or ewav.nextstate = ewsv.uuid 
 	
@@ -71,4 +77,10 @@ public class BookingsQueryBuilder {
 
 	/** The Constant CHECK_PARK_AND_COMMUNITY_AVAILABILITY. */
 	public static final String CHECK_PARK_AND_COMMUNITY_AVAILABILITY = "select * from bk_bookings where bk_booking_venue =:bookingVenue and bk_Booking_Type =:bookingType and bk_sector =:sector and bk_to_date >= :date and bk_action =:APPLY";
+	
+	/** The Constant FIND_APPLICATION_LIST. */
+	public static final String FIND_APPLICATION_LIST = "select ewpv.businessid from eg_wf_processinstance_v2 as ewpv "
+			+ "inner join eg_wf_state_v2 as ewsv on ewsv.state is null "
+			+ "inner join eg_wf_action_v2 as ewav on ewav.currentstate = ewsv.uuid " 
+			+ "and ewpv.action = :action and ewav.roles = :approver";
 }
