@@ -529,8 +529,7 @@ public class EnrichmentService {
     
     private int getAgeForLicensePeriod(long dob){
     	SimpleDateFormat df2 = new SimpleDateFormat("yyyy-MM-dd");
-		int licensePeriod=0;
-    	try {   		
+		try {
 			Date birthDate = new Date(dob);
 			String birthday = df2.format(birthDate);
 		    LocalDate birthDateLocal = LocalDate.parse(birthday);
