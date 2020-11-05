@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.egov.bookings.config.BookingsConfiguration;
+import org.egov.bookings.contract.EmailAttachment;
 import org.egov.bookings.contract.EmailRequest;
 import org.egov.bookings.contract.EventRequest;
 import org.egov.bookings.contract.RequestInfoWrapper;
@@ -41,6 +42,7 @@ import org.egov.bookings.producer.BookingsProducer;
 import org.egov.bookings.repository.impl.ServiceRequestRepository;
 import org.egov.bookings.service.impl.BookingsServiceImpl;
 import org.egov.bookings.service.impl.OsujmNewLocationServiceImpl;
+import org.egov.bookings.validator.BookingsFieldsValidator;
 import org.egov.common.contract.request.RequestInfo;
 //import org.egov.tl.web.models.*;
 import org.egov.tracer.model.CustomException;
@@ -726,7 +728,57 @@ public class NotificationUtil {
 		return emailRequest;
 	}
 	
+	
+	/**
+	 * Creates the EMAIL request.
+	 *
+	 * @param message the message
+	 * @param emailIdToOwner the email id to owner
+	 * @param attachments the attachments
+	 * @return the list
+	 */
+	public List<EmailRequest> createEMAILRequest(String message, Map<String, String> emailIdToOwner, List<EmailAttachment> attachments) {
+		List<EmailRequest> emailRequest = new LinkedList<>();
+		for (Map.Entry<String, String> entryset : emailIdToOwner.entrySet()) {
+			String customizedMsg = message.replace("<1>", entryset.getValue());
+			emailRequest.add(EmailRequest.builder()
+					.email(entryset.getKey())
+					.subject(BookingsConstants.EMAIL_SUBJECT)
+					.body(customizedMsg)
+					.isHTML(true)
+					.attachments(attachments)
+					.build());
+		}
+		return emailRequest;
+	}
 
+	/**
+	 * Prepare email attachment.
+	 *
+	 * @param paymentReceiptURL the payment receipt URL
+	 * @param permissionLetterURL the permission letter URL
+	 * @return the list
+	 */
+	public List<EmailAttachment> prepareEmailAttachment(String paymentReceiptURL, String permissionLetterURL) {
+		List<EmailAttachment> emailAttachmentList = new LinkedList<>();
+		if (!BookingsFieldsValidator.isNullOrEmpty(paymentReceiptURL)) {
+			EmailAttachment emailAttachment = new EmailAttachment();
+			emailAttachment.setMimeType(BookingsConstants.MIME_TYPE);
+			emailAttachment.setName(BookingsConstants.PAYMENT_RECEIPT_NAME);
+			emailAttachment.setUrl(paymentReceiptURL);
+			emailAttachmentList.add(emailAttachment);
+		} 
+		else if (!BookingsFieldsValidator.isNullOrEmpty(permissionLetterURL)) {
+			EmailAttachment emailAttachment = new EmailAttachment();
+			emailAttachment.setMimeType(BookingsConstants.MIME_TYPE);
+			emailAttachment.setName(BookingsConstants.PERMISSION_LETTER_NAME);
+			emailAttachment.setUrl(permissionLetterURL);
+			emailAttachmentList.add(emailAttachment);
+		}
+		return emailAttachmentList;
+	}
+
+	
 	/**
 	 * Gets the customized msg.
 	 *
