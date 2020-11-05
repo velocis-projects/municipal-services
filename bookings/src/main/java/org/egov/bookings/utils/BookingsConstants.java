@@ -546,7 +546,7 @@ public class BookingsConstants {
 	public static final String NOTIFICATION_APPLIED = "bk.en.counter.apply";
     public static final String NOTIFICATION_OBJECT_MODIFIED = "tl.en.edit.object.modified";
     public static final String DEFAULT_OBJECT_MODIFIED_MSG = "Dear <1>,Your Trade License with application number <APPLICATION_NUMBER> was modified.";
-    public static  final String EMAIL_SUBJECT = "Chandigarh mSeva Application Status";
+    public static  final String EMAIL_SUBJECT = "Chandigarh mSeva Booking Application Status";
     public static final String BILL_AMOUNT_JSONPATH = "$.billResponse.Bill[0].totalAmount";
     public static final String TRADE_LICENSE_MODULE_CODE = "BK";
     public static final String NOTIFICATION_LOCALE = "en_IN";
@@ -569,8 +569,8 @@ public class BookingsConstants {
     public static final String BK_WF_BWT = "BK_WF_BWT_";
     public static final String BK = "BK_";
     public static final String BK_CGB = "BK_CGB_";
-    public static final String BK_WF_OSUJM = "bk.en.counter.update";
-    public static final String BK_WF_PACC = "bk.en.counter.update";
+    public static final String BK_WF_OSUJM = "BK_WF_OSUJM_";
+    public static final String BK_WF_PACC = "BK_WF_PACC_";
     public static final String MAIL_NOTIFICATION_INITIATED = "bk.m.counter.initiate";
 	
 	public static final String MAIL_NOTIFICATION_PENDINGAPPROVAL = "bk.m.counter.apply";
@@ -593,10 +593,19 @@ public class BookingsConstants {
     
     public static final String HOUSE_NO = "House No.";
     
-    /** The Constant BOOKING_MDMS_MODULE_NAME. */
 	public static final String BOOKING_MDMS_MODULE_NAME = "Booking";
 	
 	public static final String BOOKING_MDMS_FILE_NAME = "Booking_Config";
 	
 	public static final String BK_WATER_TANKER_DELIVER_ACTION_KEY = "BK_WATER_TANKER_DELIVER_ACTION";
+	
+	public static final String MIME_TYPE = "application/pdf";
+	
+	public static final String PAYMENT_RECEIPT_NAME = "PaymentReceipt.pdf";
+	
+	public static final String PERMISSION_LETTER_NAME = "permissionLetter.pdf";
+	
+	public static final String PAYMENT_RECEIPT = "paymentReceipt";
+	
+	public static final String PERMISSION_LETTER = "permissionLetter";
 }
