@@ -55,10 +55,13 @@ import com.jayway.jsonpath.JsonPath;
 
 import lombok.extern.slf4j.Slf4j;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class NotificationUtil.
  */
 @Component
+
+/** The Constant log. */
 
 /** The Constant log. */
 @Slf4j
@@ -73,9 +76,11 @@ public class NotificationUtil {
 	/** The producer. */
 	private BookingsProducer producer;
 	
+	/** The bookings service impl. */
 	@Autowired
 	private BookingsServiceImpl bookingsServiceImpl;
 	
+	/** The osujm new location service impl. */
 	@Autowired
 	private OsujmNewLocationServiceImpl osujmNewLocationServiceImpl;
 
@@ -103,6 +108,14 @@ public class NotificationUtil {
 	/** The consumer code key. */
 	final String consumerCodeKey = "consumerCodeKey";
 
+	/**
+	 * Gets the customized msg.
+	 *
+	 * @param requestInfo the request info
+	 * @param bookingsModel the bookings model
+	 * @param localizationMessage the localization message
+	 * @return the customized msg
+	 */
 	public String getCustomizedMsg(RequestInfo requestInfo, BookingsModel bookingsModel, String localizationMessage) {
 		String message = null, messageTemplate;
 		String ACTION_STATUS = bookingsModel.getBkAction() + "_" + bookingsModel.getBkApplicationStatus();
@@ -441,12 +454,20 @@ public class NotificationUtil {
 		return message;
 	}
 	
+	/**
+	 * Gets the NLUJM initiated msg.
+	 *
+	 * @param osujmNewLocationModel the osujm new location model
+	 * @param message the message
+	 * @return the NLUJM initiated msg
+	 */
 	private String getNLUJMInitiatedMsg(OsujmNewLocationModel osujmNewLocationModel, String message) {
 		message = message.replace("<1>",osujmNewLocationModel.getApplicantName());
 		message = message.replace("<2>", BookingsConstants.NLUJM_BOOKING_TYPE);
 		message = message.replace("<3>", osujmNewLocationModel.getApplicationNumber());
 		return message;
 	}
+	
 	/**
 	 * Gets the pending payment msg.
 	 *
@@ -475,12 +496,20 @@ public class NotificationUtil {
 		return message;
 	}
 	
+	/**
+	 * Gets the NLUJM applied msg.
+	 *
+	 * @param osujmNewLocationModel the osujm new location model
+	 * @param message the message
+	 * @return the NLUJM applied msg
+	 */
 	private String getNLUJMAppliedMsg(OsujmNewLocationModel osujmNewLocationModel, String message) {
 		message = message.replace("<1>",osujmNewLocationModel.getApplicantName());
 		message = message.replace("<2>", BookingsConstants.NLUJM_BOOKING_TYPE);
 		message = message.replace("<3>", osujmNewLocationModel.getApplicationNumber());
 		return message;
 	}
+	
 	/**
 	 * Creates customized message for submitted.
 	 *
@@ -489,8 +518,6 @@ public class NotificationUtil {
 	 * @param message            Message from localization for submitted
 	 * @return customized message for submitted
 	 */
-	
-	
 //	private String getSubittedMsg(TradeLicense license, String message, String localizationMessage) {
 //		message = message.replace("<2>", getMessageTemplate(license.getBusinessService(), localizationMessage));
 //		message = message.replace("<3>", license.getApplicationNumber());
@@ -541,6 +568,13 @@ public class NotificationUtil {
 		return message;
 	}
 	
+	/**
+	 * Gets the NLUJM rejected msg.
+	 *
+	 * @param osujmNewLocationModel the osujm new location model
+	 * @param message the message
+	 * @return the NLUJM rejected msg
+	 */
 	private String getNLUJMRejectedMsg(OsujmNewLocationModel osujmNewLocationModel, String message) {
 		message = message.replace("<1>",osujmNewLocationModel.getApplicantName());
 		message = message.replace("<2>", BookingsConstants.NLUJM_BOOKING_TYPE);
@@ -581,6 +615,7 @@ public class NotificationUtil {
 	 *
 	 * @param bookingsModel the bookings model
 	 * @param message the message
+	 * @param applicationStatus the application status
 	 * @return the updated msg
 	 */
 	private String getUpdatedMsg(BookingsModel bookingsModel, String message, String applicationStatus) {
@@ -607,6 +642,14 @@ public class NotificationUtil {
 		return message;
 	}
 	
+	/**
+	 * Gets the NLUJM updated msg.
+	 *
+	 * @param osujmNewLocationModel the osujm new location model
+	 * @param message the message
+	 * @param applicationStatus the application status
+	 * @return the NLUJM updated msg
+	 */
 	private String getNLUJMUpdatedMsg(OsujmNewLocationModel osujmNewLocationModel, String message, String applicationStatus) {
 		message = message.replace("<1>", osujmNewLocationModel.getApplicantName());
 		message = message.replace("<2>", osujmNewLocationModel.getApplicationNumber());
@@ -630,11 +673,11 @@ public class NotificationUtil {
 //	}
 
 	/**
-	 * Send the SMSRequest on the SMSNotification kafka topic
-	 * 
-	 * @param smsRequestList
-	 *            The list of SMSRequest to be sent
-	 */
+ * Send the SMSRequest on the SMSNotification kafka topic.
+ *
+ * @param smsRequestList            The list of SMSRequest to be sent
+ * @param isSMSEnabled the is SMS enabled
+ */
 	public void sendSMS(List<SMSRequest> smsRequestList, boolean isSMSEnabled) {
 		if (isSMSEnabled) {
 			if (CollectionUtils.isEmpty(smsRequestList))
@@ -708,11 +751,11 @@ public class NotificationUtil {
 	
 	
 	/**
-	 * Creates email request for the each owners.
+	 * Creates the EMAIL request.
 	 *
-	 * @param message            The message for the specific tradeLicense
-	 * @param emailIdToOwner            Map of emailId to OwnerName
-	 * @return List of EMAILRequest
+	 * @param message the message
+	 * @param emailIdToOwner the email id to owner
+	 * @return the list
 	 */
 	public List<EmailRequest> createEMAILRequest(String message, Map<String, String> emailIdToOwner) {
 		List<EmailRequest> emailRequest = new LinkedList<>();
@@ -782,9 +825,8 @@ public class NotificationUtil {
 	/**
 	 * Gets the customized msg.
 	 *
-	 * @param diff the diff
 	 * @param bookingsModel the bookings model
-	 * @param localizationMessage the localization message
+	 * @param message the message
 	 * @return the customized msg
 	 */
 	/*public String getCustomizedMsg(Difference diff, BookingsModel bookingsModel, String localizationMessage) {
