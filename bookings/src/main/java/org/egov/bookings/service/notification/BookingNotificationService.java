@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.egov.bookings.config.BookingsConfiguration;
 import org.egov.bookings.contract.Action;
 import org.egov.bookings.contract.ActionItem;
+import org.egov.bookings.contract.EmailAttachment;
 import org.egov.bookings.contract.EmailRequest;
 import org.egov.bookings.contract.Event;
 import org.egov.bookings.contract.EventRequest;
@@ -26,6 +27,7 @@ import org.egov.bookings.model.Source;
 import org.egov.bookings.repository.impl.ServiceRequestRepository;
 import org.egov.bookings.utils.BookingsConstants;
 import org.egov.bookings.utils.NotificationUtil;
+import org.egov.bookings.validator.BookingsFieldsValidator;
 import org.egov.bookings.web.models.BookingsRequest;
 import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -148,6 +150,7 @@ public class BookingNotificationService {
 		String tenantId = request.getBookingsModel().getTenantId();
 		BookingsModel bookingsModel = request.getBookingsModel();
 		Map<String, String> emailIdToOwner = new HashMap<>();
+		List<EmailAttachment> attachments = new ArrayList<>();
 		if (bookingsModel.getBkEmail() != null)
 			emailIdToOwner.put(bookingsModel.getBkEmail(), bookingsModel.getBkApplicantName());
 		String businessService = bookingsModel.getBusinessService();
@@ -163,8 +166,24 @@ public class BookingNotificationService {
 			message = util.getMailCustomizedMsg(request.getRequestInfo(), bookingsModel, localizationMessages);
 			break;
 		}
+		Map<String, String> receiptURLMap = new HashMap<>();
+		if (!BookingsFieldsValidator.isNullOrEmpty(request.getUrlData())) {
+			receiptURLMap = request.getUrlData();
+		}
+		String paymentReceiptURL = "";
+		String permissionLetterURL = "";
+		if (!BookingsFieldsValidator.isNullOrEmpty(receiptURLMap)){
+			paymentReceiptURL = receiptURLMap.get(BookingsConstants.PAYMENT_RECEIPT);
+			permissionLetterURL = receiptURLMap.get(BookingsConstants.PERMISSION_LETTER);
+		}
 		message = message.replace("\\n", "\n");
-		emailRequests.addAll(util.createEMAILRequest(message, emailIdToOwner));
+		if (!BookingsFieldsValidator.isNullOrEmpty(paymentReceiptURL) || !BookingsFieldsValidator.isNullOrEmpty(permissionLetterURL)) {
+			attachments = util.prepareEmailAttachment(paymentReceiptURL, permissionLetterURL);
+			emailRequests.addAll(util.createEMAILRequest(message, emailIdToOwner, attachments));
+		}
+		else {
+			emailRequests.addAll(util.createEMAILRequest(message, emailIdToOwner));
+		}
 	}
     
 	/**

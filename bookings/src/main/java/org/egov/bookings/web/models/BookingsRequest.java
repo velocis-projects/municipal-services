@@ -1,5 +1,7 @@
 package org.egov.bookings.web.models;
 
+import java.util.Map;
+
 import javax.validation.Valid;
 
 import org.egov.bookings.model.BookingsModel;
@@ -29,4 +31,7 @@ public class BookingsRequest {
 	@JsonProperty("RequestInfo")
 	private RequestInfo requestInfo;
 
+	@JsonProperty("UrlData")
+	private Map<String, String> urlData;
+	
 }
