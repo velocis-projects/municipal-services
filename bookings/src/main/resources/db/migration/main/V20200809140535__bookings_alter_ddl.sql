@@ -6,5 +6,3 @@ alter table public.bk_bookings drop column totime;
 alter table public.bk_bookings drop column bk_from_time;
 
 alter table public.bk_bookings drop column bk_to_time;
-
-alter table public.bk_bookings drop column BK_PAYMENT_DATE;
