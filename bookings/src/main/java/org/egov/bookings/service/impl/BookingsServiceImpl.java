@@ -27,6 +27,8 @@ import org.egov.bookings.contract.UserDetails;
 import org.egov.bookings.dto.SearchCriteriaFieldsDTO;
 import org.egov.bookings.model.BookingsModel;
 import org.egov.bookings.model.OsbmApproverModel;
+import org.egov.bookings.model.user.OwnerInfo;
+import org.egov.bookings.model.user.UserDetailResponse;
 import org.egov.bookings.producer.BookingsProducer;
 import org.egov.bookings.repository.BookingsRepository;
 import org.egov.bookings.repository.CommonRepository;
@@ -61,7 +63,7 @@ public class BookingsServiceImpl implements BookingsService {
 	/** The bookings repository. */
 	@Autowired
 	private BookingsRepository bookingsRepository;
-	
+
 	/** The config. */
 	@Autowired
 	private BookingsConfiguration config;
@@ -93,16 +95,20 @@ public class BookingsServiceImpl implements BookingsService {
 	/** The service request repository. */
 	@Autowired
 	private ServiceRequestRepository serviceRequestRepository;
-	
+
+	/** The bookings producer. */
 	@Autowired
 	private BookingsProducer bookingsProducer;
 	
+	/** The user service. */
+	@Autowired
+	private UserService userService;
+
 	/** The mail notification service. */
-	/*@Autowired
-	private MailNotificationService mailNotificationService;
-	*/
-	
-	
+	/*
+	 * @Autowired private MailNotificationService mailNotificationService;
+	 */
+
 	/** The Constant LOGGER. */
 	private static final Logger LOGGER = LogManager.getLogger(BookingsServiceImpl.class.getName());
 
@@ -114,50 +120,49 @@ public class BookingsServiceImpl implements BookingsService {
 	 */
 	@Override
 	public BookingsModel save(BookingsRequest bookingsRequest) {
-			boolean flag = isBookingExists(bookingsRequest.getBookingsModel().getBkApplicationNumber());
+		boolean flag = isBookingExists(bookingsRequest.getBookingsModel().getBkApplicationNumber());
 
+		if (!flag)
+			enrichmentService.enrichBookingsCreateRequest(bookingsRequest);
+		if (!BookingsConstants.ACTION_DELIVER.equals(bookingsRequest.getBookingsModel().getBkAction())
+				&& !BookingsConstants.ACTION_FAILURE_APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())) {
+			enrichmentService.generateDemand(bookingsRequest);
+		}
+
+		if (config.getIsExternalWorkFlowEnabled()) {
 			if (!flag)
-				enrichmentService.enrichBookingsCreateRequest(bookingsRequest);
-			if (!BookingsConstants.ACTION_DELIVER.equals(bookingsRequest.getBookingsModel().getBkAction())
-					&& !BookingsConstants.ACTION_FAILURE_APPLY
-							.equals(bookingsRequest.getBookingsModel().getBkAction())) {
-				enrichmentService.generateDemand(bookingsRequest);
-			}
-
-			if (config.getIsExternalWorkFlowEnabled()) {
-				if (!flag)
-					workflowIntegrator.callWorkFlow(bookingsRequest);
-			}
-			enrichmentService.enrichBookingsDetails(bookingsRequest);
-			try {
+				workflowIntegrator.callWorkFlow(bookingsRequest);
+		}
+		enrichmentService.enrichBookingsDetails(bookingsRequest);
+		try {
 			BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
 			bookingsProducer.push(config.getSaveBookingTopic(), kafkaBookingRequest);
-			}catch (Exception e) {
-				throw new IllegalArgumentException(e.getLocalizedMessage());
-			}
-			//bookingsModel = bookingsRepository.save(bookingsRequest.getBookingsModel());
-			//bookingsRequest.setBookingsModel(bookingsModel);
-			String bookingType = bookingsRequest.getBookingsModel().getBkBookingType();
-			if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel())) {
-				Map<String, MdmsJsonFields> mdmsJsonFieldsMap = mdmsJsonField(bookingsRequest);
-				if (!BookingsFieldsValidator.isNullOrEmpty(mdmsJsonFieldsMap)) {
-					if(!BookingsConstants.BUSINESS_SERVICE_PACC.equals(bookingsRequest.getBookingsModel().getBusinessService())) {
-						bookingsRequest.getBookingsModel().setBkBookingType(mdmsJsonFieldsMap.get(bookingsRequest.getBookingsModel().getBkBookingType()).getName());
-					}
-					bookingsProducer.push(config.getSaveBookingSMSTopic(), bookingsRequest);
+		} catch (Exception e) {
+			throw new IllegalArgumentException(e.getLocalizedMessage());
+		}
+		// bookingsModel = bookingsRepository.save(bookingsRequest.getBookingsModel());
+		// bookingsRequest.setBookingsModel(bookingsModel);
+		String bookingType = bookingsRequest.getBookingsModel().getBkBookingType();
+		if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel())) {
+			Map<String, MdmsJsonFields> mdmsJsonFieldsMap = mdmsJsonField(bookingsRequest);
+			if (!BookingsFieldsValidator.isNullOrEmpty(mdmsJsonFieldsMap)) {
+				if (!BookingsConstants.BUSINESS_SERVICE_PACC
+						.equals(bookingsRequest.getBookingsModel().getBusinessService())) {
+					bookingsRequest.getBookingsModel().setBkBookingType(
+							mdmsJsonFieldsMap.get(bookingsRequest.getBookingsModel().getBkBookingType()).getName());
 				}
+				bookingsProducer.push(config.getSaveBookingSMSTopic(), bookingsRequest);
 			}
+		}
 		bookingsRequest.getBookingsModel().setBkBookingType(bookingType);
 		return bookingsRequest.getBookingsModel();
 
 	}
-	
-	
-	
+
 	/**
 	 * Prepare application status.
 	 *
-	 * @param requestInfo the request info
+	 * @param requestInfo   the request info
 	 * @param bookingsModel the bookings model
 	 * @return the string
 	 */
@@ -165,47 +170,38 @@ public class BookingsServiceImpl implements BookingsService {
 		MessagesResponse messageResponse = getLocalizationMessage(requestInfo);
 		String applicationStatus = "";
 		String status = "";
-		if(!BookingsFieldsValidator.isNullOrEmpty(messageResponse))
-		{
+		if (!BookingsFieldsValidator.isNullOrEmpty(messageResponse)) {
 			if (BookingsConstants.BUSINESS_SERVICE_OSBM.equals(bookingsModel.getBusinessService())) {
 				applicationStatus = BookingsConstants.BK_WF_OSBM + bookingsModel.getBkApplicationStatus();
-			}
-			else if(BookingsConstants.BUSINESS_SERVICE_BWT.equals(bookingsModel.getBusinessService())) {
+			} else if (BookingsConstants.BUSINESS_SERVICE_BWT.equals(bookingsModel.getBusinessService())) {
 				applicationStatus = BookingsConstants.BK_WF_BWT + bookingsModel.getBkApplicationStatus();
-			}
-			else if(BookingsConstants.BUSINESS_SERVICE_GFCP.equals(bookingsModel.getBusinessService())) {
-				if(BookingsConstants.INITIATED.equals(bookingsModel.getBkApplicationStatus())) {
+			} else if (BookingsConstants.BUSINESS_SERVICE_GFCP.equals(bookingsModel.getBusinessService())) {
+				if (BookingsConstants.INITIATED.equals(bookingsModel.getBkApplicationStatus())) {
 					applicationStatus = BookingsConstants.BK + bookingsModel.getBkApplicationStatus();
-				}
-				else {
+				} else {
 					applicationStatus = BookingsConstants.BK_CGB + bookingsModel.getBkApplicationStatus();
 				}
-			}
-			else if(BookingsConstants.BUSINESS_SERVICE_OSUJM.equals(bookingsModel.getBusinessService())) {
+			} else if (BookingsConstants.BUSINESS_SERVICE_OSUJM.equals(bookingsModel.getBusinessService())) {
 				applicationStatus = BookingsConstants.BK_WF_OSUJM + bookingsModel.getBkApplicationStatus();
-			}
-			else if(BookingsConstants.BUSINESS_SERVICE_PACC.equals(bookingsModel.getBusinessService())) {
+			} else if (BookingsConstants.BUSINESS_SERVICE_PACC.equals(bookingsModel.getBusinessService())) {
 				applicationStatus = BookingsConstants.BK_WF_PACC + bookingsModel.getBkApplicationStatus();
 			}
 			for (Message message : messageResponse.getMessages()) {
-				if(message.getCode().equals(applicationStatus)){
+				if (message.getCode().equals(applicationStatus)) {
 					status = message.getMessage();
 				}
 			}
 		}
 		return status;
 	}
-	
-	
-	
+
 	/**
 	 * Gets the localization message.
 	 *
 	 * @param requestInfo the request info
 	 * @return the localization message
 	 */
-	public MessagesResponse getLocalizationMessage(RequestInfo requestInfo)
-	{
+	public MessagesResponse getLocalizationMessage(RequestInfo requestInfo) {
 		Object result = new Object();
 		RequestInfoWrapper requestInfoWrapper = new RequestInfoWrapper();
 		requestInfoWrapper.setRequestInfo(requestInfo);
@@ -223,25 +219,23 @@ public class BookingsServiceImpl implements BookingsService {
 			}
 		} catch (Exception e) {
 			LOGGER.error("Exception occur during get localization message " + e);
-			throw new CustomException("Exception occur during get localization message",e.getLocalizedMessage());
+			throw new CustomException("Exception occur during get localization message", e.getLocalizedMessage());
 		}
 		return messageResponse;
 	}
-	
+
 	/**
 	 * Mdms json field.
 	 *
 	 * @param bookingsRequest the bookings request
 	 * @return the map
 	 */
-	private Map< String, MdmsJsonFields > mdmsJsonField(BookingsRequest bookingsRequest)
-	{
+	private Map<String, MdmsJsonFields> mdmsJsonField(BookingsRequest bookingsRequest) {
 		JSONArray mdmsArrayList = null;
-		Map< String, MdmsJsonFields > mdmsJsonFieldsMap = new HashMap<>();
-		try
-		{
-			if(!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest) && !BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getRequestInfo()))
-			{
+		Map<String, MdmsJsonFields> mdmsJsonFieldsMap = new HashMap<>();
+		try {
+			if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest)
+					&& !BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getRequestInfo())) {
 				Object mdmsData = bookingsUtils.prepareMdMsRequestForBooking(bookingsRequest.getRequestInfo());
 				String jsonString = objectMapper.writeValueAsString(mdmsData);
 				MdmsResponse mdmsResponse = objectMapper.readValue(jsonString, MdmsResponse.class);
@@ -256,9 +250,7 @@ public class BookingsServiceImpl implements BookingsService {
 					}
 				}
 			}
-		}
-		catch(Exception e)
-		{
+		} catch (Exception e) {
 			LOGGER.error("Exception occur during mdmsJsonField " + e);
 		}
 		return mdmsJsonFieldsMap;
@@ -269,9 +261,6 @@ public class BookingsServiceImpl implements BookingsService {
 	 *
 	 * @param bkApplicationnumber the bk applicationnumber
 	 * @return true, if is booking exists
-	 */
-	/* (non-Javadoc)
-	 * @see org.egov.bookings.service.BookingsService#isBookingExists(java.lang.String)
 	 */
 	public boolean isBookingExists(String bkApplicationnumber) {
 
@@ -293,15 +282,14 @@ public class BookingsServiceImpl implements BookingsService {
 	 */
 	@Override
 	public Booking getCitizenSearchBooking(SearchCriteriaFieldsDTO searchCriteriaFieldsDTO) {
+		if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO)) {
+			throw new IllegalArgumentException("Invalid searchCriteriaFieldsDTO");
+		}
 		Booking booking = new Booking();
 		List<BookingsModel> myBookingList = new ArrayList<>();
 		List<?> documentList = new ArrayList<>();
 		Map<String, String> documentMap = new HashMap<>();
 		try {
-			if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO)) {
-				throw new IllegalArgumentException("Invalid searchCriteriaFieldsDTO");
-			}
-
 			String applicationNumber = searchCriteriaFieldsDTO.getApplicationNumber();
 			String applicationStatus = searchCriteriaFieldsDTO.getApplicationStatus();
 			String mobileNumber = searchCriteriaFieldsDTO.getMobileNumber();
@@ -309,19 +297,35 @@ public class BookingsServiceImpl implements BookingsService {
 			Date toDate = searchCriteriaFieldsDTO.getToDate();
 			String uuid = searchCriteriaFieldsDTO.getUuid();
 			String bookingType = searchCriteriaFieldsDTO.getBookingType();
-
+			String parksBookingType = "";
+			String communityCenterBookingType = "";
 			if (BookingsFieldsValidator.isNullOrEmpty(uuid)) {
 				throw new IllegalArgumentException("Invalid uuId");
 			}
-			if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
-				myBookingList = bookingsRepository.getCitizenSearchBooking( applicationNumber,
-						applicationStatus, mobileNumber, bookingType, uuid);
-			} else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate)
-					&& !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
-				myBookingList = bookingsRepository.getCitizenSearchBooking(applicationNumber,
-						applicationStatus, mobileNumber, bookingType, uuid, fromDate, toDate);
+			if (!BookingsFieldsValidator.isNullOrEmpty(bookingType) && BookingsConstants.PARKS_AND_COMMUNITY_CENTER.equals(bookingType)) {
+				String[] bookingArray = bookingType.split(BookingsConstants.AND);
+				parksBookingType = bookingArray[0].trim();
+				communityCenterBookingType = bookingArray[1].trim();
+				if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+					myBookingList = bookingsRepository.getCitizenSearchPACCBooking(applicationNumber, applicationStatus,
+							mobileNumber, parksBookingType, communityCenterBookingType, uuid);
+				} 
+				else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+					myBookingList = bookingsRepository.getCitizenSearchPACCBooking(applicationNumber, applicationStatus,
+							mobileNumber, parksBookingType, communityCenterBookingType, uuid, fromDate, toDate);
+				}
 			}
-			if (!BookingsFieldsValidator.isNullOrEmpty(applicationNumber) && !BookingsFieldsValidator.isNullOrEmpty(myBookingList)) {
+			else {
+				if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+					myBookingList = bookingsRepository.getCitizenSearchBooking(applicationNumber, applicationStatus,
+							mobileNumber, bookingType, uuid);
+				} 
+				else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+					myBookingList = bookingsRepository.getCitizenSearchBooking(applicationNumber, applicationStatus,
+							mobileNumber, bookingType, uuid, fromDate, toDate);
+				}
+			}
+			if (!BookingsFieldsValidator.isNullOrEmpty(applicationNumber)) {
 				documentList = commonRepository.findDocumentList(applicationNumber);
 				booking.setBusinessService(commonRepository.findBusinessService(applicationNumber));
 			}
@@ -454,8 +458,11 @@ public class BookingsServiceImpl implements BookingsService {
 						String parksBookingType = BookingsConstants.PARKS;
 						String communityCenterBookingType = BookingsConstants.COMMUNITY_CENTER;
 						if (!BookingsFieldsValidator.isNullOrEmpty(bookingType)) {
-							parksBookingType = bookingType;
-							communityCenterBookingType = bookingType;
+							String[] bookingArray = bookingType.split(BookingsConstants.AND);
+							parksBookingType = bookingArray[0].trim();
+							communityCenterBookingType = bookingArray[1].trim();
+//							parksBookingType = bookingType;
+//							communityCenterBookingType = bookingType;
 						}
 						if (BookingsFieldsValidator.isNullOrEmpty(fromDate)
 								&& BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
@@ -477,12 +484,16 @@ public class BookingsServiceImpl implements BookingsService {
 									|| BookingsConstants.CHIEF_ACCOUNT_OFFICER.equals(role.getCode())
 									|| BookingsConstants.PAYMENT_PROCESSING_AUTHORITY.equals(role.getCode())
 									|| BookingsConstants.E_SAMPARK_CENTER.equals(role.getCode())
-									|| BookingsConstants.MCC_USER.equals(role.getCode()))) {
+									|| BookingsConstants.MCC_USER.equals(role.getCode())
+									|| BookingsConstants.SUPERVISOR.equals(role.getCode())
+									|| BookingsConstants.OSD.equals(role.getCode())
+							)) {
 						String parksBookingType = BookingsConstants.PARKS;
 						String communityCenterBookingType = BookingsConstants.COMMUNITY_CENTER;
 						if (!BookingsFieldsValidator.isNullOrEmpty(bookingType)) {
-							parksBookingType = bookingType;
-							communityCenterBookingType = bookingType;
+							String[] bookingArray = bookingType.split(BookingsConstants.AND);
+							parksBookingType = bookingArray[0].trim();
+							communityCenterBookingType = bookingArray[1].trim();
 						}
 						if (BookingsFieldsValidator.isNullOrEmpty(fromDate)
 								&& BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
@@ -562,7 +573,6 @@ public class BookingsServiceImpl implements BookingsService {
 		return action;
 	}
 
-	
 	/**
 	 * Update.
 	 *
@@ -572,64 +582,72 @@ public class BookingsServiceImpl implements BookingsService {
 	@Override
 	public BookingsModel update(BookingsRequest bookingsRequest) {
 		String businessService = bookingsRequest.getBookingsModel().getBusinessService();
-		if(BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction()) && !BookingsConstants.BUSINESS_SERVICE_GFCP.equals(businessService))
-		enrichmentService.enrichBookingsAssignee(bookingsRequest);
+		if (BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())
+				&& !BookingsConstants.BUSINESS_SERVICE_GFCP.equals(businessService))
+			enrichmentService.enrichBookingsAssignee(bookingsRequest);
 		
-
+		if (BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction()) && BookingsConstants.BUSINESS_SERVICE_OSBM.equals(businessService)) {
+			BookingsModel booking = bookingsRepository.findByBkApplicationNumber(bookingsRequest.getBookingsModel().getBkApplicationNumber());
+			enrichmentService.enrichAssignee(bookingsRequest, booking);
+		}
 		
 		if (config.getIsExternalWorkFlowEnabled())
 			workflowIntegrator.callWorkFlow(bookingsRequest);
 
 		BookingsModel bookingsModel = null;
-			if (!BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())
-					&& BookingsConstants.BUSINESS_SERVICE_OSBM.equals(businessService)) {
+		if (!BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())
+				&& BookingsConstants.BUSINESS_SERVICE_OSBM.equals(businessService)) {
 
-				bookingsModel = enrichmentService.enrichOsbmDetails(bookingsRequest);
-				bookingsRequest.setBookingsModel(bookingsModel);
-				BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
-				bookingsProducer.push(config.getUpdateBookingTopic(), kafkaBookingRequest);
-				//bookingsModel = bookingsRepository.save(bookingsModel);
+			bookingsModel = enrichmentService.enrichOsbmDetails(bookingsRequest);
+			bookingsRequest.setBookingsModel(bookingsModel);
+			BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
+			bookingsProducer.push(config.getUpdateBookingTopic(), kafkaBookingRequest);
+			// bookingsModel = bookingsRepository.save(bookingsModel);
 
-			}
+		}
 
-			else if (!BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())
-					&& BookingsConstants.BUSINESS_SERVICE_BWT.equals(businessService)) {
+		else if (!BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())
+				&& BookingsConstants.BUSINESS_SERVICE_BWT.equals(businessService)) {
 
-				bookingsModel = enrichmentService.enrichBwtDetails(bookingsRequest);
-				bookingsRequest.setBookingsModel(bookingsModel);
-				BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
-				bookingsProducer.push(config.getUpdateBookingTopic(), kafkaBookingRequest);
-				//bookingsModel = bookingsRepository.save(bookingsModel);
+			bookingsModel = enrichmentService.enrichBwtDetails(bookingsRequest);
+			bookingsRequest.setBookingsModel(bookingsModel);
+			BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
+			bookingsProducer.push(config.getUpdateBookingTopic(), kafkaBookingRequest);
+			// bookingsModel = bookingsRepository.save(bookingsModel);
 
+		} else if (!BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())
+				&& BookingsConstants.BUSINESS_SERVICE_OSUJM.equals(businessService)) {
+			bookingsModel = enrichmentService.enrichOsujmDetails(bookingsRequest);
+			bookingsRequest.setBookingsModel(bookingsModel);
+			BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
+			bookingsProducer.push(config.getUpdateBookingTopic(), kafkaBookingRequest);
+			// bookingsModel = bookingsRepository.save(bookingsModel);
+			if (BookingsConstants.PAY.equals(bookingsRequest.getBookingsModel().getBkAction())) {
+				config.setJurisdictionLock(true);
 			}
-			else if(!BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())
-					&& BookingsConstants.BUSINESS_SERVICE_OSUJM.equals(businessService)){
-				bookingsModel = enrichmentService.enrichOsujmDetails(bookingsRequest);
-				bookingsRequest.setBookingsModel(bookingsModel);
-				BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
-				bookingsProducer.push(config.getUpdateBookingTopic(), kafkaBookingRequest);
-				//bookingsModel = bookingsRepository.save(bookingsModel);
-				if(BookingsConstants.PAY.equals(bookingsRequest.getBookingsModel().getBkAction())){
-					config.setJurisdictionLock(true);
-				}
+		} else {
+			if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getBkPaymentStatus())) {
+				bookingsRequest.getBookingsModel()
+						.setBkPaymentStatus(bookingsRequest.getBookingsModel().getBkPaymentStatus());
 			}
-			else {
-				BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
-				bookingsProducer.push(config.getUpdateBookingTopic(), kafkaBookingRequest);
-				//bookingsModel = bookingsRepository.save(bookingsRequest.getBookingsModel());
-				if(BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction()) && BookingsConstants.BUSINESS_SERVICE_GFCP.equals(businessService)){
-					config.setCommercialLock(true);
-				}
+			BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
+			bookingsProducer.push(config.getUpdateBookingTopic(), kafkaBookingRequest);
+			// bookingsModel = bookingsRepository.save(bookingsRequest.getBookingsModel());
+			if (BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())
+					&& BookingsConstants.BUSINESS_SERVICE_GFCP.equals(businessService)) {
+				config.setCommercialLock(true);
 			}
-			String bookingType = bookingsRequest.getBookingsModel().getBkBookingType();
-			if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel())) {
-				Map<String, MdmsJsonFields> mdmsJsonFieldsMap = mdmsJsonField(bookingsRequest);
-				if (!BookingsFieldsValidator.isNullOrEmpty(mdmsJsonFieldsMap)) {
-					bookingsRequest.getBookingsModel().setBkBookingType(mdmsJsonFieldsMap.get(bookingsRequest.getBookingsModel().getBkBookingType()).getName());
-					bookingsProducer.push(config.getUpdateBookingSMSTopic(), bookingsRequest);
-				}
+		}
+		String bookingType = bookingsRequest.getBookingsModel().getBkBookingType();
+		if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel())) {
+			Map<String, MdmsJsonFields> mdmsJsonFieldsMap = mdmsJsonField(bookingsRequest);
+			if (!BookingsFieldsValidator.isNullOrEmpty(mdmsJsonFieldsMap)) {
+				bookingsRequest.getBookingsModel()
+						.setBkBookingType(mdmsJsonFieldsMap.get(bookingsRequest.getBookingsModel().getBkBookingType()).getName());
+				bookingsProducer.push(config.getUpdateBookingSMSTopic(), bookingsRequest);
 			}
-		bookingsRequest.getBookingsModel().setBkBookingType(bookingType);	
+		}
+		bookingsRequest.getBookingsModel().setBkBookingType(bookingType);
 		return bookingsRequest.getBookingsModel();
 	}
 
@@ -643,17 +661,17 @@ public class BookingsServiceImpl implements BookingsService {
 	 */
 	@Override
 	public Map<String, Integer> employeeRecordsCount(String tenantId, String uuid, BookingsRequest bookingsRequest) {
+		if (BookingsFieldsValidator.isNullOrEmpty(bookingsRequest)) {
+			throw new IllegalArgumentException("Invalid bookingsRequest");
+		}
+		if (BookingsFieldsValidator.isNullOrEmpty(tenantId)) {
+			throw new IllegalArgumentException("Invalid tentantId");
+		}
+		if (BookingsFieldsValidator.isNullOrEmpty(uuid)) {
+			throw new IllegalArgumentException("Invalid uuId");
+		}
 		Map<String, Integer> bookingCountMap = new HashMap<>();
 		try {
-			if (BookingsFieldsValidator.isNullOrEmpty(bookingsRequest)) {
-				throw new IllegalArgumentException("Invalid bookingsRequest");
-			}
-			if (BookingsFieldsValidator.isNullOrEmpty(tenantId)) {
-				throw new IllegalArgumentException("Invalid tentantId");
-			}
-			if (BookingsFieldsValidator.isNullOrEmpty(uuid)) {
-				throw new IllegalArgumentException("Invalid uuId");
-			}
 			List<String> sectorList = commonRepository.findSectorList(uuid);
 			int allRecordsCount = bookingsRepository.countByTenantIdAndBkSectorIn(tenantId, sectorList);
 			bookingCountMap.put("allRecordsCount", allRecordsCount);
@@ -688,17 +706,17 @@ public class BookingsServiceImpl implements BookingsService {
 	 */
 	@Override
 	public Map<String, Integer> citizenRecordsCount(String tenantId, String uuid, BookingsRequest bookingsRequest) {
+		if (BookingsFieldsValidator.isNullOrEmpty(bookingsRequest)) {
+			throw new IllegalArgumentException("Invalid bookingsRequest");
+		}
+		if (BookingsFieldsValidator.isNullOrEmpty(tenantId)) {
+			throw new IllegalArgumentException("Invalid tentantId");
+		}
+		if (BookingsFieldsValidator.isNullOrEmpty(uuid)) {
+			throw new IllegalArgumentException("Invalid uuId");
+		}
 		Map<String, Integer> bookingCountMap = new HashMap<>();
 		try {
-			if (BookingsFieldsValidator.isNullOrEmpty(bookingsRequest)) {
-				throw new IllegalArgumentException("Invalid bookingsRequest");
-			}
-			if (BookingsFieldsValidator.isNullOrEmpty(tenantId)) {
-				throw new IllegalArgumentException("Invalid tentantId");
-			}
-			if (BookingsFieldsValidator.isNullOrEmpty(uuid)) {
-				throw new IllegalArgumentException("Invalid uuId");
-			}
 			int allRecordsCount = bookingsRepository.countByTenantIdAndUuid(tenantId, uuid);
 			bookingCountMap.put("allRecordsCount", allRecordsCount);
 			int bookingCount = 0;
@@ -732,14 +750,14 @@ public class BookingsServiceImpl implements BookingsService {
 	@Override
 	public Object getWorkflowProcessInstances(RequestInfoWrapper requestInfoWrapper,
 			ProcessInstanceSearchCriteria criteria) {
+		if (BookingsFieldsValidator.isNullOrEmpty(requestInfoWrapper)) {
+			throw new IllegalArgumentException("Invalid requestInfoWrapper");
+		}
+		if (BookingsFieldsValidator.isNullOrEmpty(criteria)) {
+			throw new IllegalArgumentException("Invalid criteria");
+		}
 		Object result = new Object();
 		try {
-			if (BookingsFieldsValidator.isNullOrEmpty(requestInfoWrapper)) {
-				throw new IllegalArgumentException("Invalid requestInfoWrapper");
-			}
-			if (BookingsFieldsValidator.isNullOrEmpty(criteria)) {
-				throw new IllegalArgumentException("Invalid criteria");
-			}
 			StringBuilder url = new StringBuilder(config.getWfHost());
 			url.append(config.getWorkflowProcessInstancePath());
 			url.append("?businessIds=");
@@ -755,18 +773,18 @@ public class BookingsServiceImpl implements BookingsService {
 		return result;
 	}
 
-
 	/**
 	 * Fetch all approver.
 	 *
 	 * @return the list
 	 */
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.egov.bookings.service.BookingsService#fetchAllApprover()
 	 */
 	@Override
 	public List<BookingApprover> fetchAllApprover() {
-
 		List<BookingApprover> bookingApprover1 = new ArrayList<>();
 		List<?> userList = new ArrayList<>();
 		try {
@@ -829,28 +847,36 @@ public class BookingsServiceImpl implements BookingsService {
 	 */
 	@Override
 	public List<UserDetails> getAssignee(SearchCriteriaFieldsDTO searchCriteriaFieldsDTO) {
-		List<?> userList = new ArrayList<>();
+		if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO)) {
+			throw new IllegalArgumentException("Invalid searchCriteriaFieldsDTO");
+		}
+		if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO.getRequestInfo())) {
+			throw new IllegalArgumentException("Invalid requestInfo");
+		}
 		List<UserDetails> userDetailsList = new ArrayList<>();
-		List<Integer> userId = new ArrayList<>();
-		try
-		{
-			if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO)) 
-			{
-				throw new IllegalArgumentException("Invalid searchCriteriaFieldsDTO");
-			}
+		List<String> roleCodes = new ArrayList<>();
+		UserDetailResponse userDetailResponse = new UserDetailResponse();
+		try {
 			String applicationNumber = searchCriteriaFieldsDTO.getApplicationNumber();
 			String action = searchCriteriaFieldsDTO.getAction();
 			String sector = searchCriteriaFieldsDTO.getSector();
 			String businessService = searchCriteriaFieldsDTO.getBusinessService();
 			String approverName = "";
-			if (BookingsFieldsValidator.isNullOrEmpty(businessService)) 
-			{
+			String roles = "";
+			StringBuilder url = prepareUrlForUserList();
+			if (BookingsFieldsValidator.isNullOrEmpty(businessService)) {
 				List<String> nextState = commonRepository.findNextState(applicationNumber, action);
 				if (!BookingsFieldsValidator.isNullOrEmpty(nextState)) {
 					for (String state : nextState) {
-						approverName = commonRepository.findApproverName(state);
-						if (!BookingsFieldsValidator.isNullOrEmpty(approverName)) {
-							break;
+						if (BookingsFieldsValidator.isNullOrEmpty(approverName)) {
+							approverName = commonRepository.findApproverName(state);
+						}
+						else {
+							roles = commonRepository.findApproverName(state);
+						}
+						if (!BookingsFieldsValidator.isNullOrEmpty(roles)) {
+							approverName = approverName + "," + roles;
+							roles = "";
 						}
 					}
 				}
@@ -858,74 +884,70 @@ public class BookingsServiceImpl implements BookingsService {
 				if (!BookingsFieldsValidator.isNullOrEmpty(approverArray)) {
 					for (String approver : approverArray) {
 						if (!BookingsConstants.CITIZEN.equals(approver)) {
-							userId.addAll(commonRepository.findUserId(approver));
+							roleCodes.add(approver);
 						}
 					}
-					if (!BookingsFieldsValidator.isNullOrEmpty(userId)) {
-						userList = commonRepository.findUserList(userId);
+					if (!BookingsFieldsValidator.isNullOrEmpty(roleCodes)) {
+						userDetailResponse = userService.getUserSearchDetails(roleCodes, url, searchCriteriaFieldsDTO.getRequestInfo());
 					}
-					if (!BookingsFieldsValidator.isNullOrEmpty(userList)) {
-						userDetailsList = prepareUserList(userList, sector);
+					if (!BookingsFieldsValidator.isNullOrEmpty(userDetailResponse)) {
+						userDetailsList = prepareUserList(userDetailResponse, sector);
 					}
 				}
-			}
-			else if(!BookingsFieldsValidator.isNullOrEmpty(businessService) && BookingsConstants.BUSINESS_SERVICE_GFCP.equals(businessService))
-			{
-				userId = commonRepository.findUserId(BookingsConstants.COMMERCIAL_GROUND_VIEWER);
-				if (!BookingsFieldsValidator.isNullOrEmpty(userId)) {
-					userList = commonRepository.findUserList(userId);
+			} else if (!BookingsFieldsValidator.isNullOrEmpty(businessService)
+					&& BookingsConstants.BUSINESS_SERVICE_GFCP.equals(businessService)) {
+				roleCodes.add(BookingsConstants.COMMERCIAL_GROUND_VIEWER);
+				userDetailResponse = userService.getUserSearchDetails(roleCodes, url, searchCriteriaFieldsDTO.getRequestInfo());
+				if (!BookingsFieldsValidator.isNullOrEmpty(userDetailResponse)) {
+					userDetailsList = prepareUserList(userDetailResponse, sector);
 				}
-				if (!BookingsFieldsValidator.isNullOrEmpty(userList)) {
-					userDetailsList = prepareUserList(userList, sector);
-				}
-			}
-			else if(!BookingsFieldsValidator.isNullOrEmpty(businessService) && BookingsConstants.BUSINESS_SERVICE_PACC.equals(businessService))
-			{
-				userId = commonRepository.findUserId(BookingsConstants.PARKS_AND_COMMUNITY_VIEWER);
-				if (!BookingsFieldsValidator.isNullOrEmpty(userId)) {
-					userList = commonRepository.findUserList(userId);
-				}
-				if (!BookingsFieldsValidator.isNullOrEmpty(userList)) {
-					userDetailsList = prepareUserList(userList, sector);
+			} else if (!BookingsFieldsValidator.isNullOrEmpty(businessService)
+					&& BookingsConstants.BUSINESS_SERVICE_PACC.equals(businessService)) {
+				roleCodes.add(BookingsConstants.PARKS_AND_COMMUNITY_VIEWER);
+				userDetailResponse = userService.getUserSearchDetails(roleCodes, url, searchCriteriaFieldsDTO.getRequestInfo());
+				if (!BookingsFieldsValidator.isNullOrEmpty(userDetailResponse)) {
+					userDetailsList = prepareUserList(userDetailResponse, sector);
 				}
 			}
-				
-		}
-		catch(Exception e)
-		{
+
+		} catch (Exception e) {
 			LOGGER.error("Exception occur in the getAssignee " + e);
 			e.printStackTrace();
 		}
 		return userDetailsList;
 	}
-	
+
 	/**
 	 * Prepare user list.
 	 *
 	 * @param userList the user list
-	 * @param sector the sector
+	 * @param sector   the sector
 	 * @return the list
 	 */
-	private List<UserDetails> prepareUserList(List<?> userList, String sector)
-	{
+	private List<UserDetails> prepareUserList(UserDetailResponse userDetailResponse, String sector) {
 		List<UserDetails> userDetailsList = new ArrayList<>();
 		Map<String, UserDetails> userDetailsMap = new HashMap<>();
 		OsbmApproverModel osbmApproverModel = new OsbmApproverModel();
+		if (BookingsFieldsValidator.isNullOrEmpty(userDetailResponse)) {
+			throw new IllegalArgumentException("Invalid userDetailResponse");
+		}
+		if (BookingsFieldsValidator.isNullOrEmpty(userDetailResponse.getUser())) {
+			throw new IllegalArgumentException("Invalid User List");
+		}
+		List<OwnerInfo> userList = userDetailResponse.getUser();
 		try {
-			for (Object object : userList) {
+			for (OwnerInfo user : userList) {
 				UserDetails userDetails = new UserDetails();
-				String jsonString = objectMapper.writeValueAsString(object);
-				String[] jsonArray = jsonString.split(",");
-				userDetails.setUuid(jsonArray[0].substring(2, jsonArray[0].length() - 1));
-				userDetails.setUserName(jsonArray[1].substring(1, jsonArray[1].length() - 2));
+				userDetails.setUuid(user.getUuid());
+				userDetails.setUserName(user.getUserName());
 				osbmApproverModel = osbmApproverRepository.findByUuidAndSector(userDetails.getUuid(), sector);
-				if (!BookingsFieldsValidator.isNullOrEmpty(sector) && !BookingsFieldsValidator.isNullOrEmpty(osbmApproverModel)) {
+				if (!BookingsFieldsValidator.isNullOrEmpty(sector)
+						&& !BookingsFieldsValidator.isNullOrEmpty(osbmApproverModel)) {
 					if (!userDetailsMap.containsKey(userDetails.getUuid())) {
 						userDetailsMap.put(userDetails.getUuid(), userDetails);
 						userDetailsList.add(userDetails);
 					}
-				}
-				else if (BookingsFieldsValidator.isNullOrEmpty(sector)) {
+				} else if (BookingsFieldsValidator.isNullOrEmpty(sector)) {
 					if (!userDetailsMap.containsKey(userDetails.getUuid())) {
 						userDetailsMap.put(userDetails.getUuid(), userDetails);
 						userDetailsList.add(userDetails);
@@ -938,4 +960,16 @@ public class BookingsServiceImpl implements BookingsService {
 		}
 		return userDetailsList;
 	}
+	
+	/**
+	 * Prepare url for user list.
+	 *
+	 * @return the string builder
+	 */
+	public StringBuilder prepareUrlForUserList() {
+		StringBuilder url = new StringBuilder(config.getUserHost());
+		url.append(config.getUserSearchEndpoint());
+		return url;
+	}
+	
 }

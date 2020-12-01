@@ -1,11 +1,6 @@
 package org.egov.bookings.contract;
 
-import java.io.Serializable;
 import java.util.List;
-
-import org.egov.bookings.model.OsbmApproverModel;
-import org.egov.bookings.model.OsbmFeeModel;
-import org.egov.bookings.model.OsujmFeeModel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -16,23 +11,31 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MasterRequest implements Serializable {
+public class MasterRequest {
 	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 7816338338999208980L;
+	//private static final long serialVersionUID = 7816338338999208980L;
 	
 	/** The approver list. */
 	@JsonProperty("ApproverDetails")
-	private List<OsbmApproverModel> approverList;
+	private List<CommonMasterFields> approverList;
 	
 	/** The osbm fee list. */
 	@JsonProperty("OsbmFeeDetails")
-	private List<OsbmFeeModel> osbmFeeList;
+	private List<CommonMasterFields> osbmFeeList;
 	
 	/** The osujm fee list. */
 	@JsonProperty("OsujmFeeDetails")
-	private List<OsujmFeeModel> osujmFeeList;
+	private List<CommonMasterFields> osujmFeeList;
+	
+	/** The gfcp fee list. */
+	@JsonProperty("GfcpFeeDetails")
+	private List<CommonMasterFields> gfcpFeeList;
+	
+	/** The pacc fee list. */
+	@JsonProperty("PaccFeeDetails")
+	private List<CommonMasterFields> paccFeeList;
 	
 }

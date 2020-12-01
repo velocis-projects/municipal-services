@@ -7,7 +7,6 @@ import org.egov.common.contract.request.RequestInfo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class SearchCriteriaFieldsDTO.
  */

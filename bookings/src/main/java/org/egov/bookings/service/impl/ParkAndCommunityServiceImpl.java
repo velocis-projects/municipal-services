@@ -75,10 +75,20 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 	@Autowired
 	private BookingsService bookingService;
 	
+	/** The lock. */
 	private Lock lock = new ReentrantLock();
 
+	/** The bookings producer. */
 	@Autowired
 	private BookingsProducer bookingsProducer;
+	
+	/** The user service. */
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private BookingsFieldsValidator bookingsFieldsValidator;
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -88,19 +98,24 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 	@Override
 	public BookingsModel createParkAndCommunityBooking(BookingsRequest bookingsRequest) {
 		boolean flag = bookingService.isBookingExists(bookingsRequest.getBookingsModel().getBkApplicationNumber());
-		
+		enrichmentService.enrichReInitiatedRequest(bookingsRequest,flag);
+		if(BookingsConstants.EMPLOYEE.equals(bookingsRequest.getRequestInfo().getUserInfo().getType()))
+		userService.createUser(bookingsRequest, false);
 		if (!flag)
 			enrichmentService.enrichParkCommunityCreateRequest(bookingsRequest);
 		enrichmentService.generateDemand(bookingsRequest);
 
 		if (config.getIsExternalWorkFlowEnabled()) {
-			if (!flag)
-				workflowIntegrator.callWorkFlow(bookingsRequest);
+			if (!flag || bookingsRequest.getBookingsModel().isReInitiateStatus())
+			workflowIntegrator.callWorkFlow(bookingsRequest);
 		}
 		enrichmentService.enrichBookingsDetails(bookingsRequest);
 		try {
 		BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
+		if (!flag)
 		bookingsProducer.push(config.getSaveBookingTopic(), kafkaBookingRequest);
+		else
+			bookingsProducer.push(config.getUpdateBookingTopic(), kafkaBookingRequest);
 		}catch (Exception e) {
 			throw new CustomException("PARK_COMMUNITY_CREATE_ERROR",e.getLocalizedMessage());
 		}
@@ -124,24 +139,23 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 			enrichmentService.enrichBookingsAssignee(bookingsRequest);*/
 
 		String businessService = bookingsRequest.getBookingsModel().getBusinessService();
-
+		bookingsFieldsValidator.validateRefundAmount(bookingsRequest);
 		if (config.getIsExternalWorkFlowEnabled())
 			workflowIntegrator.callWorkFlow(bookingsRequest);
 
-		// bookingsRequest.getBookingsModel().setUuid(bookingsRequest.getRequestInfo().getUserInfo().getUuid());
 		BookingsModel bookingsModel = null;
 		if (!BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())
-				&& BookingsConstants.BUSINESS_SERVICE_PACC.equals(businessService)) {
+				&& !BookingsConstants.OFFLINE_APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())
+				&& BookingsConstants.BUSINESS_SERVICE_PACC.equals(businessService)
+				&& !BookingsConstants.PACC_ACTION_CANCEL.equals(bookingsRequest.getBookingsModel().getBkAction())
+				&& !BookingsConstants.PACC_ACTION_MODIFY.equals(bookingsRequest.getBookingsModel().getBkAction())) {
 			bookingsModel = enrichmentService.enrichPaccDetails(bookingsRequest);
 			bookingsRequest.setBookingsModel(bookingsModel);
 			BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
 			bookingsProducer.push(config.getUpdateBookingTopic(), kafkaBookingRequest);
 			//bookingsModel = parkAndCommunityRepository.save(bookingsModel);
 		} else {
-			if (BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())
-					&& BookingsConstants.BUSINESS_SERVICE_PACC.equals(businessService)) {
-				config.setParkAndCommunityLock(true);
-			}
+			enrichmentService.enrichPaccPaymentDetails(bookingsRequest);
 			BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
 			bookingsProducer.push(config.getUpdateBookingTopic(), kafkaBookingRequest);
 			//bookingsModel = parkAndCommunityRepository.save(bookingsRequest.getBookingsModel());
@@ -164,7 +178,7 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 		List<ParkCommunityHallV1MasterModel> parkCommunityHallV1Master = null;
 		try {
 
-			parkCommunityHallV1Master = parkCommunityHallV1MasterRepository.findByVenueTypeAndSector(parkCommunityFeeMasterRequest.getVenueType(),parkCommunityFeeMasterRequest.getSector());
+			parkCommunityHallV1Master = parkCommunityHallV1MasterRepository.findByVenueTypeAndSectorAndIsActive(parkCommunityFeeMasterRequest.getVenueType(),parkCommunityFeeMasterRequest.getSector(),true);
 			return parkCommunityHallV1Master;
 
 		} catch (Exception e) {
@@ -173,6 +187,9 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.egov.bookings.service.ParkAndCommunityService#availabilitySearch(org.egov.bookings.contract.ParkAndCommunitySearchCriteria)
+	 */
 	@Override
 	public Set<AvailabilityResponse> availabilitySearch(ParkAndCommunitySearchCriteria parkAndCommunitySearchCriteria) {
 
@@ -182,17 +199,23 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 		Set<AvailabilityResponse> bookedDates = new HashSet<>();
 		Set<BookingsModel> bookingsModel = parkAndCommunityRepository.fetchBookedDatesOfParkAndCommunity(
 				parkAndCommunitySearchCriteria.getBookingVenue(), parkAndCommunitySearchCriteria.getBookingType(),
-				parkAndCommunitySearchCriteria.getSector(), date1, BookingsConstants.APPLY);
+				parkAndCommunitySearchCriteria.getSector(), date1, BookingsConstants.PAYMENT_SUCCESS_STATUS,
+				parkAndCommunitySearchCriteria.getApplicationNumber());
 		if (null != bookingsModel) {
 			for (BookingsModel bkModel : bookingsModel) {
-				bookedDates.add(AvailabilityResponse.builder().fromDate(bkModel.getBkFromDate())
-						.toDate(bkModel.getBkToDate()).timeslots(bkModel.getTimeslots()).build());
+				if (!BookingsConstants.PACC_ACTION_CANCEL.equals(bkModel.getBkStatus())) {
+					bookedDates.add(AvailabilityResponse.builder().fromDate(bkModel.getBkFromDate())
+							.toDate(bkModel.getBkToDate()).timeslots(bkModel.getTimeslots()).build());
+				}
 			}
 		}
 		return bookedDates;
 
 	}
 
+	/* (non-Javadoc)
+	 * @see org.egov.bookings.service.ParkAndCommunityService#fetchBookedDates(org.egov.bookings.web.models.BookingsRequest)
+	 */
 	@Override
 	public Set<Date> fetchBookedDates(BookingsRequest bookingsRequest) {
 
@@ -206,8 +229,9 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 			lock.lock();
 			if (config.isParkAndCommunityLock()) {
 				Set<BookingsModel> bookingsModelSet = parkAndCommunityRepository.fetchBookedDatesOfParkAndCommunity(
-						bookingsRequest.getBookingsModel().getBkBookingVenue(), bookingsRequest.getBookingsModel().getBkBookingType(),
-						bookingsRequest.getBookingsModel().getBkSector(), date1, BookingsConstants.APPLY);
+						bookingsRequest.getBookingsModel().getBkBookingVenue(),
+						bookingsRequest.getBookingsModel().getBkBookingType(),
+						bookingsRequest.getBookingsModel().getBkSector(), date1, BookingsConstants.PAYMENT_SUCCESS_STATUS, bookingsRequest.getBookingsModel().getBkApplicationNumber());
 
 				List<LocalDate> fetchBookedDates = enrichmentService.enrichBookedDates(bookingsModelSet);
 				
@@ -234,6 +258,9 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see org.egov.bookings.service.ParkAndCommunityService#findParkAndCommunityFee(java.lang.String)
+	 */
 	@Override
 	public ParkCommunityHallV1MasterModel findParkAndCommunityFee(String bookingVenue) {
 		ParkCommunityHallV1MasterModel parkCommunityHallFee = null;
@@ -245,6 +272,9 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.egov.bookings.service.ParkAndCommunityService#fetchAmount(org.egov.bookings.contract.ParkCommunityFeeMasterRequest)
+	 */
 	@Override
 	public ParkCommunityFeeMasterResponse fetchAmount(ParkCommunityFeeMasterRequest parkCommunityFeeMasterRequest) {
 		ParkCommunityHallV1MasterModel parkCommunityHallFee = null;

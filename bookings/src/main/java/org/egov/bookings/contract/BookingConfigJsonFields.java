@@ -5,12 +5,10 @@ import java.io.Serializable;
 /**
  * The Class BookingConfigJsonFields.
  */
-public class BookingConfigJsonFields implements Serializable {
+public class BookingConfigJsonFields implements Serializable{
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -330247269344522335L;
+	/** The Constant serialVersionUID. */
+	private static final long serialVersionUID = 6055478037205618088L;
 
 	/** The key. */
 	private String key;
@@ -53,4 +51,6 @@ public class BookingConfigJsonFields implements Serializable {
 	public void setValue(String value) {
 		this.value = value;
 	}
+
+	
 }

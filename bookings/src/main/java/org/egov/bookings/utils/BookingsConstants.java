@@ -399,6 +399,7 @@ public class BookingsConstants {
 	/** The Constant ACTION. */
 	public static final String ACTION = "action";
 	
+	/** The Constant ACTION_INITIATE. */
 	public static final String ACTION_INITIATE = "INITIATE";
 
 	/** The Constant BUSINESS_SERVICE. */
@@ -446,6 +447,7 @@ public class BookingsConstants {
 	/** The Constant BUSINESS_SERVICE_NLUJM. */
 	public static final String BUSINESS_SERVICE_NLUJM = "NLUJM";
 	
+	/** The Constant BUSINESS_SERVICE_PACC. */
 	public static final String BUSINESS_SERVICE_PACC = "PACC";
 
 	/** The Constant EMPLOYEE. */
@@ -461,13 +463,13 @@ public class BookingsConstants {
 	public static final String EMPLOYEE = "EMPLOYEE";
 
 	/** The Constant OSBM_APPROVER. */
-	public static final String OSBM_APPROVER = "OSBM_APPROVER";
+	public static final String OSBM_APPROVER = "BK_OSBM_APPROVER";
 
 	/** The Constant MCC_HELPDESK_USER. */
-	public static final String MCC_HELPDESK_USER = "MCC_HELPDESK_USER";
+	public static final String MCC_HELPDESK_USER = "BK_MCC_HELPDESK_USER";
 
 	/** The Constant COMMERCIAL_GROUND_VIEWER. */
-	public static final String COMMERCIAL_GROUND_VIEWER = "COMMERCIAL_GROUND_VIEWER";
+	public static final String COMMERCIAL_GROUND_VIEWER = "BK_COMMERCIAL_GROUND_VIEWER";
 
 	/** The Constant GROUND_FOR_COMMERCIAL_PURPOSE. */
 	public static final String GROUND_FOR_COMMERCIAL_PURPOSE = "GROUND_FOR_COMMERCIAL_PURPOSE";
@@ -482,7 +484,7 @@ public class BookingsConstants {
 	public static final String BK_SECTOR = "bkSector";
 
 	/** The Constant MCC_APPROVER. */
-	public static final String MCC_APPROVER = "MCC_APPROVER";
+	public static final String MCC_APPROVER = "BK_MCC_APPROVER";
 
 	/** The Constant ACTION_SPECIAL_APPLY. */
 	public static final String ACTION_DELIVER = "DELIVER";
@@ -505,73 +507,216 @@ public class BookingsConstants {
 	/** The Constant APPROVER. */
 	public static final String APPROVER = "approver";
 	
-	/** The Constant USER_ID. */
-	public static final String USER_ID = "userId";
-	
-	public static final String PARKS_AND_COMMUNITY_VIEWER = "PARKS_AND_COMMUNITY_VIEWER";
+	/** The Constant PARKS_AND_COMMUNITY_VIEWER. */
+	public static final String PARKS_AND_COMMUNITY_VIEWER = "BK_PARKS_AND_COMMUNITY_VIEWER";
 	
 	
 	
 	// ACTION_STATUS combinations for notification
+	/** The Constant ACTION_STATUS_INITIATED. */
 	//OSBM,OSUJM
     public static final String ACTION_STATUS_INITIATED = "INITIATE_INITIATED";
+    
+    /** The Constant ACTION_STATUS_PENDINGAPPROVAL. */
     public static final String ACTION_STATUS_PENDINGAPPROVAL = "APPLY_PENDINGAPPROVAL";
+    
+    /** The Constant ACTION_STATUS_PENDINGPAYMENT. */
     public static final String ACTION_STATUS_PENDINGPAYMENT = "APPROVE_PENDINGPAYMENT";
+    
+    /** The Constant ACTION_STATUS_REJECTED. */
     public static final String ACTION_STATUS_REJECTED  = "REJECT_REJECTED";
+    
+    /** The Constant ACTION_STATUS_APPROVED. */
     public static final String ACTION_STATUS_APPROVED = "PAY_APPROVED";
+    
+    /** The Constant ACTION_STATUS_SPECIALAPPLY_DELIVERED. */
     //BWT
     public static final String ACTION_STATUS_SPECIALAPPLY_DELIVERED = "SPECIALAPPLY_PENDINGASSIGNMENTDRIVER";
+    
+    /** The Constant ACTION_STATUS_PAIDAPPLY_PENDINGASSIGNMENTDRIVER. */
     public static final String ACTION_STATUS_PAIDAPPLY_PENDINGASSIGNMENTDRIVER = "PAIDAPPLY_PENDINGASSIGNMENTDRIVER";
+    
+    /** The Constant ACTION_STATUS_FAILUREAPPLY_PENDINGASSIGNMENTDRIVER. */
     public static final String ACTION_STATUS_FAILUREAPPLY_PENDINGASSIGNMENTDRIVER = "FAILUREAPPLY_PENDINGASSIGNMENTDRIVER";
+    
+    /** The Constant ACTION_STATUS_PENDINGUPDATE. */
     public static final String ACTION_STATUS_PENDINGUPDATE = "ASSIGNDRIVER_PENDINGUPDATE";
+    
+    /** The Constant ACTION_STATUS_DELIVERED. */
     public static final String ACTION_STATUS_DELIVERED = "DELIVER_DELIVERED";
+    
+    /** The Constant ACTION_STATUS_NOTDELIVERED. */
     public static final String ACTION_STATUS_NOTDELIVERED = "NOTDELIVER_NOTDELIVERED";
+    
+    /** The Constant ACTION_STATUS_APPLIED. */
     //GFCP
     public static final String ACTION_STATUS_APPLIED  = "APPLY_APPLIED";
+    
+    /** The Constant ACTION_STATUS_PENDINGAPPROVALOSD. */
     //NLUJM
     public static final String ACTION_STATUS_PENDINGAPPROVALOSD = "APPROVE_PENDINGAPPROVALOSD";
+    
+    /** The Constant ACTION_STATUS_PENDINGPUBLISH. */
     public static final String ACTION_STATUS_PENDINGPUBLISH = "APPROVEOSD_PENDINGPUBLISH";
+    
+    /** The Constant ACTION_STATUS_PUBLISH. */
     public static final String ACTION_STATUS_PUBLISH = "PUBLISH_PUBLISH";
 	//
 	
+	/** The Constant NOTIFICATION_INITIATED. */
 	public static final String NOTIFICATION_INITIATED = "bk.en.counter.initiate";
+	
+	/** The Constant NOTIFICATION_PENDINGAPPROVAL. */
 	public static final String NOTIFICATION_PENDINGAPPROVAL = "bk.en.counter.apply";
+	
+	/** The Constant NOTIFICATION_PENDINGPAYMENT. */
 	public static final String NOTIFICATION_PENDINGPAYMENT = "bk.en.counter.approved";
+	
+	/** The Constant NOTIFICATION_REJECTED. */
 	public static final String NOTIFICATION_REJECTED = "bk.en.counter.rejected";
+	
+	/** The Constant NOTIFICATION_APPROVED. */
 	public static final String NOTIFICATION_APPROVED = "bk.en.counter.pay";
+	
+	/** The Constant NOTIFICATION_PENDINGASSIGNMENTDRIVER. */
 	public static final String NOTIFICATION_PENDINGASSIGNMENTDRIVER = "bk.en.counter.paidapply";
+	
+	/** The Constant NOTIFICATION_PENDINGUPDATE. */
 	public static final String NOTIFICATION_PENDINGUPDATE = "bk.en.counter.assigndriver";
+	
+	/** The Constant NOTIFICATION_DELIVERED. */
 	public static final String NOTIFICATION_DELIVERED = "BK_WF_BWT_DELIVERED";
+	
+	/** The Constant NOTIFICATION_NOTDELIVERED. */
 	public static final String NOTIFICATION_NOTDELIVERED = "BK_WF_BWT_NOTDELIVERED";
+	
+	/** The Constant NOTIFICATION_APPLIED. */
 	public static final String NOTIFICATION_APPLIED = "bk.en.counter.apply";
+    
+    /** The Constant NOTIFICATION_OBJECT_MODIFIED. */
     public static final String NOTIFICATION_OBJECT_MODIFIED = "tl.en.edit.object.modified";
+    
+    /** The Constant DEFAULT_OBJECT_MODIFIED_MSG. */
     public static final String DEFAULT_OBJECT_MODIFIED_MSG = "Dear <1>,Your Trade License with application number <APPLICATION_NUMBER> was modified.";
+    
+    /** The Constant EMAIL_SUBJECT. */
     public static  final String EMAIL_SUBJECT = "Chandigarh mSeva Booking Application Status";
+    
+    /** The Constant BILL_AMOUNT_JSONPATH. */
     public static final String BILL_AMOUNT_JSONPATH = "$.billResponse.Bill[0].totalAmount";
+    
+    /** The Constant TRADE_LICENSE_MODULE_CODE. */
     public static final String TRADE_LICENSE_MODULE_CODE = "BK";
+    
+    /** The Constant NOTIFICATION_LOCALE. */
     public static final String NOTIFICATION_LOCALE = "en_IN";
+    
+    /** The Constant MODULE. */
     public static final String MODULE = "rainmaker-services";
+    
+    /** The Constant INITIATED. */
     public static final String INITIATED = "INITIATED";
+    
+    /** The Constant PARKS. */
     public static final String PARKS = "Parks";
+    
+    /** The Constant COMMUNITY_CENTER. */
     public static final String COMMUNITY_CENTER = "Community Center";
-    public static final String DEO = "DEO";
-    public static final String CLERK = "CLERK";
-    public static final String SENIOR_ASSISTANT = "SENIOR_ASSISTANT";
-    public static final String AUDIT_DEPARTMENT = "AUDIT_DEPARTMENT";
-    public static final String CHIEF_ACCOUNT_OFFICER = "CHIEF_ACCOUNT_OFFICER";
-    public static final String PAYMENT_PROCESSING_AUTHORITY = "PAYMENT_PROCESSING_AUTHORITY";
-    public static final String E_SAMPARK_CENTER = "E-SAMPARK-CENTER";
-    public static final String MCC_USER = "MCC_USER";
+    
+    /** The Constant DEO. */
+    public static final String DEO = "BK_DEO";
+    
+    /** The Constant CLERK. */
+    public static final String CLERK = "BK_CLERK";
+    
+    /** The Constant SENIOR_ASSISTANT. */
+    public static final String SENIOR_ASSISTANT = "BK_SENIOR_ASSISTANT";
+    
+    /** The Constant AUDIT_DEPARTMENT. */
+    public static final String AUDIT_DEPARTMENT = "BK_AUDIT_DEPARTMENT";
+    
+    /** The Constant CHIEF_ACCOUNT_OFFICER. */
+    public static final String CHIEF_ACCOUNT_OFFICER = "BK_CHIEF_ACCOUNT_OFFICER";
+    
+    /** The Constant PAYMENT_PROCESSING_AUTHORITY. */
+    public static final String PAYMENT_PROCESSING_AUTHORITY = "BK_PAYMENT_PROCESSING_AUTHORITY";
+    
+    /** The Constant E_SAMPARK_CENTER. */
+    public static final String E_SAMPARK_CENTER = "BK_E-SAMPARK-CENTER";
+    
+    /** The Constant MCC_USER. */
+    public static final String MCC_USER = "BK_MCC_USER";
+    
+    /** The Constant NLUJM_BOOKING_TYPE. */
     public static final String NLUJM_BOOKING_TYPE = "New Location Open Spaces Under Jurisdiction of MCC";
+    
+    /** The Constant NOTIFICATION_UPDATE. */
     public static final String NOTIFICATION_UPDATE = "bk.en.counter.update";
+    
+    /** The Constant BK_WF_NLUJM. */
     public static final String BK_WF_NLUJM = "BK_WF_NLUJM_";
+    
+    /** The Constant BK_WF_OSBM. */
     public static final String BK_WF_OSBM = "BK_WF_OSBM_";
+    
+    /** The Constant BK_WF_BWT. */
     public static final String BK_WF_BWT = "BK_WF_BWT_";
+    
+    /** The Constant BK. */
     public static final String BK = "BK_";
+    
+    /** The Constant BK_CGB. */
     public static final String BK_CGB = "BK_CGB_";
+    
+    /** The Constant BK_WF_OSUJM. */
     public static final String BK_WF_OSUJM = "BK_WF_OSUJM_";
+    
+    /** The Constant BK_WF_PACC. */
     public static final String BK_WF_PACC = "BK_WF_PACC_";
-    public static final String MAIL_NOTIFICATION_INITIATED = "bk.m.counter.initiate";
+    
+    /** The Constant DATE_FORMAT. */
+    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    
+    /** The Constant TIME_ZONE. */
+    public static final String TIME_ZONE = "Asia/Kolkata";
+    
+    /** The Constant MDMS_MODULE_NAME. */
+    public static final String MDMS_MODULE_NAME = "ACCESSCONTROL-ROLES";
+    
+    /** The Constant MDMS_FILE_NAME. */
+    public static final String MDMS_FILE_NAME = "roles";
+
+	/** The Constant PAYMENT_SUCCESS_STATUS. */
+	public static final String PAYMENT_SUCCESS_STATUS = "SUCCESS";
+	
+	/** The Constant PACC_TAXHEAD_CODE_3. */
+	public static final String PACC_TAXHEAD_CODE_3 = "PACC_LOCATION_AND_VENUE_CHANGE_AMOUNT";
+	
+	/** The Constant DELIVER. */
+	public static final String DELIVER = "DELIVER";
+	
+	public static final String PACC_RE_INITIATED_ACTION = "RE_INITIATE";
+
+	public static final String BK_WATER_TANKER_DELIVER_ACTION_KEY = "BK_WATER_TANKER_DELIVER_ACTION";
+
+	/** The Constant BOOKING_MDMS_MODULE_NAME. */
+	public static final String BOOKING_MDMS_MODULE_NAME = "Booking";
+	
+	public static final String PACC_TAXHEAD_CODE_LUXURY_TAX = "LUXURY_TAX";
+	
+	public static final String PACC_TAXHEAD_CODE_REFUNDABLE_SECURITY_AMOUNT = "REFUNDABLE_SECURITY";
+	
+	public static final String PACC_TAXHEAD_CODE_FACILITATION_CHARGE = "FACILITATION_CHARGE";
+	
+	public static final String PACC_TAXHEAD_CODE_PACC_TAX = "PACC_TAX";
+	
+	public static final String PACC_TAXHEAD_CODE_PACC = "PACC";
+	
+	public static final String OFFLINE_APPLY = "OFFLINE_APPLY";
+
+	public static final String BOOKING_MDMS_FILE_NAME = "Booking_Config";
+	
+	public static final String MAIL_NOTIFICATION_INITIATED = "bk.m.counter.initiate";
 	
 	public static final String MAIL_NOTIFICATION_PENDINGAPPROVAL = "bk.m.counter.apply";
 	
@@ -589,15 +734,7 @@ public class BookingsConstants {
 	
 	public static final String MAIL_NOTIFICATION_UPDATE = "bk.m.counter.update";
 	
-    public static final String NOTIFICATION_DRIVER = "bk.en.counter.driver";
-    
-    public static final String HOUSE_NO = "House No.";
-    
-	public static final String BOOKING_MDMS_MODULE_NAME = "Booking";
-	
-	public static final String BOOKING_MDMS_FILE_NAME = "Booking_Config";
-	
-	public static final String BK_WATER_TANKER_DELIVER_ACTION_KEY = "BK_WATER_TANKER_DELIVER_ACTION";
+	public static final String NOTIFICATION_DRIVER = "bk.en.counter.driver";
 	
 	public static final String MIME_TYPE = "application/pdf";
 	
@@ -608,4 +745,93 @@ public class BookingsConstants {
 	public static final String PAYMENT_RECEIPT = "paymentReceipt";
 	
 	public static final String PERMISSION_LETTER = "permissionLetter";
+	
+	public static final String HOUSE_NO = "House No.";
+	
+	public static final int DAYS_FIFTEEN = 15;
+    
+	public static final String BOOKING_ROLES = "BookingRoles";
+	
+	public static final String AND = "and";
+	
+	public static final int HOURS = 18;
+	
+	public static final int MINUTES = 29;
+	
+	public static final int SECONDS = 59;
+	
+	public static final String PARKS_AND_COMMUNITY_CENTER = "Parks and Community Center";
+	
+	public static final String PACC_ACTION_CANCEL = "CANCEL";
+	
+	public static final String SUPERVISOR = "BK_SUPERVISOR";
+	
+	public static final String OSD = "BK_OSD";
+	
+	public static final String ACTION_STATUS_RE_INITIATED  = "RE_INITIATE_RE_INITIATED";
+	
+	public static final String ACTION_STATUS_CANCEL  = "CANCEL_PENDING_FOR_APPROVAL_CLEARK_DEO";
+	
+	public static final String ACTION_STATUS_SECURITY_REFUND  = "SECURITY_REFUND_PENDING_FOR_APPROVAL_SUPERVISOR";
+	
+	public static final String ACTION_STATUS_MODIFY  = "MODIFY_MODIFIED";
+	
+	public static final String ACTION_STATUS_APPROVE_CLERK_DEO  = "APPROVE_CLERK_DEO_PENDING_FOR_APPROVAL_SENIOR_ASSISTANT";
+	
+	public static final String ACTION_STATUS_APPROVE_SENIOR_ASSISTANT  = "APPROVE_SENIOR_ASSISTANT_PENDING_FOR_APPROVAL_AUDIT_DEPARTMENT";
+	
+	public static final String ACTION_STATUS_APPROVE_AUDIT_DEPARTMENT  = "APPROVE_AUDIT_DEPARTMENT_PENDING_FOR_APPROVAL_CAO";
+	
+	public static final String ACTION_STATUS_APPROVE_CHIEF_ACCOUNT_OFFICER  = "APPROVE_CHIEF_ACCOUNT_OFFICER_PENDING_FOR_DISBURSEMENT";
+	
+	public static final String ACTION_STATUS_PAY  = "PAY_PAYMENT_DISBURSED";
+	
+	public static final String ACTION_STATUS_OFFLINE_INITIATE  = "OFFLINE_INITIATE_OFFLINE_INITIATED";
+	
+	public static final String ACTION_STATUS_OFFLINE_APPLY  = "OFFLINE_APPLY_OFFLINE_APPLIED";
+	
+	public static final String ACTION_STATUS_OFFLINE_RE_INITIATE  = "OFFLINE_RE_INITIATE_OFFLINE_RE_INITIATED";
+	
+	public static final String ACTION_STATUS_OFFLINE_CANCEL  = "OFFLINE_CANCEL_PENDING_FOR_DISBURSEMENT";
+	
+	public static final String ACTION_STATUS_OFFLINE_SECURITY_REFUND  = "OFFLINE_SECURITY_REFUND_PENDING_FOR_APPROVAL_SUPERVISOR";
+	
+	public static final String ACTION_STATUS_OFFLINE_MODIFY  = "OFFLINE_MODIFY_OFFLINE_MODIFIED";
+	
+	public static final String ACTION_STATUS_APPROVE_SUPERVISOR  = "APPROVE_SUPERVISOR_PENDING_FOR_APPROVAL_OSD";
+	
+	public static final String ACTION_STATUS_APPROVE_OSD  = "APPROVE_OSD_PENDING_FOR_APPROVAL_AUDIT_DEPARTMENT";
+	
+	public static final String NOTIFICATION_RE_INITIATED = "bk.en.counter.re_initiate";
+	
+	public static final String NOTIFICATION_CANCEL = "bk.en.counter.cancel";
+	
+	public static final String NOTIFICATION_SECURITY_REFUND = "bk.en.counter.security_refund";
+	
+	public static final String NOTIFICATION_MODIFY = "bk.en.counter.modify";
+	
+	public static final String NOTIFICATION_DISBURSED = "bk.en.counter.disbursed";
+	
+	public static final String ACTION_STATUS_PACC_REJECTED = "PACC_REJECT_REJECTED";
+	
+	public static final String NOTIFICATION_PACC_REJECTED = "bk.en.counter.pacc_reject";
+	
+	public static final String MAIL_NOTIFICATION_RE_INITIATED = "bk.m.counter.re_initiate";
+	
+	public static final String MAIL_NOTIFICATION_CANCEL = "bk.m.counter.cancel";
+	
+	public static final String MAIL_NOTIFICATION_SECURITY_REFUND = "bk.m.counter.security_refund";
+	
+	public static final String MAIL_NOTIFICATION_MODIFY = "bk.m.counter.modify";
+	
+	public static final String MAIL_NOTIFICATION_DISBURSED = "bk.m.counter.disbursed";
+	
+	public static final String MAIL_NOTIFICATION_PACC_REJECTED = "bk.m.counter.pacc_reject";
+	
+	public static final String NOTIFICATION_APPROVER_MSG = "bk.en.counter.approver_msg";
+	
+	public static final String MAIL_NOTIFICATION_APPROVER_MSG = "bk.m.counter.approver_msg";
+	
+	public static final String PACC_ACTION_MODIFY = "MODIFY";
+	
 }

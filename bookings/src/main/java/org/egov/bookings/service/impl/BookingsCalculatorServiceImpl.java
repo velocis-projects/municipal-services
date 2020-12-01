@@ -1,9 +1,13 @@
 package org.egov.bookings.service.impl;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,6 +17,7 @@ import java.util.Set;
 import javax.transaction.Transactional;
 
 import org.egov.bookings.config.BookingsConfiguration;
+import org.egov.bookings.contract.BillResponse;
 import org.egov.bookings.contract.CommercialGroundFeeSearchCriteria;
 import org.egov.bookings.contract.RequestInfoWrapper;
 import org.egov.bookings.contract.TaxHeadMasterFields;
@@ -24,6 +29,7 @@ import org.egov.bookings.models.demand.Demand;
 import org.egov.bookings.models.demand.DemandDetail;
 import org.egov.bookings.models.demand.DemandRequest;
 import org.egov.bookings.models.demand.DemandResponse;
+import org.egov.bookings.models.demand.GenerateBillCriteria;
 import org.egov.bookings.models.demand.TaxHeadEstimate;
 import org.egov.bookings.models.demand.TaxHeadMaster;
 import org.egov.bookings.models.demand.Demand.StatusEnum;
@@ -33,7 +39,9 @@ import org.egov.bookings.repository.impl.DemandRepository;
 import org.egov.bookings.repository.impl.IdGenRepository;
 import org.egov.bookings.repository.impl.ServiceRequestRepository;
 import org.egov.bookings.service.BookingsCalculatorService;
+import org.egov.bookings.service.BookingsService;
 import org.egov.bookings.service.CommercialGroundService;
+import org.egov.bookings.service.DemandService;
 import org.egov.bookings.service.OsujmService;
 import org.egov.bookings.service.ParkAndCommunityService;
 import org.egov.bookings.utils.BookingsCalculatorConstants;
@@ -90,17 +98,25 @@ public class BookingsCalculatorServiceImpl implements BookingsCalculatorService 
 	@Autowired
 	private ObjectMapper mapper;
 
+	/** The commercial ground service. */
 	@Autowired
 	private CommercialGroundService commercialGroundService;
 
+	/** The osujm service. */
 	@Autowired
 	private OsujmService osujmService;
 	
+	/** The enrichment service. */
 	@Autowired
 	private EnrichmentService enrichmentService;
 	
+	/** The park and community service. */
 	@Autowired
 	private ParkAndCommunityService parkAndCommunityService;
+	
+	/** The demand service. */
+	@Autowired
+	private DemandService demandService;
 	
 	
 	/**
@@ -216,38 +232,40 @@ public class BookingsCalculatorServiceImpl implements BookingsCalculatorService 
 			break;
 			
 		case BookingsConstants.BUSINESS_SERVICE_PACC:
+			BigDecimal amount = BigDecimal.ZERO;
+			BigDecimal finalAmount = BigDecimal.ZERO;
+			BigDecimal rent = BigDecimal.ZERO;
+			BigDecimal cleaningCharges = BigDecimal.ZERO;
 			ParkCommunityHallV1MasterModel parkCommunityHallV1FeeMaster = getParkAndCommunityAmount(bookingsRequest);
 			BigDecimal days = enrichmentService.extractDaysBetweenTwoDates(bookingsRequest);
-			BigDecimal amount = BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getCleaningCharges())+Long.valueOf(parkCommunityHallV1FeeMaster.getRent()));
-			BigDecimal finalAmount = days.multiply(amount);
-		//	BigDecimal finalAmount = new BigDecimal(4400);
-			for (TaxHeadMasterFields taxHeadEstimate : taxHeadMasterFieldList) {
-				if (taxHeadEstimate.getCode().equals(taxHeadCode1)) {
-					taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(), finalAmount,
-							taxHeadEstimate.getCategory()));
-				}
-				/*if (taxHeadEstimate.getCode().equals(taxHeadCode2)) {
-					taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
-							finalAmount.multiply((BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getSurcharge())).divide(new BigDecimal(100)))),
-							taxHeadEstimate.getCategory()));
-				}*/
-				if (taxHeadEstimate.getCode().equals(BookingsCalculatorConstants.PACC_CGST)) {
-					taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
-							finalAmount.multiply((BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getCgstRate())).divide(new BigDecimal(100)))),
-							taxHeadEstimate.getCategory()));
-				}
-				if (taxHeadEstimate.getCode().equals(BookingsCalculatorConstants.PACC_UGST)) {
-					taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
-							finalAmount.multiply((BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getUtgstRate())).divide(new BigDecimal(100)))),
-							taxHeadEstimate.getCategory()));
-				}
+			if(BookingsConstants.EMPLOYEE.equals(bookingsRequest.getRequestInfo().getUserInfo().getType())) {
+				rent = BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getRent()));
+			    cleaningCharges = BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getCleaningCharges()));
+				amount = days.multiply(rent);
+				BigDecimal rentAfterDiscount = amount.multiply(bookingsRequest.getBookingsModel().getDiscount().divide(new BigDecimal(100))); 
+				BigDecimal rentAfterDiscount1 = amount.subtract(rentAfterDiscount);
+				finalAmount = cleaningCharges.add(rentAfterDiscount1);
 			}
+			else {
+				 rent = BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getRent()));
+				 cleaningCharges = BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getCleaningCharges()));
+				 amount = days.multiply(rent);
+				 finalAmount = cleaningCharges.add(amount);
+			}
+			taxHeadEstimate1 = enrichmentService.enrichPaccAmountForBookingChange(bookingsRequest, finalAmount,
+					taxHeadCode1, taxHeadCode2, taxHeadMasterFieldList, parkCommunityHallV1FeeMaster);	
 			break;
 			
 		}
 		return taxHeadEstimate1;
 	}
 
+	/**
+	 * Gets the park and community amount.
+	 *
+	 * @param bookingsRequest the bookings request
+	 * @return the park and community amount
+	 */
 	private ParkCommunityHallV1MasterModel getParkAndCommunityAmount(BookingsRequest bookingsRequest) {
 
 		ParkCommunityHallV1MasterModel parkCommunityHallV1FeeMaster = null;
@@ -263,6 +281,9 @@ public class BookingsCalculatorServiceImpl implements BookingsCalculatorService 
 		return parkCommunityHallV1FeeMaster;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.egov.bookings.service.BookingsCalculatorService#getJurisdicationAmount(org.egov.bookings.web.models.BookingsRequest)
+	 */
 	public BigDecimal getJurisdicationAmount(BookingsRequest bookingsRequest) {
 
 		OsujmFeeModel osujmFeeModel = null;
@@ -325,25 +346,54 @@ public class BookingsCalculatorServiceImpl implements BookingsCalculatorService 
 	 */
 	public BigDecimal getOsbmAmount(BookingsRequest bookingsRequest) {
 
-		OsbmFeeModel osbmFeeModel = null;
+		List<OsbmFeeModel> osbmFeeModel = null;
+		BigDecimal amount = null;
 		try {
+			
+			LocalDate currentDate = LocalDate.now();
 			String constructionType = bookingsRequest.getBookingsModel().getBkConstructionType();
 			String durationInMonths = bookingsRequest.getBookingsModel().getBkDuration();
 			String storage = bookingsRequest.getBookingsModel().getBkAreaRequired();
 			String villageCity = bookingsRequest.getBookingsModel().getBkVillCity();
 			String residentialCommercial = bookingsRequest.getBookingsModel().getBkType();
-
+			//String toDateInString = "";
 			osbmFeeModel = osbmFeeRepository
 					.findByVillageCityAndResidentialCommercialAndStorageAndDurationInMonthsAndConstructionType(
 							villageCity, residentialCommercial, storage, durationInMonths, constructionType);
-		if(BookingsFieldsValidator.isNullOrEmpty(osbmFeeModel)) {
+			
+			if(BookingsFieldsValidator.isNullOrEmpty(osbmFeeModel)) {
+				throw new CustomException("DATA_NOT_FOUND","There is not any amount for this osbm criteria in database");
+			}
+			
+			for(OsbmFeeModel osbmFeeModel1 : osbmFeeModel) {
+				if(BookingsFieldsValidator.isNullOrEmpty(osbmFeeModel1.getFromDate())) {
+					throw new CustomException("DATA_NOT_FOUND","There is no from date for this osbm criteria in database");
+				}
+				String pattern = "yyyy-MM-dd";
+				DateFormat df = new SimpleDateFormat(pattern);
+				String fromDateInString = df.format(osbmFeeModel1.getFromDate());
+				LocalDate fromDate = LocalDate.parse(fromDateInString);
+				//LocalDate toDate = LocalDate.parse(toDateInString);
+				if(BookingsFieldsValidator.isNullOrEmpty(osbmFeeModel1.getToDate()) && currentDate.isAfter(fromDate) || currentDate.isEqual(fromDate)) {
+					//toDateInString = df.format(osbmFeeModel1.getToDate());
+					amount = new BigDecimal(osbmFeeModel1.getAmount());
+				}
+				if (!BookingsFieldsValidator.isNullOrEmpty(osbmFeeModel1.getToDate())
+						&& (fromDate.isEqual(currentDate) || fromDate.isBefore(currentDate))
+						&& (currentDate.isBefore(LocalDate.parse(df.format(osbmFeeModel1.getToDate()))))) {
+					amount = new BigDecimal(osbmFeeModel1.getAmount());
+					break;
+				}
+			}
+			
+		if(BookingsFieldsValidator.isNullOrEmpty(amount)) {
 			throw new CustomException("DATA_NOT_FOUND","There is not any amount for this osbm criteria in database");
 		}
 			
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Exception while fetching osbm amount from database");
+			throw new IllegalArgumentException("Exception while fetching osbm amount from database : "+e.getLocalizedMessage());
 		}
-		return new BigDecimal(osbmFeeModel.getAmount());
+		return amount;
 	}
 
 	/**

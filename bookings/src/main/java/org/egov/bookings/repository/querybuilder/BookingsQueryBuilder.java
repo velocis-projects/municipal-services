@@ -20,7 +20,7 @@ public class BookingsQueryBuilder {
 			+ "action_v2.\"action\" = :action) and euv.role_tenantid = :role_tenantId));";
 
 	/** The Constant FIND_APPLICATION_NUMBER. */
-	public static final String FIND_APPLICATION_NUMBER = "select businessid from eg_wf_processinstance_v2 as ewpv "
+	public static final String FIND_APPLICATION_NUMBER = "select ewpv.businessid from eg_wf_processinstance_v2 as ewpv "
 			+ "inner join eg_wf_state_v2 as ewsv on ewsv.uuid = ewpv.status " 
 			+ "inner join eg_wf_action_v2 as ewav on ewav.currentstate = ewsv.uuid "
 			+ "and ewav.roles = :roles";
@@ -31,7 +31,7 @@ public class BookingsQueryBuilder {
 			+ "inner join eg_wf_action_v2 as ewav on ewav.currentstate = ewsv.uuid "
 			+ "and ewav.roles like (%:roles%)";
 	//where ewpv.action != 'INITIATE'
-	//inner join eg_wf_action_v2 as ewav on ewav.currentstate = ewsv.uuid or ewav.nextstate = ewsv.uuid 
+	//inner join eg_wf_action_v2 as ewav on ewav.currentstate = ewsv.uuid or ewav.nextstate = ewsv.uuid
 	
 	/** The Constant FIND_SECTOR_LIST. */
 	public static final String FIND_SECTOR_LIST = "select sector from bk_approver where uuid = :uuid";
@@ -67,20 +67,13 @@ public class BookingsQueryBuilder {
 	/** The Constant FIND_APPROVER_NAME. */
 	public static final String FIND_APPROVER_NAME = "select roles from eg_wf_action_v2 where currentstate = :state";
 	
-	/** The Constant FIND_USER_ID. */
-	public static final String FIND_USER_ID = "select user_id from eg_userrole_v1 where role_code = :approver";
-	
-	/** The Constant FIND_USER_LIST. */
-	public static final String FIND_USER_LIST = "select uuid, username from eg_user where id in (:userId)";
-
 	/** The Constant CHECK_PARK_AND_COMMUNITY_AVAILABILITY. */
-
-	/** The Constant CHECK_PARK_AND_COMMUNITY_AVAILABILITY. */
-	public static final String CHECK_PARK_AND_COMMUNITY_AVAILABILITY = "select * from bk_bookings where bk_booking_venue =:bookingVenue and bk_Booking_Type =:bookingType and bk_sector =:sector and bk_to_date >= :date and bk_action =:APPLY";
+	//public static final String CHECK_PARK_AND_COMMUNITY_AVAILABILITY = "select * from bk_bookings where bk_booking_venue =:bookingVenue and bk_Booking_Type =:bookingType and bk_sector =:sector and bk_to_date >= :date and bk_action =:APPLY or bk_action =:OFFLINE_APPLY and bk_application_number != :applicationNumber";
+	public static final String CHECK_PARK_AND_COMMUNITY_AVAILABILITY = "select * from bk_bookings where bk_booking_venue =:bookingVenue and bk_Booking_Type =:bookingType and bk_sector =:sector and bk_to_date >= :date and bk_payment_status =:SUCCESS and bk_application_number !=:applicationNumber";
 	
-	/** The Constant FIND_APPLICATION_LIST. */
 	public static final String FIND_APPLICATION_LIST = "select ewpv.businessid from eg_wf_processinstance_v2 as ewpv "
 			+ "inner join eg_wf_state_v2 as ewsv on ewsv.state is null "
 			+ "inner join eg_wf_action_v2 as ewav on ewav.currentstate = ewsv.uuid " 
 			+ "and ewpv.action = :action and ewav.roles = :approver";
+	
 }

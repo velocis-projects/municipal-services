@@ -1,14 +1,11 @@
 package org.egov.bookings.web.models;
 
 import java.util.Map;
-
 import javax.validation.Valid;
-
 import org.egov.bookings.model.BookingsModel;
+import org.egov.bookings.model.user.OwnerInfo;
 import org.egov.common.contract.request.RequestInfo;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,8 +27,10 @@ public class BookingsRequest {
 
 	@JsonProperty("RequestInfo")
 	private RequestInfo requestInfo;
-
+	
 	@JsonProperty("UrlData")
 	private Map<String, String> urlData;
+	
+	private OwnerInfo user;
 	
 }

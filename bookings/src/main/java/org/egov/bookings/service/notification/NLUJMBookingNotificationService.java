@@ -24,7 +24,8 @@ import org.springframework.util.CollectionUtils;
  */
 @Service
 public class NLUJMBookingNotificationService {
-	 /** The config. */
+	 
+	/** The config. */
     private BookingsConfiguration config;
 
     /** The service request repository. */

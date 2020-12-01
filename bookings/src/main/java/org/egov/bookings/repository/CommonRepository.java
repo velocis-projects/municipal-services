@@ -49,7 +49,6 @@ public interface CommonRepository extends JpaRepository<BookingsModel, Long> {
 	 */
 	@Query(value = BookingsQueryBuilder.FIND_BUSINESS_ID, nativeQuery = true)
 	public Set<String> findBusinessId (@Param(BookingsConstants.ROLES) String roles);
-	
 
 	/**
 	 * Find sector list.
@@ -150,24 +149,6 @@ public interface CommonRepository extends JpaRepository<BookingsModel, Long> {
 	public String findApproverName(@Param(BookingsConstants.STATE) String state);
 	
 	/**
-	 * Find user id.
-	 *
-	 * @param approver the approver
-	 * @return the list
-	 */
-	@Query(value = BookingsQueryBuilder.FIND_USER_ID, nativeQuery = true)
-	public List<Integer> findUserId(@Param(BookingsConstants.APPROVER) String approver);
-	
-	/**
-	 * Find user list.
-	 *
-	 * @param userId the user id
-	 * @return the list
-	 */
-	@Query(value = BookingsQueryBuilder.FIND_USER_LIST, nativeQuery = true)
-	public List<?> findUserList(@Param(BookingsConstants.USER_ID) List<Integer> userId);
-	
-	/**
 	 * Find application list.
 	 *
 	 * @param action the action
@@ -176,5 +157,4 @@ public interface CommonRepository extends JpaRepository<BookingsModel, Long> {
 	 */
 	@Query(value = BookingsQueryBuilder.FIND_APPLICATION_LIST, nativeQuery = true)
 	public List<String> findApplicationList(@Param(BookingsConstants.ACTION) String action, @Param(BookingsConstants.APPROVER) String approver);
-
 }

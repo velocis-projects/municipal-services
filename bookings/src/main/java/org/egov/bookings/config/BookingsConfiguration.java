@@ -98,6 +98,18 @@ public class BookingsConfiguration {
 
 	@Value("${kafka.topics.update.osujm.fee.service}")
 	private String updateOsujmFeeTopic;
+	
+	@Value("${kafka.topics.save.gfcp.fee.service}")
+	private String saveGfcpFeeTopic;
+
+	@Value("${kafka.topics.update.gfcp.fee.service}")
+	private String updateGfcpFeeTopic;
+	
+	@Value("${kafka.topics.save.pacc.fee.service}")
+	private String savePaccFeeTopic;
+
+	@Value("${kafka.topics.update.pacc.fee.service}")
+	private String updatePaccFeeTopic;
 
 	@Value("${kafka.topics.notification.sms}")
 	private String smsNotifTopic;
@@ -195,5 +207,22 @@ public class BookingsConfiguration {
 
 	@Value("${kafka.topics.update.nlujm.service}")
 	private String updateNewLocationTopic;
+	
+	@Value("${egov.services.billing_service.search}")
+	private String billingServiceSearch;
+	
+	 @Value("${egov.bill.gen.endpoint}")
+	 private String billGenerateEndpoint;
+	 
+	 @Value("${egov.demand.flag}")
+	 private boolean demandFlag;
+	 
+	 @Value("${egov.user.context.path}")
+	 private String userContextPath;
 
+	 @Value("${egov.user.create.endpoint}")
+	 private String userCreateEndpoint;
+	 
+	 @Value("${egov.user.update.path}")
+	 private String userUpdateEndpoint;
 }

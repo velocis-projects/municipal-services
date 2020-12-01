@@ -42,4 +42,8 @@ public class OsbmApproverModel {
 	/** The created date. */
 	@Column(name = "ROLE_CODE")
 	private String roleCode;
+	
+	/** The user id. */
+	@Column(name = "USER_ID")
+	private Long userId;
 }
