@@ -16,6 +16,7 @@ import org.egov.bookings.model.user.OwnerInfo;
 import org.egov.bookings.model.user.User;
 import org.egov.bookings.model.user.UserDetailResponse;
 import org.egov.bookings.model.user.UserSearchRequest;
+import org.egov.bookings.utils.BookingsConstants;
 import org.egov.bookings.web.models.BookingsRequest;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.Role;
@@ -291,8 +292,8 @@ public class UserService {
 		org.egov.bookings.model.user.UserSearchRequest userSearchRequest = new org.egov.bookings.model.user.UserSearchRequest();
 		userSearchRequest.setRoleCodes(roleCodes);
 		userSearchRequest.setRequestInfo(requestInfo);
+		userSearchRequest.setTenantId(BookingsConstants.EMPLOYEE_TENANT_ID);
 		return userCall(userSearchRequest, url);
-
 	}
 	
 	/**
