@@ -834,4 +834,6 @@ public class BookingsConstants {
 	
 	public static final String PACC_ACTION_MODIFY = "MODIFY";
 	
+	public static final String EMPLOYEE_TENANT_ID = "ch.chandigarh";
+	
 }
