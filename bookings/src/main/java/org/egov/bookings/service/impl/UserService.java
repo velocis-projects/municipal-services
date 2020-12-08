@@ -305,6 +305,10 @@ public class UserService {
 	 * @return the user search details
 	 */
 	public UserDetailResponse getUserSearchDetails(StringBuilder url, RequestInfo requestInfo, UserSearchRequest userSearchRequest) {
+		List<String> roleCodes = new ArrayList<>();
+		roleCodes.add(BookingsConstants.EMPLOYEE);
+		userSearchRequest.setRoleCodes(roleCodes);
+		userSearchRequest.setTenantId(BookingsConstants.EMPLOYEE_TENANT_ID);
 		return userCall(userSearchRequest, url);
 	}
 
