@@ -171,14 +171,16 @@ public class BookingsCalculatorServiceImpl implements BookingsCalculatorService 
 
 		case BookingsConstants.BUSINESS_SERVICE_OSBM:
 			BigDecimal osbmAmount = getOsbmAmount(bookingsRequest);
+			
 			for (TaxHeadMasterFields taxHeadEstimate : taxHeadMasterFieldList) {
 				if (taxHeadEstimate.getCode().equals(taxHeadCode1)) {
 					taxHeadEstimate1.add(
 							new TaxHeadEstimate(taxHeadEstimate.getCode(), osbmAmount, taxHeadEstimate.getCategory()));
 				}
 				if (taxHeadEstimate.getCode().equals(taxHeadCode2)) {
+					BigDecimal osbmTax = BookingsUtils.roundOffToNearest(osbmAmount.multiply((taxHeadEstimate.getTaxAmount().divide(new BigDecimal(100)))));
 					taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
-							osbmAmount.multiply((taxHeadEstimate.getTaxAmount().divide(new BigDecimal(100)))),
+							osbmTax,
 							taxHeadEstimate.getCategory()));
 				}
 
@@ -191,11 +193,11 @@ public class BookingsCalculatorServiceImpl implements BookingsCalculatorService 
 					taxHeadEstimate1.add(
 							new TaxHeadEstimate(taxHeadEstimate.getCode(), bwtAmount, taxHeadEstimate.getCategory()));
 				}
-				if (taxHeadEstimate.getCode().equals(taxHeadCode2)) {
+				/*if (taxHeadEstimate.getCode().equals(taxHeadCode2)) {
 					taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
 							bwtAmount.multiply((taxHeadEstimate.getTaxAmount().divide(new BigDecimal(100)))),
 							taxHeadEstimate.getCategory()));
-				}
+				}*/
 
 			}
 			break;
@@ -328,7 +330,7 @@ public class BookingsCalculatorServiceImpl implements BookingsCalculatorService 
 			for (int i = 0; i < mdmsArrayList.size(); i++) {
 				jsonString = mapper.writeValueAsString(mdmsArrayList.get(i));
 				TaxHeadMasterFields taxHeadFields = mapper.readValue(jsonString, TaxHeadMasterFields.class);
-				if (taxHeadFields.getService().equals(bussinessService)) {
+				if (taxHeadFields.getService().equals(bookingsRequest.getBookingsModel().getFinanceBusinessService())) {
 					taxHeadMasterFieldList.add(taxHeadFields);
 				}
 			}

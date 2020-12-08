@@ -397,5 +397,16 @@ public class BookingsUtils {
 			return finalAmount.setScale(2, BigDecimal.ROUND_HALF_UP);
 
 	}
+	
+	/**
+	 * Round off to nearest.
+	 *
+	 * @param amount the amount
+	 * @return the big decimal
+	 */
+	public static BigDecimal roundOffToNearest(BigDecimal amount) {
+		Double taxAmount = Double.valueOf(amount+"");
+		return BigDecimal.valueOf(Math.round(taxAmount));
+	}
 
 }
