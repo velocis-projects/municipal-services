@@ -400,6 +400,9 @@ public class BookingsModel {
     @Transient
     private boolean reInitiateStatus;
     
+    @JsonProperty("financeBusinessService")
+    @Transient
+    private String financeBusinessService;
 	
 
 }

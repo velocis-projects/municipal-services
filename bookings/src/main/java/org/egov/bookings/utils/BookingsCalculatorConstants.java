@@ -2,13 +2,13 @@ package org.egov.bookings.utils;
 
 public class BookingsCalculatorConstants {
 
-	public static final String OSBM_TAXHEAD_CODE_1 = "OSBM";
+	public static final String OSBM_TAXHEAD_CODE_1 = "PARKING_LOTS_MANUAL_OPEN_SPACE_BOOKING_BRANCH";
 
-	public static final String OSBM_TAXHEAD_CODE_2 = "OSBM_TAX";
+	public static final String OSBM_TAXHEAD_CODE_2 = "CGST_UTGST_MANUAL_OPEN_SPACE_BOOKING_BRANCH";
 
 	public static final String MDMS_ROUNDOFF_TAXHEAD_OSBM = "OSBM_ROUND_OFF";
 	
-	public static final String BWT_TAXHEAD_CODE_1 = "BWT";
+	public static final String BWT_TAXHEAD_CODE_1 = "WATER_TANKAR_CHARGES_BOOKING_BRANCH";
 
 	public static final String BWT_TAXHEAD_CODE_2 = "BWT_TAX";
 
