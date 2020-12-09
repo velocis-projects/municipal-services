@@ -15,6 +15,14 @@ config:
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "egov-user-event/src/main/resources/db"
         image-name: "egov-user-event-db"
+        
+  - name: "builds/municipal-services/bookings"
+    build:
+      - work-dir: "bookings"
+        image-name: "bookings"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "bookings/src/main/resources/db"
+        image-name: "bookings-db"        
 
   - name: "builds/municipal-services/pt-calculator-v2"
     build:
