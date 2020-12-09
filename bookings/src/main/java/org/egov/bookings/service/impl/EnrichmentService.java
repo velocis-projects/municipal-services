@@ -46,6 +46,7 @@ import org.egov.bookings.validator.BookingsFieldsValidator;
 import org.egov.bookings.web.models.BookingsRequest;
 import org.egov.bookings.web.models.NewLocationRequest;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.request.Role;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -550,6 +551,7 @@ public class EnrichmentService {
 		String action = bookingsModel.getBkAction();
 		String approverName = "";
 		OsbmApproverModel osbmApproverModel = new OsbmApproverModel();
+		List<Role> rolesList = new ArrayList<>();
 		if(!BookingsFieldsValidator.isNullOrEmpty(applicationNumber) && !BookingsFieldsValidator.isNullOrEmpty(action)) {
 			List<String> nextState = commonRepository.findNextState(applicationNumber, action);
 			if (!BookingsFieldsValidator.isNullOrEmpty(nextState)) {
@@ -571,7 +573,10 @@ public class EnrichmentService {
 					List<OwnerInfo> userList = userDetailResponse.getUser();
 					if (!BookingsFieldsValidator.isNullOrEmpty(userList)) {
 						for (int i=0; i< userList.size(); i++) {
-							osbmApproverModel = osbmApproverRepository.findByUuidAndSector(userList.get(i).getUuid(), bookingsModel.getBkSector());
+							rolesList = userList.get(i).getRoles();
+							for(Role role : rolesList) {
+								osbmApproverModel = osbmApproverRepository.findBySectorAndUuidAndRoleCodeAndUserId(bookingsModel.getBkSector(), userList.get(i).getUuid(), role.getCode(), userList.get(i).getId());
+							}
 							if (!BookingsFieldsValidator.isNullOrEmpty(osbmApproverModel)) {
 								bookingsRequest.setUser(userList.get(i));
 								break;

@@ -861,26 +861,26 @@ public class BookingsServiceImpl implements BookingsService {
 			String action = searchCriteriaFieldsDTO.getAction();
 			String sector = searchCriteriaFieldsDTO.getSector();
 			String businessService = searchCriteriaFieldsDTO.getBusinessService();
-			String approverName = "";
+			String rolesName = "";
 			String roles = "";
 			StringBuilder url = prepareUrlForUserList();
 			if (BookingsFieldsValidator.isNullOrEmpty(businessService)) {
 				List<String> nextState = commonRepository.findNextState(applicationNumber, action);
 				if (!BookingsFieldsValidator.isNullOrEmpty(nextState)) {
 					for (String state : nextState) {
-						if (BookingsFieldsValidator.isNullOrEmpty(approverName)) {
-							approverName = commonRepository.findApproverName(state);
+						if (BookingsFieldsValidator.isNullOrEmpty(rolesName)) {
+							rolesName = commonRepository.findApproverName(state);
 						}
 						else {
 							roles = commonRepository.findApproverName(state);
 						}
 						if (!BookingsFieldsValidator.isNullOrEmpty(roles)) {
-							approverName = approverName + "," + roles;
+							rolesName = rolesName + "," + roles;
 							roles = "";
 						}
 					}
 				}
-				String[] approverArray = approverName.split(",");
+				String[] approverArray = rolesName.split(",");
 				if (!BookingsFieldsValidator.isNullOrEmpty(approverArray)) {
 					for (String approver : approverArray) {
 						if (!BookingsConstants.CITIZEN.equals(approver)) {
@@ -927,7 +927,8 @@ public class BookingsServiceImpl implements BookingsService {
 	private List<UserDetails> prepareUserList(UserDetailResponse userDetailResponse, String sector) {
 		List<UserDetails> userDetailsList = new ArrayList<>();
 		Map<String, UserDetails> userDetailsMap = new HashMap<>();
-		OsbmApproverModel osbmApproverModel = new OsbmApproverModel();
+		OsbmApproverModel osbmApproverModel = null;
+		List<Role> rolesList = new ArrayList<>();
 		if (BookingsFieldsValidator.isNullOrEmpty(userDetailResponse)) {
 			throw new IllegalArgumentException("Invalid userDetailResponse");
 		}
@@ -940,7 +941,10 @@ public class BookingsServiceImpl implements BookingsService {
 				UserDetails userDetails = new UserDetails();
 				userDetails.setUuid(user.getUuid());
 				userDetails.setUserName(user.getUserName());
-				osbmApproverModel = osbmApproverRepository.findByUuidAndSector(userDetails.getUuid(), sector);
+				rolesList = user.getRoles();
+				for(Role role : rolesList) {
+					osbmApproverModel = osbmApproverRepository.findBySectorAndUuidAndRoleCodeAndUserId(sector, userDetails.getUuid(), role.getCode(), user.getId());
+				}
 				if (!BookingsFieldsValidator.isNullOrEmpty(sector)
 						&& !BookingsFieldsValidator.isNullOrEmpty(osbmApproverModel)) {
 					if (!userDetailsMap.containsKey(userDetails.getUuid())) {
