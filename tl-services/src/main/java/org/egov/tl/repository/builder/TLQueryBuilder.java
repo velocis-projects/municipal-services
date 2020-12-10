@@ -195,6 +195,14 @@ public class TLQueryBuilder {
             preparedStmtList.add(criteria.getApplicationType());
         }
 
+		if (criteria.getStatusToHideForEmployee() != null && !criteria.getStatusToHideForEmployee().isEmpty()) {
+			addClauseIfRequired(preparedStmtList, builder);
+			builder.append(" tl.status NOT IN (").append(createQuery(config.getStatusHideForEmployeeSearch()))
+					.append(")");
+			addToPreparedStatement(preparedStmtList, config.getStatusHideForEmployeeSearch());
+
+		}
+		
        // enrichCriteriaForUpdateSearch(builder,preparedStmtList,criteria);
 
         return builder.toString();
