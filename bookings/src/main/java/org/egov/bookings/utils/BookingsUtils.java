@@ -11,10 +11,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.egov.bookings.config.BookingsConfiguration;
+import org.egov.bookings.contract.RefundTransactionRequest;
 import org.egov.bookings.contract.RequestInfoWrapper;
+import org.egov.bookings.contract.Transaction;
+import org.egov.bookings.contract.TransactionResponse;
 import org.egov.bookings.model.ActionHistory;
 import org.egov.bookings.model.ActionInfo;
 import org.egov.bookings.model.AuditDetails;
+import org.egov.bookings.models.demand.DemandResponse;
 import org.egov.bookings.repository.impl.ServiceRequestRepository;
 import org.egov.bookings.web.models.BookingsRequest;
 import org.egov.common.contract.request.RequestInfo;
@@ -22,9 +26,11 @@ import org.egov.mdms.model.MasterDetail;
 import org.egov.mdms.model.MdmsCriteria;
 import org.egov.mdms.model.MdmsCriteriaReq;
 import org.egov.mdms.model.ModuleDetail;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -70,6 +76,10 @@ public class BookingsUtils {
 	/** The config. */
 	@Autowired
 	private BookingsConfiguration config;
+	
+	/** The mapper. */
+	@Autowired
+	private ObjectMapper mapper;
 
 	/**
 	 * Util method to return Auditdetails for create and update processes.
@@ -407,6 +417,36 @@ public class BookingsUtils {
 	public static BigDecimal roundOffToNearest(BigDecimal amount) {
 		Double taxAmount = Double.valueOf(amount+"");
 		return BigDecimal.valueOf(Math.round(taxAmount));
+	}
+
+	public Transaction fetchPaymentTransaction(RefundTransactionRequest refundTransactionRequest) {
+		String uri = getPaymentTransactionURL();
+		uri = uri.replace("{1}", refundTransactionRequest.getRefundTransaction().getTenantId());
+		uri = uri.replace("{2}", refundTransactionRequest.getRefundTransaction().getTxnId());
+		
+		Object result = serviceRequestRepository.fetchResult(new StringBuilder(uri),
+				RequestInfoWrapper.builder().requestInfo(refundTransactionRequest.getRequestInfo()).build());
+
+		TransactionResponse transaction;
+		try {
+			transaction = mapper.convertValue(result, TransactionResponse.class);
+		} catch (IllegalArgumentException e) {
+			throw new CustomException("PARSING ERROR", "Failed to parse response from Demand Search");
+		}
+				
+		return transaction.getTransaction().get(0);
+	}
+
+	private String getPaymentTransactionURL() {
+		StringBuilder url = new StringBuilder(config.getPgServiceHost());
+		url.append(config.getPgServiceEndPoint());
+		url.append("?");
+		url.append("tenantId=");
+		url.append("{1}");
+		url.append("&");
+		url.append("txnId=");
+		url.append("{2}");
+		return url.toString();
 	}
 
 }
