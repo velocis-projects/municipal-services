@@ -165,6 +165,7 @@ public class TradeLicenseService {
         List<TradeLicense> licenses;
         tlValidator.validateSearch(requestInfo,criteria,serviceFromPath);
         enrichmentService.enrichSearchCriteriaWithAccountId(requestInfo,criteria);
+		enrichmentService.enrichSearchCriteriaHideStatusForEmployee(requestInfo, criteria);
          if(criteria.getMobileNumber()!=null){
              licenses = getLicensesFromMobileNumber(criteria,requestInfo);
          }
