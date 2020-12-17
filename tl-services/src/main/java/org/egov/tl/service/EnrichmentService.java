@@ -558,6 +558,13 @@ public class EnrichmentService {
 
     }
 
+	public void enrichSearchCriteriaHideStatusForEmployee(RequestInfo requestInfo,TradeLicenseSearchCriteria criteria){
+        if(requestInfo.getUserInfo().getType().equalsIgnoreCase("EMPLOYEE")){
+            criteria.setStatusToHideForEmployee(config.getStatusHideForEmployeeSearch());
+        }
+
+    }
+
     /**
      * Enriches the tradeLicenses with ownerInfo and Boundary data
      * @param licenses The licenses to be enriched
