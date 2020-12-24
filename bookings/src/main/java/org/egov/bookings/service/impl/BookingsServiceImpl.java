@@ -990,9 +990,10 @@ public class BookingsServiceImpl implements BookingsService {
 			throw new CustomException("INVALID_CONSUMER_CODE","No booking exists with respect to this application number in database : "+transaction.getConsumerCode());
 		}
 		if(Transaction.TxnStatusEnum.SUCCESS.toString().equals(refundTransactionRequest.getRefundTransaction().getTxnStatus())){
-			bookingsModel.setBkPaymentStatus(refundTransactionRequest.getRefundTransaction().getTxnStatus());
+			bookingsModel.setBkPaymentStatus(refundTransactionRequest.getRefundTransaction().getGatewayRefundStatusMsg());
 		}
-		bookingsModel.setBkStatus(refundTransactionRequest.getRefundTransaction().getGatewayRefundStatusMsg());
+		bookingsModel.setBkStatusUpdateRequest(refundTransactionRequest.getRefundTransaction().getGatewayRefundStatusMsg());
+		bookingsModel.setBkStatus(refundTransactionRequest.getRefundTransaction().getTxnStatus());
 		BookingsRequest bookingsRequest = new BookingsRequest();
 		bookingsRequest.setBookingsModel(bookingsModel);
 		bookingsRequest.setRequestInfo(refundTransactionRequest.getRequestInfo());
