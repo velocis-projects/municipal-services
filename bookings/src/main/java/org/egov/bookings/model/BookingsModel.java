@@ -276,7 +276,17 @@ public class BookingsModel {
 
 	@JsonProperty("bkAccountType")
 	@Column(name = "BK_ACCOUNT_TYPE")
-	private String bkAccountType;*/
+	private String bkAccountType;
+	
+	
+	@JsonProperty("bkBankAccountHolder")
+	@Column(name = "BK_BANK_ACCOUNT_HOLDER")
+	private String bkBankAccountHolder;*/
+	
+	
+	
+	
+	
 
 	@JsonProperty("bkPropertyOwnerName")
 	@Column(name = "BK_PROPERTY_OWNER_NAME")
