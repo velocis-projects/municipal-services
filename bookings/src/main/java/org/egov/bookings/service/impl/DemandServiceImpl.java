@@ -286,7 +286,7 @@ public class DemandServiceImpl implements DemandService {
 					.minimumAmountPayable(config.getMinimumPayableAmount())
 					.tenantId(tenantId).taxPeriodFrom(taxPeriodFrom)
 					.taxPeriodTo(taxPeriodTo).consumerType("bookings")
-					.businessService(bookingsRequest.getBookingsModel().getBusinessService())
+					.businessService(bookingsRequest.getBookingsModel().getFinanceBusinessService())
 					.additionalDetails(Collections.singletonMap("calculationDes1cription", combinedBillingSlabs))
 					.build();
 
@@ -343,7 +343,7 @@ public class DemandServiceImpl implements DemandService {
 					.minimumAmountPayable(config.getMinimumPayableAmount())
 					.tenantId(tenantId).taxPeriodFrom(taxPeriodFrom)
 					.taxPeriodTo(taxPeriodTo).consumerType("bookings")
-					.businessService(bookingsRequest.getBookingsModel().getBusinessService())
+					.businessService(bookingsRequest.getBookingsModel().getFinanceBusinessService())
 					.additionalDetails(Collections.singletonMap("calculationDes1cription", combinedBillingSlabs))
 					.build();
 
@@ -590,7 +590,7 @@ public class DemandServiceImpl implements DemandService {
 
 		List<Demand> searchResult = searchDemand(tenantId,
 				Collections.singleton(bookingsRequest.getBookingsModel().getBkApplicationNumber()), requestInfo,
-				bookingsRequest.getBookingsModel().getBusinessService());
+				bookingsRequest.getBookingsModel().getFinanceBusinessService());
 
 		Demand demand = searchResult.get(0);
 		List<DemandDetail> demandDetails = demand.getDemandDetails();

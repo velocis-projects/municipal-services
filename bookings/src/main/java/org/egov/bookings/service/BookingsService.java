@@ -6,6 +6,7 @@ import java.util.Map;
 import org.egov.bookings.contract.Booking;
 import org.egov.bookings.contract.BookingApprover;
 import org.egov.bookings.contract.ProcessInstanceSearchCriteria;
+import org.egov.bookings.contract.RefundTransactionRequest;
 import org.egov.bookings.contract.RequestInfoWrapper;
 import org.egov.bookings.contract.UserDetails;
 import org.egov.bookings.dto.SearchCriteriaFieldsDTO;
@@ -102,4 +103,11 @@ public interface BookingsService {
 	 * @return the assignee
 	 */
 	public List<UserDetails> getAssignee(SearchCriteriaFieldsDTO searchCriteriaFieldsDTO);
+
+	/**
+	 * Persist refund status.
+	 *
+	 * @param refundTransactionRequest the refund transaction request
+	 */
+	public void persistRefundStatus(RefundTransactionRequest refundTransactionRequest);
 }

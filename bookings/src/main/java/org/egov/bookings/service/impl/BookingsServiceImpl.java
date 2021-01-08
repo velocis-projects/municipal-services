@@ -22,7 +22,10 @@ import org.egov.bookings.contract.MdmsJsonFields;
 import org.egov.bookings.contract.Message;
 import org.egov.bookings.contract.MessagesResponse;
 import org.egov.bookings.contract.ProcessInstanceSearchCriteria;
+import org.egov.bookings.contract.RefundTransactionRequest;
 import org.egov.bookings.contract.RequestInfoWrapper;
+import org.egov.bookings.contract.Transaction;
+import org.egov.bookings.contract.Transaction.TxnStatusEnum;
 import org.egov.bookings.contract.UserDetails;
 import org.egov.bookings.dto.SearchCriteriaFieldsDTO;
 import org.egov.bookings.model.BookingsModel;
@@ -974,6 +977,28 @@ public class BookingsServiceImpl implements BookingsService {
 		StringBuilder url = new StringBuilder(config.getUserHost());
 		url.append(config.getUserSearchEndpoint());
 		return url;
+	}
+
+	@Override
+	public void persistRefundStatus(RefundTransactionRequest refundTransactionRequest) {
+		Transaction transaction = bookingsUtils.fetchPaymentTransaction(refundTransactionRequest);
+		if(BookingsFieldsValidator.isNullOrEmpty(transaction)) {
+			throw new CustomException("INVALID_REQUEST","No payments exists with respect to this transaction in database : "+refundTransactionRequest);
+		}
+		BookingsModel bookingsModel = bookingsRepository.findByBkApplicationNumber(transaction.getConsumerCode());
+		if(BookingsFieldsValidator.isNullOrEmpty(bookingsModel)) {
+			throw new CustomException("INVALID_CONSUMER_CODE","No booking exists with respect to this application number in database : "+transaction.getConsumerCode());
+		}
+		if(Transaction.TxnStatusEnum.SUCCESS.toString().equals(refundTransactionRequest.getRefundTransaction().getTxnStatus())){
+			bookingsModel.setBkPaymentStatus(refundTransactionRequest.getRefundTransaction().getGatewayRefundStatusMsg());
+		}
+		bookingsModel.setBkStatusUpdateRequest(refundTransactionRequest.getRefundTransaction().getGatewayRefundStatusMsg());
+		bookingsModel.setBkStatus(refundTransactionRequest.getRefundTransaction().getTxnStatus());
+		BookingsRequest bookingsRequest = new BookingsRequest();
+		bookingsRequest.setBookingsModel(bookingsModel);
+		bookingsRequest.setRequestInfo(refundTransactionRequest.getRequestInfo());
+		BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
+		bookingsProducer.push(config.getUpdateBookingTopic(), kafkaBookingRequest);
 	}
 	
 }
