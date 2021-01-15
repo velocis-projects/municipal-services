@@ -38,4 +38,7 @@ public class MasterRequest {
 	@JsonProperty("PaccFeeDetails")
 	private List<CommonMasterFields> paccFeeList;
 	
+	/** The community center room fee list. */
+	@JsonProperty("CommunityCenterRoomFeeDetails")
+	private List<CommonMasterFields> communityCenterRoomFeeList;
 }

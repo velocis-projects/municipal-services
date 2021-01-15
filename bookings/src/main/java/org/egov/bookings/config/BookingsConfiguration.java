@@ -110,6 +110,12 @@ public class BookingsConfiguration {
 
 	@Value("${kafka.topics.update.pacc.fee.service}")
 	private String updatePaccFeeTopic;
+	
+	@Value("${kafka.topics.save.community.center.room.fee.service}")
+	private String saveCommunityCenterRoomFeeTopic;
+
+	@Value("${kafka.topics.update.community.center.room.fee.service}")
+	private String updateCommunityCenterRoomFeeTopic;
 
 	@Value("${kafka.topics.notification.sms}")
 	private String smsNotifTopic;

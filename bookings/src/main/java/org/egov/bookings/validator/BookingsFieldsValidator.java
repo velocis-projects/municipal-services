@@ -582,4 +582,29 @@ public class BookingsFieldsValidator {
 		}
 		
 	}
+	
+	/**
+	 * Validate community center room fee body.
+	 *
+	 * @param masterRequest the master request
+	 */
+	public void validateCommunityCenterRoomFeeBody(MasterRequest masterRequest) {
+		if (isNullOrEmpty(masterRequest) || isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList())) {
+			throw new IllegalArgumentException("Invalid Community Center Room Fee Request Body");
+		}else if (isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getTotalNumberOfRooms())) {
+			throw new IllegalArgumentException("Invalid Total number of Rooms");
+		}else if (isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getTypeOfRoom())) {
+			throw new IllegalArgumentException("Invalid Type of Room");
+		}else if (isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getRentForOneDay())) {
+			throw new IllegalArgumentException("Invalid Rent for One Day");
+		}else if (isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getRentFor3Hrs())) {
+			throw new IllegalArgumentException("Invalid Rent for One Day");
+		}else if (isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getRentFor6Hrs())) {
+			throw new IllegalArgumentException("Invalid Rent for One Day");
+		}else if (isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getRentFor9Hrs())) {
+			throw new IllegalArgumentException("Invalid Rent for One Day");
+		}else if (isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getSector())) {
+			throw new IllegalArgumentException("Invalid Sector");
+		}
+	}
 }

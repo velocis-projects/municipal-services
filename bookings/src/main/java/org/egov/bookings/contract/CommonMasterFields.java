@@ -151,4 +151,23 @@ public class CommonMasterFields {
 	
 	/** The to date. */
 	private String toDate;
+	
+	/** The total number of rooms. */
+	private String totalNumberOfRooms;
+	
+	/** The type of room. */
+	private String typeOfRoom;
+	
+	/** The rent for one day. */
+	private String rentForOneDay;
+	
+	/** The rent for 3 hrs. */
+	private String rentFor3Hrs;
+	
+	/** The rent for 6 hrs. */
+	private String rentFor6Hrs;
+	
+	/** The rent for 9 hrs. */
+	private String rentFor9Hrs;
+	
 }
