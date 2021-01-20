@@ -242,6 +242,11 @@ public class BookingsConfiguration {
 	 private String pgServiceEndPoint;
 	 
 	 
+	 @Value("${kafka.topics.save.commercial.ground.locked.dates}")
+	 private String saveCommercialGrndLockedDates;
 
-	 
+
+	 @Value("${kafka.topics.update.commercial.ground.locked.dates}")
+	 private String updateCommercialGrndLockedDates;
+
 }

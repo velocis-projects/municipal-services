@@ -20,11 +20,13 @@ import javax.transaction.Transactional;
 import org.apache.commons.collections.map.HashedMap;
 import org.egov.bookings.config.BookingsConfiguration;
 import org.egov.bookings.contract.AvailabilityResponse;
+import org.egov.bookings.contract.CommercialGrndAvailabiltyLockRequest;
 import org.egov.bookings.contract.CommercialGroundAvailabiltySearchCriteria;
 import org.egov.bookings.contract.CommercialGroundFeeSearchCriteria;
 import org.egov.bookings.model.BookingsModel;
 import org.egov.bookings.model.CommercialGrndAvailabilityModel;
 import org.egov.bookings.model.CommercialGroundFeeModel;
+import org.egov.bookings.producer.BookingsProducer;
 import org.egov.bookings.repository.BookingsRepository;
 import org.egov.bookings.repository.CommercialGrndAvailabilityRepository;
 import org.egov.bookings.repository.CommercialGroundRepository;
@@ -70,6 +72,10 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 
 	private Lock lock = new ReentrantLock();
 
+	@Autowired
+	private BookingsProducer bookingsProducer;
+	
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -158,14 +164,14 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 	 * org.egov.bookings.model.CommercialGrndAvailabilityModel)
 	 */
 	@Override
-	public CommercialGrndAvailabilityModel lockCommercialAvailability(
-			CommercialGrndAvailabilityModel commercialGrndAvailabilityModel) {
-		CommercialGrndAvailabilityModel commGrndAvail = null;
+	public CommercialGrndAvailabilityModel saveCommercialAvailabilityLockDates(
+			CommercialGrndAvailabiltyLockRequest commercialGrndAvailabiltyLockRequest) {
 		try {
-			commGrndAvail = commercialGrndAvailabilityRepository.save(commercialGrndAvailabilityModel);
-			return commGrndAvail;
+			bookingsProducer.push(config.getSaveCommercialGrndLockedDates(), commercialGrndAvailabiltyLockRequest);
+			//commGrndAvail = commercialGrndAvailabilityRepository.save(commercialGrndAvailabilityModel);
+			return commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().get(0);
 		} catch (Exception e) {
-			throw new CustomException("DATABASE_ERROR", e.getLocalizedMessage());
+			throw new CustomException("DATABASE__PERSISTER_ERROR", e.getLocalizedMessage());
 		}
 	}
 
@@ -217,4 +223,18 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 
 	}
 
+	
+	
+	
+	@Override
+	public CommercialGrndAvailabilityModel updateCommercialAvailabilityLockDates(
+			CommercialGrndAvailabiltyLockRequest commercialGrndAvailabiltyLockRequest) {
+		try {
+			bookingsProducer.push(config.getUpdateCommercialGrndLockedDates(), commercialGrndAvailabiltyLockRequest);
+			//commGrndAvail = commercialGrndAvailabilityRepository.save(commercialGrndAvailabilityModel);
+			return commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().get(0);
+		} catch (Exception e) {
+			throw new CustomException("DATABASE__PERSISTER_ERROR", e.getLocalizedMessage());
+		}
+	}
 }

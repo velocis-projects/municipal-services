@@ -21,20 +21,19 @@ import lombok.NoArgsConstructor;
 public class CommercialGrndAvailabilityModel {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	@Column(name = "ID")
 	private String id;
-	
+
 	@Column(name = "BOOKING_VENUE")
 	private String bookingVenue;
-	
+
 	@Column(name = "FROM_DATE")
 	private Date fromDate;
-	
+
 	@Column(name = "TO_DATE")
 	private Date toDate;
-	
+
 	@Column(name = "ISLOCKED")
 	private boolean isLocked;
-	
+
 }
