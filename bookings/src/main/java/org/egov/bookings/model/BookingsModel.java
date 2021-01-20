@@ -262,7 +262,7 @@ public class BookingsModel {
 	@Column(name = "BK_REFUND_AMOUNT")
 	private String bkRefundAmount;
 
-	/*@JsonProperty("bkBankAccountNumber")
+	@JsonProperty("bkBankAccountNumber")
 	@Column(name = "BK_BANK_ACCOUNT_NUMBER")
 	private String bkBankAccountNumber;
 
@@ -281,9 +281,7 @@ public class BookingsModel {
 	
 	@JsonProperty("bkBankAccountHolder")
 	@Column(name = "BK_BANK_ACCOUNT_HOLDER")
-	private String bkBankAccountHolder;*/
-	
-	
+	private String bkBankAccountHolder;
 	
 	
 	
