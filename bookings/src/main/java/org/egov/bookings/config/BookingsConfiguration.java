@@ -225,4 +225,17 @@ public class BookingsConfiguration {
 	 
 	 @Value("${egov.user.update.path}")
 	 private String userUpdateEndpoint;
+	 
+	 @Value("${kafka.topics.refund.status}")
+	 private String paymentRefundStatus;
+	 
+	 @Value("${egov.pg-service.host}")
+	 private String pgServiceHost;
+	 
+	 @Value("${egov.pg-service.endpoint}")
+	 private String pgServiceEndPoint;
+	 
+	 
+
+	 
 }

@@ -238,6 +238,11 @@ public class EnrichmentService {
 				java.sql.Date date = bookingsUtils.getCurrentSqlDate();
 				bookingsRequest.getBookingsModel().setBkDateCreated(date);
 			}
+			else {
+				BookingsModel bookingsModel = bookingsRepository
+						.findByBkApplicationNumber(bookingsRequest.getBookingsModel().getBkApplicationNumber());
+				bookingsRequest.getBookingsModel().setBkDateCreated(bookingsModel.getBkDateCreated());
+			}
 		} catch (Exception e) {
 			throw new CustomException("INVALID_BOOKING_REQUEST", e.getMessage());
 		}
@@ -474,6 +479,7 @@ public class EnrichmentService {
 			bookingsModel.setBkAction(bookingsRequest.getBookingsModel().getBkAction());
 			bookingsModel.setBkRemarks(bookingsRequest.getBookingsModel().getBkRemarks());
 			bookingsModel.setTimeslots(bookingsRequest.getBookingsModel().getTimeslots());
+			bookingsRequest.getBookingsModel().setBkDateCreated(bookingsModel.getBkDateCreated());
 			if(!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getBkPaymentStatus())) {
 				bookingsModel.setBkPaymentStatus(bookingsRequest.getBookingsModel().getBkPaymentStatus());
 			}
@@ -659,6 +665,9 @@ public class EnrichmentService {
 	 */
 	public void enrichPaccPaymentDetails(BookingsRequest bookingsRequest) {
 		String businessService = bookingsRequest.getBookingsModel().getBusinessService();
+		BookingsModel bookingsModel = bookingsRepository
+				.findByBkApplicationNumber(bookingsRequest.getBookingsModel().getBkApplicationNumber());
+		bookingsRequest.getBookingsModel().setBkDateCreated(bookingsModel.getBkDateCreated());
 		if (BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())
 				&& BookingsConstants.BUSINESS_SERVICE_PACC.equals(businessService)) {
 			config.setParkAndCommunityLock(true);
