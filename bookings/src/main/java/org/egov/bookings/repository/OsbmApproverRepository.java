@@ -62,4 +62,14 @@ public interface OsbmApproverRepository extends JpaRepository<OsbmApproverModel,
 	public OsbmApproverModel findBySectorAndUuidAndRoleCodeAndUserId(String sector, String uuid, String roleCode, Long userId);
 	
 	
+	/**
+	 * Find by sector and role code.
+	 *
+	 * @param sector the sector
+	 * @param roleCode the role code
+	 * @return the osbm approver model
+	 */
+	public OsbmApproverModel findBySectorAndRoleCode(String sector, String roleCode);
+	
+	
 }

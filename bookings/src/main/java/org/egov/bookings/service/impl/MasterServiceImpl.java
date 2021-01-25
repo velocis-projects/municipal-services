@@ -161,7 +161,8 @@ public class MasterServiceImpl implements MasterService{
 		}
 		try {
 			OsbmApproverModel OsbmApproverModel = osbmApproverRepository.findBySectorAndUuidAndRoleCodeAndUserId(masterRequest.getApproverList().get(0).getSector(), masterRequest.getApproverList().get(0).getUuid(), masterRequest.getApproverList().get(0).getRoleCode(), masterRequest.getApproverList().get(0).getUserId());
-			if (BookingsFieldsValidator.isNullOrEmpty(OsbmApproverModel)) 
+			OsbmApproverModel OsbmApproverModel2 = osbmApproverRepository.findBySectorAndRoleCode(masterRequest.getApproverList().get(0).getSector(), masterRequest.getApproverList().get(0).getRoleCode());
+			if (BookingsFieldsValidator.isNullOrEmpty(OsbmApproverModel) && BookingsFieldsValidator.isNullOrEmpty(OsbmApproverModel2)) 
 			{
 				masterRequest.getApproverList().get(0).setId(UUID.randomUUID().toString());
 				bookingsFieldsValidator.validateApproverBody(masterRequest);
