@@ -48,5 +48,12 @@ public class BookingsCalculatorConstants {
     public static final String MDMS_STARTDATE  = "startingDate";
 
     public static final String MDMS_ENDDATE  = "endingDate";
+    
+    
+    public static final String ROOM_FOR_COMMUNITY_TAX_CODE_1 = "BKROOM";
+
+	public static final String ROOM_FOR_COMMUNITY_TAX_CODE_2 = "BKROOM_TAX";
+
+	public static final String MDMS_ROUNDOFF_TAXHEAD_ROOM = "BKROOM_ROUND_OFF";
 	
 }

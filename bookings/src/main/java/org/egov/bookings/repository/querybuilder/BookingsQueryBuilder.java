@@ -76,4 +76,6 @@ public class BookingsQueryBuilder {
 			+ "inner join eg_wf_action_v2 as ewav on ewav.currentstate = ewsv.uuid " 
 			+ "and ewpv.action = :action and ewav.roles = :approver";
 	
+	
+	public static final String FIND_COMMERCIAL_GRND_LOCK_DATES = "select * from bk_commercial_ground_availability_lock where booking_venue =:bookingVenue and to_date >= :date";
 }

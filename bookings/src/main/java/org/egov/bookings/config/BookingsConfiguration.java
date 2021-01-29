@@ -248,5 +248,13 @@ public class BookingsConfiguration {
 
 	 @Value("${kafka.topics.update.commercial.ground.locked.dates}")
 	 private String updateCommercialGrndLockedDates;
+	 
+	 
+	 @Value("${kafka.topics.save-room-details}")
+	 private String saveRoomDetails;
+	 
 
+	 @Value("${kafka.topics.update-room-details}")
+	 private String updateRoomDetails;
+	
 }

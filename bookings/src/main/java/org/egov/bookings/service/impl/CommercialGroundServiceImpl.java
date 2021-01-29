@@ -75,6 +75,9 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 	@Autowired
 	private BookingsProducer bookingsProducer;
 	
+	@Autowired
+	private CommercialGrndAvailabilityRepository commercialGrndAvailabilityRepo;
+	
 	
 	/*
 	 * (non-Javadoc)
@@ -144,6 +147,7 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 		LocalDate date = LocalDate.now();
 		Date date1 = Date.valueOf(date);
 		Set<AvailabilityResponse> bookedDates = new HashSet<>();
+		Set<CommercialGrndAvailabilityModel> availabilityLockModelList =  commercialGrndAvailabilityRepo.findByBookingVenueAndIsLocked(commercialGroundAvailabiltySearchCriteria.getBookingVenue(),date1);
 		Set<BookingsModel> bookingsModel = commonRepository.findAllBookedVenuesFromNow(
 				commercialGroundAvailabiltySearchCriteria.getBookingVenue(),
 				commercialGroundAvailabiltySearchCriteria.getBookingType(), date1, BookingsConstants.APPLY);
@@ -151,7 +155,13 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 			bookedDates.add(AvailabilityResponse.builder().fromDate(bkModel.getBkFromDate())
 					.toDate(bkModel.getBkToDate()).build());
 		}
-
+		for(CommercialGrndAvailabilityModel availabilityLockModel : availabilityLockModelList) {
+			if(availabilityLockModel.isLocked()) {
+				bookedDates.add(AvailabilityResponse.builder().fromDate(availabilityLockModel.getFromDate())
+						.toDate(availabilityLockModel.getToDate()).build());
+				
+			}
+		}
 		return bookedDates;
 
 	}
