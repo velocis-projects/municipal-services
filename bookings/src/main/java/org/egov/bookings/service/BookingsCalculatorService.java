@@ -9,12 +9,14 @@ import org.egov.bookings.models.demand.Demand;
 import org.egov.bookings.models.demand.TaxHeadEstimate;
 import org.egov.bookings.web.models.BookingsRequest;
 import org.egov.common.contract.request.RequestInfo;
+import org.springframework.stereotype.Service;
 
 
 // TODO: Auto-generated Javadoc
 /**
  * The Interface BookingsCalculatorService.
  */
+@Service
 public interface BookingsCalculatorService {
 
 	/**
@@ -72,4 +74,16 @@ public interface BookingsCalculatorService {
 	 * @return the commercial amount
 	 */
 	public BigDecimal getCommercialAmount(BookingsRequest bookingsRequest);
+
+	
+	/**
+	 * Gets the tax head estimate for room.
+	 *
+	 * @param bookingsRequest the bookings request
+	 * @param taxHeadCode1 the tax head code 1
+	 * @param taxHeadCode2 the tax head code 2
+	 * @return the tax head estimate for room
+	 */
+	public List<TaxHeadEstimate> getTaxHeadEstimateForRoom(BookingsRequest bookingsRequest, String taxHeadCode1,
+			String taxHeadCode2);
 }

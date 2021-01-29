@@ -124,7 +124,8 @@ public class BookingsServiceImpl implements BookingsService {
 	@Override
 	public BookingsModel save(BookingsRequest bookingsRequest) {
 		boolean flag = isBookingExists(bookingsRequest.getBookingsModel().getBkApplicationNumber());
-
+		if(BookingsConstants.EMPLOYEE.equals(bookingsRequest.getRequestInfo().getUserInfo().getType()))
+		userService.createUser(bookingsRequest, false);
 		if (!flag)
 			enrichmentService.enrichBookingsCreateRequest(bookingsRequest);
 		if (!BookingsConstants.ACTION_DELIVER.equals(bookingsRequest.getBookingsModel().getBkAction())

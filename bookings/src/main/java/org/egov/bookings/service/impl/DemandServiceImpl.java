@@ -118,13 +118,68 @@ public class DemandServiceImpl implements DemandService {
 			
 		case BookingsConstants.BUSINESS_SERVICE_PACC:
 			demands = getDemandsForPACC(bookingsRequest);
-			break;	
+			break;
+			
 		}
 
 		 demandRepository.saveDemand(bookingsRequest.getRequestInfo(), demands);
 
 	}
 
+	private List<Demand> getDemandsForRoomForCommunity(BookingsRequest bookingsRequest) {
+
+		List<Demand> demands = new LinkedList<>();
+		List<DemandDetail> demandDetails = new LinkedList<>();
+		try {
+			String tenantId = bookingsRequest.getBookingsModel().getTenantId();
+
+			String taxHeadCode1 = BookingsCalculatorConstants.ROOM_FOR_COMMUNITY_TAX_CODE_1;
+
+			String taxHeadCode2 = BookingsCalculatorConstants.ROOM_FOR_COMMUNITY_TAX_CODE_2;
+
+			List<TaxHeadEstimate> taxHeadEstimate1 = bookingsCalculator.getTaxHeadEstimateForRoom(bookingsRequest,
+					taxHeadCode1, taxHeadCode2);
+
+			taxHeadEstimate1.forEach(taxHeadEstimate -> {
+				demandDetails.add(DemandDetail.builder().taxAmount(taxHeadEstimate.getEstimateAmount())
+						.taxHeadMasterCode(taxHeadEstimate.getTaxHeadCode()).collectionAmount(BigDecimal.ZERO)
+						.tenantId(tenantId).build());
+			});
+
+			
+			 Object mdmsData = mdmsService.mDMSCall(bookingsRequest.getRequestInfo(), tenantId);
+
+	            Long taxPeriodFrom = System.currentTimeMillis();
+	            Long taxPeriodTo = System.currentTimeMillis();
+
+	            Map<String, Long> taxPeriods = mdmsService.getTaxPeriods(bookingsRequest.getRequestInfo(), bookingsRequest.getBookingsModel(), mdmsData);
+	            taxPeriodFrom = taxPeriods.get(BookingsCalculatorConstants.MDMS_STARTDATE);
+	            taxPeriodTo = taxPeriods.get(BookingsCalculatorConstants.MDMS_ENDDATE);
+			List<String> combinedBillingSlabs = new LinkedList<>();
+			addRoundOffTaxHead(tenantId, demandDetails,BookingsCalculatorConstants.MDMS_ROUNDOFF_TAXHEAD_ROOM);
+			Demand singleDemand = Demand.builder().status(StatusEnum.ACTIVE)
+					.consumerCode(bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationNumber())
+					.demandDetails(demandDetails).payer(bookingsRequest.getRequestInfo().getUserInfo())
+					.minimumAmountPayable(config.getMinimumPayableAmount())
+					.tenantId(tenantId).taxPeriodFrom(taxPeriodFrom)
+					.taxPeriodTo(taxPeriodTo).consumerType("bookings")
+					.businessService(bookingsRequest.getBookingsModel().getRoomBusinessService())
+					.additionalDetails(Collections.singletonMap("calculationDes1cription", combinedBillingSlabs))
+					.build();
+
+			demands.add(singleDemand);
+		} catch (Exception e) {
+			throw new CustomException("DEMAND_ERROR", e.getLocalizedMessage());
+		}
+		return demands;
+
+	
+	
+	}
+
+	
+	
+	
 	/**
 	 * Gets the demands for PACC.
 	 *
@@ -896,4 +951,57 @@ public class DemandServiceImpl implements DemandService {
     }
 	
 
+	@Override
+	public void createDemandForRoom(BookingsRequest bookingsRequest) {
+
+		List<Demand> demands = new ArrayList<>();
+		demands = getDemandsForRoomForCommunity(bookingsRequest);
+
+		demandRepository.saveDemand(bookingsRequest.getRequestInfo(), demands);
+
+	}
+
+	@Override
+	public void updateDemandForRoom(BookingsRequest bookingsRequest) {
+
+		List<Demand> demands = new ArrayList<>();
+			demands = updateDemandsForRoom(bookingsRequest);
+		 demandRepository.updateDemand(bookingsRequest.getRequestInfo(), demands);
+
+	}
+
+	private List<Demand> updateDemandsForRoom(BookingsRequest bookingsRequest) {
+		List<Demand> demands = new LinkedList<>();
+
+		String taxHeadCode1 = BookingsCalculatorConstants.ROOM_FOR_COMMUNITY_TAX_CODE_1;
+
+		String taxHeadCode2 = BookingsCalculatorConstants.ROOM_FOR_COMMUNITY_TAX_CODE_2;
+
+		List<TaxHeadEstimate> taxHeadEstimate1 = bookingsCalculator.getTaxHeadEstimateForRoom(bookingsRequest, taxHeadCode1,
+				taxHeadCode2);
+
+		RequestInfo requestInfo = bookingsRequest.getRequestInfo();
+
+		if (config.isDemandFlag()) {
+			List<Demand> searchResult = searchDemand(bookingsRequest.getBookingsModel().getTenantId(),
+					Collections.singleton(bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationNumber()), requestInfo,
+					bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomBusinessService());
+			if (CollectionUtils.isEmpty(searchResult)) {
+				throw new CustomException("INVALID UPDATE", "No demand exists for applicationNumber: "
+						+ bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationNumber());
+			}
+			Demand demand = searchResult.get(0);
+			List<DemandDetail> demandDetails = demand.getDemandDetails();
+			List<DemandDetail> updatedDemandDetails = new ArrayList<>();
+
+			updatedDemandDetails = getUpdatedDemandDetails(taxHeadEstimate1, demandDetails,
+					BookingsCalculatorConstants.MDMS_ROUNDOFF_TAXHEAD_ROOM);
+			demand.setDemandDetails(updatedDemandDetails);
+			demands.add(demand);
+
+			
+		}
+		return demands;
+	}
+	
 }

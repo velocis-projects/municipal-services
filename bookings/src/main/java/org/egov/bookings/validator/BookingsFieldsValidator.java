@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.egov.bookings.contract.Bill;
+import org.egov.bookings.contract.CommercialGrndAvailabiltyLockRequest;
 import org.egov.bookings.contract.CommercialGroundAvailabiltySearchCriteria;
 import org.egov.bookings.contract.CommercialGroundFeeSearchCriteria;
 import org.egov.bookings.contract.JurisdictionAvailabilityRequest;
@@ -347,20 +348,25 @@ public class BookingsFieldsValidator {
 	 * @param commercialGrndAvailabilityModel the commercial grnd availability model
 	 */
 	public void validateCommercialGroundAvailabilityModel(
-			CommercialGrndAvailabilityModel commercialGrndAvailabilityModel) {
-		if (BookingsFieldsValidator.isNullOrEmpty(commercialGrndAvailabilityModel)) {
+			CommercialGrndAvailabiltyLockRequest commercialGrndAvailabiltyLockRequest) {
+		if (BookingsFieldsValidator
+				.isNullOrEmpty(commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock())) {
 			throw new IllegalArgumentException("Invalid commercialGrndAvailabilityModel object");
 		}
-		if (BookingsFieldsValidator.isNullOrEmpty(commercialGrndAvailabilityModel.getBookingVenue())) {
+		if (BookingsFieldsValidator.isNullOrEmpty(
+				commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().get(0).getBookingVenue())) {
 			throw new IllegalArgumentException("Invalid Booking Venue");
 		}
-		if (BookingsFieldsValidator.isNullOrEmpty(commercialGrndAvailabilityModel.getFromDate())) {
+		if (BookingsFieldsValidator.isNullOrEmpty(
+				commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().get(0).getFromDate())) {
 			throw new IllegalArgumentException("Invalid From Date");
 		}
-		if (BookingsFieldsValidator.isNullOrEmpty(commercialGrndAvailabilityModel.getToDate())) {
+		if (BookingsFieldsValidator.isNullOrEmpty(
+				commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().get(0).getToDate())) {
 			throw new IllegalArgumentException("Invalid To Date");
 		}
-		if (BookingsFieldsValidator.isNullOrEmpty(commercialGrndAvailabilityModel.isLocked())) {
+		if (BookingsFieldsValidator.isNullOrEmpty(
+				commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().get(0).isLocked())) {
 			throw new IllegalArgumentException("Invalid isLocked");
 		}
 	}
