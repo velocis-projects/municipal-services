@@ -977,6 +977,7 @@ public class MasterServiceImpl implements MasterService{
 		commonMasterFields2.setRentFor3Hrs(commonMasterFields.getRentFor3Hrs());
 		commonMasterFields2.setRentFor6Hrs(commonMasterFields.getRentFor6Hrs());
 		commonMasterFields2.setRentFor9Hrs(commonMasterFields.getRentFor9Hrs());
+		commonMasterFields2.setCommunityCenterName(commonMasterFields.getCommunityCenterName());
 		return commonMasterFields2;
 	}
 	

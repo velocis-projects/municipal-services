@@ -611,6 +611,8 @@ public class BookingsFieldsValidator {
 			throw new IllegalArgumentException("Invalid Rent for One Day");
 		}else if (isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getSector())) {
 			throw new IllegalArgumentException("Invalid Sector");
+		}else if (isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getCommunityCenterName())) {
+			throw new IllegalArgumentException("Invalid Community Center Name");
 		}
 	}
 }

@@ -170,4 +170,7 @@ public class CommonMasterFields {
 	/** The rent for 9 hrs. */
 	private String rentFor9Hrs;
 	
+	/** The community center name. */
+	private String communityCenterName;
+	
 }

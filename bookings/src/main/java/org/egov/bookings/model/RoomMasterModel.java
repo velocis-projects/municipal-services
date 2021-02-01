@@ -67,4 +67,8 @@ public class RoomMasterModel {
 	@Column(name = "CREATED_DATE")
 	private Date createdDate;
 	
+	/** The community center name. */
+	@Column(name = "community_center_name")
+	private String communityCenterName;
+	
 }
