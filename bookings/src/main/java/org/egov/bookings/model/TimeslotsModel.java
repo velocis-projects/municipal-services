@@ -31,5 +31,8 @@ public class TimeslotsModel {
 	@Column(name = "application_number")
 	private String applicationNumber;
 	
+	@Column(name = "slot2")
+	private String slot2;
+	
 	
 }
