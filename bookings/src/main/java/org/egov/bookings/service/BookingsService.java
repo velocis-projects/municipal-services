@@ -110,4 +110,12 @@ public interface BookingsService {
 	 * @param refundTransactionRequest the refund transaction request
 	 */
 	public void persistRefundStatus(RefundTransactionRequest refundTransactionRequest);
+	
+	/**
+	 * Gets the community center booking search.
+	 *
+	 * @param searchCriteriaFieldsDTO the search criteria fields DTO
+	 * @return the community center booking search
+	 */
+	public BookingsModel getCommunityCenterBookingSearch(SearchCriteriaFieldsDTO searchCriteriaFieldsDTO);
 }

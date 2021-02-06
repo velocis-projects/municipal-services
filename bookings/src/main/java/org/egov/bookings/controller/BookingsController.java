@@ -310,4 +310,33 @@ public class BookingsController {
 		return ResponseEntity.ok( userdetailsList );
 	}
 	
+	/**
+	 * Gets the community center booking search.
+	 *
+	 * @param searchCriteriaFieldsDTO the search criteria fields DTO
+	 * @return the community center booking search
+	 */
+	@PostMapping( value = "community/center/_search")
+	public ResponseEntity<?> getCommunityCenterBookingSearch( @RequestBody SearchCriteriaFieldsDTO searchCriteriaFieldsDTO )
+	{
+		if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO)) 
+		{
+			throw new IllegalArgumentException("Invalid searchCriteriaFieldsDTO");
+		}
+		if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO.getRequestInfo())) 
+		{
+			throw new IllegalArgumentException("Invalid requestInfo");
+		}
+		BookingsModel bookingModel = new BookingsModel();
+		try
+		{
+			bookingModel = bookingsService.getCommunityCenterBookingSearch(searchCriteriaFieldsDTO);
+		}
+		catch(Exception e)
+		{
+			LOGGER.error("Exception occur in the getCommunityCenterBookingSearch " + e);
+			e.printStackTrace();
+		}
+		return ResponseEntity.ok( bookingModel );
+	}
 }
