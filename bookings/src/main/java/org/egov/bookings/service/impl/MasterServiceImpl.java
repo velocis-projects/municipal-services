@@ -980,5 +980,27 @@ public class MasterServiceImpl implements MasterService{
 		commonMasterFields2.setCommunityCenterName(commonMasterFields.getCommunityCenterName());
 		return commonMasterFields2;
 	}
+
+	/**
+	 * Fetch community center name.
+	 *
+	 * @return the map
+	 */
+	@Override
+	public Map<String, String> fetchCommunityCenterName() {
+		Map<String, String> communityCenterNameMap = new HashMap<>();
+		List<ParkCommunityHallV1MasterModel> communityCenterList = new ArrayList<>();
+		try {
+			communityCenterList = parkCommunityHallV1MasterRepository.findByVenueType(BookingsConstants.COMMUNITY_CENTER); 
+			if(!BookingsFieldsValidator.isNullOrEmpty(communityCenterList)) {
+				communityCenterList.forEach(communityCenter -> communityCenterNameMap.put(communityCenter.getId(), communityCenter.getName()));
+			}
+		}
+		catch (Exception e) {
+			LOGGER.error("Exception occur in the fetchAllPACCFee " + e);
+			e.printStackTrace();
+		}
+		return communityCenterNameMap;
+	}
 	
 }

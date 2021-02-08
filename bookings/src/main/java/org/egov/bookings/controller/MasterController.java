@@ -2,6 +2,7 @@ package org.egov.bookings.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -23,6 +24,7 @@ import org.egov.bookings.model.RoomMasterModel;
 import org.egov.bookings.model.user.UserSearchRequest;
 import org.egov.bookings.service.MasterService;
 import org.egov.bookings.validator.BookingsFieldsValidator;
+import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -683,6 +685,27 @@ public class MasterController {
 		catch(Exception e)
 		{
 			LOGGER.error("Exception occur in the getUsers " + e);
+			e.printStackTrace();
+		}
+		return ResponseEntity.ok(rs);
+	}
+	
+	/**
+	 * Fetch community center name.
+	 *
+	 * @return the response entity
+	 */
+	@PostMapping(value = "/communityCenter/name/_fetch")
+	public ResponseEntity<?> fetchCommunityCenterName(){
+		ResponseModel rs = new ResponseModel();
+		try {
+			Map<String, String> communityCenterNameMap = masterService.fetchCommunityCenterName(); 
+			rs.setStatus("200");
+			rs.setMessage("Success");
+			rs.setData(communityCenterNameMap);
+		}
+		catch (Exception e) {
+			LOGGER.error("Exception occur in the fetchCommunityCenterName " + e);
 			e.printStackTrace();
 		}
 		return ResponseEntity.ok(rs);

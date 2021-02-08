@@ -1026,7 +1026,7 @@ public class BookingsServiceImpl implements BookingsService {
 		BookingsModel bookingModel = new BookingsModel();
 		try
 		{
-			bookingModel = bookingsRepository.findByBkApplicationNumberAndBkBookingType(applicationNumber, BookingsConstants.COMMUNITY_CENTER);
+			bookingModel = bookingsRepository.findByBkApplicationNumberAndBkBookingType(applicationNumber.trim(), BookingsConstants.COMMUNITY_CENTER);
 		}
 		catch(Exception e)
 		{

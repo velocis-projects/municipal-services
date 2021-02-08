@@ -1,6 +1,7 @@
 package org.egov.bookings.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.egov.bookings.contract.ApproverBean;
 import org.egov.bookings.contract.BookingApprover;
@@ -187,5 +188,12 @@ public interface MasterService {
 	 * @return the users
 	 */
 	public List<UserDetails> getUsers(SearchCriteriaFieldsDTO searchCriteriaFieldsDTO);
+	
+	/**
+	 * Fetch community center name.
+	 *
+	 * @return the map
+	 */
+	public Map<String, String> fetchCommunityCenterName();
 
 }
