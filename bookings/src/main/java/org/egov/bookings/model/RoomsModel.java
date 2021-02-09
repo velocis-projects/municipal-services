@@ -1,19 +1,25 @@
 package org.egov.bookings.model;
 
+import java.sql.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@ToString
 @Entity(name = "RoomsModel")
 @Table(name = "BK_ROOMS_MODEL")
 public class RoomsModel {
@@ -41,5 +47,11 @@ public class RoomsModel {
 
 	@Column(name = "ACTION")
 	private String action;
+	
+	@Column(name = "LAST_MODIFIED_DATE")
+	private Date lastModifiedDate;
+	
+	@Column(name = "CREATED_DATE")
+	private Date createdDate;
 
 }

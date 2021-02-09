@@ -126,8 +126,10 @@ public class BookingsServiceImpl implements BookingsService {
 		boolean flag = isBookingExists(bookingsRequest.getBookingsModel().getBkApplicationNumber());
 		if(BookingsConstants.EMPLOYEE.equals(bookingsRequest.getRequestInfo().getUserInfo().getType()))
 		userService.createUser(bookingsRequest, false);
-		if (!flag)
+		if (!flag) {
 			enrichmentService.enrichBookingsCreateRequest(bookingsRequest);
+			enrichmentService.enrichBookingsDetails(bookingsRequest);
+		}
 		if (!BookingsConstants.ACTION_DELIVER.equals(bookingsRequest.getBookingsModel().getBkAction())
 				&& !BookingsConstants.ACTION_FAILURE_APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())) {
 			enrichmentService.generateDemand(bookingsRequest);
@@ -137,7 +139,6 @@ public class BookingsServiceImpl implements BookingsService {
 			if (!flag)
 				workflowIntegrator.callWorkFlow(bookingsRequest);
 		}
-		enrichmentService.enrichBookingsDetails(bookingsRequest);
 		try {
 			BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
 			bookingsProducer.push(config.getSaveBookingTopic(), kafkaBookingRequest);

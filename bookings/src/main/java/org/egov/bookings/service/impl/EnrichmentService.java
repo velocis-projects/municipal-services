@@ -933,9 +933,12 @@ public class EnrichmentService {
 				bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationNumber());
 		if (!BookingsFieldsValidator.isNullOrEmpty(roomsModel)) {
 			bookingsRequest.getBookingsModel().getRoomsModel().get(0)
-					.setCommunityApplicationNumber((roomsModel.getCommunityApplicationNumber()));
+					.setRoomBusinessService(bookingsRequest.getBookingsModel().getRoomBusinessService());
+			LocalDate date = LocalDate.now();
+			Date date1 = Date.valueOf(date);
+			bookingsRequest.getBookingsModel().getRoomsModel().get(0).setLastModifiedDate(date1);
 			bookingsRequest.getBookingsModel().getRoomsModel().get(0)
-					.setRoomApplicationStatus(((roomsModel.getRoomApplicationStatus())));
+					.setCommunityApplicationNumber((roomsModel.getCommunityApplicationNumber()));
 		}
 
 	}

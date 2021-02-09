@@ -1,6 +1,7 @@
 package org.egov.bookings.service.impl;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -17,6 +18,7 @@ import org.egov.bookings.producer.BookingsProducer;
 import org.egov.bookings.repository.CommunityCenterRoomFeeRepository;
 import org.egov.bookings.repository.RoomsRepository;
 import org.egov.bookings.service.RoomsService;
+import org.egov.bookings.utils.BookingsUtils;
 import org.egov.bookings.validator.BookingsFieldsValidator;
 import org.egov.bookings.web.models.BookingsRequest;
 import org.egov.bookings.workflow.WorkflowIntegrator;
@@ -45,6 +47,7 @@ public class RoomsServiceImpl implements RoomsService {
 	
 	@Autowired
 	private RoomsRepository roomsRepository; 
+	
 
 	@Override
 	public BookingsModel createRoomForCommunityBooking(BookingsRequest bookingsRequest) {
@@ -53,6 +56,10 @@ public class RoomsServiceImpl implements RoomsService {
 			enrichmentService.enrichRoomForCommunityBookingRequest(bookingsRequest);
 		enrichmentService.enrichRoomDetails(bookingsRequest);
 		enrichmentService.generateDemandForRoom(bookingsRequest);
+		LocalDate date = LocalDate.now();
+		Date date1 = Date.valueOf(date);
+		bookingsRequest.getBookingsModel().getRoomsModel().get(0).setCreatedDate(date1);
+		bookingsRequest.getBookingsModel().getRoomsModel().get(0).setLastModifiedDate(date1);
 		if (config.getIsExternalWorkFlowEnabled()) {
 			if (!flag)
 			workflowIntegrator.callRoomWorkFlow(bookingsRequest);
@@ -123,8 +130,7 @@ public class RoomsServiceImpl implements RoomsService {
 	@Override
 	public BookingsModel updateRoomForCommunityBooking(BookingsRequest bookingsRequest) {
 		boolean flag = isRoomBookingExists(bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationNumber());
-		bookingsRequest.getBookingsModel().getRoomsModel().get(0)
-				.setRoomBusinessService(bookingsRequest.getBookingsModel().getRoomBusinessService());
+		enrichmentService.enrichRoomDetails(bookingsRequest);
 		if (config.getIsExternalWorkFlowEnabled()) {
 			workflowIntegrator.callRoomWorkFlow(bookingsRequest);
 		}

@@ -1,12 +1,15 @@
 package org.egov.bookings.utils;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -449,4 +452,10 @@ public class BookingsUtils {
 		return url.toString();
 	}
 
+	
+	public DateFormat getSimpleDateFormat() {
+		DateFormat formatter = new SimpleDateFormat(BookingsConstants.DATE_FORMAT);
+		formatter.setTimeZone(TimeZone.getTimeZone(BookingsConstants.TIME_ZONE));
+		return formatter;
+	}
 }
