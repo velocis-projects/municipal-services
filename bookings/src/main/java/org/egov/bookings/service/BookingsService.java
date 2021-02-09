@@ -117,5 +117,5 @@ public interface BookingsService {
 	 * @param searchCriteriaFieldsDTO the search criteria fields DTO
 	 * @return the community center booking search
 	 */
-	public BookingsModel getCommunityCenterBookingSearch(SearchCriteriaFieldsDTO searchCriteriaFieldsDTO);
+	public Booking getCommunityCenterBookingSearch(SearchCriteriaFieldsDTO searchCriteriaFieldsDTO);
 }

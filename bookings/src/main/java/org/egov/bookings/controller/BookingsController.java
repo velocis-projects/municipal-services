@@ -294,9 +294,6 @@ public class BookingsController {
 		{
 			throw new IllegalArgumentException("Invalid searchCriteriaFieldsDTO");
 		}
-		if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO.getRequestInfo())) {
-			throw new IllegalArgumentException("Invalid requestInfo");
-		}
 		List<UserDetails> userdetailsList = new ArrayList<>();
 		try
 		{
@@ -327,16 +324,16 @@ public class BookingsController {
 		{
 			throw new IllegalArgumentException("Invalid requestInfo");
 		}
-		BookingsModel bookingModel = new BookingsModel();
+		Booking booking = new Booking();
 		try
 		{
-			bookingModel = bookingsService.getCommunityCenterBookingSearch(searchCriteriaFieldsDTO);
+			booking = bookingsService.getCommunityCenterBookingSearch(searchCriteriaFieldsDTO);
 		}
 		catch(Exception e)
 		{
 			LOGGER.error("Exception occur in the getCommunityCenterBookingSearch " + e);
 			e.printStackTrace();
 		}
-		return ResponseEntity.ok( bookingModel );
+		return ResponseEntity.ok( booking );
 	}
 }

@@ -912,4 +912,19 @@ public class BookingsConstants {
 	
 	public static final boolean ISLOCKED = true;
 	
+	public static final String AC = "AC";
+	
+	public static final String NON_AC = "NON-AC";
+	
+	public static final String TOTAL_AC_ROOMS = "totalAcRooms";
+	
+	public static final String TOTAL_NON_AC_ROOMS = "totalNonAcRooms";
+	
+	public static final String BOOKED_AC_ROOMS = "bookedAcRooms";
+	
+	public static final String BOOKED_NON_AC_ROOMS = "bookedNonAcRooms";
+	
+	public static final String AVAILABLE_AC_ROOMS = "availableAcRooms";
+	
+	public static final String AVAILABLE_NON_AC_ROOMS = "availableNonAcRooms";
 }
