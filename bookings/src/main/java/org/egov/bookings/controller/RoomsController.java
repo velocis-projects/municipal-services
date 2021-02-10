@@ -39,7 +39,7 @@ public class RoomsController {
 		ResponseModel rs = new ResponseModel();
 		if (bookingsModel == null) {
 			rs.setStatus("400");
-			rs.setMessage("Error while Creating Room fo Community Booking");
+			rs.setMessage("Error while Creating Room for Community Booking");
 			rs.setData(bookingsModel);
 		} else {
 			rs.setStatus("200");
@@ -59,11 +59,11 @@ public class RoomsController {
 		ResponseModel rs = new ResponseModel();
 		if (bookingsModel == null) {
 			rs.setStatus("400");
-			rs.setMessage("Error while Creating Room fo Community Booking");
+			rs.setMessage("Error while updating Room fo Community Booking");
 			rs.setData(bookingsModel);
 		} else {
 			rs.setStatus("200");
-			rs.setMessage("Community Room Booking Created Successfully");
+			rs.setMessage("Community Room Booking updated Successfully");
 			rs.setData(bookingsModel);
 		}
 

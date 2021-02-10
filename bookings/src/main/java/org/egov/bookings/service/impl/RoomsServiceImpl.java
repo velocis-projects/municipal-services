@@ -122,12 +122,12 @@ public class RoomsServiceImpl implements RoomsService {
 			if (BookingsFieldsValidator.isNullOrEmpty(roomMasterModel.getToDate()) && currentDate.isAfter(fromDate)
 					|| currentDate.isEqual(fromDate)) {
 				// toDateInString = df.format(osbmFeeModel1.getToDate());
-				amount = new BigDecimal(roomMasterModel.getRentFor3Hrs());
+				amount = new BigDecimal(roomMasterModel.getRentForOneDay());
 			}
 			if (!BookingsFieldsValidator.isNullOrEmpty(roomMasterModel.getToDate())
 					&& (fromDate.isEqual(currentDate) || fromDate.isBefore(currentDate))
 					&& (currentDate.isBefore(LocalDate.parse(df.format(roomMasterModel.getToDate()))))) {
-				amount = new BigDecimal(roomMasterModel.getRentFor3Hrs());
+				amount = new BigDecimal(roomMasterModel.getRentForOneDay());
 				break;
 			}
 		}

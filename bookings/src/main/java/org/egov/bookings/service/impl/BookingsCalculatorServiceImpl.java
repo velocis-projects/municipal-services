@@ -440,15 +440,17 @@ public class BookingsCalculatorServiceImpl implements BookingsCalculatorService 
 		String bussinessService = bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomBusinessService();
 		List<TaxHeadMasterFields> taxHeadMasterFieldList = getTaxHeadMasterData(bookingsRequest, bussinessService);
 		BigDecimal roomAmount = roomsService.getRoomAmount(bookingsRequest);
+		BigDecimal days = enrichmentService.extractDaysBetweenTwoDates(bookingsRequest);
+		BigDecimal finalAmount = roomAmount.multiply(days);
 		// BigDecimal mccJurisdictionAmount = new BigDecimal(4400);
 		for (TaxHeadMasterFields taxHeadEstimate : taxHeadMasterFieldList) {
 			if (taxHeadEstimate.getCode().equals(taxHeadCode1)) {
 				taxHeadEstimate1
-						.add(new TaxHeadEstimate(taxHeadEstimate.getCode(), roomAmount, taxHeadEstimate.getCategory()));
+						.add(new TaxHeadEstimate(taxHeadEstimate.getCode(), finalAmount, taxHeadEstimate.getCategory()));
 			}
 			if (taxHeadEstimate.getCode().equals(taxHeadCode2)) {
 				taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
-						roomAmount.multiply((taxHeadEstimate.getTaxAmount().divide(new BigDecimal(100)))),
+						finalAmount.multiply((taxHeadEstimate.getTaxAmount().divide(new BigDecimal(100)))),
 						taxHeadEstimate.getCategory()));
 			}
 		}
