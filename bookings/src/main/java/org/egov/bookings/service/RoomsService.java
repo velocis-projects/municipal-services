@@ -1,7 +1,9 @@
 package org.egov.bookings.service;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
+import org.egov.bookings.dto.SearchCriteriaFieldsDTO;
 import org.egov.bookings.model.BookingsModel;
 import org.egov.bookings.web.models.BookingsRequest;
 import org.springframework.stereotype.Service;
@@ -16,5 +18,13 @@ public interface RoomsService {
 	boolean isRoomBookingExists(String bkApplicationNumber);
 
 	BookingsModel updateRoomForCommunityBooking(BookingsRequest bookingsRequest);
+	
+	/**
+	 * Community center room availbility fetch.
+	 *
+	 * @param searchCreteriaFieldDto the search creteria field dto
+	 * @return the map
+	 */
+	public Map<String, String> communityCenterRoomAvailbilityFetch(SearchCriteriaFieldsDTO searchCreteriaFieldDto);
 
 }
