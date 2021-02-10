@@ -261,6 +261,8 @@ public class RoomsServiceImpl implements RoomsService {
 				}
 				typesOfRoomMap.put(BookingsConstants.BOOKED_AC_ROOMS, String.valueOf(totalNumberOfAcRoom));
 				typesOfRoomMap.put(BookingsConstants.BOOKED_NON_AC_ROOMS, String.valueOf(totalNumberOfNonAcRoom));
+				typesOfRoomMap.put(BookingsConstants.AVAILABLE_AC_ROOMS, typesOfRoomMap.get(BookingsConstants.AC));
+				typesOfRoomMap.put(BookingsConstants.AVAILABLE_NON_AC_ROOMS, typesOfRoomMap.get(BookingsConstants.NON_AC));
 				if(totalNumberOfAcRoom > 0) {
 					typesOfRoomMap.put(BookingsConstants.AVAILABLE_AC_ROOMS, String.valueOf(Integer.parseInt(typesOfRoomMap.get(BookingsConstants.AC)) - totalNumberOfAcRoom));
 				}
