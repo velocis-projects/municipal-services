@@ -5,8 +5,13 @@ import java.util.Map;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.egov.bookings.common.model.ResponseModel;
+import org.egov.bookings.contract.CommercialGroundFeeSearchCriteria;
+import org.egov.bookings.contract.RoomFeeFetchRequest;
+import org.egov.bookings.contract.RoomFeeFetchResponse;
 import org.egov.bookings.dto.SearchCriteriaFieldsDTO;
 import org.egov.bookings.model.BookingsModel;
+import org.egov.bookings.model.CommercialGroundFeeModel;
+import org.egov.bookings.model.RoomMasterModel;
 import org.egov.bookings.service.RoomsService;
 import org.egov.bookings.validator.BookingsFieldsValidator;
 import org.egov.bookings.web.models.BookingsRequest;
@@ -100,5 +105,23 @@ public class RoomsController {
 		return ResponseEntity.ok(rs);
 	}
 
+	
+	
+	
+	@PostMapping("/fee/_fetch")
+	private ResponseEntity<?> fetchRoomFee(
+			@RequestBody RoomFeeFetchRequest roomFeeFetchRequest) {
+		
+		bookingsFieldsValidator.validateRoomFeeFetchRequest(roomFeeFetchRequest);
+		
+		RoomFeeFetchResponse res = roomsService.fetchRoomFee(roomFeeFetchRequest);
+		
+		ResponseModel rs = new ResponseModel();
+		rs.setStatus("200");
+		rs.setMessage("Data Found");
+		rs.setData(res);
+		
+		return ResponseEntity.ok(rs);
+	}
 	
 }

@@ -17,8 +17,11 @@ import org.apache.log4j.Logger;
 import org.egov.bookings.config.BookingsConfiguration;
 import org.egov.bookings.contract.Booking;
 import org.egov.bookings.contract.BookingsRequestKafka;
+import org.egov.bookings.contract.RoomFeeFetchRequest;
+import org.egov.bookings.contract.RoomFeeFetchResponse;
 import org.egov.bookings.dto.SearchCriteriaFieldsDTO;
 import org.egov.bookings.model.BookingsModel;
+import org.egov.bookings.model.OsbmFeeModel;
 import org.egov.bookings.model.ParkCommunityHallV1MasterModel;
 import org.egov.bookings.model.RoomMasterModel;
 import org.egov.bookings.model.RoomsModel;
@@ -28,6 +31,7 @@ import org.egov.bookings.repository.ParkCommunityHallV1MasterRepository;
 import org.egov.bookings.repository.RoomsRepository;
 import org.egov.bookings.service.BookingsService;
 import org.egov.bookings.service.RoomsService;
+import org.egov.bookings.utils.BookingsCalculatorConstants;
 import org.egov.bookings.utils.BookingsConstants;
 import org.egov.bookings.validator.BookingsFieldsValidator;
 import org.egov.bookings.web.models.BookingsRequest;
@@ -276,5 +280,60 @@ public class RoomsServiceImpl implements RoomsService {
 			e.printStackTrace();
 		}
 		return typesOfRoomMap;
+	}
+
+	@Override
+	public RoomFeeFetchResponse fetchRoomFee(RoomFeeFetchRequest roomFeeFetchRequest) {
+		List<RoomMasterModel> roomMasterModelList = null;
+		LocalDate currentDate = LocalDate.now();
+		BigDecimal amount = null;
+		BigDecimal ugstAndCgst = null;
+		BigDecimal totalAmount = null;
+		RoomFeeFetchResponse roomFeeFetchResponse = null;
+		roomMasterModelList = communityCenterRoomFeeRepository
+				.findBySectorNameAndTotalNumberOfRoomsAndTypeOfRoomAndCommunityCenterName(
+						roomFeeFetchRequest.getSector(), roomFeeFetchRequest.getTotalNumberOfRooms(),
+						roomFeeFetchRequest.getTypeOfRomm(), roomFeeFetchRequest.getCommunityCenterName());
+		if (BookingsFieldsValidator.isNullOrEmpty(roomMasterModelList)) {
+			throw new CustomException("DATA_NOT_FOUND",
+					"There is not any data with this fee criteria in bk room master table");
+		}
+
+		for (RoomMasterModel roomMasterModel : roomMasterModelList) {
+			if (BookingsFieldsValidator.isNullOrEmpty(roomMasterModel.getFromDate())) {
+				throw new CustomException("DATA_NOT_FOUND",
+						"There is no from date for this room fee fetch criteria in database");
+			}
+			String pattern = "yyyy-MM-dd";
+			DateFormat df = new SimpleDateFormat(pattern);
+			String fromDateInString = df.format(roomMasterModel.getFromDate());
+			LocalDate fromDate = LocalDate.parse(fromDateInString);
+			// LocalDate toDate = LocalDate.parse(toDateInString);
+			if (BookingsFieldsValidator.isNullOrEmpty(roomMasterModel.getToDate()) && currentDate.isAfter(fromDate)
+					|| currentDate.isEqual(fromDate)) {
+				// toDateInString = df.format(osbmFeeModel1.getToDate());
+				amount = BigDecimal.valueOf(Double.valueOf(roomMasterModel.getRentForOneDay()));
+				ugstAndCgst = (BigDecimal.valueOf(Double.valueOf(roomMasterModel.getRentForOneDay()))
+						.divide(new BigDecimal(100))).multiply(BookingsCalculatorConstants.UGST_AND_CGST_TAX);
+				totalAmount = amount.add(ugstAndCgst);
+				roomFeeFetchResponse = RoomFeeFetchResponse.builder().amount(amount).ugstAndCgst(ugstAndCgst)
+						.totalAmount(totalAmount).build();
+
+			}
+			if (!BookingsFieldsValidator.isNullOrEmpty(roomMasterModel.getToDate())
+					&& (fromDate.isEqual(currentDate) || fromDate.isBefore(currentDate))
+					&& (currentDate.isBefore(LocalDate.parse(df.format(roomMasterModel.getToDate()))))) {
+				amount = BigDecimal.valueOf(Double.valueOf(roomMasterModel.getRentForOneDay()));
+				ugstAndCgst = (BigDecimal.valueOf(Double.valueOf(roomMasterModel.getRentForOneDay()))
+						.divide(new BigDecimal(100))).multiply(BookingsCalculatorConstants.UGST_AND_CGST_TAX);
+				totalAmount = amount.add(ugstAndCgst);
+				roomFeeFetchResponse = RoomFeeFetchResponse.builder().amount(amount).ugstAndCgst(ugstAndCgst)
+						.totalAmount(totalAmount).build();
+
+				break;
+			}
+		}
+
+		return roomFeeFetchResponse;
 	}
 }
