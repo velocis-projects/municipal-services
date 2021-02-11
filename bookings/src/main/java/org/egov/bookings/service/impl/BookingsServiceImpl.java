@@ -484,6 +484,9 @@ public class BookingsServiceImpl implements BookingsService {
 								|| BookingsConstants.MCC_USER.equals(role.getCode())) {
 							applicationNumberSet.addAll(commonRepository.findBusinessId(role.getCode()));
 						}
+						else {
+							applicationNumberSet.addAll(commonRepository.findApplicationNumber(role.getCode()));
+						}
 						applicationNumbers.addAll(applicationNumberSet);
 						if(!BookingsFieldsValidator.isNullOrEmpty(applicationNumberSet)) {
 							if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
