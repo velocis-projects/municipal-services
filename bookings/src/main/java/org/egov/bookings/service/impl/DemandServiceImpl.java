@@ -163,7 +163,7 @@ public class DemandServiceImpl implements DemandService {
 					.minimumAmountPayable(config.getMinimumPayableAmount())
 					.tenantId(tenantId).taxPeriodFrom(taxPeriodFrom)
 					.taxPeriodTo(taxPeriodTo).consumerType("bookings")
-					.businessService(bookingsRequest.getBookingsModel().getRoomBusinessService())
+					.businessService(bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomBusinessService())
 					.additionalDetails(Collections.singletonMap("calculationDes1cription", combinedBillingSlabs))
 					.build();
 

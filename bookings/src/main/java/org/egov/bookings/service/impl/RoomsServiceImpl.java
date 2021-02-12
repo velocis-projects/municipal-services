@@ -65,6 +65,8 @@ public class RoomsServiceImpl implements RoomsService {
 	@Autowired
 	private RoomsRepository roomsRepository; 
 	
+	@Autowired
+	private UserService userService;
 	
 	/** The bookings service. */
 	@Autowired
@@ -77,6 +79,8 @@ public class RoomsServiceImpl implements RoomsService {
 	@Override
 	public BookingsModel createRoomForCommunityBooking(BookingsRequest bookingsRequest) {
 		boolean flag = isRoomBookingExists(bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationNumber());
+		if(BookingsConstants.EMPLOYEE.equals(bookingsRequest.getRequestInfo().getUserInfo().getType()))
+			userService.createUser(bookingsRequest, false);
 		if (!flag)
 			enrichmentService.enrichRoomForCommunityBookingRequest(bookingsRequest);
 		enrichmentService.enrichRoomDetails(bookingsRequest);

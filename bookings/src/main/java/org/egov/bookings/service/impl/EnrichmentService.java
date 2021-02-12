@@ -932,8 +932,8 @@ public class EnrichmentService {
 		RoomsModel roomsModel = roomsRepository.findByRoomApplicationNumber(
 				bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationNumber());
 		if (!BookingsFieldsValidator.isNullOrEmpty(roomsModel)) {
-			bookingsRequest.getBookingsModel().getRoomsModel().get(0)
-					.setRoomBusinessService(bookingsRequest.getBookingsModel().getRoomBusinessService());
+			/*bookingsRequest.getBookingsModel().getRoomsModel().get(0)
+					.setRoomBusinessService(bookingsRequest.getBookingsModel().getRoomBusinessService());*/
 			LocalDate date = LocalDate.now();
 			Date date1 = Date.valueOf(date);
 			bookingsRequest.getBookingsModel().getRoomsModel().get(0).setLastModifiedDate(date1);
