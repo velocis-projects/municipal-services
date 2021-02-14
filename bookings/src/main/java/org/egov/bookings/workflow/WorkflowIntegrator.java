@@ -339,8 +339,11 @@ public class WorkflowIntegrator {
 		});
 
 		// setting the status back to booking object from wf response
-		bookingsRequest.getBookingsModel().getRoomsModel().get(0)
-				.setRoomApplicationStatus(idStatusMap.get(roomsModel.getRoomApplicationNumber()));
+		for(RoomsModel roomModel : bookingsRequest.getBookingsModel().getRoomsModel()) {
+			roomModel.setRoomApplicationStatus(idStatusMap.get(roomsModel.getRoomApplicationNumber()));	
+		}
+		
+		
 
 	}
 }

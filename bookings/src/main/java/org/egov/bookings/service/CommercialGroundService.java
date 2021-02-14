@@ -33,14 +33,16 @@ public interface CommercialGroundService {
 	Set<AvailabilityResponse> searchCommercialGroundAvailabilty(
 			CommercialGroundAvailabiltySearchCriteria commercialGroundAvailabiltySearchCriteria);
 
-	CommercialGrndAvailabilityModel saveCommercialAvailabilityLockDates(
+	List<CommercialGrndAvailabilityModel> saveCommercialAvailabilityLockDates(
 			CommercialGrndAvailabiltyLockRequest commercialGrndAvailabiltyLockRequest);
 
 	Set<Date> fetchBookedDates(
 			BookingsRequest bookingsRequest);
 
 	
-	CommercialGrndAvailabilityModel updateCommercialAvailabilityLockDates(
+	List<CommercialGrndAvailabilityModel> updateCommercialAvailabilityLockDates(
 			CommercialGrndAvailabiltyLockRequest commercialGrndAvailabiltyLockRequest);
+
+	List<CommercialGrndAvailabilityModel> fetchLockedDates();
 	
 }

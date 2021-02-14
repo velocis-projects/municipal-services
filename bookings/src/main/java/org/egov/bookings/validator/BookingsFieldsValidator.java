@@ -16,6 +16,7 @@ import org.egov.bookings.contract.MasterRequest;
 import org.egov.bookings.contract.OsbmSearchCriteria;
 import org.egov.bookings.contract.ParkAndCommunitySearchCriteria;
 import org.egov.bookings.contract.ParkCommunityFeeMasterRequest;
+import org.egov.bookings.contract.RoomFeeFetchRequest;
 import org.egov.bookings.model.BookingsModel;
 import org.egov.bookings.model.CommercialGrndAvailabilityModel;
 import org.egov.bookings.repository.BookingsRepository;
@@ -614,5 +615,25 @@ public class BookingsFieldsValidator {
 		}else if (isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getCommunityCenterName())) {
 			throw new IllegalArgumentException("Invalid Community Center Name");
 		}
+	}
+
+	public void validateRoomFeeFetchRequest(RoomFeeFetchRequest roomFeeFetchRequest) {
+
+		if (BookingsFieldsValidator.isNullOrEmpty(roomFeeFetchRequest)) {
+			throw new IllegalArgumentException("Invalid Fee Request");
+		}
+
+		if (BookingsFieldsValidator.isNullOrEmpty(roomFeeFetchRequest.getSector())) {
+			throw new IllegalArgumentException("Invalid Sector");
+		}
+
+		if (BookingsFieldsValidator.isNullOrEmpty(roomFeeFetchRequest.getTotalNumberOfRooms())) {
+			throw new IllegalArgumentException("Invalid Total Number of rooms");
+		}
+
+		if (BookingsFieldsValidator.isNullOrEmpty(roomFeeFetchRequest.getTypeOfRomm())) {
+			throw new IllegalArgumentException("Invalid type of rooms");
+		}
+
 	}
 }

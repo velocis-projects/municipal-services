@@ -19,7 +19,7 @@ public interface RoomsRepository extends JpaRepository<RoomsModel, String>{
 	 * @param roomApplicationNumber the room application number
 	 * @return the rooms model
 	 */
-	RoomsModel findByRoomApplicationNumber(String roomApplicationNumber);
+	List<RoomsModel> findByRoomApplicationNumber(String roomApplicationNumber);
 	
 	/**
 	 * Find by community application number.
