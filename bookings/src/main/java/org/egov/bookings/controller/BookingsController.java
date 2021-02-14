@@ -154,6 +154,12 @@ public class BookingsController {
 		{
 			throw new IllegalArgumentException("Invalid searchCriteriaFieldsDTO");
 		}
+		if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO.getRequestInfo())) {
+			throw new IllegalArgumentException("Invalid RequestInfo");
+		}
+		if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO.getRequestInfo().getUserInfo())) {
+			throw new IllegalArgumentException("Invalid UserInfo");
+		}
 		if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO.getUuid())) 
 		{
 			throw new IllegalArgumentException("Invalid uuId");
@@ -320,10 +326,6 @@ public class BookingsController {
 		{
 			throw new IllegalArgumentException("Invalid searchCriteriaFieldsDTO");
 		}
-		if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO.getRequestInfo())) 
-		{
-			throw new IllegalArgumentException("Invalid requestInfo");
-		}
 		Booking booking = new Booking();
 		try
 		{
@@ -332,6 +334,50 @@ public class BookingsController {
 		catch(Exception e)
 		{
 			LOGGER.error("Exception occur in the getCommunityCenterBookingSearch " + e);
+			e.printStackTrace();
+		}
+		return ResponseEntity.ok( booking );
+	}
+	
+	/**
+	 * Gets the citizen community center room booking search.
+	 *
+	 * @param searchCriteriaFieldsDTO the search criteria fields DTO
+	 * @return the citizen community center room booking search
+	 */
+	@PostMapping(value = "/citizen/community/center/room/_search")
+	public ResponseEntity<?> getCitizenCommunityCenterRoomBookingSearch(@RequestBody SearchCriteriaFieldsDTO searchCriteriaFieldsDTO){
+		if(BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO)) {
+			throw new IllegalArgumentException("Invalid searchCriteriaFieldsDTO");
+		}
+		Booking booking = new Booking();
+		try {
+			booking = bookingsService.getCitizenCommunityCenterRoomBookingSearch(searchCriteriaFieldsDTO);
+		}
+		catch (Exception e) {
+			LOGGER.error("Exception occur in the getCitizenCommunityCenterRoomBookingSearch " + e);
+			e.printStackTrace();
+		}
+		return ResponseEntity.ok( booking );
+	}
+	
+	/**
+	 * Gets the employee community center room booking search.
+	 *
+	 * @param searchCriteriaFieldsDTO the search criteria fields DTO
+	 * @return the employee community center room booking search
+	 */
+	@PostMapping(value = "/employee/community/center/room/_search")
+	public ResponseEntity<?> getEmployeeCommunityCenterRoomBookingSearch(@RequestBody SearchCriteriaFieldsDTO searchCriteriaFieldsDTO){
+		if(BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO)) {
+			throw new IllegalArgumentException("Invalid searchCriteriaFieldsDTO");
+		}
+		Booking booking = new Booking();
+		try {
+			booking = bookingsService.getEmployeeCommunityCenterRoomBookingSearch(searchCriteriaFieldsDTO);
+		}
+		catch (Exception e) {
+			LOGGER.error("Exception occur in the getEmployeeCommunityCenterRoomBookingSearch " + e);
 			e.printStackTrace();
 		}
 		return ResponseEntity.ok( booking );

@@ -30,12 +30,14 @@ import org.egov.bookings.contract.UserDetails;
 import org.egov.bookings.dto.SearchCriteriaFieldsDTO;
 import org.egov.bookings.model.BookingsModel;
 import org.egov.bookings.model.OsbmApproverModel;
+import org.egov.bookings.model.RoomsModel;
 import org.egov.bookings.model.user.OwnerInfo;
 import org.egov.bookings.model.user.UserDetailResponse;
 import org.egov.bookings.producer.BookingsProducer;
 import org.egov.bookings.repository.BookingsRepository;
 import org.egov.bookings.repository.CommonRepository;
 import org.egov.bookings.repository.OsbmApproverRepository;
+import org.egov.bookings.repository.RoomsRepository;
 import org.egov.bookings.repository.impl.ServiceRequestRepository;
 import org.egov.bookings.service.BookingsService;
 import org.egov.bookings.utils.BookingsConstants;
@@ -106,6 +108,9 @@ public class BookingsServiceImpl implements BookingsService {
 	/** The user service. */
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private RoomsRepository roomsRepository;
 
 	/** The mail notification service. */
 	/*
@@ -1058,6 +1063,130 @@ public class BookingsServiceImpl implements BookingsService {
 			e.printStackTrace();
 		}
 		return documentMap;
+	}
+
+	/**
+	 * Gets the citizen community center room booking search.
+	 *
+	 * @param searchCriteriaFieldsDTO the search criteria fields DTO
+	 * @return the citizen community center room booking search
+	 */
+	@Override
+	public Booking getCitizenCommunityCenterRoomBookingSearch(SearchCriteriaFieldsDTO searchCriteriaFieldsDTO) {
+		if(BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO)) {
+			throw new IllegalArgumentException("Invalid searchCriteriaFieldsDTO");
+		}
+		Booking booking = new Booking();
+		List<RoomsModel> myRoomBookingList = new ArrayList<>();
+		List<?> documentList = new ArrayList<>();
+		Map<String, String> documentMap = new HashMap<>();
+		try {
+			String applicationNumber = searchCriteriaFieldsDTO.getApplicationNumber();
+			String applicationStatus = searchCriteriaFieldsDTO.getApplicationStatus();
+			String typeOfRoom = searchCriteriaFieldsDTO.getMobileNumber();
+			Date fromDate = searchCriteriaFieldsDTO.getFromDate();
+			Date toDate = searchCriteriaFieldsDTO.getToDate();
+			String uuid = searchCriteriaFieldsDTO.getUuid();
+			if (BookingsFieldsValidator.isNullOrEmpty(uuid)) {
+				throw new IllegalArgumentException("Invalid uuId");
+			}
+			if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+				myRoomBookingList = roomsRepository.getCitizenCommunityCenterRoomBooking(uuid, applicationStatus, typeOfRoom, applicationNumber);
+			} 
+			else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+				myRoomBookingList = roomsRepository.getCitizenCommunityCenterRoomBooking(uuid, applicationStatus, typeOfRoom, applicationNumber, fromDate, toDate);
+			}
+			if (!BookingsFieldsValidator.isNullOrEmpty(applicationNumber)) {
+				documentList = commonRepository.findDocumentList(applicationNumber);
+				booking.setBusinessService(commonRepository.findBusinessService(applicationNumber));
+			}
+			if (!BookingsFieldsValidator.isNullOrEmpty(documentList)) {
+				documentMap = getDocumentMap(documentList);
+			}
+			booking.setDocumentMap(documentMap);
+			booking.setRoomsModelList(myRoomBookingList);
+			booking.setBookingsCount(myRoomBookingList.size());
+		}
+		catch (Exception e) {
+			LOGGER.error("Exception occur in the getCitizenCommunityCenterRoomBookingSearch " + e);
+			e.printStackTrace();
+		}
+		return booking;
+	}
+
+	/**
+	 * Gets the employee community center room booking search.
+	 *
+	 * @param searchCriteriaFieldsDTO the search criteria fields DTO
+	 * @return the employee community center room booking search
+	 */
+	@Override
+	public Booking getEmployeeCommunityCenterRoomBookingSearch(SearchCriteriaFieldsDTO searchCriteriaFieldsDTO) {
+		if(BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO)) {
+			throw new IllegalArgumentException("Invalid searchCriteriaFieldsDTO");
+		}
+		Booking booking = new Booking();
+		Set<RoomsModel> bookingsSet = new HashSet<>();
+		List<?> documentList = new ArrayList<>();
+		Map<String, String> documentMap = new HashMap<>();
+		Set<String> applicationNumberSet = new HashSet<>();
+		try {
+			String applicationNumber = searchCriteriaFieldsDTO.getApplicationNumber();
+			String applicationStatus = searchCriteriaFieldsDTO.getApplicationStatus();
+			String typeOfRoom = searchCriteriaFieldsDTO.getMobileNumber();
+			Date fromDate = searchCriteriaFieldsDTO.getFromDate();
+			Date toDate = searchCriteriaFieldsDTO.getToDate();
+			String uuid = searchCriteriaFieldsDTO.getUuid();
+			if (BookingsFieldsValidator.isNullOrEmpty(uuid)) {
+				throw new IllegalArgumentException("Invalid uuId");
+			}
+			if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO.getRequestInfo())) {
+				throw new IllegalArgumentException("Invalid RequestInfo");
+			}
+			if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO.getRequestInfo().getUserInfo())) {
+				throw new IllegalArgumentException("Invalid UserInfo");
+			}
+			List<Role> roles = searchCriteriaFieldsDTO.getRequestInfo().getUserInfo().getRoles();
+			if (BookingsFieldsValidator.isNullOrEmpty(roles)) {
+				throw new IllegalArgumentException("Invalid roles");
+			}
+			for(Role role : roles) {
+				if (BookingsConstants.PARKS_AND_COMMUNITY_VIEWER.equals(role.getCode())) {
+					if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+						bookingsSet.addAll(roomsRepository.getEmployeeCommunityCenterRoomBooking(applicationStatus, typeOfRoom, applicationNumber));
+					} 
+					else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+						bookingsSet.addAll(roomsRepository.getEmployeeCommunityCenterRoomBooking(applicationStatus, typeOfRoom, applicationNumber, fromDate, toDate));
+					}
+				} 
+				else if (BookingsConstants.E_SAMPARK_CENTER.equals(role.getCode()) || BookingsConstants.MCC_USER.equals(role.getCode())) {
+					applicationNumberSet.addAll(commonRepository.findBusinessId(role.getCode()));
+					if(!BookingsFieldsValidator.isNullOrEmpty(applicationNumberSet)) {
+						if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+							bookingsSet.addAll(roomsRepository.getEmployeeCommunityCenterRoomBooking(applicationStatus, typeOfRoom, applicationNumber, applicationNumberSet));
+						} 
+						else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+							bookingsSet.addAll(roomsRepository.getEmployeeCommunityCenterRoomBooking(applicationStatus, typeOfRoom, applicationNumber, applicationNumberSet, fromDate, toDate));
+						}
+					}
+				}
+			}
+			if (!BookingsFieldsValidator.isNullOrEmpty(applicationNumber)) {
+				documentList = commonRepository.findDocumentList(applicationNumber);
+				booking.setBusinessService(commonRepository.findBusinessService(applicationNumber));
+			}
+			if (!BookingsFieldsValidator.isNullOrEmpty(documentList)) {
+				documentMap = getDocumentMap(documentList);
+			}
+			booking.setDocumentMap(documentMap);
+			booking.setRoomBookingsSet(bookingsSet);
+			booking.setBookingsCount(bookingsSet.size());
+		}
+		catch (Exception e) {
+			LOGGER.error("Exception occur in the getEmployeeCommunityCenterRoomBookingSearch " + e);
+			e.printStackTrace();
+		}
+		return booking;
 	}
 	
 }
