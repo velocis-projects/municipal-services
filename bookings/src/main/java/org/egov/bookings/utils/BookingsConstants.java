@@ -927,4 +927,8 @@ public class BookingsConstants {
 	public static final String AVAILABLE_AC_ROOMS = "availableAcRooms";
 	
 	public static final String AVAILABLE_NON_AC_ROOMS = "availableNonAcRooms";
+	
+	public static final String ROOM_TAXHEAD_CODE_FACILITATION_CHARGE = "ROOM_FACILITATION_CHARGE";
+	
+	public static final String SIX_MONTHS_FROM_NOW_SQL = "sixMonthsFromNowSql";
 }

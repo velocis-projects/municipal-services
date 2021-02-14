@@ -60,4 +60,6 @@ public class BookingsCalculatorConstants {
 	
 	public static final BigDecimal UGST_AND_CGST_TAX = new BigDecimal(18);
 	
+	public static final BigDecimal ONE_HUNDRED = new BigDecimal(100);
+	
 }

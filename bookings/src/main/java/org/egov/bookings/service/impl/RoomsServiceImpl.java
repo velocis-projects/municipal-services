@@ -83,12 +83,8 @@ public class RoomsServiceImpl implements RoomsService {
 			userService.createUser(bookingsRequest, false);
 		if (!flag)
 			enrichmentService.enrichRoomForCommunityBookingRequest(bookingsRequest);
-		enrichmentService.enrichRoomDetails(bookingsRequest);
+		enrichmentService.enrichRoomDetails(bookingsRequest,flag);
 		enrichmentService.generateDemandForRoom(bookingsRequest);
-		LocalDate date = LocalDate.now();
-		Date date1 = Date.valueOf(date);
-		bookingsRequest.getBookingsModel().getRoomsModel().get(0).setCreatedDate(date1);
-		bookingsRequest.getBookingsModel().getRoomsModel().get(0).setLastModifiedDate(date1);
 		if (config.getIsExternalWorkFlowEnabled()) {
 			if (!flag)
 			workflowIntegrator.callRoomWorkFlow(bookingsRequest);
@@ -104,50 +100,101 @@ public class RoomsServiceImpl implements RoomsService {
 
 	@Override
 	public BigDecimal getRoomAmount(BookingsRequest bookingsRequest) {
-		List<RoomMasterModel> roomMasterModelList = null;
+		List<RoomMasterModel> roomMasterModelListForAC = null;
+		List<RoomMasterModel> roomMasterModelListForNONAC = null;
 		LocalDate currentDate = LocalDate.now();
-		BigDecimal amount = null;
-		RoomsModel roomsModel = bookingsRequest.getBookingsModel().getRoomsModel().get(0);
-		String typeOfRoom = roomsModel.getTypeOfRoom();
-		String totalNoOfRooms = roomsModel.getTotalNoOfRooms();
-		String sector = bookingsRequest.getBookingsModel().getBkSector();
-		roomMasterModelList = communityCenterRoomFeeRepository
-				.findByTypeOfRoomAndTotalNumberOfRoomsAndSectorName(typeOfRoom, totalNoOfRooms, sector);
-		if (BookingsFieldsValidator.isNullOrEmpty(roomMasterModelList)) {
+		BigDecimal acAmount = BigDecimal.ZERO;
+		BigDecimal nonAcAmount = BigDecimal.ZERO;
+		BigDecimal finalAmount = BigDecimal.ZERO;
+		for (RoomsModel roomsModel : bookingsRequest.getBookingsModel().getRoomsModel()) {
+			String typeOfRoom = roomsModel.getTypeOfRoom();
+			String totalNoOfRooms = roomsModel.getTotalNoOfRooms();
+			String sector = bookingsRequest.getBookingsModel().getBkSector();
+			if (BookingsConstants.AC.equals(typeOfRoom)) {
+				roomMasterModelListForAC = communityCenterRoomFeeRepository
+						.findByTypeOfRoomAndTotalNumberOfRoomsAndSectorName(typeOfRoom, totalNoOfRooms, sector);
+			}
+			if (BookingsConstants.NON_AC.equals(typeOfRoom)) {
+				roomMasterModelListForNONAC = communityCenterRoomFeeRepository
+						.findByTypeOfRoomAndTotalNumberOfRoomsAndSectorName(typeOfRoom, totalNoOfRooms, sector);
+			}
+		}
+		if (BookingsFieldsValidator.isNullOrEmpty(roomMasterModelListForAC)
+				&& BookingsFieldsValidator.isNullOrEmpty(roomMasterModelListForNONAC)) {
 			throw new CustomException("DATA_NOT_FOUND",
 					"There is not any amount for this room body criteria in database");
 		}
-
-		for (RoomMasterModel roomMasterModel : roomMasterModelList) {
-			if (BookingsFieldsValidator.isNullOrEmpty(roomMasterModel.getFromDate())) {
-				throw new CustomException("DATA_NOT_FOUND", "There is no from date for this room criteria in database");
+		if (!BookingsFieldsValidator.isNullOrEmpty(roomMasterModelListForAC)) {
+			for (RoomMasterModel roomMasterModelForAC : roomMasterModelListForAC) {
+				if (BookingsFieldsValidator.isNullOrEmpty(roomMasterModelForAC.getFromDate())) {
+					throw new CustomException("DATA_NOT_FOUND",
+							"There is no from date for this room criteria in database");
+				}
+				String pattern = "yyyy-MM-dd";
+				DateFormat df = new SimpleDateFormat(pattern);
+				String fromDateInString = df.format(roomMasterModelForAC.getFromDate());
+				LocalDate fromDate = LocalDate.parse(fromDateInString);
+				// LocalDate toDate = LocalDate.parse(toDateInString);
+				if (BookingsFieldsValidator.isNullOrEmpty(roomMasterModelForAC.getToDate())
+						&& currentDate.isAfter(fromDate) || currentDate.isEqual(fromDate)) {
+					// toDateInString = df.format(osbmFeeModel1.getToDate());
+					acAmount = new BigDecimal(roomMasterModelForAC.getRentForOneDay());
+				}
+				if (!BookingsFieldsValidator.isNullOrEmpty(roomMasterModelForAC.getToDate())
+						&& (fromDate.isEqual(currentDate) || fromDate.isBefore(currentDate))
+						&& (currentDate.isBefore(LocalDate.parse(df.format(roomMasterModelForAC.getToDate()))))) {
+					acAmount = new BigDecimal(roomMasterModelForAC.getRentForOneDay());
+					break;
+				}
 			}
-			String pattern = "yyyy-MM-dd";
-			DateFormat df = new SimpleDateFormat(pattern);
-			String fromDateInString = df.format(roomMasterModel.getFromDate());
-			LocalDate fromDate = LocalDate.parse(fromDateInString);
-			// LocalDate toDate = LocalDate.parse(toDateInString);
-			if (BookingsFieldsValidator.isNullOrEmpty(roomMasterModel.getToDate()) && currentDate.isAfter(fromDate)
-					|| currentDate.isEqual(fromDate)) {
-				// toDateInString = df.format(osbmFeeModel1.getToDate());
-				amount = new BigDecimal(roomMasterModel.getRentForOneDay());
-			}
-			if (!BookingsFieldsValidator.isNullOrEmpty(roomMasterModel.getToDate())
-					&& (fromDate.isEqual(currentDate) || fromDate.isBefore(currentDate))
-					&& (currentDate.isBefore(LocalDate.parse(df.format(roomMasterModel.getToDate()))))) {
-				amount = new BigDecimal(roomMasterModel.getRentForOneDay());
-				break;
+			
+		}
+		for (RoomsModel roomModelForAC : bookingsRequest.getBookingsModel().getRoomsModel()) {
+			if(BookingsConstants.AC.equals(roomModelForAC.getTypeOfRoom())) {
+			BigDecimal days = enrichmentService.extractDaysBetweenTwoDates(roomModelForAC.getFromDate(),
+					roomModelForAC.getToDate());
+			finalAmount = acAmount.multiply(days);
 			}
 		}
-
-		return amount;
+		if (!BookingsFieldsValidator.isNullOrEmpty(roomMasterModelListForNONAC)) {
+			for (RoomMasterModel roomMasterModelForNONAC : roomMasterModelListForNONAC) {
+				if (BookingsFieldsValidator.isNullOrEmpty(roomMasterModelForNONAC.getFromDate())) {
+					throw new CustomException("DATA_NOT_FOUND",
+							"There is no from date for this room criteria in database");
+				}
+				String pattern = "yyyy-MM-dd";
+				DateFormat df = new SimpleDateFormat(pattern);
+				String fromDateInString = df.format(roomMasterModelForNONAC.getFromDate());
+				LocalDate fromDate = LocalDate.parse(fromDateInString);
+				// LocalDate toDate = LocalDate.parse(toDateInString);
+				if (BookingsFieldsValidator.isNullOrEmpty(roomMasterModelForNONAC.getToDate())
+						&& currentDate.isAfter(fromDate) || currentDate.isEqual(fromDate)) {
+					// toDateInString = df.format(osbmFeeModel1.getToDate());
+					nonAcAmount = new BigDecimal(roomMasterModelForNONAC.getRentForOneDay());
+				}
+				if (!BookingsFieldsValidator.isNullOrEmpty(roomMasterModelForNONAC.getToDate())
+						&& (fromDate.isEqual(currentDate) || fromDate.isBefore(currentDate))
+						&& (currentDate.isBefore(LocalDate.parse(df.format(roomMasterModelForNONAC.getToDate()))))) {
+					nonAcAmount = new BigDecimal(roomMasterModelForNONAC.getRentForOneDay());
+					break;
+				}
+			}
+		}
+		for (RoomsModel roomModelForNonAC : bookingsRequest.getBookingsModel().getRoomsModel()) {
+			if(BookingsConstants.NON_AC.equals(roomModelForNonAC.getTypeOfRoom())) {
+			BigDecimal days = enrichmentService.extractDaysBetweenTwoDates(roomModelForNonAC.getFromDate(),
+					roomModelForNonAC.getToDate());
+			finalAmount = finalAmount.add(nonAcAmount.multiply(days));
+			}
+		}
+		return finalAmount;
 	}
 
 	@Override
 	public boolean isRoomBookingExists(String roomApplicationNumber) {
-		RoomsModel roomsModel = roomsRepository.findByRoomApplicationNumber(roomApplicationNumber);
+		List<RoomsModel> roomsModel = roomsRepository.findByRoomApplicationNumber(roomApplicationNumber);
 
-		if (null == roomsModel) {
+		if (BookingsFieldsValidator.isNullOrEmpty(roomsModel)) {
 			return false;
 		} else {
 			return true;
@@ -159,7 +206,7 @@ public class RoomsServiceImpl implements RoomsService {
 	@Override
 	public BookingsModel updateRoomForCommunityBooking(BookingsRequest bookingsRequest) {
 		boolean flag = isRoomBookingExists(bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationNumber());
-		enrichmentService.enrichRoomDetails(bookingsRequest);
+		enrichmentService.enrichRoomDetails(bookingsRequest,flag);
 		if (config.getIsExternalWorkFlowEnabled()) {
 			workflowIntegrator.callRoomWorkFlow(bookingsRequest);
 		}

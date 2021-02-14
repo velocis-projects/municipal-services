@@ -174,12 +174,12 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 	 * org.egov.bookings.model.CommercialGrndAvailabilityModel)
 	 */
 	@Override
-	public CommercialGrndAvailabilityModel saveCommercialAvailabilityLockDates(
+	public List<CommercialGrndAvailabilityModel> saveCommercialAvailabilityLockDates(
 			CommercialGrndAvailabiltyLockRequest commercialGrndAvailabiltyLockRequest) {
 		try {
 			bookingsProducer.push(config.getSaveCommercialGrndLockedDates(), commercialGrndAvailabiltyLockRequest);
 			//commGrndAvail = commercialGrndAvailabilityRepository.save(commercialGrndAvailabilityModel);
-			return commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().get(0);
+			return commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock();
 		} catch (Exception e) {
 			throw new CustomException("DATABASE__PERSISTER_ERROR", e.getLocalizedMessage());
 		}
@@ -237,14 +237,29 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 	
 	
 	@Override
-	public CommercialGrndAvailabilityModel updateCommercialAvailabilityLockDates(
+	public List<CommercialGrndAvailabilityModel> updateCommercialAvailabilityLockDates(
 			CommercialGrndAvailabiltyLockRequest commercialGrndAvailabiltyLockRequest) {
 		try {
 			bookingsProducer.push(config.getUpdateCommercialGrndLockedDates(), commercialGrndAvailabiltyLockRequest);
 			//commGrndAvail = commercialGrndAvailabilityRepository.save(commercialGrndAvailabilityModel);
-			return commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().get(0);
+			return commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock();
 		} catch (Exception e) {
 			throw new CustomException("DATABASE__PERSISTER_ERROR", e.getLocalizedMessage());
 		}
+	}
+
+	@Override
+	public List<CommercialGrndAvailabilityModel> fetchLockedDates() {
+		List<CommercialGrndAvailabilityModel> lockList = null;
+		LocalDate date = LocalDate.now();
+		LocalDate sixMonthsFromNow = date.plusMonths(6);
+		Date currentDate = Date.valueOf(date);
+		Date sixMonthsFromNowSql = Date.valueOf(sixMonthsFromNow);
+		lockList = commercialGrndAvailabilityRepo.findLockedDatesFromNowTo6Months(currentDate, sixMonthsFromNowSql);
+		if (BookingsFieldsValidator.isNullOrEmpty(lockList)) {
+			throw new CustomException("NO_DATE_FOUND",
+					"There is not any data in bk_commercial_ground_availability_lock table");
+		}
+		return lockList;
 	}
 }
