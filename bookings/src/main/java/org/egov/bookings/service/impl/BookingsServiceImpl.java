@@ -1089,7 +1089,7 @@ public class BookingsServiceImpl implements BookingsService {
 		try {
 			String applicationNumber = searchCriteriaFieldsDTO.getApplicationNumber();
 			String applicationStatus = searchCriteriaFieldsDTO.getApplicationStatus();
-			String typeOfRoom = searchCriteriaFieldsDTO.getMobileNumber();
+			String typeOfRoom = searchCriteriaFieldsDTO.getTypeOfRoom();
 			Date fromDate = searchCriteriaFieldsDTO.getFromDate();
 			Date toDate = searchCriteriaFieldsDTO.getToDate();
 			String uuid = searchCriteriaFieldsDTO.getUuid();
@@ -1158,7 +1158,6 @@ public class BookingsServiceImpl implements BookingsService {
 		Map<String, String> documentMap = new HashMap<>();
 		Map<String, String> communityCenterDocumentMap = new HashMap<>();
 		Set<String> applicationNumberSet = new HashSet<>();
-		
 		List<String> applicationNumberList = new ArrayList<>();
 		List<BookingsModel> communityCenterBookings = new ArrayList<>();
 		Map<String, BookingsModel> communityCenterBookingMap = new HashMap<>();
@@ -1166,13 +1165,9 @@ public class BookingsServiceImpl implements BookingsService {
 		try {
 			String applicationNumber = searchCriteriaFieldsDTO.getApplicationNumber();
 			String applicationStatus = searchCriteriaFieldsDTO.getApplicationStatus();
-			String typeOfRoom = searchCriteriaFieldsDTO.getMobileNumber();
+			String typeOfRoom = searchCriteriaFieldsDTO.getTypeOfRoom();
 			Date fromDate = searchCriteriaFieldsDTO.getFromDate();
 			Date toDate = searchCriteriaFieldsDTO.getToDate();
-			String uuid = searchCriteriaFieldsDTO.getUuid();
-			if (BookingsFieldsValidator.isNullOrEmpty(uuid)) {
-				throw new IllegalArgumentException("Invalid uuId");
-			}
 			if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO.getRequestInfo())) {
 				throw new IllegalArgumentException("Invalid RequestInfo");
 			}
