@@ -3,7 +3,6 @@ package org.egov.bookings.contract;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.egov.bookings.model.BookingsModel;
 import org.egov.bookings.model.OsujmNewLocationModel;
@@ -39,10 +38,11 @@ public class Booking implements Serializable {
 	/** The document list. */
 	private List<DocumentFields> documentList;
 	
-	/** The rooms model list. */
-	private List< RoomsModel > roomsModelList;
+	/** The community center document map. */
+	private Map<String, String> communityCenterDocumentMap;
 	
-	private Set<RoomsModel> roomBookingsSet;
+	/** The community center room booking map. */
+	private Map<RoomsModel, BookingsModel> communityCenterRoomBookingMap;
 	
 	/**
 	 * Gets the bookings model list.
@@ -161,39 +161,39 @@ public class Booking implements Serializable {
 	}
 
 	/**
-	 * Gets the rooms model list.
+	 * Gets the community center document map.
 	 *
-	 * @return the rooms model list
+	 * @return the community center document map
 	 */
-	public List<RoomsModel> getRoomsModelList() {
-		return roomsModelList;
+	public Map<String, String> getCommunityCenterDocumentMap() {
+		return communityCenterDocumentMap;
 	}
 
 	/**
-	 * Sets the rooms model list.
+	 * Sets the community center document map.
 	 *
-	 * @param roomsModelList the new rooms model list
+	 * @param communityCenterDocumentMap the community center document map
 	 */
-	public void setRoomsModelList(List<RoomsModel> roomsModelList) {
-		this.roomsModelList = roomsModelList;
+	public void setCommunityCenterDocumentMap(Map<String, String> communityCenterDocumentMap) {
+		this.communityCenterDocumentMap = communityCenterDocumentMap;
 	}
 
 	/**
-	 * Gets the room bookings set.
+	 * Gets the community center room booking map.
 	 *
-	 * @return the room bookings set
+	 * @return the community center room booking map
 	 */
-	public Set<RoomsModel> getRoomBookingsSet() {
-		return roomBookingsSet;
+	public Map<RoomsModel, BookingsModel> getCommunityCenterRoomBookingMap() {
+		return communityCenterRoomBookingMap;
 	}
 
 	/**
-	 * Sets the room bookings set.
+	 * Sets the community center room booking map.
 	 *
-	 * @param roomBookingsSet the new room bookings set
+	 * @param communityCenterRoomBookingMap the community center room booking map
 	 */
-	public void setRoomBookingsSet(Set<RoomsModel> roomBookingsSet) {
-		this.roomBookingsSet = roomBookingsSet;
+	public void setCommunityCenterRoomBookingMap(Map<RoomsModel, BookingsModel> communityCenterRoomBookingMap) {
+		this.communityCenterRoomBookingMap = communityCenterRoomBookingMap;
 	}
 
 }

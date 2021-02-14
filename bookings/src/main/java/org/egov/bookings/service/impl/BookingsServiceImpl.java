@@ -1079,7 +1079,13 @@ public class BookingsServiceImpl implements BookingsService {
 		Booking booking = new Booking();
 		List<RoomsModel> myRoomBookingList = new ArrayList<>();
 		List<?> documentList = new ArrayList<>();
+		List<?> communityCenterDocumentList = new ArrayList<>();
 		Map<String, String> documentMap = new HashMap<>();
+		Map<String, String> communityCenterDocumentMap = new HashMap<>();
+		List<String> applicationNumberList = new ArrayList<>();
+		List<BookingsModel> communityCenterBookings = new ArrayList<>();
+		Map<String, BookingsModel> communityCenterBookingMap = new HashMap<>();
+		Map<RoomsModel, BookingsModel> communityCenterRoomBookingMap = new HashMap<>();
 		try {
 			String applicationNumber = searchCriteriaFieldsDTO.getApplicationNumber();
 			String applicationStatus = searchCriteriaFieldsDTO.getApplicationStatus();
@@ -1096,6 +1102,25 @@ public class BookingsServiceImpl implements BookingsService {
 			else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
 				myRoomBookingList = roomsRepository.getCitizenCommunityCenterRoomBooking(uuid, applicationStatus, typeOfRoom, applicationNumber, fromDate, toDate);
 			}
+			myRoomBookingList.forEach(roomModel ->{if(!applicationNumberList.contains(roomModel.getCommunityApplicationNumber())){ applicationNumberList.add(roomModel.getCommunityApplicationNumber());}});
+			if (!BookingsFieldsValidator.isNullOrEmpty(applicationNumberList)) {
+				communityCenterBookings = bookingsRepository.getCommunityCenterBookings(applicationNumberList);
+			}
+			communityCenterBookings.forEach(bookingsModel ->{
+				communityCenterBookingMap.put(bookingsModel.getBkApplicationNumber(), bookingsModel);
+			});
+			if (!BookingsFieldsValidator.isNullOrEmpty(communityCenterBookings) && (communityCenterBookings.size() == 1)) {
+				if (!BookingsFieldsValidator.isNullOrEmpty(communityCenterBookings.get(0).getBkApplicationNumber())) {
+					communityCenterDocumentList = commonRepository.findDocumentList(communityCenterBookings.get(0).getBkApplicationNumber());
+					booking.setBusinessService(commonRepository.findBusinessService(applicationNumber));
+				}
+			}
+			if (!BookingsFieldsValidator.isNullOrEmpty(communityCenterDocumentList)) {
+				communityCenterDocumentMap = getDocumentMap(communityCenterDocumentList);
+			}
+			myRoomBookingList.forEach(roomModel ->{
+				communityCenterRoomBookingMap.put(roomModel, communityCenterBookingMap.get(roomModel.getCommunityApplicationNumber()));
+			});
 			if (!BookingsFieldsValidator.isNullOrEmpty(applicationNumber)) {
 				documentList = commonRepository.findDocumentList(applicationNumber);
 				booking.setBusinessService(commonRepository.findBusinessService(applicationNumber));
@@ -1104,8 +1129,9 @@ public class BookingsServiceImpl implements BookingsService {
 				documentMap = getDocumentMap(documentList);
 			}
 			booking.setDocumentMap(documentMap);
-			booking.setRoomsModelList(myRoomBookingList);
-			booking.setBookingsCount(myRoomBookingList.size());
+			booking.setCommunityCenterDocumentMap(communityCenterDocumentMap);
+			booking.setCommunityCenterRoomBookingMap(communityCenterRoomBookingMap);
+			booking.setBookingsCount(communityCenterRoomBookingMap.size());
 		}
 		catch (Exception e) {
 			LOGGER.error("Exception occur in the getCitizenCommunityCenterRoomBookingSearch " + e);
@@ -1128,8 +1154,15 @@ public class BookingsServiceImpl implements BookingsService {
 		Booking booking = new Booking();
 		Set<RoomsModel> bookingsSet = new HashSet<>();
 		List<?> documentList = new ArrayList<>();
+		List<?> communityCenterDocumentList = new ArrayList<>();
 		Map<String, String> documentMap = new HashMap<>();
+		Map<String, String> communityCenterDocumentMap = new HashMap<>();
 		Set<String> applicationNumberSet = new HashSet<>();
+		
+		List<String> applicationNumberList = new ArrayList<>();
+		List<BookingsModel> communityCenterBookings = new ArrayList<>();
+		Map<String, BookingsModel> communityCenterBookingMap = new HashMap<>();
+		Map<RoomsModel, BookingsModel> communityCenterRoomBookingMap = new HashMap<>();
 		try {
 			String applicationNumber = searchCriteriaFieldsDTO.getApplicationNumber();
 			String applicationStatus = searchCriteriaFieldsDTO.getApplicationStatus();
@@ -1171,6 +1204,26 @@ public class BookingsServiceImpl implements BookingsService {
 					}
 				}
 			}
+			
+			bookingsSet.forEach(roomModel ->{if(!applicationNumberList.contains(roomModel.getCommunityApplicationNumber())){ applicationNumberList.add(roomModel.getCommunityApplicationNumber());}});
+			if (!BookingsFieldsValidator.isNullOrEmpty(applicationNumberList)) {
+				communityCenterBookings = bookingsRepository.getCommunityCenterBookings(applicationNumberList);
+			}
+			communityCenterBookings.forEach(bookingsModel ->{
+				communityCenterBookingMap.put(bookingsModel.getBkApplicationNumber(), bookingsModel);
+			});
+			if (!BookingsFieldsValidator.isNullOrEmpty(communityCenterBookings) && (communityCenterBookings.size() == 1)) {
+				if (!BookingsFieldsValidator.isNullOrEmpty(communityCenterBookings.get(0).getBkApplicationNumber())) {
+					communityCenterDocumentList = commonRepository.findDocumentList(communityCenterBookings.get(0).getBkApplicationNumber());
+					booking.setBusinessService(commonRepository.findBusinessService(applicationNumber));
+				}
+			}
+			if (!BookingsFieldsValidator.isNullOrEmpty(communityCenterDocumentList)) {
+				communityCenterDocumentMap = getDocumentMap(communityCenterDocumentList);
+			}
+			bookingsSet.forEach(roomModel ->{
+				communityCenterRoomBookingMap.put(roomModel, communityCenterBookingMap.get(roomModel.getCommunityApplicationNumber()));
+			});
 			if (!BookingsFieldsValidator.isNullOrEmpty(applicationNumber)) {
 				documentList = commonRepository.findDocumentList(applicationNumber);
 				booking.setBusinessService(commonRepository.findBusinessService(applicationNumber));
@@ -1179,8 +1232,9 @@ public class BookingsServiceImpl implements BookingsService {
 				documentMap = getDocumentMap(documentList);
 			}
 			booking.setDocumentMap(documentMap);
-			booking.setRoomBookingsSet(bookingsSet);
-			booking.setBookingsCount(bookingsSet.size());
+			booking.setCommunityCenterDocumentMap(communityCenterDocumentMap);
+			booking.setCommunityCenterRoomBookingMap(communityCenterRoomBookingMap);
+			booking.setBookingsCount(communityCenterRoomBookingMap.size());
 		}
 		catch (Exception e) {
 			LOGGER.error("Exception occur in the getEmployeeCommunityCenterRoomBookingSearch " + e);

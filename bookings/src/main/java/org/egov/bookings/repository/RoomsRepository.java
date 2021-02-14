@@ -39,7 +39,7 @@ public interface RoomsRepository extends JpaRepository<RoomsModel, String>{
 	 * @return the citizen community center room booking
 	 */
 	@Query(
-			value = "SELECT * FROM BK_ROOM_MODEL AS BRM"
+			value = "SELECT * FROM BK_ROOMS_MODEL AS BRM"
 					+ " INNER JOIN BK_BOOKINGS AS BB ON BB.BK_APPLICATION_NUMBER = BRM.COMMUNITY_APPLICATION_NUMBER"
 					+ " WHERE BB.UUID = (?1) AND BRM.ROOM_APPLICATION_STATUS LIKE (%?2%) AND BRM.TYPE_OF_ROOM LIKE (%?3%)"
 					+ " AND BRM.ROOM_APPLICATION_NUMBER LIKE (%?4%) ORDER BY BRM.ROOM_APPLICATION_NUMBER DESC",
@@ -58,7 +58,7 @@ public interface RoomsRepository extends JpaRepository<RoomsModel, String>{
 	 * @return the citizen community center room booking
 	 */
 	@Query(
-			value = "SELECT * FROM BK_ROOM_MODEL AS BRM"
+			value = "SELECT * FROM BK_ROOMS_MODEL AS BRM"
 					+ " INNER JOIN BK_BOOKINGS AS BB ON BB.BK_APPLICATION_NUMBER = BRM.COMMUNITY_APPLICATION_NUMBER"
 					+ " WHERE BB.UUID = (?1) AND BRM.ROOM_APPLICATION_STATUS LIKE (%?2%) AND BRM.TYPE_OF_ROOM LIKE (%?3%)"
 					+ " AND BRM.ROOM_APPLICATION_NUMBER LIKE (%?4%) AND BRM.CREATED_DATE BETWEEN (?5) AND (?6) ORDER BY BRM.ROOM_APPLICATION_NUMBER DESC",

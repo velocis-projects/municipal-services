@@ -1178,4 +1178,16 @@ public interface BookingsRepository
 	 * @return the bookings model
 	 */
 	public BookingsModel findByBkApplicationNumberAndBkBookingType(String applicationNumber, String bookingType);
+	
+	/**
+	 * Gets the community center bookings.
+	 *
+	 * @param applicationNumberList the application number list
+	 * @return the community center bookings
+	 */
+	@Query(
+			value = "SELECT * FROM BK_BOOKINGS AS TB WHERE TB.BK_APPLICATION_NUMBER IN (?1)",
+			nativeQuery = true )
+			List<BookingsModel> getCommunityCenterBookings( List<String> applicationNumberList );
+	
 }
