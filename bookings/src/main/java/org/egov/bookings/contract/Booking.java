@@ -3,9 +3,11 @@ package org.egov.bookings.contract;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.egov.bookings.model.BookingsModel;
 import org.egov.bookings.model.OsujmNewLocationModel;
+import org.egov.bookings.model.RoomsModel;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -36,6 +38,11 @@ public class Booking implements Serializable {
 	
 	/** The document list. */
 	private List<DocumentFields> documentList;
+	
+	/** The rooms model list. */
+	private List< RoomsModel > roomsModelList;
+	
+	private Set<RoomsModel> roomBookingsSet;
 	
 	/**
 	 * Gets the bookings model list.
@@ -152,4 +159,41 @@ public class Booking implements Serializable {
 	public void setDocumentList(List<DocumentFields> documentList) {
 		this.documentList = documentList;
 	}
+
+	/**
+	 * Gets the rooms model list.
+	 *
+	 * @return the rooms model list
+	 */
+	public List<RoomsModel> getRoomsModelList() {
+		return roomsModelList;
+	}
+
+	/**
+	 * Sets the rooms model list.
+	 *
+	 * @param roomsModelList the new rooms model list
+	 */
+	public void setRoomsModelList(List<RoomsModel> roomsModelList) {
+		this.roomsModelList = roomsModelList;
+	}
+
+	/**
+	 * Gets the room bookings set.
+	 *
+	 * @return the room bookings set
+	 */
+	public Set<RoomsModel> getRoomBookingsSet() {
+		return roomBookingsSet;
+	}
+
+	/**
+	 * Sets the room bookings set.
+	 *
+	 * @param roomBookingsSet the new room bookings set
+	 */
+	public void setRoomBookingsSet(Set<RoomsModel> roomBookingsSet) {
+		this.roomBookingsSet = roomBookingsSet;
+	}
+
 }

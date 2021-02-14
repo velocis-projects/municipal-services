@@ -118,4 +118,20 @@ public interface BookingsService {
 	 * @return the community center booking search
 	 */
 	public Booking getCommunityCenterBookingSearch(SearchCriteriaFieldsDTO searchCriteriaFieldsDTO);
+	
+	/**
+	 * Gets the citizen community center room booking search.
+	 *
+	 * @param searchCriteriaFieldsDTO the search criteria fields DTO
+	 * @return the citizen community center room booking search
+	 */
+	public Booking getCitizenCommunityCenterRoomBookingSearch(SearchCriteriaFieldsDTO searchCriteriaFieldsDTO);
+	
+	/**
+	 * Gets the employee community center room booking search.
+	 *
+	 * @param searchCriteriaFieldsDTO the search criteria fields DTO
+	 * @return the employee community center room booking search
+	 */
+	public Booking getEmployeeCommunityCenterRoomBookingSearch(SearchCriteriaFieldsDTO searchCriteriaFieldsDTO);
 }
