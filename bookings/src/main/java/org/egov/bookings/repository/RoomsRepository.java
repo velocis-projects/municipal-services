@@ -106,7 +106,7 @@ public interface RoomsRepository extends JpaRepository<RoomsModel, String>{
 	 */
 	@Query(
 			value = "SELECT * FROM BK_ROOMS_MODEL AS BRM WHERE BRM.ROOM_APPLICATION_STATUS != 'INITIATED' AND BRM.ROOM_APPLICATION_STATUS LIKE (%?1%)"
-					+ " AND BRM.TYPE_OF_ROOM LIKE (%?2%) AND BRM.ROOM_APPLICATION_NUMBER LIKE (%?3%) AND TB.BK_APPLICATION_NUMBER IN (?4) ORDER BY BRM.ROOM_APPLICATION_NUMBER DESC",
+					+ " AND BRM.TYPE_OF_ROOM LIKE (%?2%) AND BRM.ROOM_APPLICATION_NUMBER LIKE (%?3%) AND BRM.ROOM_APPLICATION_NUMBER IN (?4) ORDER BY BRM.ROOM_APPLICATION_NUMBER DESC",
 			nativeQuery = true )
 			List<RoomsModel> getEmployeeCommunityCenterRoomBooking( String applicationStatus, String typeOfRoom, String roomApplicationNumber, Set< String > applicationNumberSet );
 	
@@ -123,7 +123,7 @@ public interface RoomsRepository extends JpaRepository<RoomsModel, String>{
 	 */
 	@Query(
 			value = "SELECT * FROM BK_ROOMS_MODEL AS BRM WHERE BRM.ROOM_APPLICATION_STATUS != 'INITIATED' AND BRM.ROOM_APPLICATION_STATUS LIKE (%?1%)"
-					+ " AND BRM.TYPE_OF_ROOM LIKE (%?2%) AND BRM.ROOM_APPLICATION_NUMBER LIKE (%?3%) AND TB.BK_APPLICATION_NUMBER IN (?4) AND BRM.CREATED_DATE BETWEEN (?5) AND (?6) ORDER BY BRM.ROOM_APPLICATION_NUMBER DESC",
+					+ " AND BRM.TYPE_OF_ROOM LIKE (%?2%) AND BRM.ROOM_APPLICATION_NUMBER LIKE (%?3%) AND BRM.ROOM_APPLICATION_NUMBER IN (?4) AND BRM.CREATED_DATE BETWEEN (?5) AND (?6) ORDER BY BRM.ROOM_APPLICATION_NUMBER DESC",
 			nativeQuery = true )
 			List<RoomsModel> getEmployeeCommunityCenterRoomBooking( String applicationStatus, String typeOfRoom, String roomApplicationNumber, Set< String > applicationNumberSet, Date fromDate, Date toDate );
 	
