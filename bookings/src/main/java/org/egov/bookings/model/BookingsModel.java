@@ -391,8 +391,9 @@ public class BookingsModel {
 	@Column(name = "APPROVER_NAME")
 	private String bkApproverName;
 
-	@Transient
+	
 	@JsonProperty("discount")
+	@Column(name = "discount")
 	private BigDecimal discount;
 	
 	@Size(max = 64)
@@ -417,6 +418,4 @@ public class BookingsModel {
     @Transient
     private String financeBusinessService;
 	
-    @Transient
-    private String roomBusinessService;
 }
