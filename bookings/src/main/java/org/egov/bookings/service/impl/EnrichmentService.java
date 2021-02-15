@@ -956,6 +956,7 @@ public class EnrichmentService {
 				bkRoomModel.setLastModifiedDate(date1);
 				bkRoomModel
 					.setCommunityApplicationNumber((roomModel.getCommunityApplicationNumber()));
+				bkRoomModel.setDiscount(bookingsRequest.getBookingsModel().getDiscount());
 			}
 			}
 		}
