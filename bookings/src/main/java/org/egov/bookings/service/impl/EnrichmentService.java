@@ -39,7 +39,6 @@ import org.egov.bookings.repository.OsbmApproverRepository;
 import org.egov.bookings.repository.OsujmNewLocationRepository;
 import org.egov.bookings.repository.RoomsRepository;
 import org.egov.bookings.repository.impl.IdGenRepository;
-import org.egov.bookings.service.BookingsCalculatorService;
 import org.egov.bookings.service.BookingsService;
 import org.egov.bookings.service.DemandService;
 import org.egov.bookings.service.RoomsService;
@@ -74,17 +73,14 @@ public class EnrichmentService {
 	@Autowired
 	private IdGenRepository idGenRepository;
 	
-	/** The bookings calculator service. */
-	@Autowired
-	BookingsCalculatorService bookingsCalculatorService;
 	
 	/** The bookings service. */
 	@Autowired
-	BookingsService bookingsService;
+	private BookingsService bookingsService;
 	
 	/** The demand service. */
 	@Autowired
-	DemandService demandService;
+	private DemandService demandService;
 	
 	/** The bookings repository. */
 	@Autowired
@@ -108,7 +104,7 @@ public class EnrichmentService {
 	
 	/** The osbm approver repository. */
 	@Autowired
-	OsbmApproverRepository osbmApproverRepository;
+	private OsbmApproverRepository osbmApproverRepository;
 
 	
 	@Autowired
@@ -978,5 +974,5 @@ public class EnrichmentService {
 		} catch (Exception e) {
 			throw new CustomException("INVALID_REQUEST", e.getLocalizedMessage());
 		}
-}
+	}
 }
