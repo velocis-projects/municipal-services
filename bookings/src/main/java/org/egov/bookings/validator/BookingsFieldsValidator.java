@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.egov.bookings.contract.Bill;
+import org.egov.bookings.contract.CommercialGrndAvailabiltyLockRequest;
 import org.egov.bookings.contract.CommercialGroundAvailabiltySearchCriteria;
 import org.egov.bookings.contract.CommercialGroundFeeSearchCriteria;
 import org.egov.bookings.contract.JurisdictionAvailabilityRequest;
@@ -15,6 +16,7 @@ import org.egov.bookings.contract.MasterRequest;
 import org.egov.bookings.contract.OsbmSearchCriteria;
 import org.egov.bookings.contract.ParkAndCommunitySearchCriteria;
 import org.egov.bookings.contract.ParkCommunityFeeMasterRequest;
+import org.egov.bookings.contract.RoomFeeFetchRequest;
 import org.egov.bookings.model.BookingsModel;
 import org.egov.bookings.model.CommercialGrndAvailabilityModel;
 import org.egov.bookings.repository.BookingsRepository;
@@ -347,20 +349,25 @@ public class BookingsFieldsValidator {
 	 * @param commercialGrndAvailabilityModel the commercial grnd availability model
 	 */
 	public void validateCommercialGroundAvailabilityModel(
-			CommercialGrndAvailabilityModel commercialGrndAvailabilityModel) {
-		if (BookingsFieldsValidator.isNullOrEmpty(commercialGrndAvailabilityModel)) {
+			CommercialGrndAvailabiltyLockRequest commercialGrndAvailabiltyLockRequest) {
+		if (BookingsFieldsValidator
+				.isNullOrEmpty(commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock())) {
 			throw new IllegalArgumentException("Invalid commercialGrndAvailabilityModel object");
 		}
-		if (BookingsFieldsValidator.isNullOrEmpty(commercialGrndAvailabilityModel.getBookingVenue())) {
+		if (BookingsFieldsValidator.isNullOrEmpty(
+				commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().get(0).getBookingVenue())) {
 			throw new IllegalArgumentException("Invalid Booking Venue");
 		}
-		if (BookingsFieldsValidator.isNullOrEmpty(commercialGrndAvailabilityModel.getFromDate())) {
+		if (BookingsFieldsValidator.isNullOrEmpty(
+				commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().get(0).getFromDate())) {
 			throw new IllegalArgumentException("Invalid From Date");
 		}
-		if (BookingsFieldsValidator.isNullOrEmpty(commercialGrndAvailabilityModel.getToDate())) {
+		if (BookingsFieldsValidator.isNullOrEmpty(
+				commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().get(0).getToDate())) {
 			throw new IllegalArgumentException("Invalid To Date");
 		}
-		if (BookingsFieldsValidator.isNullOrEmpty(commercialGrndAvailabilityModel.isLocked())) {
+		if (BookingsFieldsValidator.isNullOrEmpty(
+				commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().get(0).isLocked())) {
 			throw new IllegalArgumentException("Invalid isLocked");
 		}
 	}
@@ -581,5 +588,52 @@ public class BookingsFieldsValidator {
 			parkAndCommunitySearchCriteria.setApplicationNumber("");
 		}
 		
+	}
+	
+	/**
+	 * Validate community center room fee body.
+	 *
+	 * @param masterRequest the master request
+	 */
+	public void validateCommunityCenterRoomFeeBody(MasterRequest masterRequest) {
+		if (isNullOrEmpty(masterRequest) || isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList())) {
+			throw new IllegalArgumentException("Invalid Community Center Room Fee Request Body");
+		}else if (isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getTotalNumberOfRooms())) {
+			throw new IllegalArgumentException("Invalid Total number of Rooms");
+		}else if (isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getTypeOfRoom())) {
+			throw new IllegalArgumentException("Invalid Type of Room");
+		}else if (isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getRentForOneDay())) {
+			throw new IllegalArgumentException("Invalid Rent for One Day");
+		}else if (isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getRentFor3Hrs())) {
+			throw new IllegalArgumentException("Invalid Rent for One Day");
+		}else if (isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getRentFor6Hrs())) {
+			throw new IllegalArgumentException("Invalid Rent for One Day");
+		}else if (isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getRentFor9Hrs())) {
+			throw new IllegalArgumentException("Invalid Rent for One Day");
+		}else if (isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getSector())) {
+			throw new IllegalArgumentException("Invalid Sector");
+		}else if (isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getCommunityCenterName())) {
+			throw new IllegalArgumentException("Invalid Community Center Name");
+		}
+	}
+
+	public void validateRoomFeeFetchRequest(RoomFeeFetchRequest roomFeeFetchRequest) {
+
+		if (BookingsFieldsValidator.isNullOrEmpty(roomFeeFetchRequest)) {
+			throw new IllegalArgumentException("Invalid Fee Request");
+		}
+
+		if (BookingsFieldsValidator.isNullOrEmpty(roomFeeFetchRequest.getSector())) {
+			throw new IllegalArgumentException("Invalid Sector");
+		}
+
+		if (BookingsFieldsValidator.isNullOrEmpty(roomFeeFetchRequest.getTotalNumberOfRooms())) {
+			throw new IllegalArgumentException("Invalid Total Number of rooms");
+		}
+
+		if (BookingsFieldsValidator.isNullOrEmpty(roomFeeFetchRequest.getTypeOfRomm())) {
+			throw new IllegalArgumentException("Invalid type of rooms");
+		}
+
 	}
 }

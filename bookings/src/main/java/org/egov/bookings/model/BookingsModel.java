@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.Valid;
@@ -51,6 +52,10 @@ public class BookingsModel {
 	@OneToMany
 	@JoinColumn(name = "application_number")
 	private List<TimeslotsModel> timeslots;
+	
+	@OneToMany
+	@JoinColumn(name = "COMMUNITY_APPLICATION_NUMBER")
+	private List<RoomsModel> roomsModel;
 	
 	@JsonProperty("bkAddress")
 	@Column(name = "BK_ADDRESS")
@@ -262,7 +267,7 @@ public class BookingsModel {
 	@Column(name = "BK_REFUND_AMOUNT")
 	private String bkRefundAmount;
 
-	/*@JsonProperty("bkBankAccountNumber")
+	@JsonProperty("bkBankAccountNumber")
 	@Column(name = "BK_BANK_ACCOUNT_NUMBER")
 	private String bkBankAccountNumber;
 
@@ -276,7 +281,15 @@ public class BookingsModel {
 
 	@JsonProperty("bkAccountType")
 	@Column(name = "BK_ACCOUNT_TYPE")
-	private String bkAccountType;*/
+	private String bkAccountType;
+	
+	
+	@JsonProperty("bkBankAccountHolder")
+	@Column(name = "BK_BANK_ACCOUNT_HOLDER")
+	private String bkBankAccountHolder;
+	
+	
+	
 
 	@JsonProperty("bkPropertyOwnerName")
 	@Column(name = "BK_PROPERTY_OWNER_NAME")
@@ -404,5 +417,6 @@ public class BookingsModel {
     @Transient
     private String financeBusinessService;
 	
-
+    @Transient
+    private String roomBusinessService;
 }

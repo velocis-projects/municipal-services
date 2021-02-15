@@ -1,5 +1,7 @@
 package org.egov.bookings.utils;
 
+import java.math.BigDecimal;
+
 public class BookingsCalculatorConstants {
 
 	public static final String OSBM_TAXHEAD_CODE_1 = "PARKING_LOTS_MANUAL_OPEN_SPACE_BOOKING_BRANCH";
@@ -48,5 +50,14 @@ public class BookingsCalculatorConstants {
     public static final String MDMS_STARTDATE  = "startingDate";
 
     public static final String MDMS_ENDDATE  = "endingDate";
+    
+    
+    public static final String ROOM_FOR_COMMUNITY_TAX_CODE_1 = "BKROOM";
+
+	public static final String ROOM_FOR_COMMUNITY_TAX_CODE_2 = "BKROOM_TAX";
+
+	public static final String MDMS_ROUNDOFF_TAXHEAD_ROOM = "BKROOM_ROUND_OFF";
+	
+	public static final BigDecimal UGST_AND_CGST_TAX = new BigDecimal(18);
 	
 }

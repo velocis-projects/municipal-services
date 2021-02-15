@@ -2,6 +2,7 @@ package org.egov.bookings.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -19,9 +20,11 @@ import org.egov.bookings.model.InventoryModel;
 import org.egov.bookings.model.OsbmFeeModel;
 import org.egov.bookings.model.OsujmFeeModel;
 import org.egov.bookings.model.ParkCommunityHallV1MasterModel;
+import org.egov.bookings.model.RoomMasterModel;
 import org.egov.bookings.model.user.UserSearchRequest;
 import org.egov.bookings.service.MasterService;
 import org.egov.bookings.validator.BookingsFieldsValidator;
+import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -420,6 +423,70 @@ public class MasterController {
 	}
 	
 	/**
+	 * Creates the community center room fee.
+	 *
+	 * @param masterRequest the master request
+	 * @return the response entity
+	 */
+	@PostMapping(value = "communitycenter/room/fee/_create")
+	public ResponseEntity<?> createCommunityCenterRoomFee(@RequestBody MasterRequest masterRequest){
+		if(BookingsFieldsValidator.isNullOrEmpty(masterRequest)) {
+			throw new IllegalArgumentException("Invalid masterRequest");
+		}
+		if (BookingsFieldsValidator.isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList())) 
+		{
+			throw new IllegalArgumentException("Invalid Community Center Room Fee List");
+		}
+		ResponseModel rs = new ResponseModel();
+		try {
+			List<CommonMasterFields> communityCenterRoomFeeModelList = masterService.createCommunityCenterRoomFee(masterRequest);
+			rs.setStatus("200");
+			rs.setMessage("Data submitted in Community Center Room Fee table");
+			rs.setData(communityCenterRoomFeeModelList);
+		}
+		catch(Exception e)
+		{
+			LOGGER.error("Exception occur in the createCommunityCenterRoomFee " + e);
+			e.printStackTrace();
+		}
+		return ResponseEntity.ok(rs);
+	}
+	
+	/**
+	 * Update community center room fee.
+	 *
+	 * @param masterRequest the master request
+	 * @return the response entity
+	 */
+	@PostMapping(value = "communitycenter/room/fee/_update")
+	public ResponseEntity<?> updateCommunityCenterRoomFee(@RequestBody MasterRequest masterRequest){
+		if(BookingsFieldsValidator.isNullOrEmpty(masterRequest)) {
+			throw new IllegalArgumentException("Invalid masterRequest");
+		}
+		if (BookingsFieldsValidator.isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList())) 
+		{
+			throw new IllegalArgumentException("Invalid Community Center Room Fee List");
+		}
+		if (BookingsFieldsValidator.isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getId())) 
+		{
+			throw new IllegalArgumentException("Invalid Community Center Room Fee id");
+		}
+		ResponseModel rs = new ResponseModel();
+		try {
+			List<CommonMasterFields> communityCenterRoomFeeModelList = masterService.updateCommunityCenterRoomFee(masterRequest);
+			rs.setStatus("200");
+			rs.setMessage("Data submitted in Community Center Room Fee table");
+			rs.setData(communityCenterRoomFeeModelList);
+		}
+		catch(Exception e)
+		{
+			LOGGER.error("Exception occur in the createCommunityCenterRoomFee " + e);
+			e.printStackTrace();
+		}
+		return ResponseEntity.ok(rs);
+	}
+	
+	/**
 	 * Fetch all approver.
 	 *
 	 * @param userSearchRequest the user search request
@@ -508,10 +575,10 @@ public class MasterController {
 	public ResponseEntity<?> fetchAllOSUJMFee() {
 		ResponseModel rs = new ResponseModel();
 		try {
-			List<OsujmFeeModel> osbmFeeList = masterService.fetchAllOSUJMFee(); 
+			List<OsujmFeeModel> osujmFeeList = masterService.fetchAllOSUJMFee(); 
 			rs.setStatus("200");
 			rs.setMessage("Success");
-			rs.setData(osbmFeeList);
+			rs.setData(osujmFeeList);
 		}
 		catch(Exception e)
 		{
@@ -530,10 +597,10 @@ public class MasterController {
 	public ResponseEntity<?> fetchAllGFCPFee() {
 		ResponseModel rs = new ResponseModel();
 		try {
-			List<CommercialGroundFeeModel> osbmFeeList = masterService.fetchAllGFCPFee(); 
+			List<CommercialGroundFeeModel> gfcpFeeList = masterService.fetchAllGFCPFee(); 
 			rs.setStatus("200");
 			rs.setMessage("Success");
-			rs.setData(osbmFeeList);
+			rs.setData(gfcpFeeList);
 		}
 		catch(Exception e)
 		{
@@ -552,10 +619,10 @@ public class MasterController {
 	public ResponseEntity<?> fetchAllPACCFee() {
 		ResponseModel rs = new ResponseModel();
 		try {
-			List<ParkCommunityHallV1MasterModel> osbmFeeList = masterService.fetchAllPACCFee(); 
+			List<ParkCommunityHallV1MasterModel> paccFeeList = masterService.fetchAllPACCFee(); 
 			rs.setStatus("200");
 			rs.setMessage("Success");
-			rs.setData(osbmFeeList);
+			rs.setData(paccFeeList);
 		}
 		catch(Exception e)
 		{
@@ -564,6 +631,29 @@ public class MasterController {
 		}
 		return ResponseEntity.ok(rs);
 	}
+	
+	/**
+	 * Fetch all community center room fee.
+	 *
+	 * @return the response entity
+	 */
+	@PostMapping("communitycenter/room/fee/_fetch")
+	public ResponseEntity<?> fetchAllCommunityCenterRoomFee() {
+		ResponseModel rs = new ResponseModel();
+		try {
+			List<RoomMasterModel> communityCenterRoomFeeList = masterService.fetchAllCommunityCenterRoomFee(); 
+			rs.setStatus("200");
+			rs.setMessage("Success");
+			rs.setData(communityCenterRoomFeeList);
+		}
+		catch(Exception e)
+		{
+			LOGGER.error("Exception occur in the fetchAllCommunityCenterRoomFee " + e);
+			e.printStackTrace();
+		}
+		return ResponseEntity.ok(rs);
+	}
+
 	
 	/**
 	 * Gets the users.
@@ -595,6 +685,27 @@ public class MasterController {
 		catch(Exception e)
 		{
 			LOGGER.error("Exception occur in the getUsers " + e);
+			e.printStackTrace();
+		}
+		return ResponseEntity.ok(rs);
+	}
+	
+	/**
+	 * Fetch community center name.
+	 *
+	 * @return the response entity
+	 */
+	@PostMapping(value = "/communityCenter/name/_fetch")
+	public ResponseEntity<?> fetchCommunityCenterName(){
+		ResponseModel rs = new ResponseModel();
+		try {
+			Map<String, String> communityCenterNameMap = masterService.fetchCommunityCenterName(); 
+			rs.setStatus("200");
+			rs.setMessage("Success");
+			rs.setData(communityCenterNameMap);
+		}
+		catch (Exception e) {
+			LOGGER.error("Exception occur in the fetchCommunityCenterName " + e);
 			e.printStackTrace();
 		}
 		return ResponseEntity.ok(rs);

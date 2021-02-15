@@ -110,6 +110,12 @@ public class BookingsConfiguration {
 
 	@Value("${kafka.topics.update.pacc.fee.service}")
 	private String updatePaccFeeTopic;
+	
+	@Value("${kafka.topics.save.community.center.room.fee.service}")
+	private String saveCommunityCenterRoomFeeTopic;
+
+	@Value("${kafka.topics.update.community.center.room.fee.service}")
+	private String updateCommunityCenterRoomFeeTopic;
 
 	@Value("${kafka.topics.notification.sms}")
 	private String smsNotifTopic;
@@ -236,6 +242,19 @@ public class BookingsConfiguration {
 	 private String pgServiceEndPoint;
 	 
 	 
+	 @Value("${kafka.topics.save.commercial.ground.locked.dates}")
+	 private String saveCommercialGrndLockedDates;
 
+
+	 @Value("${kafka.topics.update.commercial.ground.locked.dates}")
+	 private String updateCommercialGrndLockedDates;
 	 
+	 
+	 @Value("${kafka.topics.save-room-details}")
+	 private String saveRoomDetails;
+	 
+
+	 @Value("${kafka.topics.update-room-details}")
+	 private String updateRoomDetails;
+	
 }

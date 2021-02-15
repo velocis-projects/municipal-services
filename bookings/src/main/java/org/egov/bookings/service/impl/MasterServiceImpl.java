@@ -32,11 +32,13 @@ import org.egov.bookings.model.OsbmApproverModel;
 import org.egov.bookings.model.OsbmFeeModel;
 import org.egov.bookings.model.OsujmFeeModel;
 import org.egov.bookings.model.ParkCommunityHallV1MasterModel;
+import org.egov.bookings.model.RoomMasterModel;
 import org.egov.bookings.model.user.OwnerInfo;
 import org.egov.bookings.model.user.UserDetailResponse;
 import org.egov.bookings.model.user.UserSearchRequest;
 import org.egov.bookings.producer.BookingsProducer;
 import org.egov.bookings.repository.CommercialGroundRepository;
+import org.egov.bookings.repository.CommunityCenterRoomFeeRepository;
 import org.egov.bookings.repository.OsbmApproverRepository;
 import org.egov.bookings.repository.OsbmFeeRepository;
 import org.egov.bookings.repository.OsujmFeeRepository;
@@ -114,6 +116,10 @@ public class MasterServiceImpl implements MasterService{
 	/** The object mapper. */
 	@Autowired
 	private ObjectMapper objectMapper;
+	
+	/** The community center room fee repository. */
+	@Autowired
+	private CommunityCenterRoomFeeRepository communityCenterRoomFeeRepository;
 	
 	/**
 	 * Gets the park community inventory details.
@@ -331,7 +337,7 @@ public class MasterServiceImpl implements MasterService{
 			throw new IllegalArgumentException("Invalid OSUJM Fee id");
 		}
 		OsujmFeeModel osujmFeeModel = new OsujmFeeModel();
-		MasterRequest masterRequestOsbmFeeCreate = new MasterRequest();
+		MasterRequest masterRequestOsujmFeeCreate = new MasterRequest();
 		List<CommonMasterFields> osujmFeeList = new ArrayList<>();
 		try {
 			bookingsFieldsValidator.validateOSUJMFeeBody(masterRequest);
@@ -343,8 +349,8 @@ public class MasterServiceImpl implements MasterService{
 			String jsonString = objectMapper.writeValueAsString(object);
 			CommonMasterFields commonMasterFields = objectMapper.readValue(jsonString, CommonMasterFields.class);
 			osujmFeeList.add(commonMasterFields);
-			masterRequestOsbmFeeCreate.setOsujmFeeList(osujmFeeList);
-			bookingsProducer.push(config.getSaveOsujmFeeTopic(), masterRequestOsbmFeeCreate);
+			masterRequestOsujmFeeCreate.setOsujmFeeList(osujmFeeList);
+			bookingsProducer.push(config.getSaveOsujmFeeTopic(), masterRequestOsujmFeeCreate);
 			masterRequest.getOsujmFeeList().get(0).setRatePerSqrFeetPerDay(osujmFeeModel.getRatePerSqrFeetPerDay());
 			masterRequest.getOsujmFeeList().get(0).setToDate(toDate);
 			bookingsProducer.push(config.getUpdateOsujmFeeTopic(), masterRequest);
@@ -404,7 +410,7 @@ public class MasterServiceImpl implements MasterService{
 			throw new IllegalArgumentException("Invalid GFCP Fee id");
 		}
 		CommercialGroundFeeModel commercialGroundFeeModel = new CommercialGroundFeeModel();
-		MasterRequest masterRequestOsbmFeeCreate = new MasterRequest();
+		MasterRequest masterRequestGfcpFeeCreate = new MasterRequest();
 		List<CommonMasterFields> gfcpFeeList = new ArrayList<>();
 		try {
 			bookingsFieldsValidator.validateGFCPFeeBody(masterRequest);
@@ -416,8 +422,8 @@ public class MasterServiceImpl implements MasterService{
 			String jsonString = objectMapper.writeValueAsString(object);
 			CommonMasterFields commonMasterFields = objectMapper.readValue(jsonString, CommonMasterFields.class);
 			gfcpFeeList.add(commonMasterFields);
-			masterRequestOsbmFeeCreate.setGfcpFeeList(gfcpFeeList);
-			bookingsProducer.push(config.getSaveGfcpFeeTopic(), masterRequestOsbmFeeCreate);
+			masterRequestGfcpFeeCreate.setGfcpFeeList(gfcpFeeList);
+			bookingsProducer.push(config.getSaveGfcpFeeTopic(), masterRequestGfcpFeeCreate);
 			masterRequest.getGfcpFeeList().get(0).setRatePerDay(commercialGroundFeeModel.getRatePerDay());
 			masterRequest.getGfcpFeeList().get(0).setToDate(toDate);
 			bookingsProducer.push(config.getUpdateGfcpFeeTopic(), masterRequest);
@@ -476,7 +482,7 @@ public class MasterServiceImpl implements MasterService{
 			throw new IllegalArgumentException("Invalid PACC Fee id");
 		}
 		ParkCommunityHallV1MasterModel parkCommunityHallV1MasterModel = new ParkCommunityHallV1MasterModel();
-		MasterRequest masterRequestOsbmFeeCreate = new MasterRequest();
+		MasterRequest masterRequestPaccFeeCreate = new MasterRequest();
 		List<CommonMasterFields> paccFeeList = new ArrayList<>();
 		try {
 			DateFormat formatter = getSimpleDateFormat();
@@ -487,8 +493,8 @@ public class MasterServiceImpl implements MasterService{
 			String jsonString = objectMapper.writeValueAsString(object);
 			CommonMasterFields commonMasterFields = objectMapper.readValue(jsonString, CommonMasterFields.class);
 			paccFeeList.add(commonMasterFields);
-			masterRequestOsbmFeeCreate.setPaccFeeList(paccFeeList);
-			bookingsProducer.push(config.getSavePaccFeeTopic(), masterRequestOsbmFeeCreate);
+			masterRequestPaccFeeCreate.setPaccFeeList(paccFeeList);
+			bookingsProducer.push(config.getSavePaccFeeTopic(), masterRequestPaccFeeCreate);
 			masterRequest.getPaccFeeList().get(0).setPaccAmount(parkCommunityHallV1MasterModel.getAmount());
 			masterRequest.getPaccFeeList().get(0).setToDate(toDate);
 			bookingsProducer.push(config.getUpdatePaccFeeTopic(), masterRequest);
@@ -496,6 +502,80 @@ public class MasterServiceImpl implements MasterService{
 			throw new CustomException("PACC_FEE_UPDATE_ERROR", "ERROR WHILE UPDATE PACC FEE DETAILS");
 		}
 		return masterRequest.getPaccFeeList();
+	}
+	
+	/**
+	 * Creates the community center room fee.
+	 *
+	 * @param masterRequest the master request
+	 * @return the list
+	 */
+	@Override
+	public List<CommonMasterFields> createCommunityCenterRoomFee(MasterRequest masterRequest) {
+		if(BookingsFieldsValidator.isNullOrEmpty(masterRequest)) {
+			throw new IllegalArgumentException("Invalid masterRequest");
+		}
+		if (BookingsFieldsValidator.isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList())) 
+		{
+			throw new IllegalArgumentException("Invalid Community Center Room Fee List");
+		}
+		try {
+			bookingsFieldsValidator.validateCommunityCenterRoomFeeBody(masterRequest);
+			masterRequest.getCommunityCenterRoomFeeList().get(0).setId(UUID.randomUUID().toString());
+			DateFormat formatter = getSimpleDateFormat();
+			masterRequest.getCommunityCenterRoomFeeList().get(0).setCreatedDate(formatter.format(new Date()));
+			masterRequest.getCommunityCenterRoomFeeList().get(0).setLastModifiedDate(formatter.format(new Date()));
+			bookingsProducer.push(config.getSaveCommunityCenterRoomFeeTopic(), masterRequest);
+		}catch (Exception e) {
+			throw new CustomException("COMMUNITY_CENTER_ROOM_FEE_SAVE_ERROR", "ERROR WHILE SAVING COMMUNITY CENTER ROOM FEE DETAILS");
+		}
+		return masterRequest.getCommunityCenterRoomFeeList();
+	}
+
+	/**
+	 * Update community center room fee.
+	 *
+	 * @param masterRequest the master request
+	 * @return the list
+	 */
+	@Override
+	public List<CommonMasterFields> updateCommunityCenterRoomFee(MasterRequest masterRequest) {
+		if(BookingsFieldsValidator.isNullOrEmpty(masterRequest)) {
+			throw new IllegalArgumentException("Invalid masterRequest");
+		}
+		if (BookingsFieldsValidator.isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList())) 
+		{
+			throw new IllegalArgumentException("Invalid Community Center Room Fee List");
+		}
+		if (BookingsFieldsValidator.isNullOrEmpty(masterRequest.getCommunityCenterRoomFeeList().get(0).getId())) 
+		{
+			throw new IllegalArgumentException("Invalid Community Center Room Fee id");
+		}
+		RoomMasterModel roomMasterModel = new RoomMasterModel();
+		MasterRequest masterRequestCommunityCenterRoomFeeCreate = new MasterRequest();
+		List<CommonMasterFields> communityCenterRoomFeeList = new ArrayList<>();
+		try {
+			bookingsFieldsValidator.validateCommunityCenterRoomFeeBody(masterRequest);
+			DateFormat formatter = getSimpleDateFormat();
+			masterRequest.getCommunityCenterRoomFeeList().get(0).setLastModifiedDate(formatter.format(new Date()));
+			roomMasterModel = communityCenterRoomFeeRepository.findById(masterRequest.getCommunityCenterRoomFeeList().get(0).getId()); 
+			String toDate = prepareToDate(masterRequest.getCommunityCenterRoomFeeList().get(0).getFromDate());
+			Object object = prepareFeeObject(masterRequest.getCommunityCenterRoomFeeList().get(0));
+			String jsonString = objectMapper.writeValueAsString(object);
+			CommonMasterFields commonMasterFields = objectMapper.readValue(jsonString, CommonMasterFields.class);
+			communityCenterRoomFeeList.add(commonMasterFields);
+			masterRequestCommunityCenterRoomFeeCreate.setCommunityCenterRoomFeeList(communityCenterRoomFeeList);
+			bookingsProducer.push(config.getSaveCommunityCenterRoomFeeTopic(), masterRequestCommunityCenterRoomFeeCreate);
+			masterRequest.getCommunityCenterRoomFeeList().get(0).setRentForOneDay(roomMasterModel.getRentForOneDay());
+			masterRequest.getCommunityCenterRoomFeeList().get(0).setRentFor3Hrs(roomMasterModel.getRentFor3Hrs());
+			masterRequest.getCommunityCenterRoomFeeList().get(0).setRentFor6Hrs(roomMasterModel.getRentFor6Hrs());
+			masterRequest.getCommunityCenterRoomFeeList().get(0).setRentFor9Hrs(roomMasterModel.getRentFor9Hrs());
+			masterRequest.getCommunityCenterRoomFeeList().get(0).setToDate(toDate);
+			bookingsProducer.push(config.getUpdateCommunityCenterRoomFeeTopic(), masterRequest);
+		}catch (Exception e) {
+			throw new CustomException("COMMUNITY_CENTER_ROOM_FEE_UPDATE_ERROR", "ERROR WHILE UPDATE COMMUNITY CENTER ROOM FEE DETAILS");
+		}
+		return masterRequest.getCommunityCenterRoomFeeList();
 	}
 	
 	/**
@@ -701,6 +781,26 @@ public class MasterServiceImpl implements MasterService{
 	}
 	
 	/**
+	 * Fetch all community center room fee.
+	 *
+	 * @return the list
+	 */
+	@Override
+	public List<RoomMasterModel> fetchAllCommunityCenterRoomFee(){
+		List<RoomMasterModel> communityCenterRoomFeeList = new ArrayList<>();
+		try {
+			communityCenterRoomFeeList = communityCenterRoomFeeRepository.findAll();
+			Collections.sort(communityCenterRoomFeeList, new MasterCreatedDateComparator());
+			Collections.reverse(communityCenterRoomFeeList);
+		}
+		catch (Exception e) {
+			LOGGER.error("Exception occur in the fetchAllCommunityCenterRoomFee " + e);
+			e.printStackTrace();
+		}
+		return communityCenterRoomFeeList;
+	}
+	
+	/**
 	 * Gets the users.
 	 *
 	 * @param searchCriteriaFieldsDTO the search criteria fields DTO
@@ -871,7 +971,36 @@ public class MasterServiceImpl implements MasterService{
 		commonMasterFields2.setVillageCity(commonMasterFields.getVillageCity());
 		commonMasterFields2.setX(commonMasterFields.getX());
 		commonMasterFields2.setY(commonMasterFields.getY());
+		commonMasterFields2.setTotalNumberOfRooms(commonMasterFields.getTotalNumberOfRooms());
+		commonMasterFields2.setTypeOfRoom(commonMasterFields.getTypeOfRoom());
+		commonMasterFields2.setRentForOneDay(commonMasterFields.getRentForOneDay());
+		commonMasterFields2.setRentFor3Hrs(commonMasterFields.getRentFor3Hrs());
+		commonMasterFields2.setRentFor6Hrs(commonMasterFields.getRentFor6Hrs());
+		commonMasterFields2.setRentFor9Hrs(commonMasterFields.getRentFor9Hrs());
+		commonMasterFields2.setCommunityCenterName(commonMasterFields.getCommunityCenterName());
 		return commonMasterFields2;
+	}
+
+	/**
+	 * Fetch community center name.
+	 *
+	 * @return the map
+	 */
+	@Override
+	public Map<String, String> fetchCommunityCenterName() {
+		Map<String, String> communityCenterNameMap = new HashMap<>();
+		List<ParkCommunityHallV1MasterModel> communityCenterList = new ArrayList<>();
+		try {
+			communityCenterList = parkCommunityHallV1MasterRepository.findByVenueType(BookingsConstants.COMMUNITY_CENTER); 
+			if(!BookingsFieldsValidator.isNullOrEmpty(communityCenterList)) {
+				communityCenterList.forEach(communityCenter -> communityCenterNameMap.put(communityCenter.getId(), communityCenter.getName()));
+			}
+		}
+		catch (Exception e) {
+			LOGGER.error("Exception occur in the fetchAllPACCFee " + e);
+			e.printStackTrace();
+		}
+		return communityCenterNameMap;
 	}
 	
 }

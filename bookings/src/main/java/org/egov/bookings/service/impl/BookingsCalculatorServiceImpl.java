@@ -44,6 +44,7 @@ import org.egov.bookings.service.CommercialGroundService;
 import org.egov.bookings.service.DemandService;
 import org.egov.bookings.service.OsujmService;
 import org.egov.bookings.service.ParkAndCommunityService;
+import org.egov.bookings.service.RoomsService;
 import org.egov.bookings.utils.BookingsCalculatorConstants;
 import org.egov.bookings.utils.BookingsConstants;
 import org.egov.bookings.utils.BookingsUtils;
@@ -117,6 +118,9 @@ public class BookingsCalculatorServiceImpl implements BookingsCalculatorService 
 	/** The demand service. */
 	@Autowired
 	private DemandService demandService;
+	
+	@Autowired
+	private RoomsService roomsService;
 	
 	
 	/**
@@ -424,6 +428,33 @@ public class BookingsCalculatorServiceImpl implements BookingsCalculatorService 
 			throw new IllegalArgumentException(e.getLocalizedMessage());
 		}
 		return finalAmount;
+	}
+	
+	
+	
+	
+	
+	public List<TaxHeadEstimate> getTaxHeadEstimateForRoom(BookingsRequest bookingsRequest, String taxHeadCode1,
+			String taxHeadCode2) {
+		List<TaxHeadEstimate> taxHeadEstimate1 = new ArrayList<>();
+		String bussinessService = bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomBusinessService();
+		List<TaxHeadMasterFields> taxHeadMasterFieldList = getTaxHeadMasterData(bookingsRequest, bussinessService);
+		BigDecimal roomAmount = roomsService.getRoomAmount(bookingsRequest);
+		BigDecimal days = enrichmentService.extractDaysBetweenTwoDates(bookingsRequest);
+		BigDecimal finalAmount = roomAmount.multiply(days);
+		// BigDecimal mccJurisdictionAmount = new BigDecimal(4400);
+		for (TaxHeadMasterFields taxHeadEstimate : taxHeadMasterFieldList) {
+			if (taxHeadEstimate.getCode().equals(taxHeadCode1)) {
+				taxHeadEstimate1
+						.add(new TaxHeadEstimate(taxHeadEstimate.getCode(), finalAmount, taxHeadEstimate.getCategory()));
+			}
+			if (taxHeadEstimate.getCode().equals(taxHeadCode2)) {
+				taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
+						finalAmount.multiply((taxHeadEstimate.getTaxAmount().divide(new BigDecimal(100)))),
+						taxHeadEstimate.getCategory()));
+			}
+		}
+		return taxHeadEstimate1;
 	}
 
 }

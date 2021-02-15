@@ -1,6 +1,7 @@
 package org.egov.bookings.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.egov.bookings.contract.ApproverBean;
 import org.egov.bookings.contract.BookingApprover;
@@ -14,6 +15,7 @@ import org.egov.bookings.model.InventoryModel;
 import org.egov.bookings.model.OsbmFeeModel;
 import org.egov.bookings.model.OsujmFeeModel;
 import org.egov.bookings.model.ParkCommunityHallV1MasterModel;
+import org.egov.bookings.model.RoomMasterModel;
 import org.egov.bookings.model.user.UserSearchRequest;
 
 // TODO: Auto-generated Javadoc
@@ -112,6 +114,22 @@ public interface MasterService {
 	public List<CommonMasterFields> updatePACCFee(MasterRequest masterRequest);
 	
 	/**
+	 * Creates the community center room fee.
+	 *
+	 * @param masterRequest the master request
+	 * @return the list
+	 */
+	public List<CommonMasterFields> createCommunityCenterRoomFee(MasterRequest masterRequest);
+	
+	/**
+	 * Update community center room fee.
+	 *
+	 * @param masterRequest the master request
+	 * @return the list
+	 */
+	public List<CommonMasterFields> updateCommunityCenterRoomFee(MasterRequest masterRequest);
+	
+	/**
 	 * Fetch all approver.
 	 *
 	 * @param userSearchRequest the user search request
@@ -155,6 +173,14 @@ public interface MasterService {
 	 */
 	public List<ParkCommunityHallV1MasterModel> fetchAllPACCFee();
 	
+	
+	/**
+	 * Fetch all community center room fee.
+	 *
+	 * @return the list
+	 */
+	public List<RoomMasterModel> fetchAllCommunityCenterRoomFee();
+	
 	/**
 	 * Gets the users.
 	 *
@@ -162,5 +188,12 @@ public interface MasterService {
 	 * @return the users
 	 */
 	public List<UserDetails> getUsers(SearchCriteriaFieldsDTO searchCriteriaFieldsDTO);
+	
+	/**
+	 * Fetch community center name.
+	 *
+	 * @return the map
+	 */
+	public Map<String, String> fetchCommunityCenterName();
 
 }

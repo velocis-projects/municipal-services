@@ -27,6 +27,7 @@ import org.egov.bookings.model.BookingsModel;
 import org.egov.bookings.model.OsbmApproverModel;
 import org.egov.bookings.model.OsujmNewLocationModel;
 import org.egov.bookings.model.ParkCommunityHallV1MasterModel;
+import org.egov.bookings.model.RoomsModel;
 import org.egov.bookings.model.user.OwnerInfo;
 import org.egov.bookings.model.user.UserDetailResponse;
 import org.egov.bookings.models.demand.Demand;
@@ -36,10 +37,12 @@ import org.egov.bookings.repository.BookingsRepository;
 import org.egov.bookings.repository.CommonRepository;
 import org.egov.bookings.repository.OsbmApproverRepository;
 import org.egov.bookings.repository.OsujmNewLocationRepository;
+import org.egov.bookings.repository.RoomsRepository;
 import org.egov.bookings.repository.impl.IdGenRepository;
 import org.egov.bookings.service.BookingsCalculatorService;
 import org.egov.bookings.service.BookingsService;
 import org.egov.bookings.service.DemandService;
+import org.egov.bookings.service.RoomsService;
 import org.egov.bookings.utils.BookingsConstants;
 import org.egov.bookings.utils.BookingsUtils;
 import org.egov.bookings.validator.BookingsFieldsValidator;
@@ -107,6 +110,12 @@ public class EnrichmentService {
 	@Autowired
 	OsbmApproverRepository osbmApproverRepository;
 
+	
+	@Autowired
+	private RoomsService roomsService;
+	
+	@Autowired
+	private RoomsRepository roomsRepository;
 	
 	
 	/**
@@ -878,4 +887,59 @@ public class EnrichmentService {
 		}
 	}
 
+	
+	
+	public void enrichRoomForCommunityBookingRequest(BookingsRequest bookingsRequest) {
+		// TODO Auto-generated method stub
+
+		RequestInfo requestInfo = bookingsRequest.getRequestInfo();
+		String tenantId = bookingsRequest.getBookingsModel().getTenantId();
+
+		BookingsModel bookingsModel = bookingsRequest.getBookingsModel();
+
+		List<String> applicationNumbers = getIdList(requestInfo, tenantId, config.getApplicationNumberIdgenName(),
+				config.getApplicationNumberIdgenFormat());
+		ListIterator<String> itr = applicationNumbers.listIterator();
+
+		Map<String, String> errorMap = new HashMap<>();
+
+		if (!errorMap.isEmpty())
+			throw new CustomException(errorMap);
+		bookingsModel.getRoomsModel().get(0).setRoomApplicationNumber(itr.next());
+		if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getRoomsModel())) {
+			bookingsRequest.getBookingsModel().getRoomsModel().get(0)
+					.setRoomApplicationNumber(bookingsModel.getRoomsModel().get(0).getRoomApplicationNumber());
+			bookingsRequest.getBookingsModel().getRoomsModel().get(0)
+					.setCommunityApplicationNumber(bookingsModel.getBkApplicationNumber());
+		}
+	}
+
+
+
+	public void generateDemandForRoom(BookingsRequest bookingsRequest) {
+
+		if (!roomsService.isRoomBookingExists(bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationNumber())) {
+			demandService.createDemandForRoom(bookingsRequest);
+		} else
+			demandService.updateDemandForRoom(bookingsRequest);
+
+	}
+
+
+
+	public void enrichRoomDetails(BookingsRequest bookingsRequest) {
+
+		RoomsModel roomsModel = roomsRepository.findByRoomApplicationNumber(
+				bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationNumber());
+		if (!BookingsFieldsValidator.isNullOrEmpty(roomsModel)) {
+			/*bookingsRequest.getBookingsModel().getRoomsModel().get(0)
+					.setRoomBusinessService(bookingsRequest.getBookingsModel().getRoomBusinessService());*/
+			LocalDate date = LocalDate.now();
+			Date date1 = Date.valueOf(date);
+			bookingsRequest.getBookingsModel().getRoomsModel().get(0).setLastModifiedDate(date1);
+			bookingsRequest.getBookingsModel().getRoomsModel().get(0)
+					.setCommunityApplicationNumber((roomsModel.getCommunityApplicationNumber()));
+		}
+
+	}
 }

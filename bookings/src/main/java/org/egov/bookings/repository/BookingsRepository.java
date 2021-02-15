@@ -1168,4 +1168,14 @@ public interface BookingsRepository
 			nativeQuery = true )
 			List<BookingsModel> getEmployeeSearchPACCBooking( String applicationNumber, String applicationStatus, String mobileNumber
 					, String parksBookingType, String communityCenterBookingType, Set< String > applicationNumberSet, Date fromDate, Date toDate );
+	
+	
+	/**
+	 * Find by bk application number and bk booking type.
+	 *
+	 * @param applicationNumber the application number
+	 * @param bookingType the booking type
+	 * @return the bookings model
+	 */
+	public BookingsModel findByBkApplicationNumberAndBkBookingType(String applicationNumber, String bookingType);
 }

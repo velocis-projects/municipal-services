@@ -101,15 +101,16 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 		enrichmentService.enrichReInitiatedRequest(bookingsRequest,flag);
 		if(BookingsConstants.EMPLOYEE.equals(bookingsRequest.getRequestInfo().getUserInfo().getType()))
 		userService.createUser(bookingsRequest, false);
-		if (!flag)
+		if (!flag) {
 			enrichmentService.enrichParkCommunityCreateRequest(bookingsRequest);
+			enrichmentService.enrichBookingsDetails(bookingsRequest);
+		}
 		enrichmentService.generateDemand(bookingsRequest);
 
 		if (config.getIsExternalWorkFlowEnabled()) {
 			if (!flag || bookingsRequest.getBookingsModel().isReInitiateStatus())
 			workflowIntegrator.callWorkFlow(bookingsRequest);
 		}
-		enrichmentService.enrichBookingsDetails(bookingsRequest);
 		try {
 		BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
 		if (!flag)

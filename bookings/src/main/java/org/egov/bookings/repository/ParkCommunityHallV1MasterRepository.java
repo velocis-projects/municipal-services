@@ -42,4 +42,11 @@ public interface ParkCommunityHallV1MasterRepository extends JpaRepository<ParkC
 			nativeQuery = true )
 			List<ParkCommunityHallV1MasterModel> findPaccFeeRecordsByLimit( int offSet );
 	
+	/**
+	 * Find by venue type.
+	 *
+	 * @param venueType the venue type
+	 * @return the list
+	 */
+	public List<ParkCommunityHallV1MasterModel> findByVenueType(String venueType);
 }

@@ -23,4 +23,8 @@ public interface DemandService {
 	
 	public List<Demand> updateDemandsForPacc(BookingsRequest bookingsRequest);
 
+	public void createDemandForRoom(BookingsRequest bookingsRequest);
+
+	public void updateDemandForRoom(BookingsRequest bookingsRequest);
+
 }

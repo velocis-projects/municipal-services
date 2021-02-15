@@ -124,9 +124,12 @@ public class BookingsServiceImpl implements BookingsService {
 	@Override
 	public BookingsModel save(BookingsRequest bookingsRequest) {
 		boolean flag = isBookingExists(bookingsRequest.getBookingsModel().getBkApplicationNumber());
-
-		if (!flag)
+		if(BookingsConstants.EMPLOYEE.equals(bookingsRequest.getRequestInfo().getUserInfo().getType()))
+		userService.createUser(bookingsRequest, false);
+		if (!flag) {
 			enrichmentService.enrichBookingsCreateRequest(bookingsRequest);
+			enrichmentService.enrichBookingsDetails(bookingsRequest);
+		}
 		if (!BookingsConstants.ACTION_DELIVER.equals(bookingsRequest.getBookingsModel().getBkAction())
 				&& !BookingsConstants.ACTION_FAILURE_APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())) {
 			enrichmentService.generateDemand(bookingsRequest);
@@ -136,7 +139,6 @@ public class BookingsServiceImpl implements BookingsService {
 			if (!flag)
 				workflowIntegrator.callWorkFlow(bookingsRequest);
 		}
-		enrichmentService.enrichBookingsDetails(bookingsRequest);
 		try {
 			BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
 			bookingsProducer.push(config.getSaveBookingTopic(), kafkaBookingRequest);
@@ -332,17 +334,8 @@ public class BookingsServiceImpl implements BookingsService {
 				documentList = commonRepository.findDocumentList(applicationNumber);
 				booking.setBusinessService(commonRepository.findBusinessService(applicationNumber));
 			}
-
 			if (!BookingsFieldsValidator.isNullOrEmpty(documentList)) {
-				for (Object documentObject : documentList) {
-					String jsonString = objectMapper.writeValueAsString(documentObject);
-					String[] documentStrArray = jsonString.split(",");
-					String[] strArray = documentStrArray[1].split("/");
-					String fileStoreId = documentStrArray[0].substring(2, documentStrArray[0].length() - 1);
-					String document = strArray[strArray.length - 1].substring(13,
-							(strArray[strArray.length - 1].length() - 2));
-					documentMap.put(fileStoreId, document);
-				}
+				documentMap = getDocumentMap(documentList);
 			}
 			booking.setDocumentMap(documentMap);
 			booking.setBookingsModelList(myBookingList);
@@ -491,6 +484,9 @@ public class BookingsServiceImpl implements BookingsService {
 								|| BookingsConstants.MCC_USER.equals(role.getCode())) {
 							applicationNumberSet.addAll(commonRepository.findBusinessId(role.getCode()));
 						}
+						else {
+							applicationNumberSet.addAll(commonRepository.findApplicationNumber(role.getCode()));
+						}
 						applicationNumbers.addAll(applicationNumberSet);
 						if(!BookingsFieldsValidator.isNullOrEmpty(applicationNumberSet)) {
 							if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
@@ -514,15 +510,7 @@ public class BookingsServiceImpl implements BookingsService {
 				booking.setBusinessService(commonRepository.findBusinessService(applicationNumber));
 			}
 			if (!BookingsFieldsValidator.isNullOrEmpty(documentList)) {
-				for (Object documentObject : documentList) {
-					String jsonString = objectMapper.writeValueAsString(documentObject);
-					String[] documentStrArray = jsonString.split(",");
-					String[] strArray = documentStrArray[1].split("/");
-					String fileStoreId = documentStrArray[0].substring(2, documentStrArray[0].length() - 1);
-					String document = strArray[strArray.length - 1].substring(13,
-							(strArray[strArray.length - 1].length() - 2));
-					documentMap.put(fileStoreId, document);
-				}
+				documentMap = getDocumentMap(documentList);
 			}
 			bookingsList.addAll(bookingsSet);
 			Collections.sort(bookingsList, new CreateDateComparator());
@@ -918,7 +906,7 @@ public class BookingsServiceImpl implements BookingsService {
 	/**
 	 * Prepare user list.
 	 *
-	 * @param userList the user list
+	 * @param userDetailResponse the user detail response
 	 * @param sector   the sector
 	 * @return the list
 	 */
@@ -974,6 +962,11 @@ public class BookingsServiceImpl implements BookingsService {
 		return url;
 	}
 
+	/**
+	 * Persist refund status.
+	 *
+	 * @param refundTransactionRequest the refund transaction request
+	 */
 	@Override
 	public void persistRefundStatus(RefundTransactionRequest refundTransactionRequest) {
 		Transaction transaction = bookingsUtils.fetchPaymentTransaction(refundTransactionRequest);
@@ -994,6 +987,77 @@ public class BookingsServiceImpl implements BookingsService {
 		bookingsRequest.setRequestInfo(refundTransactionRequest.getRequestInfo());
 		BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
 		bookingsProducer.push(config.getUpdateBookingTopic(), kafkaBookingRequest);
+	}
+
+	/**
+	 * Gets the community center booking search.
+	 *
+	 * @param searchCriteriaFieldsDTO the search criteria fields DTO
+	 * @return the community center booking search
+	 */
+	@Override
+	public Booking getCommunityCenterBookingSearch(SearchCriteriaFieldsDTO searchCriteriaFieldsDTO) {
+		if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO)) 
+		{
+			throw new IllegalArgumentException("Invalid searchCriteriaFieldsDTO");
+		}
+		String applicationNumber = searchCriteriaFieldsDTO.getApplicationNumber().trim();
+		if (BookingsFieldsValidator.isNullOrEmpty(applicationNumber)) 
+		{
+			throw new IllegalArgumentException("Invalid applicationNumber");
+		}
+		Booking booking = new Booking();
+		Set<BookingsModel> bookingsSet = new HashSet<>();
+		List<?> documentList = new ArrayList<>();
+		Map<String, String> documentMap = new HashMap<>();
+		List<BookingsModel> bookingsList = new ArrayList<>();
+		try
+		{
+			bookingsSet.add(bookingsRepository.findByBkApplicationNumberAndBkBookingType(applicationNumber, BookingsConstants.COMMUNITY_CENTER));
+			if (!BookingsFieldsValidator.isNullOrEmpty(applicationNumber) && !BookingsFieldsValidator.isNullOrEmpty(bookingsSet)) {
+				documentList = commonRepository.findDocumentList(applicationNumber);
+				booking.setBusinessService(commonRepository.findBusinessService(applicationNumber));
+			}
+			if (!BookingsFieldsValidator.isNullOrEmpty(documentList)) {
+				documentMap = getDocumentMap(documentList);
+			}
+			bookingsList.addAll(bookingsSet);
+			booking.setDocumentMap(documentMap);
+			booking.setBookingsModelList(bookingsList);
+		}
+		catch(Exception e)
+		{
+			LOGGER.error("Exception occur in the getCommunityCenterBookingSearch " + e);
+			e.printStackTrace();
+		}
+		return booking;
+	}
+	
+	/**
+	 * Gets the document map.
+	 *
+	 * @param documentList the document list
+	 * @return the document map
+	 */
+	private Map<String, String> getDocumentMap(List<?> documentList){
+		Map<String, String> documentMap = new HashMap<>();
+		try {
+			if (!BookingsFieldsValidator.isNullOrEmpty(documentList)) {
+				for (Object documentObject : documentList) {
+					String jsonString = objectMapper.writeValueAsString(documentObject);
+					String[] documentStrArray = jsonString.split(",");
+					String[] strArray = documentStrArray[1].split("/");
+					String fileStoreId = documentStrArray[0].substring(2, documentStrArray[0].length() - 1);
+					String document = strArray[strArray.length - 1].substring(13, (strArray[strArray.length - 1].length() - 2));
+					documentMap.put(fileStoreId, document);
+				}
+			}
+		}
+		catch (Exception e) {
+			LOGGER.error("Exception occur in the getDocumentMap " + e);
+			e.printStackTrace();
+		}
+		return documentMap;
 	}
 	
 }

@@ -5,15 +5,18 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.egov.bookings.common.model.ResponseModel;
 import org.egov.bookings.contract.AvailabilityResponse;
+import org.egov.bookings.contract.CommercialGrndAvailabiltyLockRequest;
 import org.egov.bookings.contract.CommercialGroundAvailabiltySearchCriteria;
 import org.egov.bookings.contract.CommercialGroundFeeSearchCriteria;
 import org.egov.bookings.model.BookingsModel;
 import org.egov.bookings.model.CommercialGrndAvailabilityModel;
 import org.egov.bookings.model.CommercialGroundFeeModel;
 import org.egov.bookings.service.CommercialGroundService;
+import org.egov.bookings.service.impl.EnrichmentService;
 import org.egov.bookings.validator.BookingsFieldsValidator;
 import org.egov.bookings.web.models.BookingsRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +36,13 @@ public class CommercialGroundController {
 	
 	/** The bookings fields validator. */
 	@Autowired
-	BookingsFieldsValidator bookingsFieldsValidator;
+	private BookingsFieldsValidator bookingsFieldsValidator;
 	
 	/** The commercial ground fee service. */
 	@Autowired
-	CommercialGroundService  commercialGroundService;
+	private CommercialGroundService  commercialGroundService;
+	
+	
 	
 	/**
 	 * Search commercial ground fee.
@@ -93,16 +98,18 @@ public class CommercialGroundController {
 	 * @return the response entity
 	 */
 	@PostMapping("/availability/_lock")
-	private ResponseEntity<?> lockCommercialAvailability(
-			@RequestBody CommercialGrndAvailabilityModel commercialGrndAvailabilityModel) {
+	private ResponseEntity<?> saveCommercialAvailabilityLockDates(
+			@RequestBody CommercialGrndAvailabiltyLockRequest commercialGrndAvailabiltyLockRequest) {
 		
-		bookingsFieldsValidator.validateCommercialGroundAvailabilityModel(commercialGrndAvailabilityModel);
+		commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().get(0)
+				.setId(UUID.randomUUID().toString());
+		bookingsFieldsValidator.validateCommercialGroundAvailabilityModel(commercialGrndAvailabiltyLockRequest);
 		
-		CommercialGrndAvailabilityModel res = commercialGroundService.lockCommercialAvailability(commercialGrndAvailabilityModel);
+		CommercialGrndAvailabilityModel res = commercialGroundService.saveCommercialAvailabilityLockDates(commercialGrndAvailabiltyLockRequest);
 		
 		ResponseModel rs = new ResponseModel();
 		rs.setStatus("200");
-		rs.setMessage("Already Booked Dates");
+		rs.setMessage("Dates Locked");
 		rs.setData(res);
 		
 		return ResponseEntity.ok(rs);
@@ -126,5 +133,22 @@ public class CommercialGroundController {
 		return ResponseEntity.ok(rs);
 	}
 	
+	
+	@PostMapping("/updateAvailability/_lock")
+	private ResponseEntity<?> updateCommercialAvailabilityLockDates(
+			@RequestBody CommercialGrndAvailabiltyLockRequest commercialGrndAvailabiltyLockRequest) {
+
+		bookingsFieldsValidator.validateCommercialGroundAvailabilityModel(commercialGrndAvailabiltyLockRequest);
+
+		CommercialGrndAvailabilityModel res = commercialGroundService
+				.updateCommercialAvailabilityLockDates(commercialGrndAvailabiltyLockRequest);
+
+		ResponseModel rs = new ResponseModel();
+		rs.setStatus("200");
+		rs.setMessage("Dates Locked");
+		rs.setData(res);
+
+		return ResponseEntity.ok(rs);
+	}
 	
 }

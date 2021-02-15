@@ -7,6 +7,7 @@ import org.egov.bookings.model.OsbmApproverModel;
 import org.egov.bookings.model.OsbmFeeModel;
 import org.egov.bookings.model.OsujmFeeModel;
 import org.egov.bookings.model.ParkCommunityHallV1MasterModel;
+import org.egov.bookings.model.RoomMasterModel;
 import org.egov.bookings.validator.BookingsFieldsValidator;
 
 public class MasterCreatedDateComparator implements Comparator<Object> {
@@ -46,6 +47,13 @@ public class MasterCreatedDateComparator implements Comparator<Object> {
 			ParkCommunityHallV1MasterModel parkCommunityHallV1MasterModel2 =(ParkCommunityHallV1MasterModel)o2; 
 			if (!BookingsFieldsValidator.isNullOrEmpty(parkCommunityHallV1MasterModel1.getLastModifiedDate()) && !BookingsFieldsValidator.isNullOrEmpty(parkCommunityHallV1MasterModel2.getLastModifiedDate())) {
 				number = parkCommunityHallV1MasterModel1.getLastModifiedDate().compareTo(parkCommunityHallV1MasterModel2.getLastModifiedDate()); 
+			}
+		}
+		else if(o1 instanceof RoomMasterModel && o2 instanceof RoomMasterModel) {
+			RoomMasterModel roomMasterModel1 =(RoomMasterModel)o1;  
+			RoomMasterModel roomMasterModel2 =(RoomMasterModel)o2; 
+			if (!BookingsFieldsValidator.isNullOrEmpty(roomMasterModel1.getLastModifiedDate()) && !BookingsFieldsValidator.isNullOrEmpty(roomMasterModel2.getLastModifiedDate())) {
+				number = roomMasterModel1.getLastModifiedDate().compareTo(roomMasterModel2.getLastModifiedDate()); 
 			}
 		}
 		return number;
