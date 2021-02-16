@@ -439,19 +439,36 @@ public class BookingsCalculatorServiceImpl implements BookingsCalculatorService 
 		List<TaxHeadEstimate> taxHeadEstimate1 = new ArrayList<>();
 		String bussinessService = bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomBusinessService();
 		List<TaxHeadMasterFields> taxHeadMasterFieldList = getTaxHeadMasterData(bookingsRequest, bussinessService);
-		BigDecimal roomAmount = roomsService.getRoomAmount(bookingsRequest);
-		BigDecimal days = enrichmentService.extractDaysBetweenTwoDates(bookingsRequest);
-		BigDecimal finalAmount = roomAmount.multiply(days);
+		BigDecimal amount = roomsService.getRoomAmount(bookingsRequest);
+		BigDecimal finalAmount = BigDecimal.ZERO;
+		if (BookingsConstants.EMPLOYEE.equals(bookingsRequest.getRequestInfo().getUserInfo().getType())) {
+			finalAmount = amount.multiply((BookingsCalculatorConstants.ONE_HUNDRED
+					.subtract(bookingsRequest.getBookingsModel().getRoomsModel().get(0).getDiscount()))
+							.divide(BookingsCalculatorConstants.ONE_HUNDRED));
+		} else {
+			finalAmount = amount;
+		}
+
+		// BigDecimal days =
+		// enrichmentService.extractDaysBetweenTwoDates(bookingsRequest);
+		// BigDecimal finalAmount = roomAmount.multiply(days);
 		// BigDecimal mccJurisdictionAmount = new BigDecimal(4400);
 		for (TaxHeadMasterFields taxHeadEstimate : taxHeadMasterFieldList) {
 			if (taxHeadEstimate.getCode().equals(taxHeadCode1)) {
-				taxHeadEstimate1
-						.add(new TaxHeadEstimate(taxHeadEstimate.getCode(), finalAmount, taxHeadEstimate.getCategory()));
+				taxHeadEstimate1.add(
+						new TaxHeadEstimate(taxHeadEstimate.getCode(), finalAmount, taxHeadEstimate.getCategory()));
 			}
 			if (taxHeadEstimate.getCode().equals(taxHeadCode2)) {
 				taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
 						finalAmount.multiply((taxHeadEstimate.getTaxAmount().divide(new BigDecimal(100)))),
 						taxHeadEstimate.getCategory()));
+			}
+			if(bookingsRequest.getRequestInfo().getUserInfo().getType().equals(BookingsConstants.EMPLOYEE)) {
+				if (taxHeadEstimate.getCode().equals(BookingsConstants.ROOM_TAXHEAD_CODE_FACILITATION_CHARGE)) {
+					taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
+							taxHeadEstimate.getFacilitationCharge(),
+							taxHeadEstimate.getCategory()));
+					}
 			}
 		}
 		return taxHeadEstimate1;

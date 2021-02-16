@@ -228,3 +228,27 @@ CREATE TABLE public.bk_osujm_new_location (
 
 
 
+
+CREATE TABLE public.bk_rooms_model (
+	id varchar(255) NOT NULL,
+	"action" varchar(255) NULL,
+	community_application_number varchar(255) NULL,
+	created_date date NULL,
+	discount numeric(19,2) NULL,
+	facilation_charge numeric(19,2) NULL,
+	from_date date NULL,
+	last_modified_date date NULL,
+	remarks varchar(255) NULL,
+	room_application_number varchar(255) NULL,
+	room_application_status varchar(255) NULL,
+	room_business_service varchar(255) NULL,
+	to_date date NULL,
+	total_no_of_rooms varchar(255) NULL,
+	type_of_room varchar(255) NULL,
+	room_payment_status varchar(255) NULL,
+	CONSTRAINT bk_rooms_model_pkey PRIMARY KEY (id),
+	CONSTRAINT fk63oahghbgxsopq2prdi9sybu8 FOREIGN KEY (community_application_number) REFERENCES bk_bookings(bk_application_number)
+);
+
+
+

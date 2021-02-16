@@ -256,5 +256,9 @@ public class BookingsConfiguration {
 
 	 @Value("${kafka.topics.update-room-details}")
 	 private String updateRoomDetails;
+	 
+	 
+	 @Value("${egov.idgen.bk.applicationNum.room.format}")
+	 private String applicationNumberIdgenRoomFormat;
 	
 }

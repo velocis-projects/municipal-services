@@ -232,16 +232,15 @@ public class OsujmNewLocationServiceImpl implements OsujmNewLocationService{
 					if(BookingsConstants.MCC_APPROVER.equals(role.getCode()) || BookingsConstants.OSD_APPROVER.equals(role.getCode()) || BookingsConstants.ADMIN_APPROVER.equals(role.getCode()))
 					{
 						List<String> sectorList = commonRepository.findSectorList(uuid);
-						if (sectorList == null || sectorList.isEmpty()) {
-							return booking;
-						}
-						if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
-							osujmNewLocationModelSet.addAll( newLocationRepository.getEmployeeNewlocationSearch(applicationNumber,
-									applicationStatus, mobileNumber, sectorList, applicationNumberSet));
-						}
-						else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
-							osujmNewLocationModelSet.addAll( newLocationRepository.getEmployeeNewlocationSearch(applicationNumber,
-									applicationStatus, mobileNumber, sectorList, applicationNumberSet, fromDate, toDate ));
+						if (!BookingsFieldsValidator.isNullOrEmpty(applicationNumberSet) ) {
+							if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+								osujmNewLocationModelSet.addAll( newLocationRepository.getEmployeeNewlocationSearch(applicationNumber,
+										applicationStatus, mobileNumber, sectorList, applicationNumberSet));
+							}
+							else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+								osujmNewLocationModelSet.addAll( newLocationRepository.getEmployeeNewlocationSearch(applicationNumber,
+										applicationStatus, mobileNumber, sectorList, applicationNumberSet, fromDate, toDate ));
+							}
 						}
 					}
 				}

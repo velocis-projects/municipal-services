@@ -33,7 +33,7 @@ public class CommercialGrndAvailabilityModel {
 	@Column(name = "TO_DATE")
 	private Date toDate;
 
-	@Column(name = "ISLOCKED")
-	private boolean isLocked;
+	@Column(name = "IS_LOCKED")
+	private boolean locked;
 
 }

@@ -101,11 +101,13 @@ public class CommercialGroundController {
 	private ResponseEntity<?> saveCommercialAvailabilityLockDates(
 			@RequestBody CommercialGrndAvailabiltyLockRequest commercialGrndAvailabiltyLockRequest) {
 		
-		commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().get(0)
-				.setId(UUID.randomUUID().toString());
 		bookingsFieldsValidator.validateCommercialGroundAvailabilityModel(commercialGrndAvailabiltyLockRequest);
-		
-		CommercialGrndAvailabilityModel res = commercialGroundService.saveCommercialAvailabilityLockDates(commercialGrndAvailabiltyLockRequest);
+		if (!BookingsFieldsValidator.isNullOrEmpty(commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock())) {
+			commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().forEach(lock -> {
+				lock.setId(UUID.randomUUID().toString());
+			});
+		}
+		List<CommercialGrndAvailabilityModel> res = commercialGroundService.saveCommercialAvailabilityLockDates(commercialGrndAvailabiltyLockRequest);
 		
 		ResponseModel rs = new ResponseModel();
 		rs.setStatus("200");
@@ -117,6 +119,12 @@ public class CommercialGroundController {
 
 	
 	
+	/**
+	 * Fetch booked dates.
+	 *
+	 * @param bookingsRequest the bookings request
+	 * @return the response entity
+	 */
 	@PostMapping("/booked/dates/_search")
 	private ResponseEntity<?> fetchBookedDates(
 			@RequestBody BookingsRequest bookingsRequest) {
@@ -134,13 +142,19 @@ public class CommercialGroundController {
 	}
 	
 	
+	/**
+	 * Update commercial availability lock dates.
+	 *
+	 * @param commercialGrndAvailabiltyLockRequest the commercial grnd availabilty lock request
+	 * @return the response entity
+	 */
 	@PostMapping("/updateAvailability/_lock")
 	private ResponseEntity<?> updateCommercialAvailabilityLockDates(
 			@RequestBody CommercialGrndAvailabiltyLockRequest commercialGrndAvailabiltyLockRequest) {
 
 		bookingsFieldsValidator.validateCommercialGroundAvailabilityModel(commercialGrndAvailabiltyLockRequest);
 
-		CommercialGrndAvailabilityModel res = commercialGroundService
+		List<CommercialGrndAvailabilityModel> res = commercialGroundService
 				.updateCommercialAvailabilityLockDates(commercialGrndAvailabiltyLockRequest);
 
 		ResponseModel rs = new ResponseModel();
@@ -148,6 +162,25 @@ public class CommercialGroundController {
 		rs.setMessage("Dates Locked");
 		rs.setData(res);
 
+		return ResponseEntity.ok(rs);
+	}
+	
+	
+	
+	/**
+	 * Fetch locked dates.
+	 *
+	 * @return the response entity
+	 */
+	@PostMapping("/lock/dates/_fetch")
+	private ResponseEntity<?> fetchLockedDates() {
+		
+		List<CommercialGrndAvailabilityModel> res = commercialGroundService.fetchLockedDates();
+		ResponseModel rs = new ResponseModel();
+		rs.setStatus("200");
+		rs.setMessage("Locked Dates");
+		rs.setData(res);
+		
 		return ResponseEntity.ok(rs);
 	}
 	

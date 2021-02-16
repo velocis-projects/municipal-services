@@ -58,6 +58,9 @@ public class SearchCriteriaFieldsDTO implements Serializable {
 	/** The business service. */
 	private String businessService;
 	
+	/** The type of room. */
+	private String typeOfRoom;
+	
 	/**
 	 * Gets the tenant id.
 	 *
@@ -311,4 +314,23 @@ public class SearchCriteriaFieldsDTO implements Serializable {
 		this.businessService = businessService;
 	}
 
+	/**
+	 * Gets the type of room.
+	 *
+	 * @return the type of room
+	 */
+	public String getTypeOfRoom() {
+		return typeOfRoom;
+	}
+
+	/**
+	 * Sets the type of room.
+	 *
+	 * @param typeOfRoom the new type of room
+	 */
+	public void setTypeOfRoom(String typeOfRoom) {
+		this.typeOfRoom = typeOfRoom;
+	}
+
+	
 }

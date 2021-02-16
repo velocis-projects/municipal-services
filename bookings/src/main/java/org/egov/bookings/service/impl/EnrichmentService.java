@@ -39,7 +39,6 @@ import org.egov.bookings.repository.OsbmApproverRepository;
 import org.egov.bookings.repository.OsujmNewLocationRepository;
 import org.egov.bookings.repository.RoomsRepository;
 import org.egov.bookings.repository.impl.IdGenRepository;
-import org.egov.bookings.service.BookingsCalculatorService;
 import org.egov.bookings.service.BookingsService;
 import org.egov.bookings.service.DemandService;
 import org.egov.bookings.service.RoomsService;
@@ -74,17 +73,14 @@ public class EnrichmentService {
 	@Autowired
 	private IdGenRepository idGenRepository;
 	
-	/** The bookings calculator service. */
-	@Autowired
-	BookingsCalculatorService bookingsCalculatorService;
 	
 	/** The bookings service. */
 	@Autowired
-	BookingsService bookingsService;
+	private BookingsService bookingsService;
 	
 	/** The demand service. */
 	@Autowired
-	DemandService demandService;
+	private DemandService demandService;
 	
 	/** The bookings repository. */
 	@Autowired
@@ -108,7 +104,7 @@ public class EnrichmentService {
 	
 	/** The osbm approver repository. */
 	@Autowired
-	OsbmApproverRepository osbmApproverRepository;
+	private OsbmApproverRepository osbmApproverRepository;
 
 	
 	@Autowired
@@ -898,7 +894,7 @@ public class EnrichmentService {
 		BookingsModel bookingsModel = bookingsRequest.getBookingsModel();
 
 		List<String> applicationNumbers = getIdList(requestInfo, tenantId, config.getApplicationNumberIdgenName(),
-				config.getApplicationNumberIdgenFormat());
+				config.getApplicationNumberIdgenRoomFormat());
 		ListIterator<String> itr = applicationNumbers.listIterator();
 
 		Map<String, String> errorMap = new HashMap<>();
@@ -907,10 +903,17 @@ public class EnrichmentService {
 			throw new CustomException(errorMap);
 		bookingsModel.getRoomsModel().get(0).setRoomApplicationNumber(itr.next());
 		if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getRoomsModel())) {
-			bookingsRequest.getBookingsModel().getRoomsModel().get(0)
+		
+			bookingsRequest.getBookingsModel().getRoomsModel().forEach(roomModel -> {
+				roomModel.setRoomApplicationNumber(bookingsModel.getRoomsModel().get(0).getRoomApplicationNumber());
+				roomModel.setCommunityApplicationNumber(bookingsModel.getBkApplicationNumber());
+				roomModel.setId(UUID.randomUUID().toString());
+			});
+			
+			/*bookingsRequest.getBookingsModel().getRoomsModel().get(0)
 					.setRoomApplicationNumber(bookingsModel.getRoomsModel().get(0).getRoomApplicationNumber());
 			bookingsRequest.getBookingsModel().getRoomsModel().get(0)
-					.setCommunityApplicationNumber(bookingsModel.getBkApplicationNumber());
+					.setCommunityApplicationNumber(bookingsModel.getBkApplicationNumber());*/
 		}
 	}
 
@@ -927,19 +930,49 @@ public class EnrichmentService {
 
 
 
-	public void enrichRoomDetails(BookingsRequest bookingsRequest) {
-
-		RoomsModel roomsModel = roomsRepository.findByRoomApplicationNumber(
+	public void enrichRoomDetails(BookingsRequest bookingsRequest, boolean flag) {
+		LocalDate date = LocalDate.now();
+		Date date1 = Date.valueOf(date);
+		
+		for(RoomsModel roomModel : bookingsRequest.getBookingsModel().getRoomsModel()) {
+			if(!flag)
+			roomModel.setCreatedDate(date1);
+			roomModel.setLastModifiedDate(date1);
+		}
+		List<RoomsModel> roomsModelList = roomsRepository.findByRoomApplicationNumber(
 				bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationNumber());
-		if (!BookingsFieldsValidator.isNullOrEmpty(roomsModel)) {
+		List<RoomsModel> bkRoomList = bookingsRequest.getBookingsModel().getRoomsModel();
+		if (!BookingsFieldsValidator.isNullOrEmpty(roomsModelList)) {
 			/*bookingsRequest.getBookingsModel().getRoomsModel().get(0)
 					.setRoomBusinessService(bookingsRequest.getBookingsModel().getRoomBusinessService());*/
-			LocalDate date = LocalDate.now();
-			Date date1 = Date.valueOf(date);
-			bookingsRequest.getBookingsModel().getRoomsModel().get(0).setLastModifiedDate(date1);
-			bookingsRequest.getBookingsModel().getRoomsModel().get(0)
-					.setCommunityApplicationNumber((roomsModel.getCommunityApplicationNumber()));
+			for(RoomsModel roomModel : roomsModelList) {
+			 date = LocalDate.now();
+			 date1 = Date.valueOf(date);
+			for(RoomsModel bkRoomModel : bkRoomList) {
+				bkRoomModel.setLastModifiedDate(date1);
+				bkRoomModel
+					.setCommunityApplicationNumber((roomModel.getCommunityApplicationNumber()));
+				bkRoomModel.setDiscount(bookingsRequest.getBookingsModel().getDiscount());
+			}
+			}
 		}
 
+	}
+	
+	
+	
+	public BigDecimal extractDaysBetweenTwoDates(java.sql.Date fromDate, java.sql.Date toDate) {
+		try {
+			LocalDate dateBefore = null;
+			LocalDate dateAfter = null;
+			dateBefore = LocalDate.parse(fromDate + "");
+			dateAfter = LocalDate.parse(toDate + "");
+			long noOfDaysBetween = ChronoUnit.DAYS.between(dateBefore, dateAfter);
+			long totalDays = noOfDaysBetween + 1;
+			BigDecimal finalDays = BigDecimal.valueOf(totalDays);
+			return finalDays;
+		} catch (Exception e) {
+			throw new CustomException("INVALID_REQUEST", e.getLocalizedMessage());
+		}
 	}
 }
