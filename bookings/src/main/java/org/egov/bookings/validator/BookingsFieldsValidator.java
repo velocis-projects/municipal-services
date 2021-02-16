@@ -19,6 +19,7 @@ import org.egov.bookings.contract.ParkCommunityFeeMasterRequest;
 import org.egov.bookings.contract.RoomFeeFetchRequest;
 import org.egov.bookings.model.BookingsModel;
 import org.egov.bookings.model.CommercialGrndAvailabilityModel;
+import org.egov.bookings.model.RoomsModel;
 import org.egov.bookings.repository.BookingsRepository;
 import org.egov.bookings.repository.impl.BillingServiceRepository;
 import org.egov.bookings.service.BookingsService;
@@ -635,5 +636,27 @@ public class BookingsFieldsValidator {
 			throw new IllegalArgumentException("Invalid type of rooms");
 		}
 
+	}
+
+	public void validateRoomBookingRequest(BookingsRequest bookingsRequest) {
+		if (BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getRoomsModel())) {
+			throw new IllegalArgumentException("Invalid Rooms Model");
+		}
+		for (RoomsModel roomModel : bookingsRequest.getBookingsModel().getRoomsModel()) {
+			if (BookingsFieldsValidator.isNullOrEmpty(roomModel.getAction())) {
+				throw new IllegalArgumentException("Invalid Action For Room Booking");
+			}
+
+			if (BookingsFieldsValidator.isNullOrEmpty(roomModel.getTotalNoOfRooms())) {
+				throw new IllegalArgumentException("Invalid Total Number For Room Booking");
+			}
+
+			if (BookingsFieldsValidator.isNullOrEmpty(roomModel.getTypeOfRoom())) {
+				throw new IllegalArgumentException("Invalid type of rooms For Room Booking");
+			}
+			if (BookingsFieldsValidator.isNullOrEmpty(roomModel.getRoomBusinessService())) {
+				throw new IllegalArgumentException("Invalid room business service For Room Booking");
+			}
+		}
 	}
 }

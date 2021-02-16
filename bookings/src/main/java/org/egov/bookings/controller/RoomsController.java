@@ -39,7 +39,7 @@ public class RoomsController {
 	@PostMapping("_create")
 	private ResponseEntity<?> createRoomForCommunityBooking(@RequestBody BookingsRequest bookingsRequest) {
 
-		bookingsFieldsValidator.validatePAndCBookingRequest(bookingsRequest);
+		bookingsFieldsValidator.validateRoomBookingRequest(bookingsRequest);
 		BookingsModel bookingsModel = roomsService.createRoomForCommunityBooking(bookingsRequest);
 		ResponseModel rs = new ResponseModel();
 		if (bookingsModel == null) {
@@ -59,7 +59,7 @@ public class RoomsController {
 	@PostMapping("_update")
 	private ResponseEntity<?> updateRoomForCommunityBooking(@RequestBody BookingsRequest bookingsRequest) {
 
-		bookingsFieldsValidator.validatePAndCBookingRequest(bookingsRequest);
+		bookingsFieldsValidator.validateRoomBookingRequest(bookingsRequest);
 		BookingsModel bookingsModel = roomsService.updateRoomForCommunityBooking(bookingsRequest);
 		ResponseModel rs = new ResponseModel();
 		if (bookingsModel == null) {
