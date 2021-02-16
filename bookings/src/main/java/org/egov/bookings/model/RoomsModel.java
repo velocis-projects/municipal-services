@@ -25,11 +25,11 @@ import lombok.ToString;
 @Entity(name = "RoomsModel")
 @Table(name = "BK_ROOMS_MODEL")
 public class RoomsModel {
-	
+
 	@Id
 	@Column(name = "ID")
 	private String id;
-	
+
 	@Column(name = "ROOM_APPLICATION_NUMBER")
 	private String roomApplicationNumber;
 
@@ -53,23 +53,26 @@ public class RoomsModel {
 
 	@Column(name = "ACTION")
 	private String action;
-	
+
 	@Column(name = "LAST_MODIFIED_DATE")
 	private Date lastModifiedDate;
-	
+
 	@Column(name = "CREATED_DATE")
 	private Date createdDate;
-	
+
 	@Column(name = "FROM_DATE")
 	private Date fromDate;
-	
+
 	@Column(name = "TO_DATE")
 	private Date toDate;
-	
+
 	@Column(name = "discount")
 	private BigDecimal discount;
-	
+
 	@Column(name = "facilation_charge")
 	private BigDecimal facilationCharge;
+
+	@Column(name = "room_payment_status")
+	private String roomPaymentStatus;
 
 }
