@@ -36,4 +36,13 @@ public class CommercialGrndAvailabilityModel {
 	@Column(name = "IS_LOCKED")
 	private boolean locked;
 
+	@Column(name = "venue_type")
+	private String venueType;
+
+	@Column(name = "created_date")
+	private String createdDate;
+
+	@Column(name = "last_modified_date")
+	private String lastModifiedDate;
+
 }

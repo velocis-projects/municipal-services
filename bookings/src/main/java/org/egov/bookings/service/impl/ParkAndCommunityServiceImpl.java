@@ -21,8 +21,10 @@ import org.egov.bookings.contract.ParkAndCommunitySearchCriteria;
 import org.egov.bookings.contract.ParkCommunityFeeMasterRequest;
 import org.egov.bookings.contract.ParkCommunityFeeMasterResponse;
 import org.egov.bookings.model.BookingsModel;
+import org.egov.bookings.model.CommercialGrndAvailabilityModel;
 import org.egov.bookings.model.ParkCommunityHallV1MasterModel;
 import org.egov.bookings.producer.BookingsProducer;
+import org.egov.bookings.repository.CommercialGrndAvailabilityRepository;
 import org.egov.bookings.repository.ParkAndCommunityRepository;
 import org.egov.bookings.repository.ParkCommunityHallV1MasterRepository;
 import org.egov.bookings.service.BookingsService;
@@ -88,6 +90,9 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 	
 	@Autowired
 	private BookingsFieldsValidator bookingsFieldsValidator;
+	
+	@Autowired
+	private CommercialGrndAvailabilityRepository commercialGrndAvailabilityRepo;
 	
 	/*
 	 * (non-Javadoc)
@@ -198,6 +203,7 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 		LocalDate date = LocalDate.now();
 		Date date1 = Date.valueOf(date);
 		Set<AvailabilityResponse> bookedDates = new HashSet<>();
+		Set<CommercialGrndAvailabilityModel> availabilityLockModelList =  commercialGrndAvailabilityRepo.findByBookingVenueAndIsLocked(parkAndCommunitySearchCriteria.getBookingVenue(),date1);
 		Set<BookingsModel> bookingsModel = parkAndCommunityRepository.fetchBookedDatesOfParkAndCommunity(
 				parkAndCommunitySearchCriteria.getBookingVenue(), parkAndCommunitySearchCriteria.getBookingType(),
 				parkAndCommunitySearchCriteria.getSector(), date1, BookingsConstants.PAYMENT_SUCCESS_STATUS,
@@ -208,6 +214,13 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 					bookedDates.add(AvailabilityResponse.builder().fromDate(bkModel.getBkFromDate())
 							.toDate(bkModel.getBkToDate()).timeslots(bkModel.getTimeslots()).build());
 				}
+			}
+		}
+		for(CommercialGrndAvailabilityModel availabilityLockModel : availabilityLockModelList) {
+			if(availabilityLockModel.isLocked()) {
+				bookedDates.add(AvailabilityResponse.builder().fromDate(availabilityLockModel.getFromDate())
+						.toDate(availabilityLockModel.getToDate()).build());
+				
 			}
 		}
 		return bookedDates;

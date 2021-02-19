@@ -14,6 +14,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -33,6 +34,7 @@ import org.egov.bookings.repository.CommercialGroundRepository;
 import org.egov.bookings.repository.CommonRepository;
 import org.egov.bookings.service.CommercialGroundService;
 import org.egov.bookings.utils.BookingsConstants;
+import org.egov.bookings.utils.BookingsUtils;
 import org.egov.bookings.validator.BookingsFieldsValidator;
 import org.egov.bookings.web.models.BookingsRequest;
 import org.egov.tracer.model.CustomException;
@@ -77,6 +79,9 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 	
 	@Autowired
 	private CommercialGrndAvailabilityRepository commercialGrndAvailabilityRepo;
+	
+	@Autowired
+	private BookingsUtils bookingsUtils;
 	
 	
 	/*
@@ -177,6 +182,11 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 	public List<CommercialGrndAvailabilityModel> saveCommercialAvailabilityLockDates(
 			CommercialGrndAvailabiltyLockRequest commercialGrndAvailabiltyLockRequest) {
 		try {
+			for(CommercialGrndAvailabilityModel commercialGrndAvailabilityModel : commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock()) {
+				DateFormat formatter = bookingsUtils.getSimpleDateFormat();
+				commercialGrndAvailabilityModel.setCreatedDate(formatter.format(new java.util.Date()));
+				commercialGrndAvailabilityModel.setLastModifiedDate(formatter.format(new java.util.Date()));	
+			}
 			bookingsProducer.push(config.getSaveCommercialGrndLockedDates(), commercialGrndAvailabiltyLockRequest);
 			//commGrndAvail = commercialGrndAvailabilityRepository.save(commercialGrndAvailabilityModel);
 			return commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock();
@@ -240,7 +250,12 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 	public List<CommercialGrndAvailabilityModel> updateCommercialAvailabilityLockDates(
 			CommercialGrndAvailabiltyLockRequest commercialGrndAvailabiltyLockRequest) {
 		try {
-			bookingsProducer.push(config.getUpdateCommercialGrndLockedDates(), commercialGrndAvailabiltyLockRequest);
+			for(CommercialGrndAvailabilityModel commercialGrndAvailabilityModel : commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock()) {
+				commercialGrndAvailabilityRepo.delete(commercialGrndAvailabilityModel.getId());
+				//DateFormat formatter = bookingsUtils.getSimpleDateFormat();
+				//commercialGrndAvailabilityModel.setLastModifiedDate(formatter.format(new java.util.Date()));	
+			}
+			//bookingsProducer.push(config.getUpdateCommercialGrndLockedDates(), commercialGrndAvailabiltyLockRequest);
 			//commGrndAvail = commercialGrndAvailabilityRepository.save(commercialGrndAvailabilityModel);
 			return commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock();
 		} catch (Exception e) {
@@ -260,6 +275,7 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 			throw new CustomException("NO_DATE_FOUND",
 					"There is not any data in bk_commercial_ground_availability_lock table");
 		}
-		return lockList;
+		List<CommercialGrndAvailabilityModel> sortedLockList= lockList.stream().sorted((l1,l2)->-(l1.getLastModifiedDate().compareTo(l2.getLastModifiedDate()))).collect(Collectors.toList());
+		return sortedLockList;
 	}
 }
