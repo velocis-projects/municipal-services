@@ -432,7 +432,7 @@ public class BookingsServiceImpl implements BookingsService {
 						applicationNumberSet.removeAll(applicationNumbers);
 					} 
 					else if (BookingsConstants.MCC_USER.equals(role.getCode())) {
-						if(BookingsFieldsValidator.isNullOrEmpty(bookingType) && BookingsConstants.GROUND_FOR_COMMERCIAL_PURPOSE.equals(bookingType)) {
+						if(!BookingsFieldsValidator.isNullOrEmpty(bookingType) && BookingsConstants.GROUND_FOR_COMMERCIAL_PURPOSE.equals(bookingType)) {
 							if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
 								bookingsSet.addAll(bookingsRepository.getEmployeeSearchGFCPBooking(applicationNumber, applicationStatus, mobileNumber, bookingType));
 							} 
@@ -440,7 +440,7 @@ public class BookingsServiceImpl implements BookingsService {
 								bookingsSet.addAll(bookingsRepository.getEmployeeSearchGFCPBooking(applicationNumber, applicationStatus, mobileNumber, bookingType, fromDate, toDate));
 							}
 						}
-						else if(BookingsFieldsValidator.isNullOrEmpty(bookingType) && BookingsConstants.PARKS_AND_COMMUNITY_CENTER.equals(bookingType)) {
+						else if(!BookingsFieldsValidator.isNullOrEmpty(bookingType) && BookingsConstants.PARKS_AND_COMMUNITY_CENTER.equals(bookingType)) {
 							if (!BookingsFieldsValidator.isNullOrEmpty(bookingType)) {
 								String[] bookingArray = bookingType.split(BookingsConstants.AND);
 								parksBookingType = bookingArray[0].trim();
