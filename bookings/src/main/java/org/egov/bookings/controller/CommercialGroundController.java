@@ -174,13 +174,22 @@ public class CommercialGroundController {
 	 */
 	@PostMapping("/lock/dates/_fetch")
 	private ResponseEntity<?> fetchLockedDates() {
-		
+
 		List<CommercialGrndAvailabilityModel> res = commercialGroundService.fetchLockedDates();
-		ResponseModel rs = new ResponseModel();
-		rs.setStatus("200");
-		rs.setMessage("Locked Dates");
-		rs.setData(res);
-		
+		ResponseModel rs = null;
+		if (!BookingsFieldsValidator.isNullOrEmpty(res)) {
+		    rs = new ResponseModel();
+			rs.setStatus("200");
+			rs.setMessage("Locked Dates");
+			rs.setData(res);
+		}
+		else {
+			rs = new ResponseModel();
+			rs.setStatus("200");
+			rs.setMessage("There is not any Locked Dates");
+			rs.setData(res);
+		}
+
 		return ResponseEntity.ok(rs);
 	}
 	

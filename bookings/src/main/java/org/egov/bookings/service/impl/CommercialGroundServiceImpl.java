@@ -152,7 +152,8 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 		LocalDate date = LocalDate.now();
 		Date date1 = Date.valueOf(date);
 		Set<AvailabilityResponse> bookedDates = new HashSet<>();
-		Set<CommercialGrndAvailabilityModel> availabilityLockModelList =  commercialGrndAvailabilityRepo.findByBookingVenueAndIsLocked(commercialGroundAvailabiltySearchCriteria.getBookingVenue(),date1);
+		Set<CommercialGrndAvailabilityModel> availabilityLockModelList = commercialGrndAvailabilityRepo
+				.findByBookingVenueAndIsLocked(commercialGroundAvailabiltySearchCriteria.getBookingVenue(), date1);
 		Set<BookingsModel> bookingsModel = commonRepository.findAllBookedVenuesFromNow(
 				commercialGroundAvailabiltySearchCriteria.getBookingVenue(),
 				commercialGroundAvailabiltySearchCriteria.getBookingType(), date1, BookingsConstants.APPLY);
@@ -160,11 +161,13 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 			bookedDates.add(AvailabilityResponse.builder().fromDate(bkModel.getBkFromDate())
 					.toDate(bkModel.getBkToDate()).build());
 		}
-		for(CommercialGrndAvailabilityModel availabilityLockModel : availabilityLockModelList) {
-			if(availabilityLockModel.isLocked()) {
-				bookedDates.add(AvailabilityResponse.builder().fromDate(availabilityLockModel.getFromDate())
-						.toDate(availabilityLockModel.getToDate()).build());
-				
+		if (!BookingsFieldsValidator.isNullOrEmpty(availabilityLockModelList)) {
+			for (CommercialGrndAvailabilityModel availabilityLockModel : availabilityLockModelList) {
+				if (availabilityLockModel.isLocked()) {
+					bookedDates.add(AvailabilityResponse.builder().fromDate(availabilityLockModel.getFromDate())
+							.toDate(availabilityLockModel.getToDate()).build());
+
+				}
 			}
 		}
 		return bookedDates;
@@ -272,8 +275,7 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 		Date sixMonthsFromNowSql = Date.valueOf(sixMonthsFromNow);
 		lockList = commercialGrndAvailabilityRepo.findLockedDatesFromNowTo6Months(currentDate, sixMonthsFromNowSql);
 		if (BookingsFieldsValidator.isNullOrEmpty(lockList)) {
-			throw new CustomException("NO_DATE_FOUND",
-					"There is not any data in bk_commercial_ground_availability_lock table");
+			return lockList;
 		}
 		List<CommercialGrndAvailabilityModel> sortedLockList= lockList.stream().sorted((l1,l2)->-(l1.getLastModifiedDate().compareTo(l2.getLastModifiedDate()))).collect(Collectors.toList());
 		return sortedLockList;
