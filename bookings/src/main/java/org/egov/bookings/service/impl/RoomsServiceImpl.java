@@ -110,13 +110,14 @@ public class RoomsServiceImpl implements RoomsService {
 			String typeOfRoom = roomsModel.getTypeOfRoom();
 			String totalNoOfRooms = roomsModel.getTotalNoOfRooms();
 			String sector = bookingsRequest.getBookingsModel().getBkSector();
+			String communityCenterName = bookingsRequest.getBookingsModel().getBkLocation();
 			if (BookingsConstants.AC.equals(typeOfRoom)) {
 				roomMasterModelListForAC = communityCenterRoomFeeRepository
-						.findByTypeOfRoomAndTotalNumberOfRoomsAndSectorName(typeOfRoom, totalNoOfRooms, sector);
+						.findByTypeOfRoomAndSectorNameAndCommunityCenterName(typeOfRoom, sector, communityCenterName);
 			}
 			if (BookingsConstants.NON_AC.equals(typeOfRoom)) {
 				roomMasterModelListForNONAC = communityCenterRoomFeeRepository
-						.findByTypeOfRoomAndTotalNumberOfRoomsAndSectorName(typeOfRoom, totalNoOfRooms, sector);
+						.findByTypeOfRoomAndSectorNameAndCommunityCenterName(typeOfRoom, sector, communityCenterName);
 			}
 		}
 		if (BookingsFieldsValidator.isNullOrEmpty(roomMasterModelListForAC)
@@ -153,7 +154,9 @@ public class RoomsServiceImpl implements RoomsService {
 			if(BookingsConstants.AC.equals(roomModelForAC.getTypeOfRoom())) {
 			BigDecimal days = enrichmentService.extractDaysBetweenTwoDates(roomModelForAC.getFromDate(),
 					roomModelForAC.getToDate());
-			finalAmount = acAmount.multiply(days);
+			finalAmount = acAmount.multiply(BigDecimal.valueOf(Double.valueOf(roomModelForAC.getTotalNoOfRooms())));
+			finalAmount = finalAmount.multiply(days);
+			
 			}
 		}
 		if (!BookingsFieldsValidator.isNullOrEmpty(roomMasterModelListForNONAC)) {
@@ -184,7 +187,8 @@ public class RoomsServiceImpl implements RoomsService {
 			if(BookingsConstants.NON_AC.equals(roomModelForNonAC.getTypeOfRoom())) {
 			BigDecimal days = enrichmentService.extractDaysBetweenTwoDates(roomModelForNonAC.getFromDate(),
 					roomModelForNonAC.getToDate());
-			finalAmount = finalAmount.add(nonAcAmount.multiply(days));
+			BigDecimal amountForTotalNoOfRooms = nonAcAmount.multiply(BigDecimal.valueOf(Double.valueOf(roomModelForNonAC.getTotalNoOfRooms())));
+			finalAmount = finalAmount.add(amountForTotalNoOfRooms.multiply(days));
 			}
 		}
 		return finalAmount;
@@ -264,13 +268,14 @@ public class RoomsServiceImpl implements RoomsService {
 	 */
 	private Map<String, String> getAllTypeOfCommunityCenterRooms(String communityCenterNameId) {
 		Map<String, String> typesOfRoomMap = new HashMap<>();
+		List<RoomMasterModel> roomMasterList = new ArrayList<>();
 		try {
 			if(!BookingsFieldsValidator.isNullOrEmpty(communityCenterNameId)) {
 				ParkCommunityHallV1MasterModel parkCommunityHallV1MasterModel = parkCommunityHallV1MasterRepository.findById(communityCenterNameId);
 				if(!BookingsFieldsValidator.isNullOrEmpty(parkCommunityHallV1MasterModel)) {
 					String communityCenterName = parkCommunityHallV1MasterModel.getName().trim();
 					if(!BookingsFieldsValidator.isNullOrEmpty(communityCenterName)) {
-						List<RoomMasterModel> roomMasterList = communityCenterRoomFeeRepository.findRoomMasterList(new java.util.Date(), communityCenterName);
+						roomMasterList = communityCenterRoomFeeRepository.findRoomMasterList(new java.util.Date(), communityCenterName);
 						if(!BookingsFieldsValidator.isNullOrEmpty(roomMasterList)) {
 							roomMasterList.forEach(roomMaster -> {
 								if(BookingsConstants.AC.equals(roomMaster.getTypeOfRoom())) {
@@ -278,6 +283,19 @@ public class RoomsServiceImpl implements RoomsService {
 								}
 								else if(BookingsConstants.NON_AC.equals(roomMaster.getTypeOfRoom())) {
 									typesOfRoomMap.put(BookingsConstants.NON_AC, roomMaster.getTotalNumberOfRooms());
+								}
+							});
+						}
+						else {
+							roomMasterList = communityCenterRoomFeeRepository.getRoomMasterList(new java.util.Date(), communityCenterName);
+							roomMasterList.forEach(roomMaster ->{
+								if(BookingsFieldsValidator.isNullOrEmpty(roomMaster.getToDate())) {
+									if(BookingsConstants.AC.equals(roomMaster.getTypeOfRoom())) {
+										typesOfRoomMap.put(BookingsConstants.AC, roomMaster.getTotalNumberOfRooms());
+									}
+									else if(BookingsConstants.NON_AC.equals(roomMaster.getTypeOfRoom())) {
+										typesOfRoomMap.put(BookingsConstants.NON_AC, roomMaster.getTotalNumberOfRooms());
+									}
 								}
 							});
 						}
@@ -346,8 +364,8 @@ public class RoomsServiceImpl implements RoomsService {
 		BigDecimal totalAmount = null;
 		RoomFeeFetchResponse roomFeeFetchResponse = null;
 		roomMasterModelList = communityCenterRoomFeeRepository
-				.findBySectorNameAndTotalNumberOfRoomsAndTypeOfRoomAndCommunityCenterName(
-						roomFeeFetchRequest.getSector(), roomFeeFetchRequest.getTotalNumberOfRooms(),
+				.findBySectorNameAndTypeOfRoomAndCommunityCenterName(
+						roomFeeFetchRequest.getSector(),
 						roomFeeFetchRequest.getTypeOfRomm(), roomFeeFetchRequest.getCommunityCenterName());
 		if (BookingsFieldsValidator.isNullOrEmpty(roomMasterModelList)) {
 			throw new CustomException("DATA_NOT_FOUND",

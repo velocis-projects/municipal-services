@@ -19,6 +19,7 @@ import org.egov.bookings.contract.ParkCommunityFeeMasterRequest;
 import org.egov.bookings.contract.RoomFeeFetchRequest;
 import org.egov.bookings.model.BookingsModel;
 import org.egov.bookings.model.CommercialGrndAvailabilityModel;
+import org.egov.bookings.model.RoomsModel;
 import org.egov.bookings.repository.BookingsRepository;
 import org.egov.bookings.repository.impl.BillingServiceRepository;
 import org.egov.bookings.service.BookingsService;
@@ -350,25 +351,25 @@ public class BookingsFieldsValidator {
 	 */
 	public void validateCommercialGroundAvailabilityModel(
 			CommercialGrndAvailabiltyLockRequest commercialGrndAvailabiltyLockRequest) {
-		if (BookingsFieldsValidator
-				.isNullOrEmpty(commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock())) {
-			throw new IllegalArgumentException("Invalid commercialGrndAvailabilityModel object");
-		}
-		if (BookingsFieldsValidator.isNullOrEmpty(
-				commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().get(0).getBookingVenue())) {
-			throw new IllegalArgumentException("Invalid Booking Venue");
-		}
-		if (BookingsFieldsValidator.isNullOrEmpty(
-				commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().get(0).getFromDate())) {
-			throw new IllegalArgumentException("Invalid From Date");
-		}
-		if (BookingsFieldsValidator.isNullOrEmpty(
-				commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().get(0).getToDate())) {
-			throw new IllegalArgumentException("Invalid To Date");
-		}
-		if (BookingsFieldsValidator.isNullOrEmpty(
-				commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().get(0).isLocked())) {
-			throw new IllegalArgumentException("Invalid isLocked");
+
+		for (CommercialGrndAvailabilityModel availabilityModel : commercialGrndAvailabiltyLockRequest
+				.getCommercialGrndAvailabilityLock()) {
+			if (BookingsFieldsValidator
+					.isNullOrEmpty(commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock())) {
+				throw new IllegalArgumentException("Invalid commercialGrndAvailabilityModel object");
+			}
+			if (BookingsFieldsValidator.isNullOrEmpty(availabilityModel.getBookingVenue())) {
+				throw new IllegalArgumentException("Invalid Booking Venue");
+			}
+			if (BookingsFieldsValidator.isNullOrEmpty(availabilityModel.getFromDate())) {
+				throw new IllegalArgumentException("Invalid From Date");
+			}
+			if (BookingsFieldsValidator.isNullOrEmpty(availabilityModel.getToDate())) {
+				throw new IllegalArgumentException("Invalid To Date");
+			}
+			if (BookingsFieldsValidator.isNullOrEmpty(availabilityModel.isLocked())) {
+				throw new IllegalArgumentException("Invalid isLocked");
+			}
 		}
 	}
 
@@ -635,5 +636,42 @@ public class BookingsFieldsValidator {
 			throw new IllegalArgumentException("Invalid type of rooms");
 		}
 
+	}
+
+	public void validateRoomBookingRequest(BookingsRequest bookingsRequest) {
+		if (BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getRoomsModel())) {
+			throw new IllegalArgumentException("Invalid Rooms Model");
+		}
+		for (RoomsModel roomModel : bookingsRequest.getBookingsModel().getRoomsModel()) {
+			if (BookingsFieldsValidator.isNullOrEmpty(roomModel.getAction())) {
+				throw new IllegalArgumentException("Invalid Action For Room Booking");
+			}
+
+			if (BookingsFieldsValidator.isNullOrEmpty(roomModel.getTotalNoOfRooms())) {
+				throw new IllegalArgumentException("Invalid Total Number For Room Booking");
+			}
+
+			if (BookingsFieldsValidator.isNullOrEmpty(roomModel.getTypeOfRoom())) {
+				throw new IllegalArgumentException("Invalid type of rooms For Room Booking");
+			}
+			if (BookingsFieldsValidator.isNullOrEmpty(roomModel.getRoomBusinessService())) {
+				throw new IllegalArgumentException("Invalid room business service For Room Booking");
+			}
+		}
+	}
+
+	public void validateCommercialGroundAvailabilityUpdateModel(
+			CommercialGrndAvailabiltyLockRequest commercialGrndAvailabiltyLockRequest) {
+
+		for (CommercialGrndAvailabilityModel availabilityModel : commercialGrndAvailabiltyLockRequest
+				.getCommercialGrndAvailabilityLock()) {
+			if (BookingsFieldsValidator
+					.isNullOrEmpty(commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock())) {
+				throw new IllegalArgumentException("Invalid commercialGrndAvailabilityModel object");
+			}
+			if (BookingsFieldsValidator.isNullOrEmpty(availabilityModel.getId())) {
+				throw new IllegalArgumentException("Invalid ID");
+			}
+		}
 	}
 }

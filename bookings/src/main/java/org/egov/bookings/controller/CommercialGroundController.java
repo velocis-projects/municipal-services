@@ -152,15 +152,15 @@ public class CommercialGroundController {
 	private ResponseEntity<?> updateCommercialAvailabilityLockDates(
 			@RequestBody CommercialGrndAvailabiltyLockRequest commercialGrndAvailabiltyLockRequest) {
 
-		bookingsFieldsValidator.validateCommercialGroundAvailabilityModel(commercialGrndAvailabiltyLockRequest);
+		bookingsFieldsValidator.validateCommercialGroundAvailabilityUpdateModel(commercialGrndAvailabiltyLockRequest);
 
 		List<CommercialGrndAvailabilityModel> res = commercialGroundService
 				.updateCommercialAvailabilityLockDates(commercialGrndAvailabiltyLockRequest);
 
 		ResponseModel rs = new ResponseModel();
 		rs.setStatus("200");
-		rs.setMessage("Dates Locked");
-		rs.setData(res);
+		rs.setMessage("Dates Unlocked");
+		rs.setData("");
 
 		return ResponseEntity.ok(rs);
 	}

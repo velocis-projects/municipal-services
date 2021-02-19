@@ -9,10 +9,24 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface CommunityCenterRoomFeeRepository extends JpaRepository<RoomMasterModel, String>{
 	
+	/**
+	 * Find by id.
+	 *
+	 * @param bookingVenue the booking venue
+	 * @return the room master model
+	 */
 	RoomMasterModel findById(String bookingVenue);
 
-	List<RoomMasterModel> findByTypeOfRoomAndTotalNumberOfRoomsAndSectorName(String typeOfRoom,
-			String totalNoOfRooms, String sector);
+	/**
+	 * Find by type of room and sector name and community center name.
+	 *
+	 * @param typeOfRoom the type of room
+	 * @param sector the sector
+	 * @param communityCenterName the community center name
+	 * @return the list
+	 */
+	List<RoomMasterModel> findByTypeOfRoomAndSectorNameAndCommunityCenterName(String typeOfRoom,
+			String sector, String communityCenterName);
 	
 	/**
 	 * Find room master list.
@@ -31,15 +45,26 @@ public interface CommunityCenterRoomFeeRepository extends JpaRepository<RoomMast
 	
 	
 	
+	
 	/**
-	 * Find by sector name and total number of rooms and type of room and community center name.
+	 * Find by sector name and type of room and community center name.
 	 *
 	 * @param sector the sector
-	 * @param totalNumberOfRooms the total number of rooms
 	 * @param typeOfRomm the type of romm
 	 * @param communityCenterName the community center name
-	 * @return the room master model
+	 * @return the list
 	 */
-	List<RoomMasterModel> findBySectorNameAndTotalNumberOfRoomsAndTypeOfRoomAndCommunityCenterName(String sector,
-			String totalNumberOfRooms, String typeOfRomm, String communityCenterName);
+	List<RoomMasterModel> findBySectorNameAndTypeOfRoomAndCommunityCenterName(String sector, String typeOfRomm, String communityCenterName);
+	
+	/**
+	 * Gets the room master list.
+	 *
+	 * @param currentDate the current date
+	 * @param communityCenterName the community center name
+	 * @return the room master list
+	 */
+	@Query(
+			value = "SELECT * FROM BK_ROOM_MASTER WHERE FROM_DATE <=cast((?1) AS timestamp) AND COMMUNITY_CENTER_NAME = (?2) AND TYPE_OF_ROOM in ('AC','NON-AC')",
+			nativeQuery = true )
+			List<RoomMasterModel> getRoomMasterList( Date currentDate, String communityCenterName );
 }
