@@ -203,7 +203,8 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 		LocalDate date = LocalDate.now();
 		Date date1 = Date.valueOf(date);
 		Set<AvailabilityResponse> bookedDates = new HashSet<>();
-		Set<CommercialGrndAvailabilityModel> availabilityLockModelList =  commercialGrndAvailabilityRepo.findByBookingVenueAndIsLocked(parkAndCommunitySearchCriteria.getBookingVenue(),date1);
+		Set<CommercialGrndAvailabilityModel> availabilityLockModelList = commercialGrndAvailabilityRepo
+				.findByBookingVenueAndIsLocked(parkAndCommunitySearchCriteria.getBookingVenue(), date1);
 		Set<BookingsModel> bookingsModel = parkAndCommunityRepository.fetchBookedDatesOfParkAndCommunity(
 				parkAndCommunitySearchCriteria.getBookingVenue(), parkAndCommunitySearchCriteria.getBookingType(),
 				parkAndCommunitySearchCriteria.getSector(), date1, BookingsConstants.PAYMENT_SUCCESS_STATUS,
@@ -216,11 +217,14 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 				}
 			}
 		}
-		for(CommercialGrndAvailabilityModel availabilityLockModel : availabilityLockModelList) {
-			if(availabilityLockModel.isLocked()) {
-				bookedDates.add(AvailabilityResponse.builder().fromDate(availabilityLockModel.getFromDate())
-						.toDate(availabilityLockModel.getToDate()).build());
-				
+
+		if (!BookingsFieldsValidator.isNullOrEmpty(availabilityLockModelList)) {
+			for (CommercialGrndAvailabilityModel availabilityLockModel : availabilityLockModelList) {
+				if (availabilityLockModel.isLocked()) {
+					bookedDates.add(AvailabilityResponse.builder().fromDate(availabilityLockModel.getFromDate())
+							.toDate(availabilityLockModel.getToDate()).build());
+
+				}
 			}
 		}
 		return bookedDates;
