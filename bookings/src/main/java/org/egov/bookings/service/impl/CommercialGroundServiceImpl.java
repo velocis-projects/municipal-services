@@ -27,11 +27,13 @@ import org.egov.bookings.contract.CommercialGroundFeeSearchCriteria;
 import org.egov.bookings.model.BookingsModel;
 import org.egov.bookings.model.CommercialGrndAvailabilityModel;
 import org.egov.bookings.model.CommercialGroundFeeModel;
+import org.egov.bookings.model.ParkCommunityHallV1MasterModel;
 import org.egov.bookings.producer.BookingsProducer;
 import org.egov.bookings.repository.BookingsRepository;
 import org.egov.bookings.repository.CommercialGrndAvailabilityRepository;
 import org.egov.bookings.repository.CommercialGroundRepository;
 import org.egov.bookings.repository.CommonRepository;
+import org.egov.bookings.repository.ParkCommunityHallV1MasterRepository;
 import org.egov.bookings.service.CommercialGroundService;
 import org.egov.bookings.utils.BookingsConstants;
 import org.egov.bookings.utils.BookingsUtils;
@@ -83,6 +85,8 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 	@Autowired
 	private BookingsUtils bookingsUtils;
 	
+	@Autowired
+	private ParkCommunityHallV1MasterRepository parkCommunityHallV1MasterRepository; 
 	
 	/*
 	 * (non-Javadoc)
@@ -274,10 +278,25 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 		Date currentDate = Date.valueOf(date);
 		Date sixMonthsFromNowSql = Date.valueOf(sixMonthsFromNow);
 		lockList = commercialGrndAvailabilityRepo.findLockedDatesFromNowTo6Months(currentDate, sixMonthsFromNowSql);
+
+		for (CommercialGrndAvailabilityModel l1 : lockList) {
+			if (BookingsConstants.VENUE_TYPE_COMMUNITY_CENTER.equals(l1.getVenueType())
+					|| BookingsConstants.VENUE_TYPE_PARKS.equals(l1.getVenueType())) {
+				ParkCommunityHallV1MasterModel parkCommunityHallV1MasterModel = parkCommunityHallV1MasterRepository
+						.findById(l1.getBookingVenue());
+				if (!BookingsFieldsValidator.isNullOrEmpty(parkCommunityHallV1MasterModel)) {
+					if (!BookingsFieldsValidator.isNullOrEmpty(parkCommunityHallV1MasterModel.getName()))
+						l1.setBookingVenue(parkCommunityHallV1MasterModel.getName());
+				}
+			}
+		}
+
 		if (BookingsFieldsValidator.isNullOrEmpty(lockList)) {
 			return lockList;
 		}
-		List<CommercialGrndAvailabilityModel> sortedLockList= lockList.stream().sorted((l1,l2)->-(l1.getLastModifiedDate().compareTo(l2.getLastModifiedDate()))).collect(Collectors.toList());
+		List<CommercialGrndAvailabilityModel> sortedLockList = lockList.stream()
+				.sorted((l1, l2) -> -(l1.getLastModifiedDate().compareTo(l2.getLastModifiedDate())))
+				.collect(Collectors.toList());
 		return sortedLockList;
 	}
 }

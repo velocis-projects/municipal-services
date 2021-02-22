@@ -931,4 +931,8 @@ public class BookingsConstants {
 	public static final String ROOM_TAXHEAD_CODE_FACILITATION_CHARGE = "ROOM_FACILITATION_CHARGE";
 	
 	public static final String SIX_MONTHS_FROM_NOW_SQL = "sixMonthsFromNowSql";
+	
+	public static final String VENUE_TYPE_COMMUNITY_CENTER = "Community Center";
+	
+	public static final String VENUE_TYPE_PARKS = "Parks";
 }
