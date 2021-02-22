@@ -1190,4 +1190,45 @@ public interface BookingsRepository
 			nativeQuery = true )
 			List<BookingsModel> getCommunityCenterBookings( List<String> applicationNumberList );
 	
+	/**
+	 * Gets the sampark employee search booking.
+	 *
+	 * @param applicationNumber the application number
+	 * @param applicationStatus the application status
+	 * @param mobileNumber the mobile number
+	 * @param parksBookingType the parks booking type
+	 * @param communityCenterBookingType the community center booking type
+	 * @param applicationNumberSet the application number set
+	 * @param uuid the uuid
+	 * @return the sampark employee search booking
+	 */
+	@Query(
+			value = "SELECT * FROM BK_BOOKINGS AS TB WHERE TB.BK_APPLICATION_NUMBER LIKE (%?1%) AND TB.BK_APPLICATION_STATUS LIKE (%?2%) "
+					+ "AND TB.BK_APPLICATION_STATUS != 'OFFLINE_INITIATED' AND TB.BK_MOBILE_NUMBER LIKE (%?3%) AND (TB.BK_BOOKING_TYPE = (?4) OR TB.BK_BOOKING_TYPE = (?5)) AND TB.BK_APPLICATION_NUMBER IN (?6) AND UUID = (?7) ORDER BY TB.BK_APPLICATION_NUMBER DESC",
+			nativeQuery = true )
+			List<BookingsModel> getSamparkEmployeeSearchBooking( String applicationNumber, String applicationStatus, String mobileNumber
+					, String parksBookingType, String communityCenterBookingType, Set< String > applicationNumberSet, String uuid );
+	
+	/**
+	 * Gets the sampark employee search booking.
+	 *
+	 * @param applicationNumber the application number
+	 * @param applicationStatus the application status
+	 * @param mobileNumber the mobile number
+	 * @param parksBookingType the parks booking type
+	 * @param communityCenterBookingType the community center booking type
+	 * @param applicationNumberSet the application number set
+	 * @param uuid the uuid
+	 * @param fromDate the from date
+	 * @param toDate the to date
+	 * @return the sampark employee search booking
+	 */
+	@Query(
+			value = "SELECT * FROM BK_BOOKINGS AS TB WHERE TB.BK_APPLICATION_NUMBER LIKE (%?1%) AND TB.BK_APPLICATION_STATUS LIKE (%?2%) "
+					+ "AND TB.BK_APPLICATION_STATUS != 'OFFLINE_INITIATED' AND TB.BK_MOBILE_NUMBER LIKE (%?3%) AND (TB.BK_BOOKING_TYPE = (?4) OR TB.BK_BOOKING_TYPE = (?5)) AND TB.BK_APPLICATION_NUMBER IN (?6) AND UUID = (?7) AND TB.BK_DATE_CREATED BETWEEN (?8) AND (?9) ORDER BY TB.BK_APPLICATION_NUMBER DESC",
+			nativeQuery = true )
+			List<BookingsModel> getSamparkEmployeeSearchBooking( String applicationNumber, String applicationStatus, String mobileNumber
+					, String parksBookingType, String communityCenterBookingType, Set< String > applicationNumberSet, String uuid, Date fromDate, Date toDate );
+	
+	
 }

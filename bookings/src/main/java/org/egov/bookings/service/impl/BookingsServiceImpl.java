@@ -431,50 +431,35 @@ public class BookingsServiceImpl implements BookingsService {
 						}
 						applicationNumberSet.removeAll(applicationNumbers);
 					} 
-					else if (BookingsConstants.MCC_USER.equals(role.getCode())) {
-						if(!BookingsFieldsValidator.isNullOrEmpty(bookingType) && BookingsConstants.GROUND_FOR_COMMERCIAL_PURPOSE.equals(bookingType)) {
-							if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
-								bookingsSet.addAll(bookingsRepository.getEmployeeSearchGFCPBooking(applicationNumber, applicationStatus, mobileNumber, bookingType));
-							} 
-							else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
-								bookingsSet.addAll(bookingsRepository.getEmployeeSearchGFCPBooking(applicationNumber, applicationStatus, mobileNumber, bookingType, fromDate, toDate));
-							}
-						}
-						else if(!BookingsFieldsValidator.isNullOrEmpty(bookingType) && BookingsConstants.PARKS_AND_COMMUNITY_CENTER.equals(bookingType)) {
-							if (!BookingsFieldsValidator.isNullOrEmpty(bookingType)) {
-								String[] bookingArray = bookingType.split(BookingsConstants.AND);
-								parksBookingType = bookingArray[0].trim();
-								communityCenterBookingType = bookingArray[1].trim();
-							}
-							if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
-								bookingsSet.addAll(bookingsRepository.getEmployeeSearchPACCBooking(applicationNumber,
-										applicationStatus, mobileNumber, parksBookingType, communityCenterBookingType));
-							} 
-							else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
-								bookingsSet.addAll(bookingsRepository.getEmployeeSearchPACCBooking(applicationNumber,
-										applicationStatus, mobileNumber, parksBookingType, communityCenterBookingType,
-										fromDate, toDate));
-							}
-						}
-						else {
+					else if (BookingsConstants.COMMERCIAL_GROUND_VIEWER.equals(role.getCode())) {
+						if (BookingsFieldsValidator.isNullOrEmpty(bookingType)) {
 							bookingType = BookingsConstants.GROUND_FOR_COMMERCIAL_PURPOSE;
-							if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
-								bookingsSet.addAll(bookingsRepository.getEmployeeSearchGFCPBooking(applicationNumber, applicationStatus, mobileNumber, bookingType));
-							} 
-							else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
-								bookingsSet.addAll(bookingsRepository.getEmployeeSearchGFCPBooking(applicationNumber, applicationStatus, mobileNumber, bookingType, fromDate, toDate));
-							}
-							parksBookingType = BookingsConstants.PARKS;
-							communityCenterBookingType = BookingsConstants.COMMUNITY_CENTER;
-							if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
-								bookingsSet.addAll(bookingsRepository.getEmployeeSearchPACCBooking(applicationNumber,
-										applicationStatus, mobileNumber, parksBookingType, communityCenterBookingType));
-							} 
-							else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
-								bookingsSet.addAll(bookingsRepository.getEmployeeSearchPACCBooking(applicationNumber,
-										applicationStatus, mobileNumber, parksBookingType, communityCenterBookingType,
-										fromDate, toDate));
-							}
+						}
+						if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+							bookingsSet.addAll(bookingsRepository.getEmployeeSearchGFCPBooking(applicationNumber,
+									applicationStatus, mobileNumber, bookingType));
+						} 
+						else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+							bookingsSet.addAll(bookingsRepository.getEmployeeSearchGFCPBooking(applicationNumber,
+									applicationStatus, mobileNumber, bookingType, fromDate, toDate));
+						}
+					} 
+					else if (BookingsConstants.PARKS_AND_COMMUNITY_VIEWER.equals(role.getCode())) {
+						parksBookingType = BookingsConstants.PARKS;
+						communityCenterBookingType = BookingsConstants.COMMUNITY_CENTER;
+						if (!BookingsFieldsValidator.isNullOrEmpty(bookingType)) {
+							String[] bookingArray = bookingType.split(BookingsConstants.AND);
+							parksBookingType = bookingArray[0].trim();
+							communityCenterBookingType = bookingArray[1].trim();
+						}
+						if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+							bookingsSet.addAll(bookingsRepository.getEmployeeSearchPACCBooking(applicationNumber,
+									applicationStatus, mobileNumber, parksBookingType, communityCenterBookingType));
+						} 
+						else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+							bookingsSet.addAll(bookingsRepository.getEmployeeSearchPACCBooking(applicationNumber,
+									applicationStatus, mobileNumber, parksBookingType, communityCenterBookingType,
+									fromDate, toDate));
 						}
 					} 
 					else if (BookingsConstants.DEO.equals(role.getCode()) || BookingsConstants.CLERK.equals(role.getCode())
