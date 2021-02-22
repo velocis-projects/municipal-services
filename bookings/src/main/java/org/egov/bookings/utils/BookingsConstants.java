@@ -497,10 +497,10 @@ public class BookingsConstants {
 	public static final String ACTION_FAILURE_APPLY = "FAILUREAPPLY";
 
 	/** The Constant OSD_APPROVER. */
-	public static final String OSD_APPROVER = "OSD_APPROVER";
+	public static final String OSD_APPROVER = "BK_OSD_APPROVER";
 
 	/** The Constant ADMIN_APPROVER. */
-	public static final String ADMIN_APPROVER = "ADMIN_APPROVER";
+	public static final String ADMIN_APPROVER = "BK_ADMIN_APPROVER";
 	
 	/** The Constant NLOSUJM. */
 	public static final String NLOSUJM = "New Location Open Spaces Under Jurisdiction of MCC";
