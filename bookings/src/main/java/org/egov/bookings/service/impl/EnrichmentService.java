@@ -239,6 +239,7 @@ public class EnrichmentService {
 	public void enrichBookingsDetails(BookingsRequest bookingsRequest) {
 		try {
 			if (!BookingsConstants.PACC_RE_INITIATED_ACTION.equals(bookingsRequest.getBookingsModel().getBkAction())) {
+				if(!BookingsConstants.EMPLOYEE.equals(bookingsRequest.getRequestInfo().getUserInfo().getType()))
 				bookingsRequest.getBookingsModel().setUuid(bookingsRequest.getRequestInfo().getUserInfo().getUuid());
 				java.sql.Date date = bookingsUtils.getCurrentSqlDate();
 				bookingsRequest.getBookingsModel().setBkDateCreated(date);

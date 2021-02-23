@@ -497,10 +497,10 @@ public class BookingsConstants {
 	public static final String ACTION_FAILURE_APPLY = "FAILUREAPPLY";
 
 	/** The Constant OSD_APPROVER. */
-	public static final String OSD_APPROVER = "OSD_APPROVER";
+	public static final String OSD_APPROVER = "BK_OSD_APPROVER";
 
 	/** The Constant ADMIN_APPROVER. */
-	public static final String ADMIN_APPROVER = "ADMIN_APPROVER";
+	public static final String ADMIN_APPROVER = "BK_ADMIN_APPROVER";
 	
 	/** The Constant NLOSUJM. */
 	public static final String NLOSUJM = "New Location Open Spaces Under Jurisdiction of MCC";
@@ -931,4 +931,8 @@ public class BookingsConstants {
 	public static final String ROOM_TAXHEAD_CODE_FACILITATION_CHARGE = "ROOM_FACILITATION_CHARGE";
 	
 	public static final String SIX_MONTHS_FROM_NOW_SQL = "sixMonthsFromNowSql";
+	
+	public static final String VENUE_TYPE_COMMUNITY_CENTER = "Community Center";
+	
+	public static final String VENUE_TYPE_PARKS = "Parks";
 }
