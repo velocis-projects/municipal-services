@@ -1,5 +1,6 @@
 package org.egov.bookings.service.impl;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -153,6 +154,8 @@ public class BookingsServiceImpl implements BookingsService {
 		// bookingsModel = bookingsRepository.save(bookingsRequest.getBookingsModel());
 		// bookingsRequest.setBookingsModel(bookingsModel);
 		String bookingType = bookingsRequest.getBookingsModel().getBkBookingType();
+		DateFormat formatter = bookingsUtils.getSimpleDateFormat();
+		bookingsRequest.getBookingsModel().setLastModifiedDate(formatter.format(new java.util.Date()));
 		if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel())) {
 			Map<String, MdmsJsonFields> mdmsJsonFieldsMap = mdmsJsonField(bookingsRequest);
 			if (!BookingsFieldsValidator.isNullOrEmpty(mdmsJsonFieldsMap)) {
@@ -565,6 +568,8 @@ public class BookingsServiceImpl implements BookingsService {
 	@Override
 	public BookingsModel update(BookingsRequest bookingsRequest) {
 		String businessService = bookingsRequest.getBookingsModel().getBusinessService();
+		DateFormat formatter = bookingsUtils.getSimpleDateFormat();
+		bookingsRequest.getBookingsModel().setLastModifiedDate(formatter.format(new java.util.Date()));
 		if (BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())
 				&& !BookingsConstants.BUSINESS_SERVICE_GFCP.equals(businessService))
 			enrichmentService.enrichBookingsAssignee(bookingsRequest);

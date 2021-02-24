@@ -417,5 +417,11 @@ public class BookingsModel {
     @JsonProperty("financeBusinessService")
     @Transient
     private String financeBusinessService;
+    
+	@Column(name = "created_date")
+	private String createdDate;
+
+	@Column(name = "last_modified_date")
+	private String lastModifiedDate;
 	
 }

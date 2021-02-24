@@ -1,6 +1,7 @@
 package org.egov.bookings.service.impl;
 
 import java.sql.Date;
+import java.text.DateFormat;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.egov.bookings.repository.ParkCommunityHallV1MasterRepository;
 import org.egov.bookings.service.BookingsService;
 import org.egov.bookings.service.ParkAndCommunityService;
 import org.egov.bookings.utils.BookingsConstants;
+import org.egov.bookings.utils.BookingsUtils;
 import org.egov.bookings.validator.BookingsFieldsValidator;
 import org.egov.bookings.web.models.BookingsRequest;
 import org.egov.bookings.workflow.WorkflowIntegrator;
@@ -94,6 +96,9 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 	@Autowired
 	private CommercialGrndAvailabilityRepository commercialGrndAvailabilityRepo;
 	
+	@Autowired
+	private BookingsUtils bookingsUtils;
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -143,7 +148,8 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 
 		/*if(BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction()))
 			enrichmentService.enrichBookingsAssignee(bookingsRequest);*/
-
+		DateFormat formatter = bookingsUtils.getSimpleDateFormat();
+			bookingsRequest.getBookingsModel().setLastModifiedDate(formatter.format(new java.util.Date()));
 		String businessService = bookingsRequest.getBookingsModel().getBusinessService();
 		bookingsFieldsValidator.validateRefundAmount(bookingsRequest);
 		if (config.getIsExternalWorkFlowEnabled())

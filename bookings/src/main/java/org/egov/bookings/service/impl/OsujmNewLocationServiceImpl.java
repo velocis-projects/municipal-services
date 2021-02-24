@@ -1,5 +1,6 @@
 package org.egov.bookings.service.impl;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -26,6 +27,7 @@ import org.egov.bookings.repository.OsujmNewLocationRepository;
 import org.egov.bookings.service.BookingsService;
 import org.egov.bookings.service.OsujmNewLocationService;
 import org.egov.bookings.utils.BookingsConstants;
+import org.egov.bookings.utils.BookingsUtils;
 import org.egov.bookings.utils.NewLocationCreateDate;
 import org.egov.bookings.validator.BookingsFieldsValidator;
 import org.egov.bookings.web.models.NewLocationRequest;
@@ -78,6 +80,9 @@ public class OsujmNewLocationServiceImpl implements OsujmNewLocationService{
 	
 	@Autowired
 	private BookingsProducer bookingsProducer; 
+	
+	@Autowired
+	private BookingsUtils bookingsUtils;
 
 	
 	/** The Constant LOGGER. */
@@ -102,7 +107,7 @@ public class OsujmNewLocationServiceImpl implements OsujmNewLocationService{
 				if (!flag)
 					workflowIntegrator.callWorkFlow(newLocationRequest);
 			}
-			enrichmentService.enrichNewLocationDetails(newLocationRequest);
+			enrichmentService.enrichNewLocationDetails(newLocationRequest,flag);
 			NewLocationKafkaRequest newLocationKafkaRequest = enrichmentService.enrichKafkaForNewLocation(newLocationRequest);
 			bookingsProducer.push(config.getSaveNewLocationTopic(), newLocationKafkaRequest);
 			//osujmNewLocationModel = newLocationRepository.save(newLocationRequest.getNewLocationModel());
@@ -152,7 +157,8 @@ public class OsujmNewLocationServiceImpl implements OsujmNewLocationService{
 	public OsujmNewLocationModel updateNewLocation(NewLocationRequest newLocationRequest) {
 
 		String businessService = newLocationRequest.getNewLocationModel().getBusinessService();
-		
+		DateFormat formatter = bookingsUtils.getSimpleDateFormat();
+			newLocationRequest.getNewLocationModel().setLastModifiedDate(formatter.format(new java.util.Date()));
 		if (config.getIsExternalWorkFlowEnabled())
 			workflowIntegrator.callWorkFlow(newLocationRequest);
 

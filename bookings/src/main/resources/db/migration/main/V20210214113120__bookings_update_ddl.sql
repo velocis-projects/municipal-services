@@ -44,7 +44,7 @@ CREATE TABLE public.bk_rooms_model (
 
 -- Drop table
 
--- DROP TABLE public.bk_commercial_ground_availability_lock;
+DROP TABLE public.bk_commercial_ground_availability_lock;
 
 CREATE TABLE public.bk_commercial_ground_availability_lock (
 	id varchar(255) NOT NULL,
@@ -57,3 +57,11 @@ CREATE TABLE public.bk_commercial_ground_availability_lock (
 	last_modified_date varchar(255) NULL,
 	CONSTRAINT bk_commercial_ground_availability_lock_pkey PRIMARY KEY (id)
 );
+
+
+
+alter table bk_bookings add	created_date varchar(255) NULL;
+alter table bk_bookings add	last_modified_date varchar(255) NULL;
+
+alter table bk_osujm_new_location add created_date varchar(255) NULL;
+alter table bk_osujm_new_location add last_modified_date varchar(255) NULL;

@@ -2,6 +2,7 @@ package org.egov.bookings.service.impl;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -243,6 +244,9 @@ public class EnrichmentService {
 				bookingsRequest.getBookingsModel().setUuid(bookingsRequest.getRequestInfo().getUserInfo().getUuid());
 				java.sql.Date date = bookingsUtils.getCurrentSqlDate();
 				bookingsRequest.getBookingsModel().setBkDateCreated(date);
+				DateFormat formatter = bookingsUtils.getSimpleDateFormat();
+				bookingsRequest.getBookingsModel().setCreatedDate(formatter.format(new java.util.Date()));
+				bookingsRequest.getBookingsModel().setLastModifiedDate(formatter.format(new java.util.Date()));
 			}
 			else {
 				BookingsModel bookingsModel = bookingsRepository
@@ -341,7 +345,15 @@ public class EnrichmentService {
 	 *
 	 * @param newLocationRequest the new location request
 	 */
-	public void enrichNewLocationDetails(NewLocationRequest newLocationRequest) {
+	public void enrichNewLocationDetails(NewLocationRequest newLocationRequest, boolean flag) {
+		DateFormat formatter = bookingsUtils.getSimpleDateFormat();
+		if (!flag) {
+
+			newLocationRequest.getNewLocationModel().setCreatedDate(formatter.format(new java.util.Date()));
+			newLocationRequest.getNewLocationModel().setLastModifiedDate(formatter.format(new java.util.Date()));
+		} else {
+			newLocationRequest.getNewLocationModel().setLastModifiedDate(formatter.format(new java.util.Date()));
+		}
 		newLocationRequest.getNewLocationModel().setUuid(newLocationRequest.getRequestInfo().getUserInfo().getUuid());
 		java.sql.Date date = bookingsUtils.getCurrentSqlDate();
 		newLocationRequest.getNewLocationModel().setDateCreated(date);
@@ -871,8 +883,16 @@ public class EnrichmentService {
 	 * @param flag 
 	 */
 	public void enrichReInitiatedRequest(BookingsRequest bookingsRequest, boolean flag) {
+		DateFormat formatter = bookingsUtils.getSimpleDateFormat();
+		if (!flag) {
+			bookingsRequest.getBookingsModel().setCreatedDate(formatter.format(new java.util.Date()));
+			bookingsRequest.getBookingsModel().setLastModifiedDate(formatter.format(new java.util.Date()));
+		} else {
+			bookingsRequest.getBookingsModel().setLastModifiedDate(formatter.format(new java.util.Date()));
+		}
 		if (BookingsConstants.PACC_RE_INITIATED_ACTION.equals(bookingsRequest.getBookingsModel().getBkAction()) && flag
-				&& BookingsConstants.BUSINESS_SERVICE_PACC.equals(bookingsRequest.getBookingsModel().getBusinessService())) {
+				&& BookingsConstants.BUSINESS_SERVICE_PACC
+						.equals(bookingsRequest.getBookingsModel().getBusinessService())) {
 			BookingsModel findByBkApplicationNumber = bookingsRepository
 					.findByBkApplicationNumber(bookingsRequest.getBookingsModel().getBkApplicationNumber());
 			bookingsRequest.getBookingsModel().setBkStartingDate(bookingsRequest.getBookingsModel().getBkFromDate());
