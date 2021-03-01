@@ -660,23 +660,8 @@ public class BookingsConstants {
     /** The Constant BK_WF_NLUJM. */
     public static final String BK_WF_NLUJM = "BK_WF_NLUJM_";
     
-    /** The Constant BK_WF_OSBM. */
-    public static final String BK_WF_OSBM = "BK_WF_OSBM_";
-    
-    /** The Constant BK_WF_BWT. */
-    public static final String BK_WF_BWT = "BK_WF_BWT_";
-    
-    /** The Constant BK. */
-    public static final String BK = "BK_";
-    
-    /** The Constant BK_CGB. */
-    public static final String BK_WF_GFCP = "BK_WF_GFCP_";
-    
-    /** The Constant BK_WF_OSUJM. */
-    public static final String BK_WF_OSUJM = "BK_WF_OSUJM_";
-    
-    /** The Constant BK_WF_PACC. */
-    public static final String BK_WF_PACC = "BK_WF_PACC_";
+    /** The Constant RPT_BK_WF. */
+    public static final String RPT_BK_WF = "RPT_BK_WF_";
     
     /** The Constant DATE_FORMAT. */
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";

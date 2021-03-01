@@ -188,17 +188,7 @@ public class BookingsServiceImpl implements BookingsService {
 		String applicationStatus = "";
 		String status = "";
 		if (!BookingsFieldsValidator.isNullOrEmpty(messageResponse)) {
-			if (BookingsConstants.BUSINESS_SERVICE_OSBM.equals(bookingsModel.getBusinessService())) {
-				applicationStatus = BookingsConstants.BK_WF_OSBM + bookingsModel.getBkApplicationStatus();
-			} else if (BookingsConstants.BUSINESS_SERVICE_BWT.equals(bookingsModel.getBusinessService())) {
-				applicationStatus = BookingsConstants.BK_WF_BWT + bookingsModel.getBkApplicationStatus();
-			} else if (BookingsConstants.BUSINESS_SERVICE_GFCP.equals(bookingsModel.getBusinessService())) {
-				applicationStatus = BookingsConstants.BK_WF_GFCP + bookingsModel.getBkApplicationStatus();
-			} else if (BookingsConstants.BUSINESS_SERVICE_OSUJM.equals(bookingsModel.getBusinessService())) {
-				applicationStatus = BookingsConstants.BK_WF_OSUJM + bookingsModel.getBkApplicationStatus();
-			} else if (BookingsConstants.BUSINESS_SERVICE_PACC.equals(bookingsModel.getBusinessService())) {
-				applicationStatus = BookingsConstants.BK_WF_PACC + bookingsModel.getBkApplicationStatus();
-			}
+			applicationStatus = BookingsConstants.RPT_BK_WF + bookingsModel.getBkApplicationStatus();
 			for (Message message : messageResponse.getMessages()) {
 				if (message.getCode().equals(applicationStatus)) {
 					status = message.getMessage();
