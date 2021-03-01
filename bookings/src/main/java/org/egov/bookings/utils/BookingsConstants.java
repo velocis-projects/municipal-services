@@ -670,7 +670,7 @@ public class BookingsConstants {
     public static final String BK = "BK_";
     
     /** The Constant BK_CGB. */
-    public static final String BK_CGB = "BK_CGB_";
+    public static final String BK_WF_GFCP = "BK_WF_GFCP_";
     
     /** The Constant BK_WF_OSUJM. */
     public static final String BK_WF_OSUJM = "BK_WF_OSUJM_";
