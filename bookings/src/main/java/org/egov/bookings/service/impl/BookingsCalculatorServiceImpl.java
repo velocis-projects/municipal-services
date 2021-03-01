@@ -166,7 +166,7 @@ public class BookingsCalculatorServiceImpl implements BookingsCalculatorService 
 	 * @return the tax head estimate
 	 */
 	public List<TaxHeadEstimate> getTaxHeadEstimate(BookingsRequest bookingsRequest, String taxHeadCode1,
-			String taxHeadCode2) {
+			String taxHeadCode2, String taxHeadCode3, String taxHeadCode4, String taxHeadCode5) {
 		List<TaxHeadEstimate> taxHeadEstimate1 = new ArrayList<>();
 		String bussinessService = bookingsRequest.getBookingsModel().getBusinessService();
 		List<TaxHeadMasterFields> taxHeadMasterFieldList = getTaxHeadMasterData(bookingsRequest, bussinessService);
@@ -186,6 +186,18 @@ public class BookingsCalculatorServiceImpl implements BookingsCalculatorService 
 					taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
 							osbmTax,
 							taxHeadEstimate.getCategory()));
+				}
+				if (taxHeadEstimate.getCode().equals(taxHeadCode3)) {
+					taxHeadEstimate1.add(
+							new TaxHeadEstimate(taxHeadEstimate.getCode(), BigDecimal.ZERO, taxHeadEstimate.getCategory()));
+				}
+				if (taxHeadEstimate.getCode().equals(taxHeadCode4)) {
+					taxHeadEstimate1.add(
+							new TaxHeadEstimate(taxHeadEstimate.getCode(), BigDecimal.ZERO, taxHeadEstimate.getCategory()));
+				}
+				if (taxHeadEstimate.getCode().equals(taxHeadCode5)) {
+					taxHeadEstimate1.add(
+							new TaxHeadEstimate(taxHeadEstimate.getCode(), BigDecimal.ZERO, taxHeadEstimate.getCategory()));
 				}
 
 			}
@@ -213,11 +225,23 @@ public class BookingsCalculatorServiceImpl implements BookingsCalculatorService 
 							taxHeadEstimate.getCategory()));
 				}
 				if (taxHeadEstimate.getCode().equals(taxHeadCode2)) {
+					BigDecimal commercialTax = BookingsUtils.roundOffToNearest(commercialAmount.multiply((BookingsCalculatorConstants.UGST_AND_CGST_TAX.divide(new BigDecimal(100)))));
 					taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
-							commercialAmount.multiply((taxHeadEstimate.getTaxAmount().divide(new BigDecimal(100)))),
+							commercialTax,
 							taxHeadEstimate.getCategory()));
 				}
-				
+				if (taxHeadEstimate.getCode().equals(taxHeadCode3)) {
+					taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(), BigDecimal.ZERO,
+							taxHeadEstimate.getCategory()));
+				}
+				if (taxHeadEstimate.getCode().equals(taxHeadCode4)) {
+					taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(), BigDecimal.ZERO,
+							taxHeadEstimate.getCategory()));
+				}
+				if (taxHeadEstimate.getCode().equals(taxHeadCode5)) {
+					taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(), BigDecimal.ZERO,
+							taxHeadEstimate.getCategory()));
+				}
 
 			}
 			break;
@@ -230,8 +254,21 @@ public class BookingsCalculatorServiceImpl implements BookingsCalculatorService 
 							taxHeadEstimate.getCategory()));
 				}
 				if (taxHeadEstimate.getCode().equals(taxHeadCode2)) {
+					BigDecimal openSpaceJurisdictionTax = BookingsUtils.roundOffToNearest(mccJurisdictionAmount.multiply((BookingsCalculatorConstants.UGST_AND_CGST_TAX.divide(new BigDecimal(100)))));
 					taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
-							mccJurisdictionAmount.multiply((taxHeadEstimate.getTaxAmount().divide(new BigDecimal(100)))),
+							openSpaceJurisdictionTax,
+							taxHeadEstimate.getCategory()));
+				}
+				if (taxHeadEstimate.getCode().equals(taxHeadCode3)) {
+					taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(), BigDecimal.ZERO,
+							taxHeadEstimate.getCategory()));
+				}
+				if (taxHeadEstimate.getCode().equals(taxHeadCode4)) {
+					taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(), BigDecimal.ZERO,
+							taxHeadEstimate.getCategory()));
+				}
+				if (taxHeadEstimate.getCode().equals(taxHeadCode5)) {
+					taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(), BigDecimal.ZERO,
 							taxHeadEstimate.getCategory()));
 				}
 			}
@@ -241,25 +278,26 @@ public class BookingsCalculatorServiceImpl implements BookingsCalculatorService 
 			BigDecimal amount = BigDecimal.ZERO;
 			BigDecimal finalAmount = BigDecimal.ZERO;
 			BigDecimal rent = BigDecimal.ZERO;
+			BigDecimal rentBeforeDiscount = BigDecimal.ZERO;
 			BigDecimal cleaningCharges = BigDecimal.ZERO;
 			ParkCommunityHallV1MasterModel parkCommunityHallV1FeeMaster = getParkAndCommunityAmount(bookingsRequest);
 			BigDecimal days = enrichmentService.extractDaysBetweenTwoDates(bookingsRequest);
 			if(BookingsConstants.EMPLOYEE.equals(bookingsRequest.getRequestInfo().getUserInfo().getType())) {
-				rent = BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getRent()));
+				rentBeforeDiscount = BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getRent()));
 			    cleaningCharges = BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getCleaningCharges()));
-				amount = days.multiply(rent);
+				amount = days.multiply(rentBeforeDiscount);
 				BigDecimal rentAfterDiscount = amount.multiply(bookingsRequest.getBookingsModel().getDiscount().divide(new BigDecimal(100))); 
-				BigDecimal rentAfterDiscount1 = amount.subtract(rentAfterDiscount);
-				finalAmount = cleaningCharges.add(rentAfterDiscount1);
+				rent = amount.subtract(rentAfterDiscount);
+				//finalAmount = cleaningCharges.add(rentAfterDiscount1);
 			}
 			else {
 				 rent = BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getRent()));
 				 cleaningCharges = BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getCleaningCharges()));
-				 amount = days.multiply(rent);
-				 finalAmount = cleaningCharges.add(amount);
+				 rent = days.multiply(rent);
+				// finalAmount = cleaningCharges.add(amount);
 			}
-			taxHeadEstimate1 = enrichmentService.enrichPaccAmountForBookingChange(bookingsRequest, finalAmount,
-					taxHeadCode1, taxHeadCode2, taxHeadMasterFieldList, parkCommunityHallV1FeeMaster);	
+			taxHeadEstimate1 = enrichmentService.enrichPaccAmountForBookingChange(bookingsRequest, rent, cleaningCharges,
+					taxHeadCode1, taxHeadCode2, taxHeadCode3, taxHeadCode4, taxHeadCode5, taxHeadMasterFieldList, parkCommunityHallV1FeeMaster);	
 			break;
 			
 		}

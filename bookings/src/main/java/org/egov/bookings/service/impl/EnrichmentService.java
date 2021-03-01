@@ -43,6 +43,7 @@ import org.egov.bookings.repository.impl.IdGenRepository;
 import org.egov.bookings.service.BookingsService;
 import org.egov.bookings.service.DemandService;
 import org.egov.bookings.service.RoomsService;
+import org.egov.bookings.utils.BookingsCalculatorConstants;
 import org.egov.bookings.utils.BookingsConstants;
 import org.egov.bookings.utils.BookingsUtils;
 import org.egov.bookings.validator.BookingsFieldsValidator;
@@ -707,49 +708,59 @@ public class EnrichmentService {
 	 * @param parkCommunityHallV1FeeMaster the park community hall V 1 fee master
 	 * @return the list
 	 */
-	private List<TaxHeadEstimate> enrichTaxHeadEstimateForPACC(BookingsRequest bookingsRequest, BigDecimal finalAmount, String taxHeadCode1,
-			String taxHeadCode2, List<TaxHeadMasterFields> taxHeadMasterFieldList,
+	private List<TaxHeadEstimate> enrichTaxHeadEstimateForPACC(BookingsRequest bookingsRequest, BigDecimal rent, BigDecimal cleaningCharges, String taxHeadCode1, String taxHeadCode2,
+			String taxHeadCode3, String taxHeadCode4, String taxHeadCode5, List<TaxHeadMasterFields> taxHeadMasterFieldList,
 			ParkCommunityHallV1MasterModel parkCommunityHallV1FeeMaster) {
 
 		List<TaxHeadEstimate> taxHeadEstimate1 = new ArrayList<>();
 		for (TaxHeadMasterFields taxHeadEstimate : taxHeadMasterFieldList) {
 			if (taxHeadEstimate.getCode().equals(taxHeadCode1)) {
 				taxHeadEstimate1.add(
-						new TaxHeadEstimate(taxHeadEstimate.getCode(), finalAmount, taxHeadEstimate.getCategory()));
+						new TaxHeadEstimate(taxHeadEstimate.getCode(), rent, taxHeadEstimate.getCategory()));
 				continue;
 			}
-			
 			if(BookingsConstants.PAYMENT_SUCCESS_STATUS
 					.equals(bookingsRequest.getBookingsModel().getBkPaymentStatus())) {
 				if (taxHeadEstimate.getCode().equals(taxHeadCode2)) {
-					finalAmount = finalAmount
+					rent = rent
 							.add(BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getLocationChangeAmount())));
+					BigDecimal rentPlusLocChangePlusCleansingAmnt = rent.add(BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getCleaningCharges())));
+					BigDecimal paccTax = BookingsUtils.roundOffToNearest(rentPlusLocChangePlusCleansingAmnt
+							.multiply((BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getSurcharge()))
+									.divide(new BigDecimal(100)))));
 					taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
-							finalAmount
-									.multiply((BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getSurcharge()))
-											.divide(new BigDecimal(100)))),
+							paccTax,
 							taxHeadEstimate.getCategory()));
 					continue;
 				}
 			}
 			else {
 				if (taxHeadEstimate.getCode().equals(taxHeadCode2)) {
+					BigDecimal rentPlusCleansingAmount = rent.add(cleaningCharges);
+					BigDecimal paccTax = BookingsUtils.roundOffToNearest(rentPlusCleansingAmount
+							.multiply((BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getSurcharge()))
+									.divide(new BigDecimal(100)))));
 					taxHeadEstimate1
 							.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
-									finalAmount.multiply((BigDecimal
-											.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getSurcharge()))
-											.divide(new BigDecimal(100)))),
+									paccTax,
 									taxHeadEstimate.getCategory()));
 					continue;
 				}
 			}
-			if (taxHeadEstimate.getCode().equals(BookingsConstants.PACC_TAXHEAD_CODE_LUXURY_TAX)) {
+			
+			if (taxHeadEstimate.getCode().equals(taxHeadCode3)) {
+				taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
+						cleaningCharges,
+						taxHeadEstimate.getCategory()));
+				continue;
+			}
+			/*if (taxHeadEstimate.getCode().equals(BookingsConstants.PACC_TAXHEAD_CODE_LUXURY_TAX)) {
 				taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
 						BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getLuxuryTax())),
 						taxHeadEstimate.getCategory()));
 				continue;
-			}
-			if (taxHeadEstimate.getCode().equals(BookingsConstants.PACC_TAXHEAD_CODE_REFUNDABLE_SECURITY_AMOUNT)) {
+			}*/
+			if (taxHeadEstimate.getCode().equals(taxHeadCode4)) {
 				taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
 						BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getRefundabelSecurity())),
 						taxHeadEstimate.getCategory()));
@@ -757,9 +768,9 @@ public class EnrichmentService {
 			}
 			
 			if(bookingsRequest.getRequestInfo().getUserInfo().getType().equals(BookingsConstants.EMPLOYEE)) {
-			if (taxHeadEstimate.getCode().equals(BookingsConstants.PACC_TAXHEAD_CODE_FACILITATION_CHARGE)) {
+			if (taxHeadEstimate.getCode().equals(taxHeadCode5)) {
 				taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
-						taxHeadEstimate.getFacilitationCharge(),
+						BookingsCalculatorConstants.FACILATION_CHARGE,
 						taxHeadEstimate.getCategory()));
 				}
 			continue;
@@ -790,7 +801,7 @@ public class EnrichmentService {
 	 * @return the list
 	 */
 	public List<TaxHeadEstimate> enrichPaccAmountForBookingChange(BookingsRequest bookingsRequest,
-			BigDecimal finalAmount, String taxHeadCode1, String taxHeadCode2,
+			BigDecimal rent, BigDecimal cleaningCharges, String taxHeadCode1, String taxHeadCode2, String taxHeadCode3, String taxHeadCode4, String taxHeadCode5,
 			List<TaxHeadMasterFields> taxHeadMasterFieldList,
 			ParkCommunityHallV1MasterModel parkCommunityHallV1FeeMaster) {
 
@@ -806,10 +817,11 @@ public class EnrichmentService {
 				Demand demand = searchResult.get(0);
 				 demandDetails = demand.getDemandDetails();
 			}
-			if (finalAmount.compareTo(demandDetails.get(0).getTaxAmount()) < 1
-					|| finalAmount.compareTo(demandDetails.get(0).getTaxAmount()) == 0) {
+			if (rent.compareTo(demandDetails.get(0).getTaxAmount()) < 1
+					|| rent.compareTo(demandDetails.get(0).getTaxAmount()) == 0) {
 				//config.setDemandFlag(false);
-				BigDecimal totalPACCAmount = BigDecimal.ZERO;
+				BigDecimal rentAfterVenueOrLocationChange = BigDecimal.ZERO;
+				BigDecimal cleansingChargeAfterVenueOrLocationChange = BigDecimal.ZERO;
 				BigDecimal totalPACCTaxAmount = BigDecimal.ZERO;
 				boolean paccTaxFlag = true;
 				BigDecimal locationChangeTax = BigDecimal
@@ -817,15 +829,18 @@ public class EnrichmentService {
 						.multiply((BigDecimal.valueOf(Long.valueOf(parkCommunityHallV1FeeMaster.getSurcharge()))
 								.divide(new BigDecimal(100))));
 				for(DemandDetail demandDetail : demandDetails) {
-					if(demandDetail.getTaxHeadMasterCode().equals(BookingsConstants.PACC_TAXHEAD_CODE_PACC)) {
-						totalPACCAmount = totalPACCAmount.add(demandDetail.getTaxAmount());
+					if(demandDetail.getTaxHeadMasterCode().equals(taxHeadCode1)) {
+						rentAfterVenueOrLocationChange = rentAfterVenueOrLocationChange.add(demandDetail.getTaxAmount());
 					}
-					if(demandDetail.getTaxHeadMasterCode().equals(BookingsConstants.PACC_TAXHEAD_CODE_PACC_TAX)) {
+					if(demandDetail.getTaxHeadMasterCode().equals(taxHeadCode2)) {
 						totalPACCTaxAmount = totalPACCTaxAmount.add(demandDetail.getTaxAmount());
 					}
-					if(demandDetail.getTaxHeadMasterCode().equals(BookingsConstants.PACC_TAXHEAD_CODE_PACC_TAX)
+					if(demandDetail.getTaxHeadMasterCode().equals(taxHeadCode2)
 							&& demandDetail.getTaxAmount().compareTo(locationChangeTax) == 0) {
 						paccTaxFlag = false;
+					}
+					if(demandDetail.getTaxHeadMasterCode().equals(taxHeadCode3)) {
+						cleansingChargeAfterVenueOrLocationChange = cleansingChargeAfterVenueOrLocationChange.add(demandDetail.getTaxAmount());
 					}
 				}
 				if(paccTaxFlag)
@@ -836,7 +851,7 @@ public class EnrichmentService {
 						
 						if (taxHeadEstimate.getCode().equals(taxHeadCode1)) {
 							taxHeadEstimate1.add(
-									new TaxHeadEstimate(taxHeadEstimate.getCode(), totalPACCAmount, taxHeadEstimate.getCategory()));
+									new TaxHeadEstimate(taxHeadEstimate.getCode(), rentAfterVenueOrLocationChange, taxHeadEstimate.getCategory()));
 							continue;
 						}
 						
@@ -852,6 +867,11 @@ public class EnrichmentService {
 									taxHeadEstimate.getCategory()));
 							continue;
 						}
+						if (taxHeadEstimate.getCode().equals(taxHeadCode3)) {
+							taxHeadEstimate1.add(
+									new TaxHeadEstimate(taxHeadEstimate.getCode(), cleansingChargeAfterVenueOrLocationChange, taxHeadEstimate.getCategory()));
+							continue;
+						}
 						
 					}
 				}
@@ -861,12 +881,12 @@ public class EnrichmentService {
 			}
 
 			else {
-				taxHeadEstimate1 = enrichTaxHeadEstimateForPACC(bookingsRequest, finalAmount, taxHeadCode1, taxHeadCode2,
+				taxHeadEstimate1 = enrichTaxHeadEstimateForPACC(bookingsRequest, rent, cleaningCharges, taxHeadCode1, taxHeadCode2, taxHeadCode3, taxHeadCode4, taxHeadCode5,
 						taxHeadMasterFieldList, parkCommunityHallV1FeeMaster);
 			}
 		} else {
 
-			taxHeadEstimate1 = enrichTaxHeadEstimateForPACC(bookingsRequest, finalAmount, taxHeadCode1, taxHeadCode2,
+			taxHeadEstimate1 = enrichTaxHeadEstimateForPACC(bookingsRequest, rent, cleaningCharges, taxHeadCode1, taxHeadCode2, taxHeadCode3, taxHeadCode4, taxHeadCode5,
 					taxHeadMasterFieldList, parkCommunityHallV1FeeMaster);
 
 		}

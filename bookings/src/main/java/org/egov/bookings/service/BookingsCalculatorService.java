@@ -37,10 +37,13 @@ public interface BookingsCalculatorService {
 	 * @param bookingsRequest the bookings request
 	 * @param taxHeadCode1 the tax head code 1
 	 * @param taxHeadCode2 the tax head code 2
+	 * @param taxHeadCode2 the tax head code 3
+	 * @param taxHeadCode2 the tax head code 4
+	 * @param taxHeadCode2 the tax head code 5
 	 * @return the tax head estimate
 	 */
 	public List<TaxHeadEstimate> getTaxHeadEstimate(BookingsRequest bookingsRequest, String taxHeadCode1,
-			String taxHeadCode2);
+			String taxHeadCode2, String taxHeadCode3, String taxHeadCode4, String taxHeadCode5);
 
 	/**
 	 * Gets the jurisdication amount.
