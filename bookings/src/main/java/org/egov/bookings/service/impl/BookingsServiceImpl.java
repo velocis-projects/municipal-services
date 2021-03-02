@@ -158,10 +158,6 @@ public class BookingsServiceImpl implements BookingsService {
 		bookingsRequest.getBookingsModel().setLastModifiedDate(formatter.format(new java.util.Date()));
 		if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel())) {
 			Map<String, MdmsJsonFields> mdmsJsonFieldsMap = mdmsJsonField(bookingsRequest);
-			Map<String,String> urlData = new HashMap<>();
-			urlData.put("paymentReceipt", "https://chstage.blob.core.windows.net/fileshare/ch.chandigarh/pdfgen/February/26/1614324747875bk-payment-receipt-1614324747740.pdf?sig=tV%2BCJecLDJFGj1M5tyMu9XATVh38IjOTUAwqipYfAiQ%3D&st=2021-02-26T07%3A32%3A28Z&se=2021-02-27T07%3A32%3A28Z&sv=2016-05-31&sp=r&sr=b");
-			urlData.put("permissionLetter", "https://chstage.blob.core.windows.net/fileshare/ch.chandigarh/pdfgen/February/26/1614324749644bk-osbm-pl-1614324749601.pdf?sig=51a1nbYaZDqpBMBsycsgsGQUwYYjImcLOnAAyeINTeA%3D&st=2021-02-26T07%3A32%3A30Z&se=2021-02-27T07%3A32%3A30Z&sv=2016-05-31&sp=r&sr=b");
-			bookingsRequest.setUrlData(urlData);
 			if (!BookingsFieldsValidator.isNullOrEmpty(mdmsJsonFieldsMap)) {
 				if (!BookingsConstants.BUSINESS_SERVICE_PACC
 						.equals(bookingsRequest.getBookingsModel().getBusinessService())) {
@@ -296,8 +292,8 @@ public class BookingsServiceImpl implements BookingsService {
 			String applicationNumber = searchCriteriaFieldsDTO.getApplicationNumber().trim();
 			String applicationStatus = searchCriteriaFieldsDTO.getApplicationStatus().trim();
 			String mobileNumber = searchCriteriaFieldsDTO.getMobileNumber().trim();
-			Date fromDate = searchCriteriaFieldsDTO.getFromDate();
-			Date toDate = searchCriteriaFieldsDTO.getToDate();
+			String fromDate = searchCriteriaFieldsDTO.getStrFromDate();
+			String toDate = searchCriteriaFieldsDTO.getStrToDate();
 			String uuid = searchCriteriaFieldsDTO.getUuid().trim();
 			String bookingType = searchCriteriaFieldsDTO.getBookingType().trim();
 			String parksBookingType = "";
@@ -368,8 +364,8 @@ public class BookingsServiceImpl implements BookingsService {
 			String applicationNumber = searchCriteriaFieldsDTO.getApplicationNumber().trim();
 			String applicationStatus = searchCriteriaFieldsDTO.getApplicationStatus().trim();
 			String mobileNumber = searchCriteriaFieldsDTO.getMobileNumber().trim();
-			Date fromDate = searchCriteriaFieldsDTO.getFromDate();
-			Date toDate = searchCriteriaFieldsDTO.getToDate();
+			String fromDate = searchCriteriaFieldsDTO.getStrFromDate();
+			String toDate = searchCriteriaFieldsDTO.getStrToDate();
 			String uuid = searchCriteriaFieldsDTO.getUuid().trim();
 			String bookingType = searchCriteriaFieldsDTO.getBookingType().trim();
 			String parksBookingType = "";
@@ -462,7 +458,6 @@ public class BookingsServiceImpl implements BookingsService {
 									|| BookingsConstants.AUDIT_DEPARTMENT.equals(role.getCode())
 									|| BookingsConstants.CHIEF_ACCOUNT_OFFICER.equals(role.getCode())
 									|| BookingsConstants.PAYMENT_PROCESSING_AUTHORITY.equals(role.getCode())
-									|| BookingsConstants.E_SAMPARK_CENTER.equals(role.getCode())
 									|| BookingsConstants.SUPERVISOR.equals(role.getCode())
 									|| BookingsConstants.OSD.equals(role.getCode())
 							) {
@@ -493,6 +488,23 @@ public class BookingsServiceImpl implements BookingsService {
 							}
 						}
 						applicationNumberSet.removeAll(applicationNumbers);
+					}
+					else if(BookingsConstants.E_SAMPARK_CENTER.equals(role.getCode())){
+						parksBookingType = BookingsConstants.PARKS;
+						communityCenterBookingType = BookingsConstants.COMMUNITY_CENTER;
+						if (!BookingsFieldsValidator.isNullOrEmpty(bookingType)) {
+							String[] bookingArray = bookingType.split(BookingsConstants.AND);
+							parksBookingType = bookingArray[0].trim();
+							communityCenterBookingType = bookingArray[1].trim();
+						}
+						if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+							bookingsSet.addAll(bookingsRepository.getSamparkEmployeeSearchBooking(applicationNumber,
+									applicationStatus, mobileNumber, parksBookingType, communityCenterBookingType, uuid));
+						} 
+						else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+							bookingsSet.addAll(bookingsRepository.getSamparkEmployeeSearchBooking(applicationNumber, applicationStatus, 
+									mobileNumber, parksBookingType, communityCenterBookingType, uuid, fromDate, toDate));
+						}
 					}
 				}
 			}
@@ -1149,7 +1161,6 @@ public class BookingsServiceImpl implements BookingsService {
 		List<?> communityCenterDocumentList = new ArrayList<>();
 		Map<String, String> documentMap = new HashMap<>();
 		Map<String, String> communityCenterDocumentMap = new HashMap<>();
-		Set<String> applicationNumberSet = new HashSet<>();
 		List<String> applicationNumberList = new ArrayList<>();
 		List<BookingsModel> communityCenterBookings = new ArrayList<>();
 		Map<String, BookingsModel> communityCenterBookingMap = new HashMap<>();
@@ -1160,6 +1171,7 @@ public class BookingsServiceImpl implements BookingsService {
 			String typeOfRoom = searchCriteriaFieldsDTO.getTypeOfRoom().trim();
 			Date fromDate = searchCriteriaFieldsDTO.getFromDate();
 			Date toDate = searchCriteriaFieldsDTO.getToDate();
+			String uuid = searchCriteriaFieldsDTO.getUuid().trim();
 			if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO.getRequestInfo())) {
 				throw new IllegalArgumentException("Invalid RequestInfo");
 			}
@@ -1171,7 +1183,7 @@ public class BookingsServiceImpl implements BookingsService {
 				throw new IllegalArgumentException("Invalid roles");
 			}
 			for(Role role : roles) {
-				if (BookingsConstants.PARKS_AND_COMMUNITY_VIEWER.equals(role.getCode())) {
+				if (BookingsConstants.PARKS_AND_COMMUNITY_VIEWER.equals(role.getCode()) || BookingsConstants.MCC_USER.equals(role.getCode())) {
 					if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
 						bookingsSet.addAll(roomsRepository.getEmployeeCommunityCenterRoomBooking(applicationStatus, typeOfRoom, applicationNumber));
 					} 
@@ -1179,15 +1191,15 @@ public class BookingsServiceImpl implements BookingsService {
 						bookingsSet.addAll(roomsRepository.getEmployeeCommunityCenterRoomBooking(applicationStatus, typeOfRoom, applicationNumber, fromDate, toDate));
 					}
 				} 
-				else if (BookingsConstants.E_SAMPARK_CENTER.equals(role.getCode()) || BookingsConstants.MCC_USER.equals(role.getCode())) {
-					applicationNumberSet.addAll(commonRepository.findBusinessId(role.getCode()));
-					if(!BookingsFieldsValidator.isNullOrEmpty(applicationNumberSet)) {
-						if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
-							bookingsSet.addAll(roomsRepository.getEmployeeCommunityCenterRoomBooking(applicationStatus, typeOfRoom, applicationNumber, applicationNumberSet));
-						} 
-						else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
-							bookingsSet.addAll(roomsRepository.getEmployeeCommunityCenterRoomBooking(applicationStatus, typeOfRoom, applicationNumber, applicationNumberSet, fromDate, toDate));
-						}
+				else if (BookingsConstants.E_SAMPARK_CENTER.equals(role.getCode())) {
+					if (BookingsFieldsValidator.isNullOrEmpty(uuid)) {
+						throw new IllegalArgumentException("Invalid uuId");
+					}
+					if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+						bookingsSet.addAll(roomsRepository.getEmployeeCommunityCenterRoomBooking(applicationStatus, typeOfRoom, applicationNumber, uuid));
+					} 
+					else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+						bookingsSet.addAll(roomsRepository.getEmployeeCommunityCenterRoomBooking(applicationStatus, typeOfRoom, applicationNumber, fromDate, toDate, uuid));
 					}
 				}
 			}
