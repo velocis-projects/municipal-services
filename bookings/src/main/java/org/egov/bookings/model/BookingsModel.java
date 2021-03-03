@@ -424,4 +424,7 @@ public class BookingsModel {
 	@Column(name = "last_modified_date")
 	private String lastModifiedDate;
 	
+	@Column(name = "BK_NOMINEE_NAME")
+	private String bkNomineeName;
+	
 }
