@@ -114,7 +114,7 @@ public class OsujmServiceImpl implements OsujmService {
         		jurisdictionAvailabilityRequest.getBookingVenue(),
         		jurisdictionAvailabilityRequest.getBookingType(),
         		jurisdictionAvailabilityRequest.getBkSector(),
-				date1,BookingsConstants.APPLY);
+				date1,BookingsConstants.PAY);
 		for(BookingsModel bkModel : bookingsModel) {
 			bookedDates.add(AvailabilityResponse.builder().fromDate(bkModel.getBkFromDate()).toDate(bkModel.getBkToDate()).build());
 		}
