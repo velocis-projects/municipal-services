@@ -901,7 +901,7 @@ public interface BookingsRepository
 	 */
 	@Query(
 			value = "SELECT * FROM BK_BOOKINGS WHERE BK_APPLICATION_NUMBER LIKE (%?1%) AND BK_APPLICATION_STATUS LIKE (%?2%) "
-					+ "AND BK_MOBILE_NUMBER LIKE (%?3%) AND BK_BOOKING_TYPE LIKE (%?4%) AND UUID LIKE (?5) ORDER BY BK_APPLICATION_NUMBER DESC",
+					+ "AND BK_MOBILE_NUMBER LIKE (%?3%) AND BK_BOOKING_TYPE LIKE (%?4%) AND UUID = (?5) ORDER BY BK_APPLICATION_NUMBER DESC",
 			nativeQuery = true )
 			List<BookingsModel> getCitizenSearchBooking( String applicationNumber, String applicationStatus, String mobileNumber
 					, String bookingType, String uuid );
@@ -920,10 +920,10 @@ public interface BookingsRepository
 	 */
 	@Query(
 			value = "SELECT * FROM BK_BOOKINGS WHERE BK_APPLICATION_NUMBER LIKE (%?1%) AND BK_APPLICATION_STATUS LIKE (%?2%) "
-					+ "AND BK_MOBILE_NUMBER LIKE (%?3%) AND BK_BOOKING_TYPE LIKE (%?4%) AND UUID LIKE (?5) AND CREATED_DATE BETWEEN (?6) AND (?7) ORDER BY BK_APPLICATION_NUMBER DESC",
+					+ "AND BK_MOBILE_NUMBER LIKE (%?3%) AND BK_BOOKING_TYPE LIKE (%?4%) AND UUID = (?5) AND BK_DATE_CREATED BETWEEN (?6) AND (?7) ORDER BY BK_APPLICATION_NUMBER DESC",
 			nativeQuery = true )
 			List<BookingsModel> getCitizenSearchBooking( String applicationNumber, String applicationStatus, String mobileNumber
-					, String bookingType, String uuid, String fromDate, String toDate );
+					, String bookingType, String uuid, Date fromDate, Date toDate );
 	
 
 	/**
@@ -939,7 +939,7 @@ public interface BookingsRepository
 	 */
 	@Query(
 			value = "SELECT * FROM BK_BOOKINGS WHERE BK_APPLICATION_NUMBER LIKE (%?1%) AND BK_APPLICATION_STATUS LIKE (%?2%) " 
-					+ "AND BK_MOBILE_NUMBER LIKE (%?3%) AND (BK_BOOKING_TYPE = (?4) OR BK_BOOKING_TYPE = (?5)) AND UUID LIKE (?6) ORDER BY BK_APPLICATION_NUMBER DESC",
+					+ "AND BK_MOBILE_NUMBER LIKE (%?3%) AND (BK_BOOKING_TYPE = (?4) OR BK_BOOKING_TYPE = (?5)) AND UUID = (?6) ORDER BY BK_APPLICATION_NUMBER DESC",
 			nativeQuery = true )
 			List<BookingsModel> getCitizenSearchPACCBooking( String applicationNumber, String applicationStatus, String mobileNumber
 					, String parksBookingType, String communityCenterBookingType, String uuid );
@@ -960,10 +960,10 @@ public interface BookingsRepository
 	 */
 	@Query(
 			value = "SELECT * FROM BK_BOOKINGS WHERE BK_APPLICATION_NUMBER LIKE (%?1%) AND BK_APPLICATION_STATUS LIKE (%?2%) "
-					+ "AND BK_MOBILE_NUMBER LIKE (%?3%) AND (BK_BOOKING_TYPE = (?4) OR BK_BOOKING_TYPE = (?5)) AND UUID LIKE (?6) AND CREATED_DATE BETWEEN (?7) AND (?8) ORDER BY BK_APPLICATION_NUMBER DESC",
+					+ "AND BK_MOBILE_NUMBER LIKE (%?3%) AND (BK_BOOKING_TYPE = (?4) OR BK_BOOKING_TYPE = (?5)) AND UUID = (?6) AND BK_DATE_CREATED BETWEEN (?7) AND (?8) ORDER BY BK_APPLICATION_NUMBER DESC",
 			nativeQuery = true )
 			List<BookingsModel> getCitizenSearchPACCBooking( String applicationNumber, String applicationStatus, String mobileNumber
-					, String parksBookingType, String communityCenterBookingType, String uuid, String fromDate, String toDate );
+					, String parksBookingType, String communityCenterBookingType, String uuid, Date fromDate, Date toDate );
 	
 	
 	/**
@@ -1020,10 +1020,10 @@ public interface BookingsRepository
 	 */
 	@Query(
 			value = "SELECT * FROM BK_BOOKINGS AS TB WHERE TB.BK_APPLICATION_NUMBER LIKE (%?1%) AND TB.BK_APPLICATION_STATUS LIKE (%?2%) "
-					+ "AND TB.BK_APPLICATION_STATUS != 'INITIATED' AND TB.BK_MOBILE_NUMBER LIKE (%?3%) AND TB.BK_BOOKING_TYPE LIKE (%?4%) AND TB.BK_SECTOR IN (?5) AND TB.CREATED_DATE BETWEEN (?6) AND (?7) AND TB.BK_APPLICATION_NUMBER IN (?8) ORDER BY TB.BK_APPLICATION_NUMBER DESC",
+					+ "AND TB.BK_APPLICATION_STATUS != 'INITIATED' AND TB.BK_MOBILE_NUMBER LIKE (%?3%) AND TB.BK_BOOKING_TYPE LIKE (%?4%) AND TB.BK_SECTOR IN (?5) AND TB.BK_DATE_CREATED BETWEEN (?6) AND (?7) AND TB.BK_APPLICATION_NUMBER IN (?8) ORDER BY TB.BK_APPLICATION_NUMBER DESC",
 			nativeQuery = true )
 			List<BookingsModel> getEmployeeSearchBooking( String applicationNumber, String applicationStatus, String mobileNumber
-					, String bookingType, List< String > sectorList, String fromDate, String toDate, Set< String > applicationNumberSet );
+					, String bookingType, List< String > sectorList, Date fromDate, Date toDate, Set< String > applicationNumberSet );
 	
 	/**
 	 * Gets the employee search BWT booking.
@@ -1056,10 +1056,10 @@ public interface BookingsRepository
 	 */
 	@Query(
 			value = "SELECT * FROM BK_BOOKINGS AS TB WHERE TB.BK_APPLICATION_NUMBER LIKE (%?1%) AND TB.BK_APPLICATION_STATUS LIKE (%?2%) "
-					+ "AND TB.BK_APPLICATION_STATUS != 'INITIATED' AND TB.BK_MOBILE_NUMBER LIKE (%?3%) AND TB.BK_BOOKING_TYPE LIKE (%?4%) AND TB.BK_APPLICATION_NUMBER IN (?5) AND TB.CREATED_DATE BETWEEN (?6) AND (?7) ORDER BY TB.BK_APPLICATION_NUMBER DESC",
+					+ "AND TB.BK_APPLICATION_STATUS != 'INITIATED' AND TB.BK_MOBILE_NUMBER LIKE (%?3%) AND TB.BK_BOOKING_TYPE LIKE (%?4%) AND TB.BK_APPLICATION_NUMBER IN (?5) AND TB.BK_DATE_CREATED BETWEEN (?6) AND (?7) ORDER BY TB.BK_APPLICATION_NUMBER DESC",
 			nativeQuery = true )
 			List<BookingsModel> getEmployeeSearchBWTBooking( String applicationNumber, String applicationStatus, String mobileNumber
-					, String bookingType, Set< String > applicationNumberSet, String fromDate, String toDate );
+					, String bookingType, Set< String > applicationNumberSet, Date fromDate, Date toDate );
 	
 	/**
 	 * Gets the employee search GFCP booking.
@@ -1090,10 +1090,10 @@ public interface BookingsRepository
 	 */
 	@Query(
 			value = "SELECT * FROM BK_BOOKINGS AS TB WHERE TB.BK_APPLICATION_NUMBER LIKE (%?1%) AND TB.BK_APPLICATION_STATUS LIKE (%?2%) "
-					+ "AND TB.BK_APPLICATION_STATUS != 'INITIATED' AND TB.BK_MOBILE_NUMBER LIKE (%?3%) AND TB.BK_BOOKING_TYPE = (?4) AND TB.CREATED_DATE BETWEEN (?5) AND (?6) ORDER BY TB.BK_APPLICATION_NUMBER DESC",
+					+ "AND TB.BK_APPLICATION_STATUS != 'INITIATED' AND TB.BK_MOBILE_NUMBER LIKE (%?3%) AND TB.BK_BOOKING_TYPE = (?4) AND TB.BK_DATE_CREATED BETWEEN (?5) AND (?6) ORDER BY TB.BK_APPLICATION_NUMBER DESC",
 			nativeQuery = true )
 			List<BookingsModel> getEmployeeSearchGFCPBooking( String applicationNumber, String applicationStatus, String mobileNumber
-					, String bookingType, String fromDate, String toDate );
+					, String bookingType, Date fromDate, Date toDate );
 	
 	/**
 	 * Gets the employee search PACC booking.
@@ -1126,10 +1126,10 @@ public interface BookingsRepository
 	 */
 	@Query(
 			value = "SELECT * FROM BK_BOOKINGS AS TB WHERE TB.BK_APPLICATION_NUMBER LIKE (%?1%) AND TB.BK_APPLICATION_STATUS LIKE (%?2%) "
-					+ "AND TB.BK_APPLICATION_STATUS != 'INITIATED' AND TB.BK_MOBILE_NUMBER LIKE (%?3%) AND (TB.BK_BOOKING_TYPE = (?4) OR TB.BK_BOOKING_TYPE = (?5)) AND TB.CREATED_DATE BETWEEN (?6) AND (?7) ORDER BY TB.BK_APPLICATION_NUMBER DESC",
+					+ "AND TB.BK_APPLICATION_STATUS != 'INITIATED' AND TB.BK_MOBILE_NUMBER LIKE (%?3%) AND (TB.BK_BOOKING_TYPE = (?4) OR TB.BK_BOOKING_TYPE = (?5)) AND TB.BK_DATE_CREATED BETWEEN (?6) AND (?7) ORDER BY TB.BK_APPLICATION_NUMBER DESC",
 			nativeQuery = true )
 			List<BookingsModel> getEmployeeSearchPACCBooking( String applicationNumber, String applicationStatus, String mobileNumber
-					, String parksBookingType, String communityCenterBookingType, String fromDate, String toDate );
+					, String parksBookingType, String communityCenterBookingType, Date fromDate, Date toDate );
 	
 	/**
 	 * Gets the employee search PACC booking.
@@ -1164,10 +1164,10 @@ public interface BookingsRepository
 	 */
 	@Query(
 			value = "SELECT * FROM BK_BOOKINGS AS TB WHERE TB.BK_APPLICATION_NUMBER LIKE (%?1%) AND TB.BK_APPLICATION_STATUS LIKE (%?2%) "
-					+ "AND TB.BK_APPLICATION_STATUS != 'INITIATED' AND TB.BK_MOBILE_NUMBER LIKE (%?3%) AND (TB.BK_BOOKING_TYPE = (?4) OR TB.BK_BOOKING_TYPE = (?5)) AND TB.BK_APPLICATION_NUMBER IN (?6) AND TB.CREATED_DATE BETWEEN (?7) AND (?8) ORDER BY TB.BK_APPLICATION_NUMBER DESC",
+					+ "AND TB.BK_APPLICATION_STATUS != 'INITIATED' AND TB.BK_MOBILE_NUMBER LIKE (%?3%) AND (TB.BK_BOOKING_TYPE = (?4) OR TB.BK_BOOKING_TYPE = (?5)) AND TB.BK_APPLICATION_NUMBER IN (?6) AND TB.BK_DATE_CREATED BETWEEN (?7) AND (?8) ORDER BY TB.BK_APPLICATION_NUMBER DESC",
 			nativeQuery = true )
 			List<BookingsModel> getEmployeeSearchPACCBooking( String applicationNumber, String applicationStatus, String mobileNumber
-					, String parksBookingType, String communityCenterBookingType, Set< String > applicationNumberSet, String fromDate, String toDate );
+					, String parksBookingType, String communityCenterBookingType, Set< String > applicationNumberSet, Date fromDate, Date toDate );
 	
 	
 	/**
@@ -1223,10 +1223,10 @@ public interface BookingsRepository
 	 */
 	@Query(
 			value = "SELECT * FROM BK_BOOKINGS AS TB WHERE TB.BK_APPLICATION_NUMBER LIKE (%?1%) AND TB.BK_APPLICATION_STATUS LIKE (%?2%) "
-					+ "AND TB.BK_MOBILE_NUMBER LIKE (%?3%) AND (TB.BK_BOOKING_TYPE = (?4) OR TB.BK_BOOKING_TYPE = (?5)) AND UUID = (?6) AND TB.CREATED_DATE BETWEEN (?7) AND (?8) ORDER BY TB.BK_APPLICATION_NUMBER DESC",
+					+ "AND TB.BK_MOBILE_NUMBER LIKE (%?3%) AND (TB.BK_BOOKING_TYPE = (?4) OR TB.BK_BOOKING_TYPE = (?5)) AND UUID = (?6) AND TB.BK_DATE_CREATED BETWEEN (?7) AND (?8) ORDER BY TB.BK_APPLICATION_NUMBER DESC",
 			nativeQuery = true )
 			List<BookingsModel> getSamparkEmployeeSearchBooking( String applicationNumber, String applicationStatus, String mobileNumber
-					, String parksBookingType, String communityCenterBookingType, String uuid, String fromDate, String toDate );
+					, String parksBookingType, String communityCenterBookingType, String uuid, Date fromDate, Date toDate );
 	
 	
 }
