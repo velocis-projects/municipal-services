@@ -83,4 +83,4 @@ alter table bk_bookings add	last_modified_date varchar(255) NULL;
 
 alter table bk_osujm_new_location add created_date varchar(255) NULL;
 alter table bk_osujm_new_location add last_modified_date varchar(255) NULL;
-alter table bk_osujm_new_location add bk_nominee_name varchar(255) NULL,
+alter table bk_bookings add bk_nominee_name varchar(255) NULL,
