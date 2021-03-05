@@ -1080,7 +1080,7 @@ public class NotificationUtil {
 			emailAttachment.setUrl(paymentReceiptURL);
 			emailAttachmentList.add(emailAttachment);
 		} 
-		else if (!BookingsFieldsValidator.isNullOrEmpty(permissionLetterURL)) {
+		if (!BookingsFieldsValidator.isNullOrEmpty(permissionLetterURL)) {
 			EmailAttachment emailAttachment = new EmailAttachment();
 			emailAttachment.setMimeType(BookingsConstants.MIME_TYPE);
 			emailAttachment.setName(BookingsConstants.PERMISSION_LETTER_NAME);

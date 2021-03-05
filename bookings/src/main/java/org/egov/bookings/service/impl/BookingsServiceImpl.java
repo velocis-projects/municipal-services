@@ -26,7 +26,6 @@ import org.egov.bookings.contract.ProcessInstanceSearchCriteria;
 import org.egov.bookings.contract.RefundTransactionRequest;
 import org.egov.bookings.contract.RequestInfoWrapper;
 import org.egov.bookings.contract.Transaction;
-import org.egov.bookings.contract.Transaction.TxnStatusEnum;
 import org.egov.bookings.contract.UserDetails;
 import org.egov.bookings.dto.SearchCriteriaFieldsDTO;
 import org.egov.bookings.model.BookingsModel;
@@ -184,21 +183,7 @@ public class BookingsServiceImpl implements BookingsService {
 		String applicationStatus = "";
 		String status = "";
 		if (!BookingsFieldsValidator.isNullOrEmpty(messageResponse)) {
-			if (BookingsConstants.BUSINESS_SERVICE_OSBM.equals(bookingsModel.getBusinessService())) {
-				applicationStatus = BookingsConstants.BK_WF_OSBM + bookingsModel.getBkApplicationStatus();
-			} else if (BookingsConstants.BUSINESS_SERVICE_BWT.equals(bookingsModel.getBusinessService())) {
-				applicationStatus = BookingsConstants.BK_WF_BWT + bookingsModel.getBkApplicationStatus();
-			} else if (BookingsConstants.BUSINESS_SERVICE_GFCP.equals(bookingsModel.getBusinessService())) {
-				if (BookingsConstants.INITIATED.equals(bookingsModel.getBkApplicationStatus())) {
-					applicationStatus = BookingsConstants.BK + bookingsModel.getBkApplicationStatus();
-				} else {
-					applicationStatus = BookingsConstants.BK_CGB + bookingsModel.getBkApplicationStatus();
-				}
-			} else if (BookingsConstants.BUSINESS_SERVICE_OSUJM.equals(bookingsModel.getBusinessService())) {
-				applicationStatus = BookingsConstants.BK_WF_OSUJM + bookingsModel.getBkApplicationStatus();
-			} else if (BookingsConstants.BUSINESS_SERVICE_PACC.equals(bookingsModel.getBusinessService())) {
-				applicationStatus = BookingsConstants.BK_WF_PACC + bookingsModel.getBkApplicationStatus();
-			}
+			applicationStatus = BookingsConstants.RPT_BK_WF + bookingsModel.getBkApplicationStatus();
 			for (Message message : messageResponse.getMessages()) {
 				if (message.getCode().equals(applicationStatus)) {
 					status = message.getMessage();
@@ -346,6 +331,8 @@ public class BookingsServiceImpl implements BookingsService {
 				documentMap = getDocumentMap(documentList);
 			}
 			booking.setDocumentMap(documentMap);
+			Collections.sort(myBookingList, new CreateDateComparator());
+			Collections.reverse(myBookingList);
 			booking.setBookingsModelList(myBookingList);
 			booking.setBookingsCount(myBookingList.size());
 		} catch (Exception e) {
@@ -470,7 +457,6 @@ public class BookingsServiceImpl implements BookingsService {
 									|| BookingsConstants.AUDIT_DEPARTMENT.equals(role.getCode())
 									|| BookingsConstants.CHIEF_ACCOUNT_OFFICER.equals(role.getCode())
 									|| BookingsConstants.PAYMENT_PROCESSING_AUTHORITY.equals(role.getCode())
-									|| BookingsConstants.E_SAMPARK_CENTER.equals(role.getCode())
 									|| BookingsConstants.SUPERVISOR.equals(role.getCode())
 									|| BookingsConstants.OSD.equals(role.getCode())
 							) {
@@ -501,6 +487,23 @@ public class BookingsServiceImpl implements BookingsService {
 							}
 						}
 						applicationNumberSet.removeAll(applicationNumbers);
+					}
+					else if(BookingsConstants.E_SAMPARK_CENTER.equals(role.getCode())){
+						parksBookingType = BookingsConstants.PARKS;
+						communityCenterBookingType = BookingsConstants.COMMUNITY_CENTER;
+						if (!BookingsFieldsValidator.isNullOrEmpty(bookingType)) {
+							String[] bookingArray = bookingType.split(BookingsConstants.AND);
+							parksBookingType = bookingArray[0].trim();
+							communityCenterBookingType = bookingArray[1].trim();
+						}
+						if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+							bookingsSet.addAll(bookingsRepository.getSamparkEmployeeSearchBooking(applicationNumber,
+									applicationStatus, mobileNumber, parksBookingType, communityCenterBookingType, uuid));
+						} 
+						else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+							bookingsSet.addAll(bookingsRepository.getSamparkEmployeeSearchBooking(applicationNumber, applicationStatus, 
+									mobileNumber, parksBookingType, communityCenterBookingType, uuid, fromDate, toDate));
+						}
 					}
 				}
 			}
@@ -574,7 +577,7 @@ public class BookingsServiceImpl implements BookingsService {
 				&& !BookingsConstants.BUSINESS_SERVICE_GFCP.equals(businessService))
 			enrichmentService.enrichBookingsAssignee(bookingsRequest);
 		
-		if (BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction()) && BookingsConstants.BUSINESS_SERVICE_OSBM.equals(businessService)) {
+		if (BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction()) && (BookingsConstants.BUSINESS_SERVICE_OSBM.equals(businessService) || BookingsConstants.BUSINESS_SERVICE_OSUJM.equals(businessService))) {
 			BookingsModel booking = bookingsRepository.findByBkApplicationNumber(bookingsRequest.getBookingsModel().getBkApplicationNumber());
 			enrichmentService.enrichAssignee(bookingsRequest, booking);
 		}
@@ -1099,6 +1102,8 @@ public class BookingsServiceImpl implements BookingsService {
 			else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
 				myRoomBookingList = roomsRepository.getCitizenCommunityCenterRoomBooking(uuid, applicationStatus, typeOfRoom, applicationNumber, fromDate, toDate);
 			}
+			Collections.sort(myRoomBookingList, new CreateDateComparator());
+			Collections.reverse(myRoomBookingList);
 			myRoomBookingList.forEach(roomModel ->{if(!applicationNumberList.contains(roomModel.getCommunityApplicationNumber())){ applicationNumberList.add(roomModel.getCommunityApplicationNumber());}});
 			if (!BookingsFieldsValidator.isNullOrEmpty(applicationNumberList)) {
 				communityCenterBookings = bookingsRepository.getCommunityCenterBookings(applicationNumberList);
@@ -1150,11 +1155,11 @@ public class BookingsServiceImpl implements BookingsService {
 		}
 		Booking booking = new Booking();
 		Set<RoomsModel> bookingsSet = new HashSet<>();
+		List<RoomsModel> bookingsList = new ArrayList<>();
 		List<?> documentList = new ArrayList<>();
 		List<?> communityCenterDocumentList = new ArrayList<>();
 		Map<String, String> documentMap = new HashMap<>();
 		Map<String, String> communityCenterDocumentMap = new HashMap<>();
-		Set<String> applicationNumberSet = new HashSet<>();
 		List<String> applicationNumberList = new ArrayList<>();
 		List<BookingsModel> communityCenterBookings = new ArrayList<>();
 		Map<String, BookingsModel> communityCenterBookingMap = new HashMap<>();
@@ -1165,6 +1170,7 @@ public class BookingsServiceImpl implements BookingsService {
 			String typeOfRoom = searchCriteriaFieldsDTO.getTypeOfRoom().trim();
 			Date fromDate = searchCriteriaFieldsDTO.getFromDate();
 			Date toDate = searchCriteriaFieldsDTO.getToDate();
+			String uuid = searchCriteriaFieldsDTO.getUuid().trim();
 			if (BookingsFieldsValidator.isNullOrEmpty(searchCriteriaFieldsDTO.getRequestInfo())) {
 				throw new IllegalArgumentException("Invalid RequestInfo");
 			}
@@ -1176,7 +1182,7 @@ public class BookingsServiceImpl implements BookingsService {
 				throw new IllegalArgumentException("Invalid roles");
 			}
 			for(Role role : roles) {
-				if (BookingsConstants.PARKS_AND_COMMUNITY_VIEWER.equals(role.getCode())) {
+				if (BookingsConstants.PARKS_AND_COMMUNITY_VIEWER.equals(role.getCode()) || BookingsConstants.MCC_USER.equals(role.getCode())) {
 					if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
 						bookingsSet.addAll(roomsRepository.getEmployeeCommunityCenterRoomBooking(applicationStatus, typeOfRoom, applicationNumber));
 					} 
@@ -1184,20 +1190,22 @@ public class BookingsServiceImpl implements BookingsService {
 						bookingsSet.addAll(roomsRepository.getEmployeeCommunityCenterRoomBooking(applicationStatus, typeOfRoom, applicationNumber, fromDate, toDate));
 					}
 				} 
-				else if (BookingsConstants.E_SAMPARK_CENTER.equals(role.getCode()) || BookingsConstants.MCC_USER.equals(role.getCode())) {
-					applicationNumberSet.addAll(commonRepository.findBusinessId(role.getCode()));
-					if(!BookingsFieldsValidator.isNullOrEmpty(applicationNumberSet)) {
-						if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
-							bookingsSet.addAll(roomsRepository.getEmployeeCommunityCenterRoomBooking(applicationStatus, typeOfRoom, applicationNumber, applicationNumberSet));
-						} 
-						else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
-							bookingsSet.addAll(roomsRepository.getEmployeeCommunityCenterRoomBooking(applicationStatus, typeOfRoom, applicationNumber, applicationNumberSet, fromDate, toDate));
-						}
+				else if (BookingsConstants.E_SAMPARK_CENTER.equals(role.getCode())) {
+					if (BookingsFieldsValidator.isNullOrEmpty(uuid)) {
+						throw new IllegalArgumentException("Invalid uuId");
+					}
+					if (BookingsFieldsValidator.isNullOrEmpty(fromDate) && BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+						bookingsSet.addAll(roomsRepository.getEmployeeCommunityCenterRoomBooking(applicationStatus, typeOfRoom, applicationNumber, uuid));
+					} 
+					else if (!BookingsFieldsValidator.isNullOrEmpty(fromDate) && !BookingsFieldsValidator.isNullOrEmpty(fromDate)) {
+						bookingsSet.addAll(roomsRepository.getEmployeeCommunityCenterRoomBooking(applicationStatus, typeOfRoom, applicationNumber, fromDate, toDate, uuid));
 					}
 				}
 			}
-			
-			bookingsSet.forEach(roomModel ->{if(!applicationNumberList.contains(roomModel.getCommunityApplicationNumber())){ applicationNumberList.add(roomModel.getCommunityApplicationNumber());}});
+			bookingsList.addAll(bookingsSet);
+			Collections.sort(bookingsList, new CreateDateComparator());
+			Collections.reverse(bookingsList);
+			bookingsList.forEach(roomModel ->{if(!applicationNumberList.contains(roomModel.getCommunityApplicationNumber())){ applicationNumberList.add(roomModel.getCommunityApplicationNumber());}});
 			if (!BookingsFieldsValidator.isNullOrEmpty(applicationNumberList)) {
 				communityCenterBookings = bookingsRepository.getCommunityCenterBookings(applicationNumberList);
 			}
@@ -1213,7 +1221,7 @@ public class BookingsServiceImpl implements BookingsService {
 			if (!BookingsFieldsValidator.isNullOrEmpty(communityCenterDocumentList)) {
 				communityCenterDocumentMap = getDocumentMap(communityCenterDocumentList);
 			}
-			bookingsSet.forEach(roomModel ->{
+			bookingsList.forEach(roomModel ->{
 				communityCenterRoomBookingMap.put(roomModel, communityCenterBookingMap.get(roomModel.getCommunityApplicationNumber()));
 			});
 			if (!BookingsFieldsValidator.isNullOrEmpty(applicationNumber)) {

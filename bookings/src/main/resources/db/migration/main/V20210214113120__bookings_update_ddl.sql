@@ -35,6 +35,24 @@ CREATE TABLE public.bk_rooms_model (
 
 
 
+CREATE TABLE public.bk_room_master (
+	id varchar(255) NOT NULL,
+	from_date timestamp NULL,
+	rent_for_3_hrs varchar(255) NULL,
+	rent_for_6_hrs varchar(255) NULL,
+	rent_for_9_hrs varchar(255) NULL,
+	rent_for_one_day varchar(255) NULL,
+	sector_name varchar(255) NULL,
+	to_date timestamp NULL,
+	total_number_of_rooms varchar(255) NULL,
+	type_of_room varchar(255) NULL,
+	created_date timestamp NULL,
+	last_modified_date timestamp NULL,
+	community_center_name varchar(255) NULL,
+	CONSTRAINT bk_room_master_pkey PRIMARY KEY (id)
+);
+
+
 
 
 
@@ -65,3 +83,4 @@ alter table bk_bookings add	last_modified_date varchar(255) NULL;
 
 alter table bk_osujm_new_location add created_date varchar(255) NULL;
 alter table bk_osujm_new_location add last_modified_date varchar(255) NULL;
+alter table bk_bookings add bk_nominee_name varchar(255) NULL,

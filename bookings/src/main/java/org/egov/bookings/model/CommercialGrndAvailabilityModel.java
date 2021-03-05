@@ -44,5 +44,7 @@ public class CommercialGrndAvailabilityModel {
 
 	@Column(name = "last_modified_date")
 	private String lastModifiedDate;
+	
+	
 
 }

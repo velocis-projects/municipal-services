@@ -1,7 +1,6 @@
 package org.egov.bookings.service.impl;
 
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -21,7 +20,6 @@ import org.egov.bookings.contract.RoomFeeFetchRequest;
 import org.egov.bookings.contract.RoomFeeFetchResponse;
 import org.egov.bookings.dto.SearchCriteriaFieldsDTO;
 import org.egov.bookings.model.BookingsModel;
-import org.egov.bookings.model.OsbmFeeModel;
 import org.egov.bookings.model.ParkCommunityHallV1MasterModel;
 import org.egov.bookings.model.RoomMasterModel;
 import org.egov.bookings.model.RoomsModel;
