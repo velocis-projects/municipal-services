@@ -278,8 +278,31 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 		Date currentDate = Date.valueOf(date);
 		Date sixMonthsFromNowSql = Date.valueOf(sixMonthsFromNow);
 		lockList = commercialGrndAvailabilityRepo.findLockedDatesFromNowTo6Months(currentDate, sixMonthsFromNowSql);
-
-		for (CommercialGrndAvailabilityModel l1 : lockList) {
+		List<CommercialGrndAvailabilityModel> dupliLockList = new ArrayList<>();
+		// iteration on locl 
+		lockList.stream().forEach(commGrndAvailabilitty -> {
+			CommercialGrndAvailabilityModel model = new CommercialGrndAvailabilityModel();
+			model.setFromDate(commGrndAvailabilitty.getFromDate());
+			model.setBookingVenue(commGrndAvailabilitty.getBookingVenue());
+			model.setCreatedDate(commGrndAvailabilitty.getCreatedDate());
+			model.setId(commGrndAvailabilitty.getId());
+			model.setLastModifiedDate(commGrndAvailabilitty.getLastModifiedDate());
+			model.setToDate(commGrndAvailabilitty.getToDate());
+			model.setVenueType(commGrndAvailabilitty.getVenueType());
+			model.setLocked(commGrndAvailabilitty.isLocked());
+			if (BookingsConstants.VENUE_TYPE_COMMUNITY_CENTER.equals(commGrndAvailabilitty.getVenueType())
+					|| BookingsConstants.VENUE_TYPE_PARKS.equals(commGrndAvailabilitty.getVenueType())) {
+			ParkCommunityHallV1MasterModel parkCommunityHallV1MasterModel = parkCommunityHallV1MasterRepository
+					.findById(commGrndAvailabilitty.getBookingVenue());
+			if (!BookingsFieldsValidator.isNullOrEmpty(parkCommunityHallV1MasterModel)) {
+				if (!BookingsFieldsValidator.isNullOrEmpty(parkCommunityHallV1MasterModel.getName()))
+					model.setBookingVenue(parkCommunityHallV1MasterModel.getName());
+			}}
+			
+			dupliLockList.add(model);
+		});
+		//CommercialGrndAvailabilityModel l1 = new CommercialGrndAvailabilityModel();
+		/*for (CommercialGrndAvailabilityModel l1 : dupliLockList) {
 			if (BookingsConstants.VENUE_TYPE_COMMUNITY_CENTER.equals(l1.getVenueType())
 					|| BookingsConstants.VENUE_TYPE_PARKS.equals(l1.getVenueType())) {
 				ParkCommunityHallV1MasterModel parkCommunityHallV1MasterModel = parkCommunityHallV1MasterRepository
@@ -289,12 +312,12 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 						l1.setBookingVenue(parkCommunityHallV1MasterModel.getName());
 				}
 			}
-		}
+		}*/
 
-		if (BookingsFieldsValidator.isNullOrEmpty(lockList)) {
-			return lockList;
+		if (BookingsFieldsValidator.isNullOrEmpty(dupliLockList)) {
+			return dupliLockList;
 		}
-		List<CommercialGrndAvailabilityModel> sortedLockList = lockList.stream()
+		List<CommercialGrndAvailabilityModel> sortedLockList = dupliLockList.stream()
 				.sorted((l1, l2) -> -(l1.getLastModifiedDate().compareTo(l2.getLastModifiedDate())))
 				.collect(Collectors.toList());
 		return sortedLockList;

@@ -1,5 +1,6 @@
 package org.egov.bookings.contract;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.egov.bookings.model.CommercialGrndAvailabilityModel;
@@ -13,7 +14,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommercialGrndAvailabiltyLockRequest {
+public class CommercialGrndAvailabiltyLockRequest implements Serializable {
 
+	private static final long serialVersionUID = -3683257254333784296L;
+	
 	private List<CommercialGrndAvailabilityModel> commercialGrndAvailabilityLock;
 }
