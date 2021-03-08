@@ -1003,4 +1003,39 @@ public class MasterServiceImpl implements MasterService{
 		return communityCenterNameMap;
 	}
 	
+	/**
+	 * Fetch community center venue name.
+	 *
+	 * @return the list
+	 */
+	@Override
+	public List<ParkCommunityHallV1MasterModel> fetchCommunityCenterVenueName() {
+		List<ParkCommunityHallV1MasterModel> communityCenterVenueType = new ArrayList<>();
+		try {
+			communityCenterVenueType = parkCommunityHallV1MasterRepository.findByVenueType(BookingsConstants.COMMUNITY_CENTER); 
+		}
+		catch (Exception e) {
+			LOGGER.error("Exception occur in the fetchAllPACCFee " + e);
+			e.printStackTrace();
+		}
+		return communityCenterVenueType;
+	}
+	
+	/**
+	 * Fetch park venue name.
+	 *
+	 * @return the list
+	 */
+	@Override
+	public List<ParkCommunityHallV1MasterModel> fetchParkVenueName() {
+		List<ParkCommunityHallV1MasterModel> parkVenueType = new ArrayList<>();
+		try {
+			parkVenueType = parkCommunityHallV1MasterRepository.findByVenueType(BookingsConstants.PARKS); 
+		}
+		catch (Exception e) {
+			LOGGER.error("Exception occur in the fetchAllPACCFee " + e);
+			e.printStackTrace();
+		}
+		return parkVenueType;
+	}
 }
