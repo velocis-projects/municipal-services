@@ -679,7 +679,10 @@ public class BookingsConstants {
 	public static final String PAYMENT_SUCCESS_STATUS = "SUCCESS";
 	
 	/** The Constant PACC_TAXHEAD_CODE_3. */
-	public static final String PACC_TAXHEAD_CODE_3 = "PACC_LOCATION_AND_VENUE_CHANGE_AMOUNT";
+	public static final String PACC_TAXHEAD_CODE_3 = "PARK_LOCATION_AND_VENUE_CHANGE_AMOUNT";
+	
+	/** The Constant PACC_TAXHEAD_CODE_3. */
+	public static final String PACC_TAXHEAD_CODE_COMM_LOC_CHANGE = "COMMUNITY_LOCATION_AND_VENUE_CHANGE_AMOUNT";
 	
 	/** The Constant DELIVER. */
 	public static final String DELIVER = "DELIVER";

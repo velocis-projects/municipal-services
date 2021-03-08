@@ -497,17 +497,18 @@ public class BookingsCalculatorServiceImpl implements BookingsCalculatorService 
 						new TaxHeadEstimate(taxHeadEstimate.getCode(), finalAmount, taxHeadEstimate.getCategory()));
 			}
 			if (taxHeadEstimate.getCode().equals(taxHeadCode2)) {
+				BigDecimal roomTax = BookingsUtils.roundOffToNearest(finalAmount.multiply((BookingsCalculatorConstants.UGST_AND_CGST_TAX.divide(new BigDecimal(100)))));
 				taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
-						finalAmount.multiply((taxHeadEstimate.getTaxAmount().divide(new BigDecimal(100)))),
+						roomTax,
 						taxHeadEstimate.getCategory()));
 			}
-			if(bookingsRequest.getRequestInfo().getUserInfo().getType().equals(BookingsConstants.EMPLOYEE)) {
+			/*if(bookingsRequest.getRequestInfo().getUserInfo().getType().equals(BookingsConstants.EMPLOYEE)) {
 				if (taxHeadEstimate.getCode().equals(BookingsConstants.ROOM_TAXHEAD_CODE_FACILITATION_CHARGE)) {
 					taxHeadEstimate1.add(new TaxHeadEstimate(taxHeadEstimate.getCode(),
 							taxHeadEstimate.getFacilitationCharge(),
 							taxHeadEstimate.getCategory()));
 					}
-			}
+			}*/
 		}
 		return taxHeadEstimate1;
 	}

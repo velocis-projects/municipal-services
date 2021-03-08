@@ -133,9 +133,9 @@ public class DemandServiceImpl implements DemandService {
 		try {
 			String tenantId = bookingsRequest.getBookingsModel().getTenantId();
 
-			String taxHeadCode1 = BookingsCalculatorConstants.ROOM_FOR_COMMUNITY_TAX_CODE_1;
+			String taxHeadCode1 = BookingsCalculatorConstants.PACC_TAX_CODE_1;
 
-			String taxHeadCode2 = BookingsCalculatorConstants.ROOM_FOR_COMMUNITY_TAX_CODE_2;
+			String taxHeadCode2 = BookingsCalculatorConstants.PACC_TAX_CODE_2;
 
 			List<TaxHeadEstimate> taxHeadEstimate1 = bookingsCalculator.getTaxHeadEstimateForRoom(bookingsRequest,
 					taxHeadCode1, taxHeadCode2);
@@ -163,7 +163,7 @@ public class DemandServiceImpl implements DemandService {
 					.minimumAmountPayable(config.getMinimumPayableAmount())
 					.tenantId(tenantId).taxPeriodFrom(taxPeriodFrom)
 					.taxPeriodTo(taxPeriodTo).consumerType("bookings")
-					.businessService(bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomBusinessService())
+					.businessService(bookingsRequest.getBookingsModel().getFinanceBusinessService())
 					.additionalDetails(Collections.singletonMap("calculationDes1cription", combinedBillingSlabs))
 					.build();
 
@@ -193,16 +193,33 @@ public class DemandServiceImpl implements DemandService {
 		List<DemandDetail> demandDetails = new LinkedList<>();
 		try {
 			String tenantId = bookingsRequest.getBookingsModel().getTenantId();
+			String taxHeadCode1 = "";
+			String taxHeadCode2 = "";
+			String taxHeadCode3 = "";
+			String taxHeadCode4 = "";
+			String taxHeadCode5 = "";
+			if (BookingsConstants.COMMUNITY_CENTER.equals(bookingsRequest.getBookingsModel().getBkBookingType())) {
+				taxHeadCode1 = BookingsCalculatorConstants.PACC_TAX_CODE_1;
 
-			String taxHeadCode1 = BookingsCalculatorConstants.PACC_TAX_CODE_1;
+				taxHeadCode2 = BookingsCalculatorConstants.PACC_TAX_CODE_2;
 
-			String taxHeadCode2 = BookingsCalculatorConstants.PACC_TAX_CODE_2;
-			
-			String taxHeadCode3 = BookingsCalculatorConstants.PACC_TAX_CODE_3;
-			
-			String taxHeadCode4 = BookingsCalculatorConstants.PACC_TAX_CODE_4;
-			
-			String taxHeadCode5 = BookingsCalculatorConstants.PACC_TAX_CODE_5;
+				taxHeadCode3 = BookingsCalculatorConstants.PACC_TAX_CODE_3;
+
+				taxHeadCode4 = BookingsCalculatorConstants.PACC_TAX_CODE_4;
+
+				taxHeadCode5 = BookingsCalculatorConstants.PACC_TAX_CODE_5;
+			} else {
+				taxHeadCode1 = BookingsCalculatorConstants.OSBM_TAXHEAD_CODE_1;
+
+				taxHeadCode2 = BookingsCalculatorConstants.OSBM_TAXHEAD_CODE_2;
+
+				taxHeadCode3 = BookingsCalculatorConstants.OSBM_TAXHEAD_CODE_3;
+
+				taxHeadCode4 = BookingsCalculatorConstants.OSBM_TAXHEAD_CODE_4;
+
+				taxHeadCode5 = BookingsCalculatorConstants.OSBM_TAXHEAD_CODE_5;
+
+			}
 
 			List<TaxHeadEstimate> taxHeadEstimate1 = bookingsCalculator.getTaxHeadEstimate(bookingsRequest,
 					taxHeadCode1, taxHeadCode2, taxHeadCode3, taxHeadCode4, taxHeadCode5);
@@ -579,15 +596,35 @@ public class DemandServiceImpl implements DemandService {
 	public List<Demand> updateDemandsForPacc(BookingsRequest bookingsRequest) {
 		List<Demand> demands = new LinkedList<>();
 
-		String taxHeadCode1 = BookingsCalculatorConstants.PACC_TAX_CODE_1;
+		String tenantId = bookingsRequest.getBookingsModel().getTenantId();
+		String taxHeadCode1 = "";
+		String taxHeadCode2 = "";
+		String taxHeadCode3 = "";
+		String taxHeadCode4 = "";
+		String taxHeadCode5 = "";
+		if (BookingsConstants.COMMUNITY_CENTER.equals(bookingsRequest.getBookingsModel().getBkBookingType())) {
 
-		String taxHeadCode2 = BookingsCalculatorConstants.PACC_TAX_CODE_2;
-		
-		String taxHeadCode3 = BookingsCalculatorConstants.PACC_TAX_CODE_3;
-		
-		String taxHeadCode4 = BookingsCalculatorConstants.PACC_TAX_CODE_4;
-		
-		String taxHeadCode5 = BookingsCalculatorConstants.PACC_TAX_CODE_5;
+			taxHeadCode1 = BookingsCalculatorConstants.PACC_TAX_CODE_1;
+
+			taxHeadCode2 = BookingsCalculatorConstants.PACC_TAX_CODE_2;
+
+			taxHeadCode3 = BookingsCalculatorConstants.PACC_TAX_CODE_3;
+
+			taxHeadCode4 = BookingsCalculatorConstants.PACC_TAX_CODE_4;
+
+			taxHeadCode5 = BookingsCalculatorConstants.PACC_TAX_CODE_5;
+		} else {
+			taxHeadCode1 = BookingsCalculatorConstants.OSBM_TAXHEAD_CODE_1;
+
+			taxHeadCode2 = BookingsCalculatorConstants.OSBM_TAXHEAD_CODE_2;
+
+			taxHeadCode3 = BookingsCalculatorConstants.OSBM_TAXHEAD_CODE_3;
+
+			taxHeadCode4 = BookingsCalculatorConstants.OSBM_TAXHEAD_CODE_4;
+
+			taxHeadCode5 = BookingsCalculatorConstants.OSBM_TAXHEAD_CODE_5;
+
+		}
 
 		List<TaxHeadEstimate> taxHeadEstimate1 = bookingsCalculator.getTaxHeadEstimate(bookingsRequest, taxHeadCode1,
 				taxHeadCode2, taxHeadCode3, taxHeadCode4, taxHeadCode5);
@@ -597,7 +634,7 @@ public class DemandServiceImpl implements DemandService {
 		if (config.isDemandFlag()) {
 			List<Demand> searchResult = searchDemand(bookingsRequest.getBookingsModel().getTenantId(),
 					Collections.singleton(bookingsRequest.getBookingsModel().getBkApplicationNumber()), requestInfo,
-					bookingsRequest.getBookingsModel().getBusinessService());
+					bookingsRequest.getBookingsModel().getFinanceBusinessService());
 			if (CollectionUtils.isEmpty(searchResult)) {
 				throw new CustomException("INVALID UPDATE", "No demand exists for applicationNumber: "
 						+ bookingsRequest.getBookingsModel().getBkApplicationNumber());
@@ -636,7 +673,7 @@ public class DemandServiceImpl implements DemandService {
 
 		List<Demand> searchResult = searchDemand(bookingsRequest.getBookingsModel().getTenantId(),
 				Collections.singleton(bookingsRequest.getBookingsModel().getBkApplicationNumber()), requestInfo,
-				bookingsRequest.getBookingsModel().getBusinessService());
+				bookingsRequest.getBookingsModel().getFinanceBusinessService());
 
 		Demand demand = searchResult.get(0);
 		List<DemandDetail> demandDetails = demand.getDemandDetails();
@@ -727,7 +764,7 @@ public class DemandServiceImpl implements DemandService {
 
 		List<Demand> searchResult = searchDemand(bookingsRequest.getBookingsModel().getTenantId(),
 				Collections.singleton(bookingsRequest.getBookingsModel().getBkApplicationNumber()), requestInfo,
-				bookingsRequest.getBookingsModel().getBusinessService());
+				bookingsRequest.getBookingsModel().getFinanceBusinessService());
 
 		Demand demand = searchResult.get(0);
 		List<DemandDetail> demandDetails = demand.getDemandDetails();
@@ -1028,7 +1065,7 @@ public class DemandServiceImpl implements DemandService {
 		if (config.isDemandFlag()) {
 			List<Demand> searchResult = searchDemand(bookingsRequest.getBookingsModel().getTenantId(),
 					Collections.singleton(bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationNumber()), requestInfo,
-					bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomBusinessService());
+					bookingsRequest.getBookingsModel().getFinanceBusinessService());
 			if (CollectionUtils.isEmpty(searchResult)) {
 				throw new CustomException("INVALID UPDATE", "No demand exists for applicationNumber: "
 						+ bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationNumber());
