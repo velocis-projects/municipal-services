@@ -26,7 +26,6 @@ import org.egov.bookings.contract.ProcessInstanceSearchCriteria;
 import org.egov.bookings.contract.RefundTransactionRequest;
 import org.egov.bookings.contract.RequestInfoWrapper;
 import org.egov.bookings.contract.Transaction;
-import org.egov.bookings.contract.Transaction.TxnStatusEnum;
 import org.egov.bookings.contract.UserDetails;
 import org.egov.bookings.dto.SearchCriteriaFieldsDTO;
 import org.egov.bookings.model.BookingsModel;
@@ -292,8 +291,8 @@ public class BookingsServiceImpl implements BookingsService {
 			String applicationNumber = searchCriteriaFieldsDTO.getApplicationNumber().trim();
 			String applicationStatus = searchCriteriaFieldsDTO.getApplicationStatus().trim();
 			String mobileNumber = searchCriteriaFieldsDTO.getMobileNumber().trim();
-			String fromDate = searchCriteriaFieldsDTO.getStrFromDate();
-			String toDate = searchCriteriaFieldsDTO.getStrToDate();
+			Date fromDate = searchCriteriaFieldsDTO.getFromDate();
+			Date toDate = searchCriteriaFieldsDTO.getToDate();
 			String uuid = searchCriteriaFieldsDTO.getUuid().trim();
 			String bookingType = searchCriteriaFieldsDTO.getBookingType().trim();
 			String parksBookingType = "";
@@ -364,8 +363,8 @@ public class BookingsServiceImpl implements BookingsService {
 			String applicationNumber = searchCriteriaFieldsDTO.getApplicationNumber().trim();
 			String applicationStatus = searchCriteriaFieldsDTO.getApplicationStatus().trim();
 			String mobileNumber = searchCriteriaFieldsDTO.getMobileNumber().trim();
-			String fromDate = searchCriteriaFieldsDTO.getStrFromDate();
-			String toDate = searchCriteriaFieldsDTO.getStrToDate();
+			Date fromDate = searchCriteriaFieldsDTO.getFromDate();
+			Date toDate = searchCriteriaFieldsDTO.getToDate();
 			String uuid = searchCriteriaFieldsDTO.getUuid().trim();
 			String bookingType = searchCriteriaFieldsDTO.getBookingType().trim();
 			String parksBookingType = "";
@@ -578,7 +577,7 @@ public class BookingsServiceImpl implements BookingsService {
 				&& !BookingsConstants.BUSINESS_SERVICE_GFCP.equals(businessService))
 			enrichmentService.enrichBookingsAssignee(bookingsRequest);
 		
-		if (BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction()) && BookingsConstants.BUSINESS_SERVICE_OSBM.equals(businessService)) {
+		if (BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction()) && (BookingsConstants.BUSINESS_SERVICE_OSBM.equals(businessService) || BookingsConstants.BUSINESS_SERVICE_OSUJM.equals(businessService))) {
 			BookingsModel booking = bookingsRepository.findByBkApplicationNumber(bookingsRequest.getBookingsModel().getBkApplicationNumber());
 			enrichmentService.enrichAssignee(bookingsRequest, booking);
 		}

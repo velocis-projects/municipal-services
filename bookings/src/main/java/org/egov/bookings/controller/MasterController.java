@@ -24,7 +24,6 @@ import org.egov.bookings.model.RoomMasterModel;
 import org.egov.bookings.model.user.UserSearchRequest;
 import org.egov.bookings.service.MasterService;
 import org.egov.bookings.validator.BookingsFieldsValidator;
-import org.egov.common.contract.request.RequestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -703,6 +702,48 @@ public class MasterController {
 			rs.setStatus("200");
 			rs.setMessage("Success");
 			rs.setData(communityCenterNameMap);
+		}
+		catch (Exception e) {
+			LOGGER.error("Exception occur in the fetchCommunityCenterName " + e);
+			e.printStackTrace();
+		}
+		return ResponseEntity.ok(rs);
+	}
+	
+	/**
+	 * Fetch community center venue name.
+	 *
+	 * @return the response entity
+	 */
+	@PostMapping(value = "report/communitycenter/venue/type/_fetch")
+	public ResponseEntity<?> fetchCommunityCenterVenueName(){
+		ResponseModel rs = new ResponseModel();
+		try {
+			List<ParkCommunityHallV1MasterModel> communityCenterVenueType = masterService.fetchCommunityCenterVenueName(); 
+			rs.setStatus("200");
+			rs.setMessage("Success");
+			rs.setData(communityCenterVenueType);
+		}
+		catch (Exception e) {
+			LOGGER.error("Exception occur in the fetchCommunityCenterName " + e);
+			e.printStackTrace();
+		}
+		return ResponseEntity.ok(rs);
+	}
+	
+	/**
+	 * Fetch park venue name.
+	 *
+	 * @return the response entity
+	 */
+	@PostMapping(value = "report/park/venue/type/_fetch")
+	public ResponseEntity<?> fetchParkVenueName(){
+		ResponseModel rs = new ResponseModel();
+		try {
+			List<ParkCommunityHallV1MasterModel> parkVenueType = masterService.fetchParkVenueName(); 
+			rs.setStatus("200");
+			rs.setMessage("Success");
+			rs.setData(parkVenueType);
 		}
 		catch (Exception e) {
 			LOGGER.error("Exception occur in the fetchCommunityCenterName " + e);

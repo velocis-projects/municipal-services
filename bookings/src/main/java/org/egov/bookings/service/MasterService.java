@@ -195,5 +195,19 @@ public interface MasterService {
 	 * @return the map
 	 */
 	public Map<String, String> fetchCommunityCenterName();
+	
+	/**
+	 * Fetch community center venue name.
+	 *
+	 * @return the list
+	 */
+	public List<ParkCommunityHallV1MasterModel> fetchCommunityCenterVenueName();
+	
+	/**
+	 * Fetch park venue name.
+	 *
+	 * @return the list
+	 */
+	public List<ParkCommunityHallV1MasterModel> fetchParkVenueName();
 
 }
