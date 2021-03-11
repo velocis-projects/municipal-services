@@ -74,5 +74,13 @@ public interface ParkAndCommunityService {
 	 * @return the park community fee master response
 	 */
 	ParkCommunityFeeMasterResponse fetchAmount(ParkCommunityFeeMasterRequest parkCommunityFeeMasterRequest);
+	
+	/**
+	 * Fetch sector.
+	 *
+	 * @param venueType the venue type
+	 * @return the list
+	 */
+	List<ParkCommunityHallV1MasterModel> fetchSector(String venueType);
 
 }

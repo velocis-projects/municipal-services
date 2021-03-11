@@ -3,6 +3,7 @@ package org.egov.bookings.service.impl;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -326,6 +327,28 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 		} catch (Exception e) {
 			throw new CustomException("DATABASE_ERROR", e.getLocalizedMessage());
 		}
+	}
+
+	/**
+	 * Fetch sector.
+	 *
+	 * @param venueType the venue type
+	 * @return the list
+	 */
+	@Override
+	public List<ParkCommunityHallV1MasterModel> fetchSector(String venueType) {
+		if (BookingsFieldsValidator.isNullOrEmpty(venueType)) {
+			throw new IllegalArgumentException("Invalid venueType");
+		}
+		List<ParkCommunityHallV1MasterModel> parkSectorList = new ArrayList<>();
+		try {
+			parkSectorList = parkCommunityHallV1MasterRepository.findByVenueType(venueType); 
+		}
+		catch (Exception e) {
+			LOGGER.error("Exception occur in the fetchSector " + e);
+			e.printStackTrace();
+		}
+		return parkSectorList;
 	}
 
 }
