@@ -45,6 +45,12 @@ public class CommercialGrndAvailabilityModel {
 	@Column(name = "last_modified_date")
 	private String lastModifiedDate;
 	
+	@Column(name = "REASON_FOR_HOLD")
+	private String reasonForHold;
+
+	
+	@Column(name = "SECTOR")
+	private String sector;
 	
 
 }

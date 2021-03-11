@@ -305,11 +305,11 @@ public class BookingsModel {
 
 	@JsonProperty("bkMaterialStorageArea")
 	@Column(name = "BK_MATERIAL_STORAGE_AREA")
-	private String bkMaterialStorageArea;
+	private String bkMaterialStorageArea; // used for payment mode in pacc
 
 	@JsonProperty("bkPlotSketch")
 	@Column(name = "BK_PLOT_SKETCH")
-	private String bkPlotSketch;
+	private String bkPlotSketch; // used for type of discount in pacc
 
 	@JsonProperty("bkApplicationStatus")
 	@Column(name = "BK_APPLICATION_STATUS")

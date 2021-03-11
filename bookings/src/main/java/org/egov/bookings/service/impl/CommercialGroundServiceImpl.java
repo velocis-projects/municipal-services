@@ -216,7 +216,9 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 		LocalDate date = LocalDate.now();
 		Date date1 = Date.valueOf(date);
 		SortedSet<Date> bookedDates = new TreeSet<>();
-		
+		LocalDate sixMonthsFromNow = date.plusMonths(6);
+		Date currentDate = Date.valueOf(date);
+		Date sixMonthsFromNowSql = Date.valueOf(sixMonthsFromNow);
 		try {
 			List<LocalDate> toBeBooked = enrichmentService.extractAllDatesBetweenTwoDates(bookingsRequest);
 			lock.lock();
@@ -226,13 +228,18 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 						bookingsRequest.getBookingsModel().getBkBookingType(), date1, BookingsConstants.APPLY);
 
 				List<LocalDate> fetchBookedDates = enrichmentService.enrichBookedDates(bookingsModelSet);
-				
+				List<CommercialGrndAvailabilityModel> lockList = commercialGrndAvailabilityRepo
+						.findLockedDatesFromNowTo6Months(currentDate, sixMonthsFromNowSql);
 				for (LocalDate toBeBooked1 : toBeBooked) {
-
 					for (LocalDate fetchBookedDates1 : fetchBookedDates) {
 						if (toBeBooked1.equals(fetchBookedDates1)) {
 							bookedDates.add(Date.valueOf(toBeBooked1));
 						}
+					}
+				}
+				for(CommercialGrndAvailabilityModel commGrndAvailModel : lockList) {
+					if(BookingsConstants.VENUE_TYPE_COMMERCIAL.equals(commGrndAvailModel.getVenueType()) && commGrndAvailModel.isLocked()) {
+						bookedDates.add(commGrndAvailModel.getFromDate());
 					}
 				}
 			} else {
@@ -290,6 +297,8 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 			model.setToDate(commGrndAvailabilitty.getToDate());
 			model.setVenueType(commGrndAvailabilitty.getVenueType());
 			model.setLocked(commGrndAvailabilitty.isLocked());
+			model.setReasonForHold(commGrndAvailabilitty.getReasonForHold());
+			model.setSector(commGrndAvailabilitty.getSector());
 			if (BookingsConstants.VENUE_TYPE_COMMUNITY_CENTER.equals(commGrndAvailabilitty.getVenueType())
 					|| BookingsConstants.VENUE_TYPE_PARKS.equals(commGrndAvailabilitty.getVenueType())) {
 			ParkCommunityHallV1MasterModel parkCommunityHallV1MasterModel = parkCommunityHallV1MasterRepository
