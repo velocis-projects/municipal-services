@@ -83,6 +83,8 @@ alter table bk_bookings add	last_modified_date varchar(255) NULL;
 
 alter table bk_osujm_new_location add created_date varchar(255) NULL;
 alter table bk_osujm_new_location add last_modified_date varchar(255) NULL;
-alter table bk_bookings add bk_nominee_name varchar(255) NULL,
-alter table bk_commercial_ground_availability_lock add reason_for_hold varchar(255) NULL,
-alter table bk_commercial_ground_availability_lock add sector varchar(255) NULL,
+alter table bk_bookings add bk_nominee_name varchar(255) NULL;
+-- iske baad ka client ko dena hai
+alter table bk_commercial_ground_availability_lock add reason_for_hold varchar(255) NULL;
+alter table bk_commercial_ground_availability_lock add sector varchar(255) NULL;
+alter table bk_bookings add refundable_security_money numeric(19,2) NULL;

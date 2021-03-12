@@ -1227,6 +1227,14 @@ public interface BookingsRepository
 			nativeQuery = true )
 			List<BookingsModel> getSamparkEmployeeSearchBooking( String applicationNumber, String applicationStatus, String mobileNumber
 					, String parksBookingType, String communityCenterBookingType, String uuid, Date fromDate, Date toDate );
+
+	Set<BookingsModel> findByBkLocationAndBkSector(String bookingVenue, String sector);
+
+	Set<BookingsModel> findByBkBookingVenueAndBkSector(String bookingVenue, String sector);
+
+
+	Set<BookingsModel> findByBkBookingVenueAndBkSectorAndBkToDateGreaterThanEqualAndBkPaymentStatus(String bookingVenue,
+			String sector, java.sql.Date date1, String paymentSuccessStatus);
 	
 	
 }
