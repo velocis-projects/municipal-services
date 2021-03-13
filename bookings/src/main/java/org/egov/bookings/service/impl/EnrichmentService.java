@@ -499,6 +499,7 @@ public class EnrichmentService {
 			bookingsModel.setBkAction(bookingsRequest.getBookingsModel().getBkAction());
 			bookingsModel.setBkRemarks(bookingsRequest.getBookingsModel().getBkRemarks());
 			bookingsModel.setTimeslots(bookingsRequest.getBookingsModel().getTimeslots());
+			bookingsModel.setRefundableSecurityMoney(bookingsRequest.getBookingsModel().getRefundableSecurityMoney());
 			bookingsRequest.getBookingsModel().setBkDateCreated(bookingsModel.getBkDateCreated());
 			if(!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getBkPaymentStatus())) {
 				bookingsModel.setBkPaymentStatus(bookingsRequest.getBookingsModel().getBkPaymentStatus());

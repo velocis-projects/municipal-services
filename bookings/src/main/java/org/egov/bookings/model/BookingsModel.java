@@ -427,4 +427,7 @@ public class BookingsModel {
 	@Column(name = "BK_NOMINEE_NAME")
 	private String bkNomineeName;
 	
+	@Column(name = "REFUNDABLE_SECURITY_MONEY")
+	private BigDecimal refundableSecurityMoney;
+	
 }
