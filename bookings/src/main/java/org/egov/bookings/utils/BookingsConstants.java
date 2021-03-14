@@ -923,4 +923,6 @@ public class BookingsConstants {
 	public static final String VENUE_TYPE_COMMUNITY_CENTER = "Community Center";
 	
 	public static final String VENUE_TYPE_PARKS = "Parks";
+	
+	public static final String VENUE_TYPE_COMMERCIAL = "Commercial Ground";
 }

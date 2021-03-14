@@ -4,6 +4,8 @@ import java.sql.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.egov.bookings.common.model.ResponseModel;
 import org.egov.bookings.contract.AvailabilityResponse;
 import org.egov.bookings.contract.ParkAndCommunitySearchCriteria;
@@ -11,11 +13,9 @@ import org.egov.bookings.contract.ParkCommunityFeeMasterRequest;
 import org.egov.bookings.contract.ParkCommunityFeeMasterResponse;
 import org.egov.bookings.model.BookingsModel;
 import org.egov.bookings.model.ParkCommunityHallV1MasterModel;
-import org.egov.bookings.models.demand.Demand;
 import org.egov.bookings.service.DemandService;
 import org.egov.bookings.service.ParkAndCommunityService;
 import org.egov.bookings.service.impl.EnrichmentService;
-import org.egov.bookings.service.impl.UserService;
 import org.egov.bookings.validator.BookingsFieldsValidator;
 import org.egov.bookings.web.models.BookingsRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 // TODO: Auto-generated Javadoc
@@ -33,6 +34,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/park/community")
 public class ParkAndCommunityController {
+	
+	/** The Constant LOGGER. */
+	private static final Logger LOGGER = LogManager.getLogger( ParkAndCommunityController.class.getName() );
 
 	/** The park and community service. */
 	@Autowired
@@ -178,6 +182,31 @@ public class ParkAndCommunityController {
 		rs.setMessage("Amount Fetched");
 		rs.setData(res);
 
+		return ResponseEntity.ok(rs);
+	}
+	
+	/**
+	 * Fetch sector.
+	 *
+	 * @param venueType the venue type
+	 * @return the response entity
+	 */
+	@PostMapping(value = "/sector/_fetch")
+	public ResponseEntity<?> fetchSector(@RequestParam(value = "venueType", required = true) String venueType){
+		if (BookingsFieldsValidator.isNullOrEmpty(venueType)) {
+			throw new IllegalArgumentException("Invalid venueType");
+		}
+		ResponseModel rs = new ResponseModel();
+		try {
+			List<ParkCommunityHallV1MasterModel> parkSectorList = parkAndCommunityService.fetchSector(venueType); 
+			rs.setStatus("200");
+			rs.setMessage("Success");
+			rs.setData(parkSectorList);
+		}
+		catch (Exception e) {
+			LOGGER.error("Exception occur in the fetchSector " + e);
+			e.printStackTrace();
+		}
 		return ResponseEntity.ok(rs);
 	}
 }

@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -88,6 +89,8 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 	@Autowired
 	private ParkCommunityHallV1MasterRepository parkCommunityHallV1MasterRepository; 
 	
+	@Autowired
+	private BookingsRepository bookingsRepo; 
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -188,7 +191,27 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 	@Override
 	public List<CommercialGrndAvailabilityModel> saveCommercialAvailabilityLockDates(
 			CommercialGrndAvailabiltyLockRequest commercialGrndAvailabiltyLockRequest) {
-		try {
+		 
+			
+			Set<BookingsModel>	bookingModelSet = new LinkedHashSet<>();
+			Set<BookingsModel>	bookingModelSet1 = new LinkedHashSet<>();
+			LocalDate date = LocalDate.now();
+			Date date1 = Date.valueOf(date);
+			for (CommercialGrndAvailabilityModel availabiltyModel : commercialGrndAvailabiltyLockRequest
+					.getCommercialGrndAvailabilityLock()) {
+					bookingModelSet1=bookingsRepo.findByBkBookingVenueAndBkSectorAndBkToDateGreaterThanEqualAndBkPaymentStatus(availabiltyModel.getBookingVenue(),
+							availabiltyModel.getSector(),date1,BookingsConstants.PAYMENT_SUCCESS_STATUS);
+					if(!BookingsFieldsValidator.isNullOrEmpty(bookingModelSet1))
+					bookingModelSet.addAll(bookingModelSet1);
+			}
+			List<LocalDate> fetchBookedDates = enrichmentService.enrichBookedDates(bookingModelSet);
+			commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().forEach(dateHolding -> {
+				for(LocalDate localDate : fetchBookedDates) {
+					if(localDate.compareTo(dateHolding.getFromDate().toLocalDate()) == 0) {
+						throw new CustomException("ALREADY_BOOKED", "Given Date is already booekd "+dateHolding.getFromDate());
+					}
+				}
+			});
 			for(CommercialGrndAvailabilityModel commercialGrndAvailabilityModel : commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock()) {
 				DateFormat formatter = bookingsUtils.getSimpleDateFormat();
 				commercialGrndAvailabilityModel.setCreatedDate(formatter.format(new java.util.Date()));
@@ -197,9 +220,7 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 			bookingsProducer.push(config.getSaveCommercialGrndLockedDates(), commercialGrndAvailabiltyLockRequest);
 			//commGrndAvail = commercialGrndAvailabilityRepository.save(commercialGrndAvailabilityModel);
 			return commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock();
-		} catch (Exception e) {
-			throw new CustomException("DATABASE__PERSISTER_ERROR", e.getLocalizedMessage());
-		}
+	
 	}
 
 	/*
@@ -216,7 +237,9 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 		LocalDate date = LocalDate.now();
 		Date date1 = Date.valueOf(date);
 		SortedSet<Date> bookedDates = new TreeSet<>();
-		
+		LocalDate sixMonthsFromNow = date.plusMonths(6);
+		Date currentDate = Date.valueOf(date);
+		Date sixMonthsFromNowSql = Date.valueOf(sixMonthsFromNow);
 		try {
 			List<LocalDate> toBeBooked = enrichmentService.extractAllDatesBetweenTwoDates(bookingsRequest);
 			lock.lock();
@@ -226,13 +249,18 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 						bookingsRequest.getBookingsModel().getBkBookingType(), date1, BookingsConstants.APPLY);
 
 				List<LocalDate> fetchBookedDates = enrichmentService.enrichBookedDates(bookingsModelSet);
-				
+				List<CommercialGrndAvailabilityModel> lockList = commercialGrndAvailabilityRepo
+						.findLockedDatesFromNowTo6Months(currentDate, sixMonthsFromNowSql);
 				for (LocalDate toBeBooked1 : toBeBooked) {
-
 					for (LocalDate fetchBookedDates1 : fetchBookedDates) {
 						if (toBeBooked1.equals(fetchBookedDates1)) {
 							bookedDates.add(Date.valueOf(toBeBooked1));
 						}
+					}
+				}
+				for(CommercialGrndAvailabilityModel commGrndAvailModel : lockList) {
+					if(BookingsConstants.VENUE_TYPE_COMMERCIAL.equals(commGrndAvailModel.getVenueType()) && commGrndAvailModel.isLocked()) {
+						bookedDates.add(commGrndAvailModel.getFromDate());
 					}
 				}
 			} else {
@@ -290,6 +318,8 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 			model.setToDate(commGrndAvailabilitty.getToDate());
 			model.setVenueType(commGrndAvailabilitty.getVenueType());
 			model.setLocked(commGrndAvailabilitty.isLocked());
+			model.setReasonForHold(commGrndAvailabilitty.getReasonForHold());
+			model.setSector(commGrndAvailabilitty.getSector());
 			if (BookingsConstants.VENUE_TYPE_COMMUNITY_CENTER.equals(commGrndAvailabilitty.getVenueType())
 					|| BookingsConstants.VENUE_TYPE_PARKS.equals(commGrndAvailabilitty.getVenueType())) {
 			ParkCommunityHallV1MasterModel parkCommunityHallV1MasterModel = parkCommunityHallV1MasterRepository

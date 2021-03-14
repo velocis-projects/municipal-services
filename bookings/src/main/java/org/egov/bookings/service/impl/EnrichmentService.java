@@ -25,6 +25,7 @@ import org.egov.bookings.contract.TaxHeadMasterFields;
 import org.egov.bookings.contract.UserDetails;
 import org.egov.bookings.dto.SearchCriteriaFieldsDTO;
 import org.egov.bookings.model.BookingsModel;
+import org.egov.bookings.model.CommercialGrndAvailabilityModel;
 import org.egov.bookings.model.OsbmApproverModel;
 import org.egov.bookings.model.OsujmNewLocationModel;
 import org.egov.bookings.model.ParkCommunityHallV1MasterModel;
@@ -498,6 +499,7 @@ public class EnrichmentService {
 			bookingsModel.setBkAction(bookingsRequest.getBookingsModel().getBkAction());
 			bookingsModel.setBkRemarks(bookingsRequest.getBookingsModel().getBkRemarks());
 			bookingsModel.setTimeslots(bookingsRequest.getBookingsModel().getTimeslots());
+			bookingsModel.setRefundableSecurityMoney(bookingsRequest.getBookingsModel().getRefundableSecurityMoney());
 			bookingsRequest.getBookingsModel().setBkDateCreated(bookingsModel.getBkDateCreated());
 			if(!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getBkPaymentStatus())) {
 				bookingsModel.setBkPaymentStatus(bookingsRequest.getBookingsModel().getBkPaymentStatus());
@@ -1039,4 +1041,6 @@ public class EnrichmentService {
 			throw new CustomException("INVALID_REQUEST", e.getLocalizedMessage());
 		}
 	}
+
+
 }
