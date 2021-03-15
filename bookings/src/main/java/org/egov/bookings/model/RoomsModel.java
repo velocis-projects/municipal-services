@@ -74,5 +74,8 @@ public class RoomsModel {
 
 	@Column(name = "room_payment_status")
 	private String roomPaymentStatus;
+	
+	@Column(name = "room_status")
+	private String roomStatus;
 
 }
