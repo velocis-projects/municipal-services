@@ -2,7 +2,6 @@ package org.egov.bookings.controller;
 
 import java.sql.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.LogManager;
@@ -199,10 +198,10 @@ public class ParkAndCommunityController {
 		}
 		ResponseModel rs = new ResponseModel();
 		try {
-			Map<String, String> paccSectorMap = parkAndCommunityService.fetchSector(venueType); 
+			List<ParkCommunityHallV1MasterModel> paccSectorList = parkAndCommunityService.fetchSector(venueType); 
 			rs.setStatus("200");
 			rs.setMessage("Success");
-			rs.setData(paccSectorMap);
+			rs.setData(paccSectorList);
 		}
 		catch (Exception e) {
 			LOGGER.error("Exception occur in the fetchSector " + e);
