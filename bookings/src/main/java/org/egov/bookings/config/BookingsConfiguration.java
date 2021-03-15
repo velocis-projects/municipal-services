@@ -260,5 +260,8 @@ public class BookingsConfiguration {
 	 
 	 @Value("${egov.idgen.bk.applicationNum.room.format}")
 	 private String applicationNumberIdgenRoomFormat;
+	 
+	 @Value("${kafka.topics.update-room-status}")
+	 private String updateRoomStatus;
 	
 }
