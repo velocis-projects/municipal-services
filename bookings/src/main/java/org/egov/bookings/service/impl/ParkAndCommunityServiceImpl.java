@@ -4,13 +4,16 @@ import java.sql.Date;
 import java.text.DateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -333,22 +336,24 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 	 * Fetch sector.
 	 *
 	 * @param venueType the venue type
-	 * @return the list
+	 * @return the map
 	 */
 	@Override
-	public List<ParkCommunityHallV1MasterModel> fetchSector(String venueType) {
+	public Map<String, String> fetchSector(String venueType) {
 		if (BookingsFieldsValidator.isNullOrEmpty(venueType)) {
 			throw new IllegalArgumentException("Invalid venueType");
 		}
-		List<ParkCommunityHallV1MasterModel> parkSectorList = new ArrayList<>();
+		List<ParkCommunityHallV1MasterModel> paccSectorList = new ArrayList<>();
+		Map<String, String> sectorMap = new HashMap<>();
 		try {
-			parkSectorList = parkCommunityHallV1MasterRepository.findByVenueType(venueType); 
+			paccSectorList = parkCommunityHallV1MasterRepository.findByVenueType(venueType); 
+			sectorMap = paccSectorList.stream().collect(Collectors.toMap(ParkCommunityHallV1MasterModel :: getSector, ParkCommunityHallV1MasterModel :: getId, (oldValue, newValue) -> oldValue));
 		}
 		catch (Exception e) {
 			LOGGER.error("Exception occur in the fetchSector " + e);
 			e.printStackTrace();
 		}
-		return parkSectorList;
+		return sectorMap;
 	}
 
 }

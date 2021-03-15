@@ -2,6 +2,7 @@ package org.egov.bookings.service;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.egov.bookings.contract.AvailabilityResponse;
@@ -79,8 +80,8 @@ public interface ParkAndCommunityService {
 	 * Fetch sector.
 	 *
 	 * @param venueType the venue type
-	 * @return the list
+	 * @return the map
 	 */
-	List<ParkCommunityHallV1MasterModel> fetchSector(String venueType);
+	Map<String, String> fetchSector(String venueType);
 
 }
