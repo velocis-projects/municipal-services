@@ -93,6 +93,9 @@ public class RoomsServiceImpl implements RoomsService {
 		else {
 			bookingsProducer.push(config.getUpdateRoomDetails(), kafkaBookingRequest);	
 		}
+		if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getRoomsModel())) {
+			bookingsProducer.push(config.getSaveRoomBookingSMSTopic(), bookingsRequest);
+		}
 		return bookingsRequest.getBookingsModel();
 	}
 
@@ -215,6 +218,9 @@ public class RoomsServiceImpl implements RoomsService {
 		BookingsRequestKafka kafkaBookingRequest = enrichmentService.enrichForKafka(bookingsRequest);
 			bookingsProducer.push(config.getUpdateRoomDetails(), kafkaBookingRequest);	
 		//br.save(bookingsRequest.getBookingsModel());
+		if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getRoomsModel())) {
+			bookingsProducer.push(config.getUpdateRoomBookingSMSTopic(), bookingsRequest);
+		}
 		return bookingsRequest.getBookingsModel();
 	}
 

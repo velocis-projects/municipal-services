@@ -450,6 +450,8 @@ public class BookingsConstants {
 	/** The Constant BUSINESS_SERVICE_PACC. */
 	public static final String BUSINESS_SERVICE_PACC = "PACC";
 	
+	/** The Constant BUSINESS_SERVICE_BKROOM. */
+	public static final String BUSINESS_SERVICE_BKROOM = "BKROOM";
 	
 	/** The Constant BUSINESS_SERVICE_ROOM_FOR_COMMUNITY. */
 	public static final String BUSINESS_SERVICE_ROOM_FOR_COMMUNITY = "BKROOM";
@@ -570,6 +572,9 @@ public class BookingsConstants {
 	/** The Constant NOTIFICATION_INITIATED. */
 	public static final String NOTIFICATION_INITIATED = "bk.en.counter.initiate";
 	
+	/** The Constant NOTIFICATION_ROOM_INITIATED. */
+	public static final String NOTIFICATION_ROOM_INITIATED = "bk.en.counter.room.initiate";
+	
 	/** The Constant NOTIFICATION_PENDINGAPPROVAL. */
 	public static final String NOTIFICATION_PENDINGAPPROVAL = "bk.en.counter.apply";
 	
@@ -596,6 +601,12 @@ public class BookingsConstants {
 	
 	/** The Constant NOTIFICATION_APPLIED. */
 	public static final String NOTIFICATION_APPLIED = "bk.en.counter.apply";
+	
+	/** The Constant NOTIFICATION_ROOM_APPLIED. */
+	public static final String NOTIFICATION_ROOM_APPLIED = "bk.en.counter.room.apply";
+	
+	/** The Constant NOTIFICATION_PACC_ROOM_APPLIED. */
+	public static final String NOTIFICATION_PACC_ROOM_APPLIED = "bk.en.counter.pacc.room.apply";
     
     /** The Constant NOTIFICATION_OBJECT_MODIFIED. */
     public static final String NOTIFICATION_OBJECT_MODIFIED = "tl.en.edit.object.modified";
@@ -720,6 +731,9 @@ public class BookingsConstants {
 	/** The Constant MAIL_NOTIFICATION_INITIATED. */
 	public static final String MAIL_NOTIFICATION_INITIATED = "bk.m.counter.initiate";
 	
+	/** The Constant MAIL_NOTIFICATION_ROOM_INITIATED. */
+	public static final String MAIL_NOTIFICATION_ROOM_INITIATED = "bk.m.counter.room.initiate";
+	
 	/** The Constant MAIL_NOTIFICATION_PENDINGAPPROVAL. */
 	public static final String MAIL_NOTIFICATION_PENDINGAPPROVAL = "bk.m.counter.apply";
 	
@@ -740,6 +754,12 @@ public class BookingsConstants {
 	
 	/** The Constant MAIL_NOTIFICATION_APPLIED. */
 	public static final String MAIL_NOTIFICATION_APPLIED = "bk.m.counter.apply";
+	
+	/** The Constant MAIL_NOTIFICATION_ROOM_APPLIED. */
+	public static final String MAIL_NOTIFICATION_ROOM_APPLIED = "bk.m.counter.room.apply";
+	
+	/** The Constant MAIL_NOTIFICATION_PACC_ROOM_APPLIED. */
+	public static final String MAIL_NOTIFICATION_PACC_ROOM_APPLIED = "bk.m.counter.pacc.room.apply";
 	
 	/** The Constant MAIL_NOTIFICATION_UPDATE. */
 	public static final String MAIL_NOTIFICATION_UPDATE = "bk.m.counter.update";
@@ -849,8 +869,14 @@ public class BookingsConstants {
 	/** The Constant NOTIFICATION_RE_INITIATED. */
 	public static final String NOTIFICATION_RE_INITIATED = "bk.en.counter.re_initiate";
 	
+	/** The Constant NOTIFICATION_PACC_RE_INITIATED. */
+	public static final String NOTIFICATION_PACC_RE_INITIATED = "bk.en.counter.pacc.re_initiate";
+	
 	/** The Constant NOTIFICATION_CANCEL. */
 	public static final String NOTIFICATION_CANCEL = "bk.en.counter.cancel";
+	
+	/** The Constant NOTIFICATION_PACC_ROOM_CANCEL. */
+	public static final String NOTIFICATION_PACC_ROOM_CANCEL = "bk.en.counter.pacc.room.cancel";
 	
 	/** The Constant NOTIFICATION_SECURITY_REFUND. */
 	public static final String NOTIFICATION_SECURITY_REFUND = "bk.en.counter.security_refund";
@@ -870,8 +896,14 @@ public class BookingsConstants {
 	/** The Constant MAIL_NOTIFICATION_RE_INITIATED. */
 	public static final String MAIL_NOTIFICATION_RE_INITIATED = "bk.m.counter.re_initiate";
 	
+	/** The Constant MAIL_NOTIFICATION_PACC_RE_INITIATED. */
+	public static final String MAIL_NOTIFICATION_PACC_RE_INITIATED = "bk.m.counter.pacc.room.re_initiate";
+	
 	/** The Constant MAIL_NOTIFICATION_CANCEL. */
 	public static final String MAIL_NOTIFICATION_CANCEL = "bk.m.counter.cancel";
+	
+	/** The Constant MAIL_NOTIFICATION_PACC_ROOM_CANCEL. */
+	public static final String MAIL_NOTIFICATION_PACC_ROOM_CANCEL = "bk.m.counter.pacc.room.cancel";
 	
 	/** The Constant MAIL_NOTIFICATION_SECURITY_REFUND. */
 	public static final String MAIL_NOTIFICATION_SECURITY_REFUND = "bk.m.counter.security_refund";
