@@ -208,7 +208,7 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 			commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().forEach(dateHolding -> {
 				for(LocalDate localDate : fetchBookedDates) {
 					if(localDate.compareTo(dateHolding.getFromDate().toLocalDate()) == 0) {
-						throw new CustomException("ALREADY_BOOKED", "Given Date is already booekd "+dateHolding.getFromDate());
+						throw new CustomException("ALREADY_BOOKED", "Given Date is already booked "+dateHolding.getFromDate());
 					}
 				}
 			});
