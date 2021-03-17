@@ -564,7 +564,7 @@ public class BookingsConstants {
     public static final String ACTION_STATUS_PENDINGPUBLISH = "APPROVEOSD_PENDINGPUBLISH";
     
     /** The Constant ACTION_STATUS_PUBLISH. */
-    public static final String ACTION_STATUS_PUBLISH = "PUBLISH_PUBLISH";
+    public static final String ACTION_STATUS_PUBLISHED = "PUBLISH_PUBLISHED";
 	//
 	
 	/** The Constant NOTIFICATION_INITIATED. */
@@ -925,4 +925,6 @@ public class BookingsConstants {
 	public static final String VENUE_TYPE_PARKS = "Parks";
 	
 	public static final String VENUE_TYPE_COMMERCIAL = "Commercial Ground";
+	
+	public static final String CANCEL = "CANCEL";
 }

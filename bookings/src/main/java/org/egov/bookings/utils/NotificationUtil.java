@@ -12,7 +12,7 @@ import static org.egov.bookings.utils.BookingsConstants.ACTION_STATUS_PENDINGAPP
 import static org.egov.bookings.utils.BookingsConstants.ACTION_STATUS_PENDINGPAYMENT;
 import static org.egov.bookings.utils.BookingsConstants.ACTION_STATUS_PENDINGPUBLISH;
 import static org.egov.bookings.utils.BookingsConstants.ACTION_STATUS_PENDINGUPDATE;
-import static org.egov.bookings.utils.BookingsConstants.ACTION_STATUS_PUBLISH;
+import static org.egov.bookings.utils.BookingsConstants.ACTION_STATUS_PUBLISHED;
 import static org.egov.bookings.utils.BookingsConstants.ACTION_STATUS_REJECTED;
 import static org.egov.bookings.utils.BookingsConstants.ACTION_STATUS_SPECIALAPPLY_DELIVERED;
 import static org.egov.bookings.utils.BookingsConstants.NOTIFICATION_LOCALE;
@@ -473,7 +473,7 @@ public class NotificationUtil {
 			
 		case ACTION_STATUS_PENDINGAPPROVALOSD:
 		case ACTION_STATUS_PENDINGPUBLISH:
-		case ACTION_STATUS_PUBLISH:
+		case ACTION_STATUS_PUBLISHED:
 			messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_UPDATE, localizationMessage);
 			message = getNLUJMUpdatedMsg(osujmNewLocationModel, messageTemplate, applicationStatus);
 			break;
@@ -512,8 +512,8 @@ public class NotificationUtil {
 			
 		case ACTION_STATUS_PENDINGAPPROVALOSD:
 		case ACTION_STATUS_PENDINGPUBLISH:
-		case ACTION_STATUS_PUBLISH:
-			messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_UPDATE, localizationMessage);
+		case ACTION_STATUS_PUBLISHED:
+			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_UPDATE, localizationMessage);
 			message = getNLUJMUpdatedMsg(osujmNewLocationModel, messageTemplate, applicationStatus);
 			break;
 		}

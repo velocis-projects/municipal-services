@@ -35,6 +35,7 @@ import org.egov.bookings.model.user.UserDetailResponse;
 import org.egov.bookings.models.demand.Demand;
 import org.egov.bookings.models.demand.DemandDetail;
 import org.egov.bookings.models.demand.TaxHeadEstimate;
+import org.egov.bookings.producer.BookingsProducer;
 import org.egov.bookings.repository.BookingsRepository;
 import org.egov.bookings.repository.CommonRepository;
 import org.egov.bookings.repository.OsbmApproverRepository;
@@ -115,6 +116,9 @@ public class EnrichmentService {
 	
 	@Autowired
 	private RoomsRepository roomsRepository;
+	
+	@Autowired
+	private BookingsProducer bookingsProducer;
 	
 	
 	/**
@@ -686,6 +690,17 @@ public class EnrichmentService {
 	 */
 	public void enrichPaccPaymentDetails(BookingsRequest bookingsRequest) {
 		String businessService = bookingsRequest.getBookingsModel().getBusinessService();
+		
+		if(BookingsConstants.PACC_ACTION_CANCEL.equals(bookingsRequest.getBookingsModel().getBkAction())) {
+			List<RoomsModel> roomsList = roomsRepository
+					.findByCommunityApplicationNumber(bookingsRequest.getBookingsModel().getBkApplicationNumber());
+			roomsList.forEach(room->{
+				room.setRoomStatus(BookingsConstants.PACC_ACTION_CANCEL);
+			});
+			BookingsRequestKafka kafkaBookingRequest = enrichForKafka(bookingsRequest);
+			bookingsProducer.push(config.getUpdateRoomStatus(), kafkaBookingRequest);
+		}
+		
 		BookingsModel bookingsModel = bookingsRepository
 				.findByBkApplicationNumber(bookingsRequest.getBookingsModel().getBkApplicationNumber());
 		bookingsRequest.getBookingsModel().setBkDateCreated(bookingsModel.getBkDateCreated());
@@ -946,6 +961,14 @@ public class EnrichmentService {
 			bookingsRequest.getBookingsModel().setBkToDate(findByBkApplicationNumber.getBkToDate());
 			bookingsRequest.getBookingsModel().setBkBookingVenue(findByBkApplicationNumber.getBkBookingVenue());
 			bookingsRequest.getBookingsModel().setBkType(bookingsRequest.getBookingsModel().getBkBookingVenue());
+		
+			List<RoomsModel> roomsList = roomsRepository
+					.findByCommunityApplicationNumber(bookingsRequest.getBookingsModel().getBkApplicationNumber());
+			roomsList.forEach(room->{
+				room.setRoomStatus(BookingsConstants.PACC_ACTION_CANCEL);
+			});
+			BookingsRequestKafka kafkaBookingRequest = enrichForKafka(bookingsRequest);
+			bookingsProducer.push(config.getUpdateRoomStatus(), kafkaBookingRequest);
 		}
 	}
 

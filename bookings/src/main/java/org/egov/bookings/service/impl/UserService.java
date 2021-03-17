@@ -51,9 +51,9 @@ public class UserService {
 	 * Creates the user.
 	 *
 	 * @param bookingsRequest      the bookings request
-	 * @param isBPARoleAddRequired the is BPA role add required
+	 * @param isBKRoleAddRequired the is BPA role add required
 	 */
-	public void createUser(BookingsRequest bookingsRequest, boolean isBPARoleAddRequired) {
+	public void createUser(BookingsRequest bookingsRequest, boolean isBKRoleAddRequired) {
 		BookingsModel bookingsModel = bookingsRequest.getBookingsModel();
 		RequestInfo requestInfo = bookingsRequest.getRequestInfo();
 		List<BookingsModel> bookingsModelList = new ArrayList<>();

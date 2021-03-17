@@ -327,10 +327,10 @@ public class RoomsServiceImpl implements RoomsService {
 			typesOfRoomMap.put(BookingsConstants.AVAILABLE_NON_AC_ROOMS, typesOfRoomMap.get(BookingsConstants.NON_AC));
 			if(!BookingsFieldsValidator.isNullOrEmpty(roomBookingList)) {
 				for(RoomsModel roomModel : roomBookingList) {
-					if(BookingsConstants.AC.equals(roomModel.getTypeOfRoom())) {
+					if(BookingsConstants.AC.equals(roomModel.getTypeOfRoom()) && !BookingsConstants.CANCEL.equals(roomModel.getRoomStatus())) {
 						totalNumberOfAcRoom = totalNumberOfAcRoom + Integer.parseInt(roomModel.getTotalNoOfRooms());
 					}
-					else if(BookingsConstants.NON_AC.equals(roomModel.getTypeOfRoom())) {
+					else if(BookingsConstants.NON_AC.equals(roomModel.getTypeOfRoom()) && !BookingsConstants.CANCEL.equals(roomModel.getRoomStatus())) {
 						totalNumberOfNonAcRoom = totalNumberOfNonAcRoom + Integer.parseInt(roomModel.getTotalNoOfRooms());
 					}
 				}

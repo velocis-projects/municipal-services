@@ -198,10 +198,10 @@ public class ParkAndCommunityController {
 		}
 		ResponseModel rs = new ResponseModel();
 		try {
-			List<ParkCommunityHallV1MasterModel> parkSectorList = parkAndCommunityService.fetchSector(venueType); 
+			List<ParkCommunityHallV1MasterModel> paccSectorList = parkAndCommunityService.fetchSector(venueType); 
 			rs.setStatus("200");
 			rs.setMessage("Success");
-			rs.setData(parkSectorList);
+			rs.setData(paccSectorList);
 		}
 		catch (Exception e) {
 			LOGGER.error("Exception occur in the fetchSector " + e);

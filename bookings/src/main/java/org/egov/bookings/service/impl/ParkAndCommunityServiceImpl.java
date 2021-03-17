@@ -91,15 +91,24 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 	@Autowired
 	private UserService userService;
 	
+	/** The bookings fields validator. */
 	@Autowired
 	private BookingsFieldsValidator bookingsFieldsValidator;
 	
+	/** The commercial grnd availability repo. */
 	@Autowired
 	private CommercialGrndAvailabilityRepository commercialGrndAvailabilityRepo;
 	
+	/** The bookings utils. */
 	@Autowired
 	private BookingsUtils bookingsUtils;
 	
+	/**
+	 * Creates the park and community booking.
+	 *
+	 * @param bookingsRequest the bookings request
+	 * @return the bookings model
+	 */
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -138,6 +147,12 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 		return bookingsRequest.getBookingsModel();
 	}
 
+	/**
+	 * Update park and community booking.
+	 *
+	 * @param bookingsRequest the bookings request
+	 * @return the bookings model
+	 */
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -179,6 +194,12 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 		return bookingsRequest.getBookingsModel();
 	}
 
+	/**
+	 * Fetch park community master.
+	 *
+	 * @param parkCommunityFeeMasterRequest the park community fee master request
+	 * @return the list
+	 */
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -200,6 +221,12 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 		}
 	}
 
+	/**
+	 * Availability search.
+	 *
+	 * @param parkAndCommunitySearchCriteria the park and community search criteria
+	 * @return the sets the
+	 */
 	/* (non-Javadoc)
 	 * @see org.egov.bookings.service.ParkAndCommunityService#availabilitySearch(org.egov.bookings.contract.ParkAndCommunitySearchCriteria)
 	 */
@@ -238,6 +265,12 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 
 	}
 
+	/**
+	 * Fetch booked dates.
+	 *
+	 * @param bookingsRequest the bookings request
+	 * @return the sets the
+	 */
 	/* (non-Javadoc)
 	 * @see org.egov.bookings.service.ParkAndCommunityService#fetchBookedDates(org.egov.bookings.web.models.BookingsRequest)
 	 */
@@ -294,6 +327,12 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 
 	}
 
+	/**
+	 * Find park and community fee.
+	 *
+	 * @param bookingVenue the booking venue
+	 * @return the park community hall V 1 master model
+	 */
 	/* (non-Javadoc)
 	 * @see org.egov.bookings.service.ParkAndCommunityService#findParkAndCommunityFee(java.lang.String)
 	 */
@@ -308,6 +347,12 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 		}
 	}
 
+	/**
+	 * Fetch amount.
+	 *
+	 * @param parkCommunityFeeMasterRequest the park community fee master request
+	 * @return the park community fee master response
+	 */
 	/* (non-Javadoc)
 	 * @see org.egov.bookings.service.ParkAndCommunityService#fetchAmount(org.egov.bookings.contract.ParkCommunityFeeMasterRequest)
 	 */
@@ -329,6 +374,7 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 		}
 	}
 
+	
 	/**
 	 * Fetch sector.
 	 *
@@ -340,15 +386,23 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 		if (BookingsFieldsValidator.isNullOrEmpty(venueType)) {
 			throw new IllegalArgumentException("Invalid venueType");
 		}
-		List<ParkCommunityHallV1MasterModel> parkSectorList = new ArrayList<>();
+		List<ParkCommunityHallV1MasterModel> paccSectorList = new ArrayList<>();
+		List<ParkCommunityHallV1MasterModel> paccSector = new ArrayList<>();
 		try {
-			parkSectorList = parkCommunityHallV1MasterRepository.findByVenueType(venueType); 
+			paccSector = parkCommunityHallV1MasterRepository.findByVenueType(venueType); 
+			paccSector.forEach(parkCommunityHallV1MasterModel -> {
+				ParkCommunityHallV1MasterModel paccMasterModel = new ParkCommunityHallV1MasterModel();
+				paccMasterModel.setSector(parkCommunityHallV1MasterModel.getSector());
+				if(!paccSectorList.contains(paccMasterModel)){
+					paccSectorList.add(paccMasterModel);
+				}
+			});
 		}
 		catch (Exception e) {
 			LOGGER.error("Exception occur in the fetchSector " + e);
 			e.printStackTrace();
 		}
-		return parkSectorList;
+		return paccSectorList;
 	}
 
 }
