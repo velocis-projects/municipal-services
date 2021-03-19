@@ -126,7 +126,7 @@ public interface CommonRepository extends JpaRepository<BookingsModel, Long> {
 	 */
 	@Query(value = BookingsQueryBuilder.CHECK_JURISDICTION_AVAILABILITY, nativeQuery = true)
 	public Set<BookingsModel> searchJurisdictionAvailability(@Param(BookingsConstants.BOOKING_VENUE) String bookingVenue,@Param(BookingsConstants.BOOKING_TYPE) String bookingType, @Param(BookingsConstants.BK_SECTOR) String bkSector,
-			@Param(BookingsConstants.DATE) 	Date date, @Param(BookingsConstants.PAY) String PAY);
+			@Param(BookingsConstants.DATE) 	Date date, @Param(BookingsConstants.PAYMENT_SUCCESS_STATUS) String SUCCESS);
 	
 	
 	/**

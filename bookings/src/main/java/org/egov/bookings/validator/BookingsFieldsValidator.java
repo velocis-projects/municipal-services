@@ -430,6 +430,22 @@ public class BookingsFieldsValidator {
 		if (BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getBkBookingType())) {
 			throw new IllegalArgumentException("Invalid Booking Type");
 		}
+		
+		if (BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getBkSector())) {
+			throw new IllegalArgumentException("Invalid Sector");
+		}
+		
+		if (BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getBkApplicationNumber())) {
+			throw new IllegalArgumentException("Invalid Application Number");
+		}
+		
+		if (BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getBkFromDate())) {
+			throw new IllegalArgumentException("Invalid Booking From Date");
+		}
+		
+		if (BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getBkToDate())) {
+			throw new IllegalArgumentException("Invalid Booking To Date");
+		}
 
 	}
 
@@ -452,6 +468,14 @@ public class BookingsFieldsValidator {
 
 		if (BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getBkSector())) {
 			throw new IllegalArgumentException("Invalid Booking Sector");
+		}
+		
+		if (BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getBkFromDate())) {
+			throw new IllegalArgumentException("Invalid Booking From Date");
+		}
+		
+		if (BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getBkToDate())) {
+			throw new IllegalArgumentException("Invalid Booking To Date");
 		}
 	}
 

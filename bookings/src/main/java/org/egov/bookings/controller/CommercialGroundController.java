@@ -110,9 +110,16 @@ public class CommercialGroundController {
 		List<CommercialGrndAvailabilityModel> res = commercialGroundService.saveCommercialAvailabilityLockDates(commercialGrndAvailabiltyLockRequest);
 		
 		ResponseModel rs = new ResponseModel();
-		rs.setStatus("200");
-		rs.setMessage("Dates Locked");
-		rs.setData(res);
+		if (null != res) {
+			rs.setStatus("200");
+			rs.setMessage("Dates Locked");
+			rs.setData(res);
+		}
+		else {
+			rs.setStatus("200");
+			rs.setMessage("Already Booked");
+			rs.setData(res);
+		}
 		
 		return ResponseEntity.ok(rs);
 	}

@@ -927,4 +927,6 @@ public class BookingsConstants {
 	public static final String VENUE_TYPE_COMMERCIAL = "Commercial Ground";
 	
 	public static final String CANCEL = "CANCEL";
+	
+	public static final String PACC_ACTION_OFFLINE_MODIFY = "OFFLINE_MODIFY";
 }

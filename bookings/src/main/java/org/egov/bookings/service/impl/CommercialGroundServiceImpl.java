@@ -205,13 +205,13 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 					bookingModelSet.addAll(bookingModelSet1);
 			}
 			List<LocalDate> fetchBookedDates = enrichmentService.enrichBookedDates(bookingModelSet);
-			commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock().forEach(dateHolding -> {
+			for(CommercialGrndAvailabilityModel dateHolding : commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock()) {
 				for(LocalDate localDate : fetchBookedDates) {
 					if(localDate.compareTo(dateHolding.getFromDate().toLocalDate()) == 0) {
-						throw new CustomException("ALREADY_BOOKED", "Given Date is already booked "+dateHolding.getFromDate());
+						return null;
 					}
 				}
-			});
+			}
 			for(CommercialGrndAvailabilityModel commercialGrndAvailabilityModel : commercialGrndAvailabiltyLockRequest.getCommercialGrndAvailabilityLock()) {
 				DateFormat formatter = bookingsUtils.getSimpleDateFormat();
 				commercialGrndAvailabilityModel.setCreatedDate(formatter.format(new java.util.Date()));
@@ -241,8 +241,8 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 		Date currentDate = Date.valueOf(date);
 		Date sixMonthsFromNowSql = Date.valueOf(sixMonthsFromNow);
 		try {
-			List<LocalDate> toBeBooked = enrichmentService.extractAllDatesBetweenTwoDates(bookingsRequest);
 			lock.lock();
+			List<LocalDate> toBeBooked = enrichmentService.extractAllDatesBetweenTwoDates(bookingsRequest);
 			if (config.isCommercialLock()) {
 				Set<BookingsModel> bookingsModelSet = commonRepository.findAllBookedVenuesFromNow(
 						bookingsRequest.getBookingsModel().getBkBookingVenue(),
@@ -258,9 +258,14 @@ public class CommercialGroundServiceImpl implements CommercialGroundService {
 						}
 					}
 				}
-				for(CommercialGrndAvailabilityModel commGrndAvailModel : lockList) {
-					if(BookingsConstants.VENUE_TYPE_COMMERCIAL.equals(commGrndAvailModel.getVenueType()) && commGrndAvailModel.isLocked()) {
-						bookedDates.add(commGrndAvailModel.getFromDate());
+				for (LocalDate toBeBooked1 : toBeBooked) {
+					for (CommercialGrndAvailabilityModel commGrndAvailModel : lockList) {
+						if (BookingsConstants.VENUE_TYPE_COMMERCIAL.equals(commGrndAvailModel.getVenueType())
+								&& commGrndAvailModel.isLocked() && bookingsRequest.getBookingsModel()
+										.getBkBookingVenue().equals(commGrndAvailModel.getBookingVenue())) {
+							if (toBeBooked1.equals(commGrndAvailModel.getFromDate().toLocalDate()))
+								bookedDates.add(commGrndAvailModel.getFromDate());
+						}
 					}
 				}
 			} else {
