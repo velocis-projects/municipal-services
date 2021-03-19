@@ -86,7 +86,7 @@ public class BookingNotificationService {
 			case BUSINESS_SERVICE_BWT:
 			case BUSINESS_SERVICE_GFCP:
 			case BUSINESS_SERVICE_OSUJM:
-			case BUSINESS_SERVICE_PACC:	
+			case BUSINESS_SERVICE_PACC:
 				List<SMSRequest> smsRequestsTL = new LinkedList<>();
 				List<EmailRequest> emailRequestsTL = new LinkedList<>();
 

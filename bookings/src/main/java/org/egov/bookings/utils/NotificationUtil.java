@@ -53,6 +53,7 @@ import org.egov.bookings.contract.EventRequest;
 import org.egov.bookings.contract.SMSRequest;
 import org.egov.bookings.model.BookingsModel;
 import org.egov.bookings.model.OsujmNewLocationModel;
+import org.egov.bookings.model.RoomsModel;
 import org.egov.bookings.producer.BookingsProducer;
 import org.egov.bookings.repository.impl.ServiceRequestRepository;
 import org.egov.bookings.service.impl.BookingsServiceImpl;
@@ -188,13 +189,23 @@ public class NotificationUtil {
 		//PACC
 		case ACTION_STATUS_RE_INITIATED:
 		case ACTION_STATUS_OFFLINE_RE_INITIATE:
-			messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_RE_INITIATED, localizationMessage);
+			if(BookingsFieldsValidator.isNullOrEmpty(bookingsModel.getRoomsModel())) {
+				messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_RE_INITIATED, localizationMessage);
+			}
+			else {
+				messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_PACC_RE_INITIATED, localizationMessage);
+			}
 			message = getReInitiatedMsg(bookingsModel, messageTemplate);
 			break;
 
 		case ACTION_STATUS_CANCEL:
 		case ACTION_STATUS_OFFLINE_CANCEL:
-			messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_CANCEL, localizationMessage);
+			if(BookingsFieldsValidator.isNullOrEmpty(bookingsModel.getRoomsModel())) {
+				messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_CANCEL, localizationMessage);
+			}
+			else {
+				messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_PACC_ROOM_CANCEL, localizationMessage);
+			}
 			message = getCancelMsg(bookingsModel, messageTemplate, applicationStatus);
 			break;
 		
@@ -229,46 +240,40 @@ public class NotificationUtil {
 			messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_PACC_REJECTED, localizationMessage);
 			message = getRejectedMsg(bookingsModel, messageTemplate);
 			break;
-		
-//		case ACTION_STATUS_OFFLINE_INITIATE:
-//			messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_APPLIED, localizationMessage);
-//			message = getAppliedMsg(bookingsModel, messageTemplate);
-//			break;
-		
-//		case ACTION_STATUS_OFFLINE_APPLY:
-//			messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_APPLIED, localizationMessage);
-//			message = getAppliedMsg(bookingsModel, messageTemplate);
-//			break;
-		
-//		case ACTION_STATUS_OFFLINE_RE_INITIATE:
-//			messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_APPLIED, localizationMessage);
-//			message = getAppliedMsg(bookingsModel, messageTemplate);
-//			break;
-		
-//		case ACTION_STATUS_OFFLINE_CANCEL:
-//			messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_APPLIED, localizationMessage);
-//			message = getAppliedMsg(bookingsModel, messageTemplate);
-//			break;
-		
-//		case ACTION_STATUS_OFFLINE_SECURITY_REFUND:
-//			messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_APPLIED, localizationMessage);
-//			message = getAppliedMsg(bookingsModel, messageTemplate);
-//			break;
-		
-//		case ACTION_STATUS_OFFLINE_MODIFY:
-//			messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_APPLIED, localizationMessage);
-//			message = getAppliedMsg(bookingsModel, messageTemplate);
-//			break;
-		
-//		case ACTION_STATUS_APPROVE_SUPERVISOR:
-//			messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_APPLIED, localizationMessage);
-//			message = getAppliedMsg(bookingsModel, messageTemplate);
-//			break;
-		
-//		case ACTION_STATUS_APPROVE_OSD:
-//			messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_APPLIED, localizationMessage);
-//			message = getAppliedMsg(bookingsModel, messageTemplate);
-//			break;
+		}
+		return message;
+	}
+	
+	/**
+	 * Gets the room customized msg.
+	 *
+	 * @param requestInfo the request info
+	 * @param bookingsModel the bookings model
+	 * @param localizationMessage the localization message
+	 * @return the room customized msg
+	 */
+	public String getRoomCustomizedMsg(RequestInfo requestInfo, BookingsModel bookingsModel, String localizationMessage) {
+		String message = null, messageTemplate;
+		String ACTION_STATUS = bookingsModel.getRoomsModel().get(0).getAction() + "_" + bookingsModel.getRoomsModel().get(0).getRoomApplicationStatus();
+		switch (ACTION_STATUS) {
+		//ROOM
+		case ACTION_STATUS_INITIATED:
+		case ACTION_STATUS_OFFLINE_INITIATE:
+			messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_ROOM_INITIATED, localizationMessage);
+			message = getRoomInitiatedMsg(bookingsModel, messageTemplate);
+			break;
+			
+		case ACTION_STATUS_APPLIED:
+		case ACTION_STATUS_OFFLINE_APPLY:
+			if(!BookingsFieldsValidator.isNullOrEmpty(bookingsModel.getRoomsModel()) && bookingsModel.getRoomsModel().size() == 2) {
+				messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_ROOM_APPLIED, localizationMessage);
+				message = getRoomAppliedMsg(bookingsModel, messageTemplate);
+			}
+			else if(!BookingsFieldsValidator.isNullOrEmpty(bookingsModel.getRoomsModel()) && bookingsModel.getRoomsModel().size() == 1){
+				messageTemplate = getMessageTemplate(BookingsConstants.NOTIFICATION_PACC_ROOM_APPLIED, localizationMessage);
+				message = getRoomTypeAppliedMsg(bookingsModel, messageTemplate);
+			}
+			break;
 		}
 		return message;
 	}
@@ -385,7 +390,7 @@ public class NotificationUtil {
 			message = getPendingAssignmentDriverMsg(bookingsModel, messageTemplate);
 			break;
 			
-		//GFCP,PACC
+		//GFCP,PACC,ROOM
 		case ACTION_STATUS_APPLIED:
 		case ACTION_STATUS_OFFLINE_APPLY:
 			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_APPLIED, localizationMessage);
@@ -395,13 +400,23 @@ public class NotificationUtil {
 		//PACC
 		case ACTION_STATUS_RE_INITIATED:
 		case ACTION_STATUS_OFFLINE_RE_INITIATE:
-			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_RE_INITIATED, localizationMessage);
+			if(BookingsFieldsValidator.isNullOrEmpty(bookingsModel.getRoomsModel())) {
+				messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_RE_INITIATED, localizationMessage);
+			}
+			else {
+				messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_PACC_RE_INITIATED, localizationMessage);
+			}
 			message = getReInitiatedMsg(bookingsModel, messageTemplate);
 			break;
 	
 		case ACTION_STATUS_CANCEL:
 		case ACTION_STATUS_OFFLINE_CANCEL:
-			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_CANCEL, localizationMessage);
+			if(BookingsFieldsValidator.isNullOrEmpty(bookingsModel.getRoomsModel())) {
+				messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_CANCEL, localizationMessage);
+			}
+			else {
+				messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_PACC_ROOM_CANCEL, localizationMessage);
+			}
 			message = getCancelMsg(bookingsModel, messageTemplate, applicationStatus);
 			break;
 		
@@ -437,6 +452,39 @@ public class NotificationUtil {
 			message = getRejectedMsg(bookingsModel, messageTemplate);
 			break;
 
+		}		
+		return message;
+	}
+	
+	/**
+	 * Gets the room mail customized msg.
+	 *
+	 * @param requestInfo the request info
+	 * @param bookingsModel the bookings model
+	 * @param localizationMessage the localization message
+	 * @return the room mail customized msg
+	 */
+	public String getRoomMailCustomizedMsg(RequestInfo requestInfo, BookingsModel bookingsModel, String localizationMessage) {
+		String message = null, messageTemplate;
+		String ACTION_STATUS = bookingsModel.getRoomsModel().get(0).getAction() + "_" + bookingsModel.getRoomsModel().get(0).getRoomApplicationStatus();
+		switch (ACTION_STATUS) {
+		case ACTION_STATUS_INITIATED:
+		case ACTION_STATUS_OFFLINE_INITIATE:
+			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_INITIATED, localizationMessage);
+			message = getRoomInitiatedMsg(bookingsModel, messageTemplate);
+			break;
+			
+		case ACTION_STATUS_APPLIED:
+		case ACTION_STATUS_OFFLINE_APPLY:
+			if(!BookingsFieldsValidator.isNullOrEmpty(bookingsModel.getRoomsModel()) && bookingsModel.getRoomsModel().size() == 2) {
+				messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_ROOM_APPLIED, localizationMessage);
+				message = getRoomAppliedMsg(bookingsModel, messageTemplate);
+			}
+			else if(!BookingsFieldsValidator.isNullOrEmpty(bookingsModel.getRoomsModel()) && bookingsModel.getRoomsModel().size() == 1){
+				messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_PACC_ROOM_APPLIED, localizationMessage);
+				message = getRoomTypeAppliedMsg(bookingsModel, messageTemplate);
+			}
+			break;
 		}		
 		return message;
 	}
@@ -635,12 +683,33 @@ public class NotificationUtil {
 		return message;
 	}
 	
+	/**
+	 * Gets the room initiated msg.
+	 *
+	 * @param bookingsModel the bookings model
+	 * @param message the message
+	 * @return the room initiated msg
+	 */
+	private String getRoomInitiatedMsg(BookingsModel bookingsModel, String message) {
+		message = message.replace("<1>",bookingsModel.getBkApplicantName());
+		message = message.replace("<2>", bookingsModel.getRoomsModel().get(0).getRoomApplicationNumber());
+		return message;
+	}
+	
+	/**
+	 * Gets the NLUJM initiated msg.
+	 *
+	 * @param osujmNewLocationModel the osujm new location model
+	 * @param message the message
+	 * @return the NLUJM initiated msg
+	 */
 	private String getNLUJMInitiatedMsg(OsujmNewLocationModel osujmNewLocationModel, String message) {
 		message = message.replace("<1>",osujmNewLocationModel.getApplicantName());
 		message = message.replace("<2>", BookingsConstants.NLUJM_BOOKING_TYPE);
 		message = message.replace("<3>", osujmNewLocationModel.getApplicationNumber());
 		return message;
 	}
+	
 	/**
 	 * Gets the pending payment msg.
 	 *
@@ -666,6 +735,33 @@ public class NotificationUtil {
 		message = message.replace("<1>",bookingsModel.getBkApplicantName());
 		message = message.replace("<2>", bookingsModel.getBkBookingType());
 		message = message.replace("<3>", bookingsModel.getBkApplicationNumber());
+		return message;
+	}
+	
+	/**
+	 * Gets the room applied msg.
+	 *
+	 * @param bookingsModel the bookings model
+	 * @param message the message
+	 * @return the room applied msg
+	 */
+	private String getRoomAppliedMsg(BookingsModel bookingsModel, String message) {
+		message = message.replace("<1>",bookingsModel.getBkApplicantName());
+		message = message.replace("<2>", bookingsModel.getRoomsModel().get(0).getRoomApplicationNumber());
+		return message;
+	}
+	
+	/**
+	 * Gets the room type applied msg.
+	 *
+	 * @param bookingsModel the bookings model
+	 * @param message the message
+	 * @return the room type applied msg
+	 */
+	private String getRoomTypeAppliedMsg(BookingsModel bookingsModel, String message) {
+		message = message.replace("<1>",bookingsModel.getBkApplicantName());
+		message = message.replace("<2>",bookingsModel.getRoomsModel().get(0).getTypeOfRoom());
+		message = message.replace("<3>", bookingsModel.getRoomsModel().get(0).getRoomApplicationNumber());
 		return message;
 	}
 	

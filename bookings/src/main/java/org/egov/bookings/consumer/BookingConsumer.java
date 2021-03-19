@@ -7,6 +7,7 @@ import org.egov.bookings.contract.RefundTransactionRequest;
 import org.egov.bookings.service.BookingsService;
 import org.egov.bookings.service.notification.BookingNotificationService;
 import org.egov.bookings.service.notification.NLUJMBookingNotificationService;
+import org.egov.bookings.service.notification.RoomBookingNotificationService;
 import org.egov.bookings.validator.BookingsFieldsValidator;
 import org.egov.bookings.web.models.BookingsRequest;
 import org.egov.bookings.web.models.NewLocationRequest;
@@ -37,20 +38,29 @@ public class BookingConsumer {
 	@Autowired
 	private ObjectMapper objectMapper;
 
+	/** The bookings service. */
 	private BookingsService bookingsService;
+	
+	/** The room booking notification service. */
+	private RoomBookingNotificationService roomBookingNotificationService;
+	
 	/**
 	 * Instantiates a new booking consumer.
 	 *
-	 * @param notificationService             the notification service
-	 * @param utils                           the utils
+	 * @param notificationService the notification service
+	 * @param utils the utils
 	 * @param nlujmBookingNotificationService the nlujm booking notification service
+	 * @param roomBookingNotificationService the room booking notification service
+	 * @param bookingsService the bookings service
 	 */
 	@Autowired
 	public BookingConsumer(BookingNotificationService notificationService, BookingsConfiguration utils,
-			NLUJMBookingNotificationService nlujmBookingNotificationService,BookingsService bookingsService) {
+			NLUJMBookingNotificationService nlujmBookingNotificationService, RoomBookingNotificationService roomBookingNotificationService,
+			BookingsService bookingsService) {
 		this.notificationService = notificationService;
 		this.utils = utils;
 		this.nlujmBookingNotificationService = nlujmBookingNotificationService;
+		this.roomBookingNotificationService = roomBookingNotificationService;
 		this.bookingsService = bookingsService;
 	}
 
@@ -62,7 +72,8 @@ public class BookingConsumer {
 	 */
 	@KafkaListener(topics = { "${kafka.topics.save.booking.sms.notification.service}",
 			"${kafka.topics.update.sms.notification.service}", "${kafka.topics.save.nlujm.sms.notification.service}",
-			"${kafka.topics.update.nlujm.sms.notification.service}", "${kafka.topics.refund.status}" })
+			"${kafka.topics.update.nlujm.sms.notification.service}", "${kafka.topics.refund.status}",
+			"${kafka.topics.save.room.booking.sms.notification.servic}", "${kafka.topics.update.room.booking.sms.notification.service}"})
 	public void listen(final HashMap<String, Object> record, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
 		ObjectMapper mapper = new ObjectMapper();
 
@@ -76,8 +87,7 @@ public class BookingConsumer {
 			}
 			log.info("Booking Received: " + bookingsRequest.getBookingsModel().getBkApplicationNumber());
 			notificationService.process(bookingsRequest);
-		} else if (utils.getSaveNLUJMBookingSMSTopic().equals(topic)
-				|| utils.getUpdateNLUJMBookingSMSTopic().equals(topic)) {
+		} else if (utils.getSaveNLUJMBookingSMSTopic().equals(topic) || utils.getUpdateNLUJMBookingSMSTopic().equals(topic)) {
 			NewLocationRequest newLocationRequest = new NewLocationRequest();
 			try {
 				log.info("Consuming record: " + record);
@@ -87,6 +97,17 @@ public class BookingConsumer {
 			}
 			log.info("TradeLicense Received: " + newLocationRequest.getNewLocationModel().getApplicationNumber());
 			nlujmBookingNotificationService.process(newLocationRequest);
+		}
+		else if (utils.getSaveRoomBookingSMSTopic().equals(topic) || utils.getUpdateRoomBookingSMSTopic().equals(topic)) {
+			BookingsRequest bookingsRequest = new BookingsRequest();
+			try {
+				log.info("Consuming record: " + record);
+				bookingsRequest = mapper.convertValue(record, BookingsRequest.class);
+			} catch (final Exception e) {
+				log.error("Error while listening to value: " + record + " on topic: " + topic + ": " + e);
+			}
+			log.info("Booking Received: " + bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationNumber());
+			roomBookingNotificationService.process(bookingsRequest);
 		}
 		
 		try {

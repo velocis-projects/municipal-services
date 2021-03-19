@@ -75,6 +75,12 @@ public class BookingsConfiguration {
 	@Value("${kafka.topics.update.sms.notification.service}")
 	private String updateBookingSMSTopic;
 
+	@Value("${kafka.topics.save.room.booking.sms.notification.service}")
+	private String saveRoomBookingSMSTopic;
+	
+	@Value("${kafka.topics.update.room.booking.sms.notification.service}")
+	private String updateRoomBookingSMSTopic;
+	
 	@Value("${kafka.topics.save.nlujm.sms.notification.service}")
 	private String saveNLUJMBookingSMSTopic;
 
