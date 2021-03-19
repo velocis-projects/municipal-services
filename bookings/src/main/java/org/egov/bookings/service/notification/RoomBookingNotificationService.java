@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.transaction.Transactional;
+
 import org.egov.bookings.config.BookingsConfiguration;
 import org.egov.bookings.contract.EmailAttachment;
 import org.egov.bookings.contract.EmailRequest;
@@ -19,12 +21,14 @@ import org.egov.bookings.utils.NotificationUtil;
 import org.egov.bookings.validator.BookingsFieldsValidator;
 import org.egov.bookings.web.models.BookingsRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class RoomBookingNotificationService.
  */
+@Service
+@Transactional
 public class RoomBookingNotificationService {
 
 	/** The config. */

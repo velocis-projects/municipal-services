@@ -73,7 +73,7 @@ public class BookingConsumer {
 	@KafkaListener(topics = { "${kafka.topics.save.booking.sms.notification.service}",
 			"${kafka.topics.update.sms.notification.service}", "${kafka.topics.save.nlujm.sms.notification.service}",
 			"${kafka.topics.update.nlujm.sms.notification.service}", "${kafka.topics.refund.status}",
-			"${kafka.topics.save.room.booking.sms.notification.servic}", "${kafka.topics.update.room.booking.sms.notification.service}"})
+			"${kafka.topics.save.room.booking.sms.notification.service}", "${kafka.topics.update.room.booking.sms.notification.service}"})
 	public void listen(final HashMap<String, Object> record, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
 		ObjectMapper mapper = new ObjectMapper();
 
