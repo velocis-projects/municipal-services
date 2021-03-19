@@ -705,7 +705,17 @@ public class EnrichmentService {
 				.findByBkApplicationNumber(bookingsRequest.getBookingsModel().getBkApplicationNumber());
 		bookingsRequest.getBookingsModel().setBkDateCreated(bookingsModel.getBkDateCreated());
 		if (BookingsConstants.APPLY.equals(bookingsRequest.getBookingsModel().getBkAction())
-				&& BookingsConstants.BUSINESS_SERVICE_PACC.equals(businessService)) {
+				&& BookingsConstants.BUSINESS_SERVICE_PACC.equals(businessService) &&
+				BookingsConstants.PACC_ACTION_MODIFY.equals(bookingsRequest.getBookingsModel().getBkAction())) {
+			config.setParkAndCommunityLock(true);
+			if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getBkPaymentStatus())) {
+				bookingsRequest.getBookingsModel()
+						.setBkPaymentStatus(bookingsRequest.getBookingsModel().getBkPaymentStatus());
+			}
+		}
+		if (BookingsConstants.PACC_ACTION_OFFLINE_MODIFY.equals(bookingsRequest.getBookingsModel().getBkAction())
+				&& BookingsConstants.BUSINESS_SERVICE_PACC.equals(businessService) &&
+				BookingsConstants.EMPLOYEE.equals(bookingsRequest.getRequestInfo().getUserInfo().getType())) {
 			config.setParkAndCommunityLock(true);
 			if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getBkPaymentStatus())) {
 				bookingsRequest.getBookingsModel()

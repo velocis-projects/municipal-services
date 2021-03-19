@@ -285,8 +285,8 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 		Date currentDate = Date.valueOf(date);
 		Date sixMonthsFromNowSql = Date.valueOf(sixMonthsFromNow);
 		try {
-			List<LocalDate> toBeBooked = enrichmentService.extractAllDatesBetweenTwoDates(bookingsRequest);
 			lock.lock();
+			List<LocalDate> toBeBooked = enrichmentService.extractAllDatesBetweenTwoDates(bookingsRequest);
 			if (config.isParkAndCommunityLock()) {
 				Set<BookingsModel> bookingsModelSet = parkAndCommunityRepository.fetchBookedDatesOfParkAndCommunity(
 						bookingsRequest.getBookingsModel().getBkBookingVenue(),
@@ -304,14 +304,29 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 						}
 					}
 				}
-				for(CommercialGrndAvailabilityModel commGrndAvailModel : lockList) {
-					if(BookingsConstants.VENUE_TYPE_PARKS.equals(bookingsRequest.getBookingsModel().getBkBookingType()) && commGrndAvailModel.isLocked()) {
-						bookedDates.add(commGrndAvailModel.getFromDate());
+				for (LocalDate toBeBooked1 : toBeBooked) {
+					for (CommercialGrndAvailabilityModel commGrndAvailModel : lockList) {
+						if (BookingsConstants.VENUE_TYPE_PARKS
+								.equals(bookingsRequest.getBookingsModel().getBkBookingType())
+								&& commGrndAvailModel.isLocked()
+								&& bookingsRequest.getBookingsModel().getBkSector()
+										.equals(commGrndAvailModel.getSector())
+								&& bookingsRequest.getBookingsModel().getBkBookingVenue()
+										.equals(commGrndAvailModel.getBookingVenue())) {
+							if (toBeBooked1.equals(commGrndAvailModel.getFromDate().toLocalDate()))
+								bookedDates.add(commGrndAvailModel.getFromDate());
+						} else if (BookingsConstants.VENUE_TYPE_COMMUNITY_CENTER
+								.equals(bookingsRequest.getBookingsModel().getBkBookingType())
+								&& commGrndAvailModel.isLocked()
+								&& bookingsRequest.getBookingsModel().getBkSector()
+										.equals(commGrndAvailModel.getSector())
+								&& bookingsRequest.getBookingsModel().getBkBookingVenue()
+										.equals(commGrndAvailModel.getBookingVenue())) {
+							if (toBeBooked1.equals(commGrndAvailModel.getFromDate().toLocalDate()))
+								bookedDates.add(commGrndAvailModel.getFromDate());
+						}
 					}
-					else if(BookingsConstants.VENUE_TYPE_COMMUNITY_CENTER.equals(bookingsRequest.getBookingsModel().getBkBookingType()) && commGrndAvailModel.isLocked()) {
-						bookedDates.add(commGrndAvailModel.getFromDate());
-					}
-				}
+				}	
 			} else {
 				lock.unlock();
 				throw new CustomException("OTHER_PAYMENT_IN_PROCESS", "Please try after few seconds");

@@ -114,7 +114,7 @@ public class OsujmServiceImpl implements OsujmService {
         		jurisdictionAvailabilityRequest.getBookingVenue(),
         		jurisdictionAvailabilityRequest.getBookingType(),
         		jurisdictionAvailabilityRequest.getBkSector(),
-				date1,BookingsConstants.PAY);
+				date1,BookingsConstants.PAYMENT_SUCCESS_STATUS);
 		for(BookingsModel bkModel : bookingsModel) {
 			bookedDates.add(AvailabilityResponse.builder().fromDate(bkModel.getBkFromDate()).toDate(bkModel.getBkToDate()).build());
 		}
@@ -142,7 +142,7 @@ public class OsujmServiceImpl implements OsujmService {
 				Set<BookingsModel> bookingsModel = commonRepository.searchJurisdictionAvailability(
 						bookingsRequest.getBookingsModel().getBkBookingVenue(),
 						bookingsRequest.getBookingsModel().getBkBookingType(),
-						bookingsRequest.getBookingsModel().getBkSector(), date1, BookingsConstants.PAY);
+						bookingsRequest.getBookingsModel().getBkSector(), date1, BookingsConstants.PAYMENT_SUCCESS_STATUS);
 				List<LocalDate> fetchBookedDates = enrichmentService.enrichBookedDates(bookingsModel);
 				List<LocalDate> toBeBooked = enrichmentService.extractAllDatesBetweenTwoDates(bookingsRequest);
 				for (LocalDate toBeBooked1 : toBeBooked) {
