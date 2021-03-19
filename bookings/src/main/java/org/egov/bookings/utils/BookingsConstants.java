@@ -774,7 +774,7 @@ public class BookingsConstants {
 	public static final String PAYMENT_RECEIPT_NAME = "PaymentReceipt.pdf";
 	
 	/** The Constant PERMISSION_LETTER_NAME. */
-	public static final String PERMISSION_LETTER_NAME = "permissionLetter.pdf";
+	public static final String PERMISSION_LETTER_NAME = "PermissionLetter.pdf";
 	
 	/** The Constant PAYMENT_RECEIPT. */
 	public static final String PAYMENT_RECEIPT = "paymentReceipt";
