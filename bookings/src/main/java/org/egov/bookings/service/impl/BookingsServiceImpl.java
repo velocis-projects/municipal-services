@@ -19,6 +19,7 @@ import org.egov.bookings.contract.Booking;
 import org.egov.bookings.contract.BookingApprover;
 import org.egov.bookings.contract.BookingConfigJsonFields;
 import org.egov.bookings.contract.BookingsRequestKafka;
+import org.egov.bookings.contract.DocumentFields;
 import org.egov.bookings.contract.MdmsJsonFields;
 import org.egov.bookings.contract.Message;
 import org.egov.bookings.contract.MessagesResponse;
@@ -286,6 +287,7 @@ public class BookingsServiceImpl implements BookingsService {
 		Booking booking = new Booking();
 		List<BookingsModel> myBookingList = new ArrayList<>();
 		List<?> documentList = new ArrayList<>();
+		List<DocumentFields> bookingDocumentList = new ArrayList<>();
 		Map<String, String> documentMap = new HashMap<>();
 		try {
 			String applicationNumber = searchCriteriaFieldsDTO.getApplicationNumber().trim();
@@ -324,13 +326,15 @@ public class BookingsServiceImpl implements BookingsService {
 				}
 			}
 			if (!BookingsFieldsValidator.isNullOrEmpty(applicationNumber)) {
-				documentList = commonRepository.findDocumentList(applicationNumber);
+				documentList = commonRepository.findDocuments(applicationNumber);
 				booking.setBusinessService(commonRepository.findBusinessService(applicationNumber));
 			}
 			if (!BookingsFieldsValidator.isNullOrEmpty(documentList)) {
 				documentMap = getDocumentMap(documentList);
+				bookingDocumentList = getDocumentList(documentList);
 			}
 			booking.setDocumentMap(documentMap);
+			booking.setDocumentList(bookingDocumentList);
 			Collections.sort(myBookingList, new CreateDateComparator());
 			Collections.reverse(myBookingList);
 			booking.setBookingsModelList(myBookingList);
@@ -356,6 +360,7 @@ public class BookingsServiceImpl implements BookingsService {
 		List<BookingsModel> bookingsList = new ArrayList<>();
 		Set<BookingsModel> bookingsSet = new HashSet<>();
 		List<?> documentList = new ArrayList<>();
+		List<DocumentFields> bookingDocumentList = new ArrayList<>();
 		Map<String, String> documentMap = new HashMap<>();
 		Set<String> applicationNumberSet = new HashSet<>();
 		Set<String> applicationNumbers = new HashSet<>();
@@ -541,18 +546,19 @@ public class BookingsServiceImpl implements BookingsService {
 					} 
 				}
 			}
-			if (!BookingsFieldsValidator.isNullOrEmpty(applicationNumber)
-					&& !BookingsFieldsValidator.isNullOrEmpty(bookingsSet)) {
-				documentList = commonRepository.findDocumentList(applicationNumber);
+			if (!BookingsFieldsValidator.isNullOrEmpty(applicationNumber) && !BookingsFieldsValidator.isNullOrEmpty(bookingsSet)) {
+				documentList = commonRepository.findDocuments(applicationNumber);
 				booking.setBusinessService(commonRepository.findBusinessService(applicationNumber));
 			}
 			if (!BookingsFieldsValidator.isNullOrEmpty(documentList)) {
 				documentMap = getDocumentMap(documentList);
+				bookingDocumentList = getDocumentList(documentList);
 			}
 			bookingsList.addAll(bookingsSet);
 			Collections.sort(bookingsList, new CreateDateComparator());
 			Collections.reverse(bookingsList);
 			booking.setDocumentMap(documentMap);
+			booking.setDocumentList(bookingDocumentList);
 			booking.setBookingsModelList(bookingsList);
 			booking.setBookingsCount(bookingsSet.size());
 		} catch (Exception e) {
@@ -1079,6 +1085,9 @@ public class BookingsServiceImpl implements BookingsService {
 	 * @return the document map
 	 */
 	private Map<String, String> getDocumentMap(List<?> documentList){
+		if (BookingsFieldsValidator.isNullOrEmpty(documentList)) {
+			throw new IllegalArgumentException("Invalid documentList");
+		}
 		Map<String, String> documentMap = new HashMap<>();
 		try {
 			if (!BookingsFieldsValidator.isNullOrEmpty(documentList)) {
@@ -1098,6 +1107,33 @@ public class BookingsServiceImpl implements BookingsService {
 		}
 		return documentMap;
 	}
+	
+	private List<DocumentFields> getDocumentList(List<?> documentList){
+		if (BookingsFieldsValidator.isNullOrEmpty(documentList)) {
+			throw new IllegalArgumentException("Invalid documentList");
+		}
+		List<DocumentFields> bookingDocumentList = new ArrayList<>();
+		try {
+			for (Object documentObject : documentList) {
+				String jsonString = objectMapper.writeValueAsString(documentObject);
+				String[] documentStrArray = jsonString.split(",");
+				DocumentFields documentFields = new DocumentFields();
+				documentFields.setFileStoreId(documentStrArray[0].substring(2,documentStrArray[0].length()-1));
+				String[] strArray = documentStrArray[1].split("/");
+				documentFields.setFileName(strArray[strArray.length - 1].substring(13,(strArray[strArray.length - 1].length() - 2)));
+				if(!"null".equals(documentStrArray[2].substring(0,documentStrArray[2].length()-1)))
+				{
+					documentFields.setDocumentType(documentStrArray[2].substring(1,documentStrArray[2].length()-2));
+				}
+				bookingDocumentList.add(documentFields);
+			}
+		}
+		catch (Exception e) {
+			LOGGER.error("Exception occur in the getDocumentList " + e);
+			e.printStackTrace();
+		}
+		return bookingDocumentList;
+	}
 
 	/**
 	 * Gets the citizen community center room booking search.
@@ -1113,6 +1149,7 @@ public class BookingsServiceImpl implements BookingsService {
 		Booking booking = new Booking();
 		List<RoomsModel> myRoomBookingList = new ArrayList<>();
 		List<?> documentList = new ArrayList<>();
+		List<DocumentFields> bookingDocumentList = new ArrayList<>();
 		List<?> communityCenterDocumentList = new ArrayList<>();
 		Map<String, String> documentMap = new HashMap<>();
 		Map<String, String> communityCenterDocumentMap = new HashMap<>();
@@ -1147,12 +1184,13 @@ public class BookingsServiceImpl implements BookingsService {
 			});
 			if (!BookingsFieldsValidator.isNullOrEmpty(communityCenterBookings) && (communityCenterBookings.size() == 1)) {
 				if (!BookingsFieldsValidator.isNullOrEmpty(communityCenterBookings.get(0).getBkApplicationNumber())) {
-					communityCenterDocumentList = commonRepository.findDocumentList(communityCenterBookings.get(0).getBkApplicationNumber());
+					communityCenterDocumentList = commonRepository.findDocuments(communityCenterBookings.get(0).getBkApplicationNumber());
 					booking.setBusinessService(commonRepository.findBusinessService(applicationNumber));
 				}
 			}
 			if (!BookingsFieldsValidator.isNullOrEmpty(communityCenterDocumentList)) {
 				communityCenterDocumentMap = getDocumentMap(communityCenterDocumentList);
+				bookingDocumentList = getDocumentList(communityCenterDocumentList);
 			}
 			myRoomBookingList.forEach(roomModel ->{
 				communityCenterRoomBookingMap.put(roomModel, communityCenterBookingMap.get(roomModel.getCommunityApplicationNumber()));
@@ -1166,6 +1204,7 @@ public class BookingsServiceImpl implements BookingsService {
 			}
 			booking.setDocumentMap(documentMap);
 			booking.setCommunityCenterDocumentMap(communityCenterDocumentMap);
+			booking.setDocumentList(bookingDocumentList);
 			booking.setCommunityCenterRoomBookingMap(communityCenterRoomBookingMap);
 			booking.setBookingsCount(communityCenterRoomBookingMap.size());
 		}
@@ -1191,6 +1230,7 @@ public class BookingsServiceImpl implements BookingsService {
 		Set<RoomsModel> bookingsSet = new HashSet<>();
 		List<RoomsModel> bookingsList = new ArrayList<>();
 		List<?> documentList = new ArrayList<>();
+		List<DocumentFields> bookingDocumentList = new ArrayList<>();
 		List<?> communityCenterDocumentList = new ArrayList<>();
 		Map<String, String> documentMap = new HashMap<>();
 		Map<String, String> communityCenterDocumentMap = new HashMap<>();
@@ -1248,12 +1288,13 @@ public class BookingsServiceImpl implements BookingsService {
 			});
 			if (!BookingsFieldsValidator.isNullOrEmpty(communityCenterBookings) && (communityCenterBookings.size() == 1)) {
 				if (!BookingsFieldsValidator.isNullOrEmpty(communityCenterBookings.get(0).getBkApplicationNumber())) {
-					communityCenterDocumentList = commonRepository.findDocumentList(communityCenterBookings.get(0).getBkApplicationNumber());
+					communityCenterDocumentList = commonRepository.findDocuments(communityCenterBookings.get(0).getBkApplicationNumber());
 					booking.setBusinessService(commonRepository.findBusinessService(applicationNumber));
 				}
 			}
 			if (!BookingsFieldsValidator.isNullOrEmpty(communityCenterDocumentList)) {
 				communityCenterDocumentMap = getDocumentMap(communityCenterDocumentList);
+				bookingDocumentList = getDocumentList(communityCenterDocumentList);
 			}
 			bookingsList.forEach(roomModel ->{
 				communityCenterRoomBookingMap.put(roomModel, communityCenterBookingMap.get(roomModel.getCommunityApplicationNumber()));
@@ -1267,6 +1308,7 @@ public class BookingsServiceImpl implements BookingsService {
 			}
 			booking.setDocumentMap(documentMap);
 			booking.setCommunityCenterDocumentMap(communityCenterDocumentMap);
+			booking.setDocumentList(bookingDocumentList);
 			booking.setCommunityCenterRoomBookingMap(communityCenterRoomBookingMap);
 			booking.setBookingsCount(communityCenterRoomBookingMap.size());
 		}
