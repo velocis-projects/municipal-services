@@ -1096,7 +1096,7 @@ public class BookingsServiceImpl implements BookingsService {
 					String[] documentStrArray = jsonString.split(",");
 					String[] strArray = documentStrArray[1].split("/");
 					String fileStoreId = documentStrArray[0].substring(2, documentStrArray[0].length() - 1);
-					String document = strArray[strArray.length - 1].substring(13, (strArray[strArray.length - 1].length() - 2));
+					String document = strArray[strArray.length - 1].substring(13, (strArray[strArray.length - 1].length() - 1));
 					documentMap.put(fileStoreId, document);
 				}
 			}
@@ -1108,6 +1108,12 @@ public class BookingsServiceImpl implements BookingsService {
 		return documentMap;
 	}
 	
+	/**
+	 * Gets the document list.
+	 *
+	 * @param documentList the document list
+	 * @return the document list
+	 */
 	private List<DocumentFields> getDocumentList(List<?> documentList){
 		if (BookingsFieldsValidator.isNullOrEmpty(documentList)) {
 			throw new IllegalArgumentException("Invalid documentList");
@@ -1120,7 +1126,7 @@ public class BookingsServiceImpl implements BookingsService {
 				DocumentFields documentFields = new DocumentFields();
 				documentFields.setFileStoreId(documentStrArray[0].substring(2,documentStrArray[0].length()-1));
 				String[] strArray = documentStrArray[1].split("/");
-				documentFields.setFileName(strArray[strArray.length - 1].substring(13,(strArray[strArray.length - 1].length() - 2)));
+				documentFields.setFileName(strArray[strArray.length - 1].substring(13,(strArray[strArray.length - 1].length() - 1)));
 				if(!"null".equals(documentStrArray[2].substring(0,documentStrArray[2].length()-1)))
 				{
 					documentFields.setDocumentType(documentStrArray[2].substring(1,documentStrArray[2].length()-2));
