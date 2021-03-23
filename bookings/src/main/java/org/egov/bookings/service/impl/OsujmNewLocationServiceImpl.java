@@ -328,7 +328,7 @@ public class OsujmNewLocationServiceImpl implements OsujmNewLocationService{
 					DocumentFields documentFields = new DocumentFields();
 					documentFields.setFileStoreId(documentStrArray[0].substring(2,documentStrArray[0].length()-1));
 					String[] strArray = documentStrArray[1].split("/");
-					documentFields.setFileName(strArray[strArray.length - 1].substring(13,(strArray[strArray.length - 1].length() - 2)));
+					documentFields.setFileName(strArray[strArray.length - 1].substring(13,(strArray[strArray.length - 1].length() - 1)));
 					if(!"null".equals(documentStrArray[2].substring(0,documentStrArray[2].length()-1)))
 					{
 						documentFields.setDocumentType(documentStrArray[2].substring(1,documentStrArray[2].length()-2));
