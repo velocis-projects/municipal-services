@@ -142,7 +142,7 @@ public class BookingNotificationService {
 			smsRequests.addAll(util.createSMSRequest(message, mobileNumberToOwner));
 		}
 		
-		// When Applicant submit application of OSBM booking, then SMS notification send to approver of OSBM.
+		// When Applicant submit application of OSBM/OSUJM booking, then SMS notification send to approver of OSBM/OSUJM.
 		if(!BookingsFieldsValidator.isNullOrEmpty(request.getUser())) {
 			mobileNumberToOwner.remove(bookingsModel.getBkMobileNumber());
 			mobileNumberToOwner.put(request.getUser().getMobileNumber(), request.getUser().getUserName());

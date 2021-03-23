@@ -470,7 +470,7 @@ public class NotificationUtil {
 		switch (ACTION_STATUS) {
 		case ACTION_STATUS_INITIATED:
 		case ACTION_STATUS_OFFLINE_INITIATE:
-			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_INITIATED, localizationMessage);
+			messageTemplate = getMessageTemplate(BookingsConstants.MAIL_NOTIFICATION_ROOM_INITIATED, localizationMessage);
 			message = getRoomInitiatedMsg(bookingsModel, messageTemplate);
 			break;
 			
