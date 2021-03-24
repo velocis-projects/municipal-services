@@ -117,6 +117,8 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 	 */
 	@Override
 	public BookingsModel createParkAndCommunityBooking(BookingsRequest bookingsRequest) {
+		BookingsModel bookingObject = new BookingsModel();
+		bookingObject.setBkApplicationStatus(bookingsRequest.getBookingsModel().getBkApplicationStatus());
 		boolean flag = bookingService.isBookingExists(bookingsRequest.getBookingsModel().getBkApplicationNumber());
 		enrichmentService.enrichReInitiatedRequest(bookingsRequest,flag);
 		if(BookingsConstants.EMPLOYEE.equals(bookingsRequest.getRequestInfo().getUserInfo().getType()))
@@ -142,7 +144,9 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 		}
 		//parkAndCommunityRepository.save(bookingsRequest.getBookingsModel());
 		if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel())) {
-			bookingsProducer.push(config.getSaveBookingSMSTopic(), bookingsRequest);
+			if(!BookingsFieldsValidator.isNullOrEmpty(bookingObject) && !BookingsConstants.INITIATED.equals(bookingObject.getBkApplicationStatus())) {
+				bookingsProducer.push(config.getSaveBookingSMSTopic(), bookingsRequest);
+			}
 		}
 		return bookingsRequest.getBookingsModel();
 	}

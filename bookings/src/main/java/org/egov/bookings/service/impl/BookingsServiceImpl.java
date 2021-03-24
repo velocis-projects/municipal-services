@@ -129,6 +129,8 @@ public class BookingsServiceImpl implements BookingsService {
 	 */
 	@Override
 	public BookingsModel save(BookingsRequest bookingsRequest) {
+		BookingsModel bookingObject = new BookingsModel();
+		bookingObject.setBkApplicationStatus(bookingsRequest.getBookingsModel().getBkApplicationStatus());
 		boolean flag = isBookingExists(bookingsRequest.getBookingsModel().getBkApplicationNumber());
 		if(BookingsConstants.EMPLOYEE.equals(bookingsRequest.getRequestInfo().getUserInfo().getType()))
 		userService.createUser(bookingsRequest, false);
@@ -164,7 +166,9 @@ public class BookingsServiceImpl implements BookingsService {
 					bookingsRequest.getBookingsModel().setBkBookingType(
 							mdmsJsonFieldsMap.get(bookingsRequest.getBookingsModel().getBkBookingType()).getName());
 				}
-				bookingsProducer.push(config.getSaveBookingSMSTopic(), bookingsRequest);
+				if(!BookingsFieldsValidator.isNullOrEmpty(bookingObject) && !BookingsConstants.INITIATED.equals(bookingObject.getBkApplicationStatus())) {
+					bookingsProducer.push(config.getSaveBookingSMSTopic(), bookingsRequest);
+				}
 			}
 		}
 		bookingsRequest.getBookingsModel().setBkBookingType(bookingType);
