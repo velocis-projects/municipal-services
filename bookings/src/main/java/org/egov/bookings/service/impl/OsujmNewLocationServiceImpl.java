@@ -9,7 +9,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.transaction.Transactional;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.egov.bookings.config.BookingsConfiguration;
@@ -37,6 +39,7 @@ import org.egov.common.contract.request.Role;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -96,6 +99,8 @@ public class OsujmNewLocationServiceImpl implements OsujmNewLocationService{
 	 */
 	@Override
 	public OsujmNewLocationModel addNewLocation(NewLocationRequest newLocationRequest) {
+		OsujmNewLocationModel newLocationModel = new OsujmNewLocationModel();
+		newLocationModel.setApplicationStatus(newLocationRequest.getNewLocationModel().getApplicationStatus());
 		try
 		{
 			boolean flag = bookingsService.isBookingExists(newLocationRequest.getNewLocationModel().getApplicationNumber());
@@ -112,7 +117,9 @@ public class OsujmNewLocationServiceImpl implements OsujmNewLocationService{
 			bookingsProducer.push(config.getSaveNewLocationTopic(), newLocationKafkaRequest);
 			//osujmNewLocationModel = newLocationRepository.save(newLocationRequest.getNewLocationModel());
 			if (!BookingsFieldsValidator.isNullOrEmpty(newLocationRequest.getNewLocationModel())) {
-				bookingsProducer.push(config.getSaveNLUJMBookingSMSTopic(), newLocationRequest);
+				if(!BookingsFieldsValidator.isNullOrEmpty(newLocationModel) && !BookingsConstants.INITIATED.equals(newLocationModel.getApplicationStatus())) {
+					bookingsProducer.push(config.getSaveNLUJMBookingSMSTopic(), newLocationRequest);
+				}
 			}
 		}
 		catch (Exception e) {

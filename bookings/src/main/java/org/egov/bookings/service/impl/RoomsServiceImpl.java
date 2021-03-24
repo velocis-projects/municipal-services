@@ -76,6 +76,8 @@ public class RoomsServiceImpl implements RoomsService {
 	
 	@Override
 	public BookingsModel createRoomForCommunityBooking(BookingsRequest bookingsRequest) {
+		BookingsModel bookingObject = new BookingsModel();
+		bookingObject.getRoomsModel().get(0).setRoomApplicationStatus(bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationStatus());
 		boolean flag = isRoomBookingExists(bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationNumber());
 		if(BookingsConstants.EMPLOYEE.equals(bookingsRequest.getRequestInfo().getUserInfo().getType()))
 			userService.createUser(bookingsRequest, false);
@@ -94,7 +96,9 @@ public class RoomsServiceImpl implements RoomsService {
 			bookingsProducer.push(config.getUpdateRoomDetails(), kafkaBookingRequest);	
 		}
 		if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getRoomsModel())) {
-			bookingsProducer.push(config.getSaveRoomBookingSMSTopic(), bookingsRequest);
+			if(!BookingsFieldsValidator.isNullOrEmpty(bookingObject.getRoomsModel()) && !BookingsConstants.INITIATED.equals(bookingObject.getRoomsModel().get(0).getRoomApplicationStatus())) {
+				bookingsProducer.push(config.getSaveRoomBookingSMSTopic(), bookingsRequest);
+			}
 		}
 		return bookingsRequest.getBookingsModel();
 	}
