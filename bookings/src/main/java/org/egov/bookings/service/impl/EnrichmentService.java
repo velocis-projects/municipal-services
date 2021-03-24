@@ -453,7 +453,7 @@ public class EnrichmentService {
 		List<LocalDate> listOfDates = new ArrayList<>();
 
 		for (BookingsModel bookingsModel1 : bookingsModel) {
-			if (!BookingsConstants.PACC_ACTION_CANCEL.equals(bookingsModel1.getBkStatus())) {
+			if (!BookingsConstants.PACC_ACTION_APPROVE_CLERK_DEO.equals(bookingsModel1.getBkStatus())) {
 				LocalDate startDate = LocalDate.parse(bookingsModel1.getBkFromDate() + "");
 				LocalDate endDate = LocalDate.parse(bookingsModel1.getBkToDate() + "");
 				long numOfDays = ChronoUnit.DAYS.between(startDate, endDate);
