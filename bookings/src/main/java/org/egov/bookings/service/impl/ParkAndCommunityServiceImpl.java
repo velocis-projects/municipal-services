@@ -249,7 +249,7 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 				parkAndCommunitySearchCriteria.getApplicationNumber());
 		if (null != bookingsModel) {
 			for (BookingsModel bkModel : bookingsModel) {
-				if (!BookingsConstants.PACC_ACTION_APPROVE_CLERK_DEO.equals(bkModel.getBkStatus())) {
+				if (!BookingsConstants.PACC_ACTION_APPROVE_CLERK_DEO.equals(bkModel.getBkAction())) {
 					bookedDates.add(AvailabilityResponse.builder().fromDate(bkModel.getBkFromDate())
 							.toDate(bkModel.getBkToDate()).timeslots(bkModel.getTimeslots()).build());
 				}
