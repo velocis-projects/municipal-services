@@ -77,7 +77,11 @@ public class RoomsServiceImpl implements RoomsService {
 	@Override
 	public BookingsModel createRoomForCommunityBooking(BookingsRequest bookingsRequest) {
 		BookingsModel bookingObject = new BookingsModel();
-		bookingObject.getRoomsModel().get(0).setRoomApplicationStatus(bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationStatus());
+		RoomsModel roomsModel = new RoomsModel();
+		List<RoomsModel> roomsModelList = new ArrayList<>();
+		roomsModel.setRoomApplicationStatus(bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationStatus());
+		roomsModelList.add(roomsModel);
+		bookingObject.setRoomsModel(roomsModelList);
 		boolean flag = isRoomBookingExists(bookingsRequest.getBookingsModel().getRoomsModel().get(0).getRoomApplicationNumber());
 		if(BookingsConstants.EMPLOYEE.equals(bookingsRequest.getRequestInfo().getUserInfo().getType()))
 			userService.createUser(bookingsRequest, false);
