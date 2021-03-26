@@ -117,6 +117,8 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 	 */
 	@Override
 	public BookingsModel createParkAndCommunityBooking(BookingsRequest bookingsRequest) {
+		BookingsModel bookingObject = new BookingsModel();
+		bookingObject.setBkApplicationStatus(bookingsRequest.getBookingsModel().getBkApplicationStatus());
 		boolean flag = bookingService.isBookingExists(bookingsRequest.getBookingsModel().getBkApplicationNumber());
 		enrichmentService.enrichReInitiatedRequest(bookingsRequest,flag);
 		if(BookingsConstants.EMPLOYEE.equals(bookingsRequest.getRequestInfo().getUserInfo().getType()))
@@ -142,7 +144,9 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 		}
 		//parkAndCommunityRepository.save(bookingsRequest.getBookingsModel());
 		if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel())) {
-			bookingsProducer.push(config.getSaveBookingSMSTopic(), bookingsRequest);
+			if(!BookingsFieldsValidator.isNullOrEmpty(bookingObject) && !BookingsConstants.INITIATED.equals(bookingObject.getBkApplicationStatus())) {
+				bookingsProducer.push(config.getSaveBookingSMSTopic(), bookingsRequest);
+			}
 		}
 		return bookingsRequest.getBookingsModel();
 	}
@@ -245,7 +249,7 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 				parkAndCommunitySearchCriteria.getApplicationNumber());
 		if (null != bookingsModel) {
 			for (BookingsModel bkModel : bookingsModel) {
-				if (!BookingsConstants.PACC_ACTION_CANCEL.equals(bkModel.getBkStatus())) {
+				if (!BookingsConstants.PACC_ACTION_APPROVE_CLERK_DEO.equals(bkModel.getBkAction())) {
 					bookedDates.add(AvailabilityResponse.builder().fromDate(bkModel.getBkFromDate())
 							.toDate(bkModel.getBkToDate()).timeslots(bkModel.getTimeslots()).build());
 				}
