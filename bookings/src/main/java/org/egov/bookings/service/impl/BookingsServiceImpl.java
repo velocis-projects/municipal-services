@@ -164,7 +164,7 @@ public class BookingsServiceImpl implements BookingsService {
 				if (!BookingsConstants.BUSINESS_SERVICE_PACC
 						.equals(bookingsRequest.getBookingsModel().getBusinessService())) {
 					bookingsRequest.getBookingsModel().setBkBookingType(
-							mdmsJsonFieldsMap.get(bookingsRequest.getBookingsModel().getBkBookingType()).getName());
+							mdmsJsonFieldsMap.get(bookingsRequest.getBookingsModel().getBkBookingType()).getModifiedName());
 				}
 				if(!BookingsFieldsValidator.isNullOrEmpty(bookingObject) && !BookingsConstants.INITIATED.equals(bookingObject.getBkApplicationStatus())) {
 					bookingsProducer.push(config.getSaveBookingSMSTopic(), bookingsRequest);
@@ -707,7 +707,7 @@ public class BookingsServiceImpl implements BookingsService {
 			Map<String, MdmsJsonFields> mdmsJsonFieldsMap = mdmsJsonField(bookingsRequest);
 			if (!BookingsFieldsValidator.isNullOrEmpty(mdmsJsonFieldsMap)) {
 				bookingsRequest.getBookingsModel()
-						.setBkBookingType(mdmsJsonFieldsMap.get(bookingsRequest.getBookingsModel().getBkBookingType()).getName());
+						.setBkBookingType(mdmsJsonFieldsMap.get(bookingsRequest.getBookingsModel().getBkBookingType()).getModifiedName());
 				bookingsProducer.push(config.getUpdateBookingSMSTopic(), bookingsRequest);
 			}
 		}
