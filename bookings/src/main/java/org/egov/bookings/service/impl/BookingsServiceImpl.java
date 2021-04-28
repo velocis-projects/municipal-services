@@ -161,10 +161,13 @@ public class BookingsServiceImpl implements BookingsService {
 		if (!BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel())) {
 			Map<String, MdmsJsonFields> mdmsJsonFieldsMap = mdmsJsonField(bookingsRequest);
 			if (!BookingsFieldsValidator.isNullOrEmpty(mdmsJsonFieldsMap)) {
-				if (!BookingsConstants.BUSINESS_SERVICE_PACC
-						.equals(bookingsRequest.getBookingsModel().getBusinessService())) {
+				if (!BookingsConstants.BUSINESS_SERVICE_PACC.equals(bookingsRequest.getBookingsModel().getBusinessService())) {
 					bookingsRequest.getBookingsModel().setBkBookingType(
 							mdmsJsonFieldsMap.get(bookingsRequest.getBookingsModel().getBkBookingType()).getModifiedName());
+				}
+				String applicantName = bookingsRequest.getBookingsModel().getBkApplicantName();
+				if (!BookingsFieldsValidator.isNullOrEmpty(applicantName)) {
+					bookingsRequest.getBookingsModel().setBkApplicantName(applicantName.split(" ")[0]);
 				}
 				if(!BookingsFieldsValidator.isNullOrEmpty(bookingObject) && !BookingsConstants.INITIATED.equals(bookingObject.getBkApplicationStatus())) {
 					bookingsProducer.push(config.getSaveBookingSMSTopic(), bookingsRequest);
@@ -708,6 +711,10 @@ public class BookingsServiceImpl implements BookingsService {
 			if (!BookingsFieldsValidator.isNullOrEmpty(mdmsJsonFieldsMap)) {
 				bookingsRequest.getBookingsModel()
 						.setBkBookingType(mdmsJsonFieldsMap.get(bookingsRequest.getBookingsModel().getBkBookingType()).getModifiedName());
+				String applicantName = bookingsRequest.getBookingsModel().getBkApplicantName();
+				if (!BookingsFieldsValidator.isNullOrEmpty(applicantName)) {
+					bookingsRequest.getBookingsModel().setBkApplicantName(applicantName.split(" ")[0]);
+				}
 				bookingsProducer.push(config.getUpdateBookingSMSTopic(), bookingsRequest);
 			}
 		}
