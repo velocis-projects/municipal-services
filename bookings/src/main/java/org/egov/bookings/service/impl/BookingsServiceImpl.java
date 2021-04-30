@@ -174,6 +174,7 @@ public class BookingsServiceImpl implements BookingsService {
 				}
 			}
 		}
+		
 		bookingsRequest.getBookingsModel().setBkBookingType(bookingType);
 		return bookingsRequest.getBookingsModel();
 
