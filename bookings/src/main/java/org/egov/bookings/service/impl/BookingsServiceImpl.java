@@ -165,7 +165,7 @@ public class BookingsServiceImpl implements BookingsService {
 					bookingsRequest.getBookingsModel().setBkBookingType(
 							mdmsJsonFieldsMap.get(bookingsRequest.getBookingsModel().getBkBookingType()).getModifiedName());
 				}
-				String applicantName = bookingsRequest.getBookingsModel().getBkApplicantName();
+				String applicantName = bookingsRequest.getBookingsModel().getBkApplicantName().trim();
 				if (!BookingsFieldsValidator.isNullOrEmpty(applicantName)) {
 					bookingsRequest.getBookingsModel().setBkApplicantName(applicantName.split(" ")[0]);
 				}
@@ -711,7 +711,7 @@ public class BookingsServiceImpl implements BookingsService {
 			if (!BookingsFieldsValidator.isNullOrEmpty(mdmsJsonFieldsMap)) {
 				bookingsRequest.getBookingsModel()
 						.setBkBookingType(mdmsJsonFieldsMap.get(bookingsRequest.getBookingsModel().getBkBookingType()).getModifiedName());
-				String applicantName = bookingsRequest.getBookingsModel().getBkApplicantName();
+				String applicantName = bookingsRequest.getBookingsModel().getBkApplicantName().trim();
 				if (!BookingsFieldsValidator.isNullOrEmpty(applicantName)) {
 					bookingsRequest.getBookingsModel().setBkApplicantName(applicantName.split(" ")[0]);
 				}
