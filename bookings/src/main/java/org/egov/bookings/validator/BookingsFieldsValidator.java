@@ -4,10 +4,8 @@ import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
-import org.egov.bookings.contract.Bill;
 import org.egov.bookings.contract.CommercialGrndAvailabiltyLockRequest;
 import org.egov.bookings.contract.CommercialGroundAvailabiltySearchCriteria;
 import org.egov.bookings.contract.CommercialGroundFeeSearchCriteria;
@@ -22,7 +20,6 @@ import org.egov.bookings.model.CommercialGrndAvailabilityModel;
 import org.egov.bookings.model.RoomsModel;
 import org.egov.bookings.repository.BookingsRepository;
 import org.egov.bookings.repository.impl.BillingServiceRepository;
-import org.egov.bookings.service.BookingsService;
 import org.egov.bookings.utils.BookingsConstants;
 import org.egov.bookings.web.models.BookingsRequest;
 import org.egov.bookings.web.models.NewLocationRequest;
@@ -30,7 +27,6 @@ import org.egov.common.contract.request.Role;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -227,6 +223,8 @@ public class BookingsFieldsValidator {
 			throw new IllegalArgumentException("Invalid Storage");
 		}else if (isNullOrEmpty(masterRequest.getOsbmFeeList().get(0).getVillageCity())) {
 			throw new IllegalArgumentException("Invalid Village/City");
+		}else if (isNullOrEmpty(masterRequest.getOsbmFeeList().get(0).getFromDate())) {
+			throw new IllegalArgumentException("Invalid From Date");
 		}
 	}
 	
@@ -242,6 +240,8 @@ public class BookingsFieldsValidator {
 			throw new IllegalArgumentException("Invalid sector");
 		} else if (isNullOrEmpty(masterRequest.getOsujmFeeList().get(0).getSlab())) {
 			throw new IllegalArgumentException("Invalid slab");
+		}else if (isNullOrEmpty(masterRequest.getOsbmFeeList().get(0).getFromDate())) {
+			throw new IllegalArgumentException("Invalid From Date");
 		}
 	}
 	
@@ -259,8 +259,30 @@ public class BookingsFieldsValidator {
 			throw new IllegalArgumentException("Invalid Rate per day");
 		}else if (isNullOrEmpty(masterRequest.getGfcpFeeList().get(0).getBookingVenue())) {
 			throw new IllegalArgumentException("Invalid Booking venue");
+		}else if (isNullOrEmpty(masterRequest.getOsbmFeeList().get(0).getFromDate())) {
+			throw new IllegalArgumentException("Invalid From Date");
 		}
 	}
+	
+	/**
+	 * Validate PACC fee body.
+	 *
+	 * @param masterRequest the master request
+	 */
+	public void validatePACCFeeBody(MasterRequest masterRequest) {
+		if (isNullOrEmpty(masterRequest) || isNullOrEmpty(masterRequest.getPaccFeeList())) {
+			throw new IllegalArgumentException("Invalid GFCP Fee Request Body");
+		}else if (isNullOrEmpty(masterRequest.getGfcpFeeList().get(0).getName())) {
+			throw new IllegalArgumentException("Invalid Name");
+		}else if (isNullOrEmpty(masterRequest.getGfcpFeeList().get(0).getSector())) {
+			throw new IllegalArgumentException("Invalid Sector");
+		}else if (isNullOrEmpty(masterRequest.getGfcpFeeList().get(0).getVenueType())) {
+			throw new IllegalArgumentException("Invalid Venue Name");
+		}else if (isNullOrEmpty(masterRequest.getOsbmFeeList().get(0).getFromDate())) {
+			throw new IllegalArgumentException("Invalid From Date");
+		}
+	}
+	
 
 	/**
 	 * Validate new location request.
