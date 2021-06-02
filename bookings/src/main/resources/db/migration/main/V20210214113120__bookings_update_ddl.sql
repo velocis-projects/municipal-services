@@ -89,3 +89,7 @@ alter table bk_commercial_ground_availability_lock add reason_for_hold varchar(2
 alter table bk_commercial_ground_availability_lock add sector varchar(255) NULL;
 alter table bk_bookings add refundable_security_money numeric(19,2) NULL;
 alter table bk_rooms_model add room_status varchar(255) NULL;
+
+alter table bk_rooms_model add room_created_date varchar(255) NULL;
+alter table bk_bookings add	card_number varchar(255) NULL;
+alter table bk_bookings add	transaction_number varchar(255) NULL;

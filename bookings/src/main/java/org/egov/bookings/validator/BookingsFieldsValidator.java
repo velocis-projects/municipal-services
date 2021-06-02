@@ -6,6 +6,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Map;
 
+import org.egov.bookings.contract.BookingLockRequest;
 import org.egov.bookings.contract.CommercialGrndAvailabiltyLockRequest;
 import org.egov.bookings.contract.CommercialGroundAvailabiltySearchCriteria;
 import org.egov.bookings.contract.CommercialGroundFeeSearchCriteria;
@@ -15,6 +16,7 @@ import org.egov.bookings.contract.OsbmSearchCriteria;
 import org.egov.bookings.contract.ParkAndCommunitySearchCriteria;
 import org.egov.bookings.contract.ParkCommunityFeeMasterRequest;
 import org.egov.bookings.contract.RoomFeeFetchRequest;
+import org.egov.bookings.model.BookingLockModel;
 import org.egov.bookings.model.BookingsModel;
 import org.egov.bookings.model.CommercialGrndAvailabilityModel;
 import org.egov.bookings.model.RoomsModel;
@@ -717,6 +719,53 @@ public class BookingsFieldsValidator {
 			}
 			if (BookingsFieldsValidator.isNullOrEmpty(availabilityModel.getId())) {
 				throw new IllegalArgumentException("Invalid ID");
+			}
+		}
+	}
+
+	public void validateBookingCardDetails(BookingsRequest bookingsRequest) {
+
+		if (BookingsFieldsValidator.isNullOrEmpty(bookingsRequest)) {
+			throw new IllegalArgumentException("Invalid Booking Request");
+		}
+
+		if (BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel())) {
+			throw new IllegalArgumentException("Invalid Booking Model object");
+		}
+
+		if (BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getBkApplicationNumber())) {
+			throw new IllegalArgumentException("Invalid Card Details Can't be null or blank");
+		}
+		
+		if (BookingsFieldsValidator.isNullOrEmpty(bookingsRequest.getBookingsModel().getCardNumber())) {
+			throw new IllegalArgumentException("Invalid Card Details Can't be null or blank");
+		}
+	}
+
+	public void validateBookingLockDetails(BookingLockRequest bookingLockRequest) {
+		if (BookingsFieldsValidator.isNullOrEmpty(bookingLockRequest)) {
+			throw new IllegalArgumentException("Invalid Booking Request");
+		}
+
+		if (BookingsFieldsValidator.isNullOrEmpty(bookingLockRequest.getBookingLockModel())) {
+			throw new IllegalArgumentException("Invalid Booking Model object");
+		}
+
+		for (BookingLockModel bookingLockModel : bookingLockRequest.getBookingLockModel()) {
+			if (BookingsFieldsValidator.isNullOrEmpty(bookingLockModel.getApplicationNumber())) {
+				throw new IllegalArgumentException("Invalid application number Can't be null or blank");
+			}
+
+			if (BookingsFieldsValidator.isNullOrEmpty(bookingLockModel.getBookingType())) {
+				throw new IllegalArgumentException("Invalid booking type Can't be null or blank");
+			}
+
+			if (BookingsFieldsValidator.isNullOrEmpty(bookingLockModel.getBookingVenue())) {
+				throw new IllegalArgumentException("Invalid booking venue Can't be null or blank");
+			}
+
+			if (BookingsFieldsValidator.isNullOrEmpty(bookingLockModel.getSector())) {
+				throw new IllegalArgumentException("Invalid sector Can't be null or blank");
 			}
 		}
 	}
