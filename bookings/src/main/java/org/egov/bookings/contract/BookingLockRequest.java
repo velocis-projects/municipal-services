@@ -24,4 +24,6 @@ public class BookingLockRequest {
 	private List<BookingLockModel> bookingLockModel;
 
 	@JsonProperty("RequestInfo")
-	private RequestInfo requestInfo;}
+	private RequestInfo requestInfo;
+
+}

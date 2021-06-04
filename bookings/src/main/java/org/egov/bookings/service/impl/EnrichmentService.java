@@ -1061,10 +1061,19 @@ public class EnrichmentService {
 	}
 
 	public void enrichLockDates(BookingsRequest bookingsRequest) {
-		List<BookingLockModel> listLock = bookingLockRepository.fetchLockedDates(
+		
+		List<BookingLockModel> listLock = new ArrayList<>();
+		if(!BookingsConstants.VENUE_TYPE_COMMERCIAL.equals(bookingsRequest.getBookingsModel().getBkBookingVenue())){
+			listLock = bookingLockRepository.fetchLockedDates(
 				bookingsRequest.getBookingsModel().getBkBookingVenue(),
 				bookingsRequest.getBookingsModel().getBkBookingType(),
 				bookingsRequest.getBookingsModel().getBkSector());
+		}
+		else {
+			listLock = bookingLockRepository.fetchLockedDatesForCommercial(
+					bookingsRequest.getBookingsModel().getBkBookingVenue(),
+					bookingsRequest.getBookingsModel().getBkBookingType());
+		}
 		//List<BookingLockModel> listLock = (List<BookingLockModel>) bookingLockRepository.findAll();
 		if(BookingsFieldsValidator.isNullOrEmpty(listLock)) {
 			return;
@@ -1085,11 +1094,11 @@ public class EnrichmentService {
 			    int hours = seconds / 3600;
 			    int minutes = (seconds % 3600) / 60;
 			    seconds = (seconds % 3600) % 60;
-			    if(hours == 0 && minutes <= 10) {
+			    if(hours == 0 && minutes <= BookingsConstants.TEN_MINUTES) {
 			    	throw new IllegalArgumentException("These dates are already locked by another user");
 			    }
 			    else {
-			    	bookingLockRepository.deleteByApplicationNumber(bookingsRequest.getBookingsModel().getBkApplicationNumber());
+			    	bookingLockRepository.deleteByApplicationNumber(bookingsRequest.getApplicationNumber());
 			    }
 		}
 	}
