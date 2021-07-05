@@ -362,7 +362,8 @@ public class ParkAndCommunityServiceImpl implements ParkAndCommunityService {
 								Set<Date> timeslotDate =  enrichmentService.checkTimeslotsAvailabilty(bookingsRequest, bookingsModelSet,
 										bookedDates);
 								if(BookingsFieldsValidator.isNullOrEmpty(timeslotDate)) {
-								    bookedDates.add(Date.valueOf(toBeBooked1));
+//								    bookedDates.add(Date.valueOf(toBeBooked1));
+									bookedDates.add(Date.valueOf(LocalDate.now()));
 								    return bookedDates;
 								}
 									
